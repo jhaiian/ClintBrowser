@@ -1,6 +1,5 @@
 package com.jhaiian.clint
 
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
@@ -11,7 +10,10 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 
-class ClintWebViewClient(private val prefs: SharedPreferences) : WebViewClient() {
+class ClintWebViewClient(
+    private val prefs: SharedPreferences,
+    private val isActive: () -> Boolean = { true }
+) : WebViewClient() {
 
     private val trackerHosts = setOf(
         "googletagmanager.com",
@@ -34,20 +36,20 @@ class ClintWebViewClient(private val prefs: SharedPreferences) : WebViewClient()
 
     override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
-        (view.context as? MainActivity)?.onPageStarted(url)
+        if (isActive()) (view.context as? MainActivity)?.onPageStarted(url)
     }
 
     override fun onPageFinished(view: WebView, url: String) {
         super.onPageFinished(view, url)
-        (view.context as? MainActivity)?.onPageFinished(url)
+        (view.context as? MainActivity)?.onTabUrlUpdated(view, url)
+        if (isActive()) (view.context as? MainActivity)?.onPageFinished(url)
     }
 
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
         val scheme = request.url.scheme ?: return true
         if (scheme != "http" && scheme != "https") {
             runCatching {
-                val intent = Intent(Intent.ACTION_VIEW, request.url)
-                view.context.startActivity(intent)
+                view.context.startActivity(Intent(Intent.ACTION_VIEW, request.url))
             }
             return true
         }

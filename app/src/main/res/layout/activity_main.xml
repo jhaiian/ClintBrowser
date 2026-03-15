@@ -7,6 +7,7 @@
     android:background="@color/surface_dark">
 
     <LinearLayout
+        android:id="@+id/toolbarTop"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -24,12 +25,23 @@
             android:paddingBottom="8dp">
 
             <ImageView
+                android:id="@+id/incognitoIcon"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_incognito_24"
+                android:tint="@color/incognito_accent"
+                android:layout_marginEnd="4dp"
+                android:visibility="gone"
+                android:contentDescription="@string/incognito" />
+
+            <ImageView
                 android:id="@+id/lockIcon"
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:src="@drawable/ic_lock_24"
                 android:tint="@color/purple_200"
-                android:layout_marginEnd="6dp" />
+                android:layout_marginEnd="6dp"
+                android:contentDescription="@string/connection_secure" />
 
             <EditText
                 android:id="@+id/addressBar"
@@ -47,6 +59,19 @@
                 android:inputType="textUri"
                 android:textSize="14sp" />
 
+            <TextView
+                android:id="@+id/btnTabCount"
+                android:layout_width="34dp"
+                android:layout_height="26dp"
+                android:layout_marginStart="8dp"
+                android:text="1"
+                android:textColor="@color/purple_200"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:background="@drawable/tab_count_background"
+                android:contentDescription="@string/tabs" />
+
             <ImageButton
                 android:id="@+id/btnMenu"
                 android:layout_width="40dp"
@@ -54,7 +79,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_more_vert_24"
                 android:tint="@color/purple_200"
-                android:layout_marginStart="4dp"
+                android:layout_marginStart="2dp"
                 android:contentDescription="@string/menu" />
 
         </LinearLayout>
@@ -72,13 +97,14 @@
 
     </LinearLayout>
 
-    <WebView
-        android:id="@+id/webView"
+    <FrameLayout
+        android:id="@+id/webContainer"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
 
     <LinearLayout
+        android:id="@+id/bottomBar"
         android:layout_width="match_parent"
         android:layout_height="52dp"
         android:background="@color/toolbar_color"
