@@ -21,7 +21,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+
 import com.jhaiian.clint.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(), TabSwitcherSheet.Listener {
@@ -115,7 +115,42 @@ class MainActivity : AppCompatActivity(), TabSwitcherSheet.Listener {
         webView.loadUrl(url)
     }
 
+    private var nestedScrollActive = false
+
+    private val scrollTrackJs = """
+        (function() {
+            if (window.__clintTracked) return;
+            window.__clintTracked = true;
+            window.__clintNestedScrolled = false;
+            document.addEventListener('scroll', function(e) {
+                var t = e.target;
+                var isRoot = !t || t === document || t === document.documentElement || t === document.body;
+                if (!isRoot) {
+                    window.__clintNestedScrolled = (t.scrollTop > 0 || t.scrollLeft > 0);
+                } else {
+                    window.__clintNestedScrolled = false;
+                }
+            }, true);
+        })();
+    """.trimIndent()
+
+    private fun injectScrollTracker(webView: android.webkit.WebView) {
+        webView.evaluateJavascript(scrollTrackJs, null)
+    }
+
+    private fun queryNestedScroll(webView: android.webkit.WebView) {
+        webView.evaluateJavascript(
+            "(typeof window.__clintNestedScrolled !== 'undefined' && window.__clintNestedScrolled).toString()"
+        ) { result ->
+            nestedScrollActive = result?.trim('"') == "true"
+        }
+    }
+
     private fun setupSwipeRefresh() {
+        binding.swipeRefresh.canChildScrollUpCallback = {
+            val wv = tabManager.activeTab?.webView
+            wv != null && (wv.canScrollVertically(-1) || nestedScrollActive)
+        }
         binding.swipeRefresh.apply {
             setColorSchemeColors(
                 ContextCompat.getColor(this@MainActivity, R.color.purple_300),
@@ -125,6 +160,7 @@ class MainActivity : AppCompatActivity(), TabSwitcherSheet.Listener {
                 ContextCompat.getColor(this@MainActivity, R.color.toolbar_color)
             )
             setOnRefreshListener {
+                nestedScrollActive = false
                 tabManager.activeTab?.webView?.reload() ?: run { isRefreshing = false }
             }
         }
@@ -259,6 +295,13 @@ class MainActivity : AppCompatActivity(), TabSwitcherSheet.Listener {
         } else {
             cookieManager.setAcceptCookie(true)
             cookieManager.setAcceptThirdPartyCookies(tab.webView, !prefs.getBoolean("block_third_party_cookies", true))
+        }
+        nestedScrollActive = false
+        tab.webView.setOnTouchListener { _, event ->
+            if (event.actionMasked == android.view.MotionEvent.ACTION_MOVE) {
+                queryNestedScroll(tab.webView)
+            }
+            false
         }
     }
 
@@ -397,6 +440,8 @@ class MainActivity : AppCompatActivity(), TabSwitcherSheet.Listener {
         binding.progressBar.visibility = View.INVISIBLE
         binding.btnRefresh.setImageResource(R.drawable.ic_refresh_24)
         updateNavigationState()
+        tabManager.activeTab?.webView?.let { injectScrollTracker(it) }
+        nestedScrollActive = false
     }
 
     fun onProgressChanged(progress: Int) {
