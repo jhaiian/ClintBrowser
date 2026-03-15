@@ -21,6 +21,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.jhaiian.clint.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(), TabSwitcherSheet.Listener {
@@ -45,6 +46,7 @@ class MainActivity : AppCompatActivity(), TabSwitcherSheet.Listener {
         setContentView(binding.root)
         prefs = PreferenceManager.getDefaultSharedPreferences(this)
         prefs.registerOnSharedPreferenceChangeListener(prefsListener)
+        setupSwipeRefresh()
         val intentUrl = intent?.data?.toString()
         openNewTab(isIncognito = false, url = intentUrl ?: getSearchEngineHomeUrl())
         setupAddressBar()
@@ -55,6 +57,21 @@ class MainActivity : AppCompatActivity(), TabSwitcherSheet.Listener {
         prefs.unregisterOnSharedPreferenceChangeListener(prefsListener)
         tabManager.destroyAll()
         super.onDestroy()
+    }
+
+    private fun setupSwipeRefresh() {
+        binding.swipeRefresh.apply {
+            setColorSchemeColors(
+                ContextCompat.getColor(this@MainActivity, R.color.purple_300),
+                ContextCompat.getColor(this@MainActivity, R.color.purple_200)
+            )
+            setProgressBackgroundColorSchemeColor(
+                ContextCompat.getColor(this@MainActivity, R.color.toolbar_color)
+            )
+            setOnRefreshListener {
+                tabManager.activeTab?.webView?.reload() ?: run { isRefreshing = false }
+            }
+        }
     }
 
     private fun applyJavaScript() {
@@ -186,6 +203,7 @@ class MainActivity : AppCompatActivity(), TabSwitcherSheet.Listener {
             )
         )
         updateIncognitoState(tab.isIncognito)
+        updateSwipeRefreshColors(tab.isIncognito)
         updateTabCount()
         updateAddressBar(tab.webView.url ?: "")
         updateNavigationState()
@@ -206,6 +224,25 @@ class MainActivity : AppCompatActivity(), TabSwitcherSheet.Listener {
         )
         binding.toolbarTop.setBackgroundColor(color)
         binding.bottomBar.setBackgroundColor(color)
+    }
+
+    private fun updateSwipeRefreshColors(isIncognito: Boolean) {
+        binding.swipeRefresh.setProgressBackgroundColorSchemeColor(
+            ContextCompat.getColor(
+                this,
+                if (isIncognito) R.color.incognito_toolbar_color else R.color.toolbar_color
+            )
+        )
+        if (isIncognito) {
+            binding.swipeRefresh.setColorSchemeColors(
+                ContextCompat.getColor(this, R.color.incognito_accent)
+            )
+        } else {
+            binding.swipeRefresh.setColorSchemeColors(
+                ContextCompat.getColor(this, R.color.purple_300),
+                ContextCompat.getColor(this, R.color.purple_200)
+            )
+        }
     }
 
     private fun updateTabCount() {
@@ -304,7 +341,6 @@ class MainActivity : AppCompatActivity(), TabSwitcherSheet.Listener {
     }
 
     override fun onNewTab() { openNewTab(false) }
-
     override fun onNewIncognitoTab() { openNewTab(true) }
 
     fun loadUrl(input: String) {
@@ -341,12 +377,14 @@ class MainActivity : AppCompatActivity(), TabSwitcherSheet.Listener {
     }
 
     fun onPageStarted(url: String) {
+        binding.swipeRefresh.isRefreshing = false
         updateAddressBar(url)
         binding.btnRefresh.setImageResource(R.drawable.ic_close_24)
         updateNavigationState()
     }
 
     fun onPageFinished(url: String) {
+        binding.swipeRefresh.isRefreshing = false
         updateAddressBar(url)
         binding.progressBar.visibility = View.GONE
         binding.btnRefresh.setImageResource(R.drawable.ic_refresh_24)
