@@ -42,44 +42,37 @@ jobs:
       - name: List generated APKs
         run: find app/build/outputs/apk/release -name "*.apk" | sort
 
-      - name: Rename APKs for clarity
-        run: |
-          cd app/build/outputs/apk/release
-          for apk in *.apk; do
-            mv "$apk" "Clint-${apk#app-}"
-          done
-
       - name: Upload Universal APK
         uses: actions/upload-artifact@v4
         with:
           name: Clint-Universal
-          path: app/build/outputs/apk/release/Clint-universal-release.apk
+          path: app/build/outputs/apk/release/app-universal-release.apk
           if-no-files-found: error
 
       - name: Upload arm64-v8a APK
         uses: actions/upload-artifact@v4
         with:
           name: Clint-arm64-v8a
-          path: app/build/outputs/apk/release/Clint-arm64_v8a-release.apk
+          path: app/build/outputs/apk/release/app-arm64-v8a-release.apk
           if-no-files-found: warn
 
       - name: Upload armeabi-v7a APK
         uses: actions/upload-artifact@v4
         with:
           name: Clint-armeabi-v7a
-          path: app/build/outputs/apk/release/Clint-armeabi_v7a-release.apk
+          path: app/build/outputs/apk/release/app-armeabi-v7a-release.apk
           if-no-files-found: warn
 
       - name: Upload x86 APK
         uses: actions/upload-artifact@v4
         with:
           name: Clint-x86
-          path: app/build/outputs/apk/release/Clint-x86-release.apk
+          path: app/build/outputs/apk/release/app-x86-release.apk
           if-no-files-found: warn
 
       - name: Upload x86_64 APK
         uses: actions/upload-artifact@v4
         with:
           name: Clint-x86_64
-          path: app/build/outputs/apk/release/Clint-x86_64-release.apk
+          path: app/build/outputs/apk/release/app-x86_64-release.apk
           if-no-files-found: warn

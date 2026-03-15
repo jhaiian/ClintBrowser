@@ -4,81 +4,99 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/surface_dark"
-    android:paddingBottom="24dp">
+    android:background="@color/surface_dark">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingStart="20dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="20dp"
-        android:paddingBottom="12dp">
+        android:orientation="vertical"
+        android:background="@color/surface_dark"
+        android:elevation="4dp">
 
-        <TextView
-            android:id="@+id/sheetTitle"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="4dp"
+            android:background="#44FFFFFF" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/no_tabs"
-            android:textColor="@color/on_surface"
-            android:textSize="16sp"
-            android:fontFamily="sans-serif-medium" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+
+            <TextView
+                android:id="@+id/sheetTitle"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/no_tabs"
+                android:textColor="@color/on_surface"
+                android:textSize="16sp"
+                android:fontFamily="sans-serif-medium" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="12dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnNewTab"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                android:text="@string/new_tab"
+                android:textSize="13sp"
+                app:backgroundTint="@color/purple_700"
+                app:cornerRadius="22dp"
+                app:icon="@drawable/ic_add_24"
+                app:iconSize="18dp"
+                app:iconGravity="textStart" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnNewIncognito"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:text="@string/new_incognito_tab"
+                android:textSize="13sp"
+                app:backgroundTint="@color/incognito_button_color"
+                app:cornerRadius="22dp"
+                app:icon="@drawable/ic_incognito_24"
+                app:iconSize="18dp"
+                app:iconGravity="textStart" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#22FFFFFF" />
 
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="12dp">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnNewTab"
-            android:layout_width="0dp"
-            android:layout_height="44dp"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:text="@string/new_tab"
-            android:textSize="13sp"
-            app:backgroundTint="@color/purple_700"
-            app:cornerRadius="22dp"
-            app:icon="@drawable/ic_add_24"
-            app:iconSize="18dp"
-            app:iconGravity="textStart" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnNewIncognito"
-            android:layout_width="0dp"
-            android:layout_height="44dp"
-            android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            android:text="@string/new_incognito_tab"
-            android:textSize="13sp"
-            app:backgroundTint="@color/incognito_button_color"
-            app:cornerRadius="22dp"
-            app:icon="@drawable/ic_incognito_24"
-            app:iconSize="18dp"
-            app:iconGravity="textStart" />
-
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#22FFFFFF"
-        android:layout_marginBottom="8dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/tabsRecycler"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:paddingStart="12dp"
         android:paddingEnd="12dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="24dp"
         android:clipToPadding="false" />
 
 </LinearLayout>
