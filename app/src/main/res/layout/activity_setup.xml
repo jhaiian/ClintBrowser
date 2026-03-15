@@ -1,244 +1,423 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface_dark"
-    android:fillViewport="true">
+    android:orientation="vertical"
+    android:background="@color/surface_dark">
 
-    <LinearLayout
+    <ViewFlipper
+        android:id="@+id/viewFlipper"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="28dp"
-        android:gravity="center_horizontal">
+        android:layout_height="match_parent"
+        android:inAnimation="@android:anim/slide_in_left"
+        android:outAnimation="@android:anim/slide_out_right">
 
-        <ImageView
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:layout_marginTop="32dp"
-            android:src="@drawable/ic_launcher_foreground"
-            android:background="@drawable/ic_launcher_background"
-            android:padding="12dp"
-            android:contentDescription="@string/app_name" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="@string/app_name"
-            android:textColor="@color/on_surface"
-            android:textSize="32sp"
-            android:letterSpacing="0.04"
-            android:fontFamily="sans-serif-medium" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/setup_subtitle"
-            android:textColor="@color/on_surface_medium"
-            android:textSize="14sp"
-            android:gravity="center"
-            android:lineSpacingMultiplier="1.4" />
-
-        <TextView
+        <!-- PAGE 1: Search Engine -->
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="36dp"
-            android:layout_marginBottom="12dp"
-            android:text="@string/choose_search_engine"
-            android:textColor="@color/purple_200"
-            android:textSize="12sp"
-            android:letterSpacing="0.1"
-            android:fontFamily="sans-serif-medium" />
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardDuckduckgo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            app:cardBackgroundColor="@color/toolbar_color"
-            app:cardCornerRadius="14dp"
-            app:strokeColor="@color/purple_300"
-            app:strokeWidth="3dp">
-
+            android:layout_height="match_parent"
+            android:fillViewport="true">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical">
+                android:orientation="vertical"
+                android:padding="28dp"
+                android:gravity="center_horizontal">
 
-                <RadioButton
-                    android:id="@+id/radioDuckduckgo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:buttonTint="@color/purple_300"
-                    android:clickable="false"
-                    android:focusable="false" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="12dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/engine_duckduckgo"
-                        android:textColor="@color/on_surface"
-                        android:textSize="16sp"
-                        android:fontFamily="sans-serif-medium" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="@string/engine_duckduckgo_desc"
-                        android:textColor="@color/on_surface_medium"
-                        android:textSize="13sp" />
-
-                </LinearLayout>
+                <ImageView
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:layout_marginTop="32dp"
+                    android:src="@drawable/ic_launcher_foreground"
+                    android:background="@drawable/ic_launcher_background"
+                    android:padding="12dp"
+                    android:contentDescription="@string/app_name" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/default_label"
-                    android:textColor="@color/purple_300"
-                    android:textSize="11sp"
-                    android:background="@drawable/chip_background"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp"
-                    android:paddingTop="3dp"
-                    android:paddingBottom="3dp"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/app_name"
+                    android:textColor="@color/on_surface"
+                    android:textSize="32sp"
+                    android:letterSpacing="0.04"
                     android:fontFamily="sans-serif-medium" />
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/setup_subtitle"
+                    android:textColor="@color/on_surface_medium"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:lineSpacingMultiplier="1.4" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="36dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="@string/choose_search_engine"
+                    android:textColor="@color/purple_200"
+                    android:textSize="12sp"
+                    android:letterSpacing="0.1"
+                    android:fontFamily="sans-serif-medium" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardDuckduckgo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    app:cardBackgroundColor="@color/toolbar_color"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="@color/purple_300"
+                    app:strokeWidth="3dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+                        <RadioButton
+                            android:id="@+id/radioDuckduckgo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="true"
+                            android:buttonTint="@color/purple_300"
+                            android:clickable="false"
+                            android:focusable="false" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/engine_duckduckgo"
+                                android:textColor="@color/on_surface"
+                                android:textSize="16sp"
+                                android:fontFamily="sans-serif-medium" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/engine_duckduckgo_desc"
+                                android:textColor="@color/on_surface_medium"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/default_label"
+                            android:textColor="@color/purple_300"
+                            android:textSize="11sp"
+                            android:background="@drawable/chip_background"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:paddingTop="3dp"
+                            android:paddingBottom="3dp"
+                            android:fontFamily="sans-serif-medium" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardBrave"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:alpha="0.45"
+                    app:cardBackgroundColor="@color/toolbar_color"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="@color/purple_300"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+                        <RadioButton
+                            android:id="@+id/radioBrave"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:buttonTint="@color/purple_300"
+                            android:clickable="false"
+                            android:focusable="false" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/engine_brave"
+                                android:textColor="@color/on_surface"
+                                android:textSize="16sp"
+                                android:fontFamily="sans-serif-medium" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/engine_brave_desc"
+                                android:textColor="@color/on_surface_medium"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardGoogle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:alpha="0.45"
+                    app:cardBackgroundColor="@color/toolbar_color"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="@color/purple_300"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+                        <RadioButton
+                            android:id="@+id/radioGoogle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:buttonTint="@color/purple_300"
+                            android:clickable="false"
+                            android:focusable="false" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/engine_google"
+                                android:textColor="@color/on_surface"
+                                android:textSize="16sp"
+                                android:fontFamily="sans-serif-medium" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/engine_google_desc"
+                                android:textColor="@color/on_surface_medium"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNext"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="24dp"
+                    android:text="@string/next"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif-medium"
+                    app:backgroundTint="@color/purple_500"
+                    app:cornerRadius="26dp" />
+
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+        </ScrollView>
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardBrave"
+        <!-- PAGE 2: DNS over HTTPS -->
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:alpha="0.45"
-            app:cardBackgroundColor="@color/toolbar_color"
-            app:cardCornerRadius="14dp"
-            app:strokeColor="@color/purple_300"
-            app:strokeWidth="0dp">
-
+            android:layout_height="match_parent"
+            android:fillViewport="true">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical">
+                android:orientation="vertical"
+                android:padding="28dp"
+                android:gravity="center_horizontal">
 
-                <RadioButton
-                    android:id="@+id/radioBrave"
-                    android:layout_width="wrap_content"
+                <TextView
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:checked="false"
-                    android:buttonTint="@color/purple_300"
-                    android:clickable="false"
-                    android:focusable="false" />
+                    android:layout_marginTop="16dp"
+                    android:text="@string/doh_setup_title"
+                    android:textColor="@color/on_surface"
+                    android:textSize="26sp"
+                    android:fontFamily="sans-serif-medium" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="24dp"
+                    android:text="@string/doh_description"
+                    android:textColor="@color/on_surface_medium"
+                    android:textSize="13sp"
+                    android:lineSpacingMultiplier="1.5" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/doh_mode_label"
+                    android:textColor="@color/purple_200"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
+                    android:fontFamily="sans-serif-medium" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardDohOff"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    app:cardBackgroundColor="@color/toolbar_color"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="@color/purple_300"
+                    app:strokeWidth="3dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="14dp" android:gravity="center_vertical">
+                        <RadioButton android:id="@+id/radioDohSetupOff" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:buttonTint="@color/purple_300" android:clickable="false" android:focusable="false" />
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="12dp">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/doh_mode_off" android:textColor="@color/on_surface" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/doh_mode_off_desc" android:textColor="@color/on_surface_medium" android:textSize="12sp" android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardDohDefault"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:alpha="0.45"
+                    app:cardBackgroundColor="@color/toolbar_color"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="@color/purple_300"
+                    app:strokeWidth="0dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="14dp" android:gravity="center_vertical">
+                        <RadioButton android:id="@+id/radioDohSetupDefault" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/purple_300" android:clickable="false" android:focusable="false" />
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="12dp">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/doh_mode_default" android:textColor="@color/on_surface" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/doh_mode_default_desc" android:textColor="@color/on_surface_medium" android:textSize="12sp" android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardDohIncreased"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:alpha="0.45"
+                    app:cardBackgroundColor="@color/toolbar_color"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="@color/purple_300"
+                    app:strokeWidth="0dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="14dp" android:gravity="center_vertical">
+                        <RadioButton android:id="@+id/radioDohSetupIncreased" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/purple_300" android:clickable="false" android:focusable="false" />
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="12dp">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/doh_mode_increased" android:textColor="@color/on_surface" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/doh_mode_increased_desc" android:textColor="@color/on_surface_medium" android:textSize="12sp" android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardDohMax"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:alpha="0.45"
+                    app:cardBackgroundColor="@color/toolbar_color"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="@color/purple_300"
+                    app:strokeWidth="0dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="14dp" android:gravity="center_vertical">
+                        <RadioButton android:id="@+id/radioDohSetupMax" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/purple_300" android:clickable="false" android:focusable="false" />
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="12dp">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/doh_mode_max" android:textColor="@color/on_surface" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/doh_mode_max_desc" android:textColor="@color/on_surface_medium" android:textSize="12sp" android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <LinearLayout
+                    android:id="@+id/setupProviderSection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:layout_marginStart="12dp">
+                    android:visibility="gone">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/engine_brave"
-                        android:textColor="@color/on_surface"
-                        android:textSize="16sp"
+                        android:layout_marginBottom="10dp"
+                        android:text="@string/doh_provider_label"
+                        android:textColor="@color/purple_200"
+                        android:textSize="11sp"
+                        android:letterSpacing="0.1"
                         android:fontFamily="sans-serif-medium" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardSetupCloudflare"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="@string/engine_brave_desc"
-                        android:textColor="@color/on_surface_medium"
-                        android:textSize="13sp" />
+                        android:layout_marginBottom="8dp"
+                        app:cardBackgroundColor="@color/toolbar_color"
+                        app:cardCornerRadius="14dp"
+                        app:strokeColor="@color/purple_300"
+                        app:strokeWidth="3dp">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="14dp" android:gravity="center_vertical">
+                            <RadioButton android:id="@+id/radioSetupCloudflare" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:buttonTint="@color/purple_300" android:clickable="false" android:focusable="false" />
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="12dp">
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/doh_provider_cloudflare" android:textColor="@color/on_surface" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/doh_provider_cloudflare_desc" android:textColor="@color/on_surface_medium" android:textSize="12sp" android:layout_marginTop="2dp" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardSetupQuad9"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:alpha="0.45"
+                        app:cardBackgroundColor="@color/toolbar_color"
+                        app:cardCornerRadius="14dp"
+                        app:strokeColor="@color/purple_300"
+                        app:strokeWidth="0dp">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="14dp" android:gravity="center_vertical">
+                            <RadioButton android:id="@+id/radioSetupQuad9" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/purple_300" android:clickable="false" android:focusable="false" />
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="12dp">
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/doh_provider_quad9" android:textColor="@color/on_surface" android:textSize="15sp" android:fontFamily="sans-serif-medium" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/doh_provider_quad9_desc" android:textColor="@color/on_surface_medium" android:textSize="12sp" android:layout_marginTop="2dp" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
                 </LinearLayout>
 
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardGoogle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:alpha="0.45"
-            app:cardBackgroundColor="@color/toolbar_color"
-            app:cardCornerRadius="14dp"
-            app:strokeColor="@color/purple_300"
-            app:strokeWidth="0dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical">
-
-                <RadioButton
-                    android:id="@+id/radioGoogle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="false"
-                    android:buttonTint="@color/purple_300"
-                    android:clickable="false"
-                    android:focusable="false" />
-
-                <LinearLayout
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnGetStarted"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginStart="12dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/engine_google"
-                        android:textColor="@color/on_surface"
-                        android:textSize="16sp"
-                        android:fontFamily="sans-serif-medium" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="@string/engine_google_desc"
-                        android:textColor="@color/on_surface_medium"
-                        android:textSize="13sp" />
-
-                </LinearLayout>
+                    android:layout_height="52dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="24dp"
+                    android:text="@string/get_started"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif-medium"
+                    app:backgroundTint="@color/purple_500"
+                    app:cornerRadius="26dp" />
 
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+        </ScrollView>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnGetStarted"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="24dp"
-            android:text="@string/get_started"
-            android:textSize="15sp"
-            android:fontFamily="sans-serif-medium"
-            app:backgroundTint="@color/purple_500"
-            app:cornerRadius="26dp" />
+    </ViewFlipper>
 
-    </LinearLayout>
-</ScrollView>
+</LinearLayout>

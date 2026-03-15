@@ -32,6 +32,7 @@
     <string name="engine_google">Google</string>
     <string name="engine_google_desc">Comprehensive results, data collection</string>
     <string name="default_label">Default</string>
+    <string name="next">Next →</string>
     <string name="get_started">Get Started</string>
     <string name="setup_subtitle">Private browsing, your way.
 No telemetry. No tracking.</string>
@@ -68,4 +69,22 @@ Device architecture: %3$s</string>
     <string name="about_donate_text">Clint is built and maintained in free time. If it\'s useful to you, consider supporting its development.</string>
     <string name="about_kofi_url">ko-fi.com/jhaiian ↗</string>
     <string name="about_paypal_email">jhaiianbetter@gmail.com ↗</string>
+    <string name="doh_title">DNS over HTTPS</string>
+    <string name="doh_settings_summary">Encrypt DNS lookups for privacy</string>
+    <string name="doh_setup_title">Secure DNS</string>
+    <string name="doh_description">DNS over HTTPS (DoH) encrypts your domain name lookups, making it harder for others to see which websites you visit. Choose a protection level and provider below.</string>
+    <string name="doh_mode_label">PROTECTION LEVEL</string>
+    <string name="doh_provider_label">DNS PROVIDER</string>
+    <string name="doh_mode_off">Off</string>
+    <string name="doh_mode_off_desc">Use your device's default DNS resolver</string>
+    <string name="doh_mode_default">Default Protection</string>
+    <string name="doh_mode_default_desc">Uses your selected provider. Falls back to system DNS if DoH is unavailable</string>
+    <string name="doh_mode_increased">Increased Protection</string>
+    <string name="doh_mode_increased_desc">Uses your selected provider. Minimal fallback — only if the provider has a problem</string>
+    <string name="doh_mode_max">Max Protection</string>
+    <string name="doh_mode_max_desc">Only uses your selected provider. Sites will not load if secure DNS is unavailable</string>
+    <string name="doh_provider_cloudflare">Cloudflare</string>
+    <string name="doh_provider_cloudflare_desc">1.1.1.1 — Fast, privacy-first resolver by Cloudflare</string>
+    <string name="doh_provider_quad9">Quad9</string>
+    <string name="doh_provider_quad9_desc">9.9.9.9 — Security-focused resolver with malware blocking</string>
 </resources>

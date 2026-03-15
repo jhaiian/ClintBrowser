@@ -10,6 +10,13 @@
         app:fragment="com.jhaiian.clint.PrivacySettingsFragment" />
 
     <Preference
+        app:key="pref_doh"
+        app:title="@string/doh_title"
+        app:summary="@string/doh_settings_summary"
+        app:icon="@drawable/ic_shield_24"
+        app:fragment="com.jhaiian.clint.DohSettingsFragment" />
+
+    <Preference
         app:key="pref_search_engine"
         app:title="@string/search_engine"
         app:icon="@drawable/ic_search_24"
