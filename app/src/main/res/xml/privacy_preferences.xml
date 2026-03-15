@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:title="@string/privacy_settings">
+
+        <SwitchPreferenceCompat
+            app:key="block_trackers"
+            app:title="@string/block_trackers"
+            app:summary="@string/block_trackers_summary"
+            app:defaultValue="true" />
+
+        <SwitchPreferenceCompat
+            app:key="block_third_party_cookies"
+            app:title="@string/block_third_party_cookies"
+            app:summary="@string/block_third_party_cookies_summary"
+            app:defaultValue="true" />
+
+        <SwitchPreferenceCompat
+            app:key="javascript_enabled"
+            app:title="@string/javascript_enabled"
+            app:summary="@string/javascript_enabled_summary"
+            app:defaultValue="true" />
+
+        <SwitchPreferenceCompat
+            app:key="custom_user_agent"
+            app:title="@string/custom_user_agent"
+            app:summary="@string/custom_user_agent_summary"
+            app:defaultValue="true" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

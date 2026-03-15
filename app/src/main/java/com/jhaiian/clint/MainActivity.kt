@@ -26,7 +26,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var prefs: SharedPreferences
-    private val homeUrl = "https://search.brave.com"
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +37,24 @@ class MainActivity : AppCompatActivity() {
         setupAddressBar()
         setupNavigationButtons()
         val intentUrl = intent?.data?.toString()
-        if (!intentUrl.isNullOrEmpty()) loadUrl(intentUrl) else loadUrl(homeUrl)
+        if (!intentUrl.isNullOrEmpty()) loadUrl(intentUrl) else loadUrl(getSearchEngineHomeUrl())
+    }
+
+    private fun getSearchEngineHomeUrl(): String {
+        return when (prefs.getString("search_engine", "duckduckgo")) {
+            "brave" -> "https://search.brave.com"
+            "google" -> "https://www.google.com"
+            else -> "https://duckduckgo.com"
+        }
+    }
+
+    private fun getSearchQueryUrl(query: String): String {
+        val encoded = Uri.encode(query)
+        return when (prefs.getString("search_engine", "duckduckgo")) {
+            "brave" -> "https://search.brave.com/search?q=$encoded"
+            "google" -> "https://www.google.com/search?q=$encoded"
+            else -> "https://duckduckgo.com/?q=$encoded"
+        }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -116,7 +132,7 @@ class MainActivity : AppCompatActivity() {
                 binding.webView.reload()
             }
         }
-        binding.btnHome.setOnClickListener { loadUrl(homeUrl) }
+        binding.btnHome.setOnClickListener { loadUrl(getSearchEngineHomeUrl()) }
         binding.btnMenu.setOnClickListener { view ->
             val popup = PopupMenu(this, view)
             popup.menuInflater.inflate(R.menu.main_menu, popup.menu)
@@ -163,7 +179,7 @@ class MainActivity : AppCompatActivity() {
         return when {
             t.startsWith("http://") || t.startsWith("https://") -> t
             t.contains(".") && !t.contains(" ") -> "https://$t"
-            else -> "https://search.brave.com/search?q=${Uri.encode(t)}"
+            else -> getSearchQueryUrl(t)
         }
     }
 

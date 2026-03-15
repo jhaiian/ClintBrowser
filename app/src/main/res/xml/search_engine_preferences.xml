@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ListPreference
+        app:key="search_engine"
+        app:title="@string/search_engine"
+        app:summary="%s"
+        app:entries="@array/search_engine_entries"
+        app:entryValues="@array/search_engine_values"
+        app:defaultValue="duckduckgo"
+        app:dialogTitle="@string/choose_search_engine" />
+
+</PreferenceScreen>

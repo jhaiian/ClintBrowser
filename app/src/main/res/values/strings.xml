@@ -13,6 +13,7 @@
     <string name="downloading">Downloading&#8230;</string>
     <string name="download_started">Download started</string>
     <string name="privacy_settings">Privacy &amp; Security</string>
+    <string name="privacy_settings_summary">Trackers, cookies, JavaScript, User-Agent</string>
     <string name="block_trackers">Block trackers</string>
     <string name="block_trackers_summary">Block known tracking and analytics domains</string>
     <string name="javascript_enabled">Enable JavaScript</string>
@@ -21,4 +22,22 @@
     <string name="block_third_party_cookies_summary">Prevent cross-site cookie tracking</string>
     <string name="custom_user_agent">Use generic User-Agent</string>
     <string name="custom_user_agent_summary">Report as standard Chrome browser to reduce fingerprinting</string>
+    <string name="search_engine">Search Engine</string>
+    <string name="choose_search_engine">Choose your default search engine</string>
+    <string name="engine_duckduckgo">DuckDuckGo</string>
+    <string name="engine_duckduckgo_desc">Private search with no tracking</string>
+    <string name="engine_brave">Brave</string>
+    <string name="engine_brave_desc">Independent index, privacy-first</string>
+    <string name="engine_google">Google</string>
+    <string name="engine_google_desc">Comprehensive results, data collection</string>
+    <string name="default_label">Default</string>
+    <string name="get_started">Get Started</string>
+    <string name="setup_subtitle">Private browsing, your way.
+No telemetry. No tracking.</string>
+    <string name="google_warning_title">Privacy notice</string>
+    <string name="google_warning_message">Google will collect your search data and associate it with your account or IP address. Clint cannot prevent this.
+
+For better privacy, consider DuckDuckGo or Brave instead.</string>
+    <string name="use_google_anyway">Use Google anyway</string>
+    <string name="choose_another">Choose another</string>
 </resources>

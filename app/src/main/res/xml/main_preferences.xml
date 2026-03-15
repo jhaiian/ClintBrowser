@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Preference
+        app:key="pref_privacy"
+        app:title="@string/privacy_settings"
+        app:summary="@string/privacy_settings_summary"
+        app:icon="@drawable/ic_lock_24"
+        app:fragment="com.jhaiian.clint.PrivacySettingsFragment" />
+
+    <Preference
+        app:key="pref_search_engine"
+        app:title="@string/search_engine"
+        app:icon="@drawable/ic_search_24"
+        app:fragment="com.jhaiian.clint.SearchEngineSettingsFragment" />
+
+</PreferenceScreen>

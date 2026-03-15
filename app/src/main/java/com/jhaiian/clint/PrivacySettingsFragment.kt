@@ -5,6 +5,6 @@ import androidx.preference.PreferenceFragmentCompat
 
 class PrivacySettingsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        setPreferencesFromResource(R.xml.preferences, rootKey)
+        setPreferencesFromResource(R.xml.privacy_preferences, rootKey)
     }
 }
