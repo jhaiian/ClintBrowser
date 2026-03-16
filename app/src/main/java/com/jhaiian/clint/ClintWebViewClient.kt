@@ -121,16 +121,7 @@ class ClintWebViewClient(
 
             if (isRedirect) {
                 response.close()
-                if (!locationHeader.isNullOrEmpty()) {
-                    return WebResourceResponse(
-                        "text/plain", "UTF-8",
-                        statusCode,
-                        if (statusCode in 300..399) "Redirect" else statusMsg,
-                        mapOf("Location" to locationHeader),
-                        ByteArrayInputStream(ByteArray(0))
-                    )
-                }
-                return super.shouldInterceptRequest(view, request)
+                return null
             }
 
             val contentType = response.header("Content-Type") ?: "application/octet-stream"
