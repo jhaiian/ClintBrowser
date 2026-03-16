@@ -23,7 +23,7 @@
             <ImageView
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:src="@mipmap/ic_launcher"
+                android:src="@drawable/ic_clint_logo"
                 android:padding="6dp"
                 android:contentDescription="@string/app_name" />
 
