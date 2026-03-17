@@ -3,8 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingStart="8dp"
-    android:paddingEnd="8dp"
     android:paddingTop="4dp"
     android:paddingBottom="8dp">
 
@@ -17,39 +15,44 @@
         <RadioButton
             android:id="@+id/radioDuckDialog"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="wrap_content"
             android:text="@string/engine_duckduckgo"
-            android:textSize="15sp"
-            android:paddingStart="16dp"
-            android:button="@null"
-            android:drawableEnd="@null"
-            android:gravity="center_vertical"
-            android:background="?attr/selectableItemBackground"
-            android:buttonTint="@color/purple_300" />
+            android:textColor="@color/on_surface"
+            android:textSize="16sp"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp"
+            android:buttonTint="@color/purple_300"
+            android:background="?attr/selectableItemBackground" />
 
         <RadioButton
             android:id="@+id/radioBraveDialog"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="wrap_content"
             android:text="@string/engine_brave"
-            android:textSize="15sp"
-            android:paddingStart="16dp"
-            android:button="@null"
-            android:gravity="center_vertical"
-            android:background="?attr/selectableItemBackground"
-            android:buttonTint="@color/purple_300" />
+            android:textColor="@color/on_surface"
+            android:textSize="16sp"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp"
+            android:buttonTint="@color/purple_300"
+            android:background="?attr/selectableItemBackground" />
 
         <RadioButton
             android:id="@+id/radioGoogleDialog"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="wrap_content"
             android:text="@string/engine_google"
-            android:textSize="15sp"
-            android:paddingStart="16dp"
-            android:button="@null"
-            android:gravity="center_vertical"
-            android:background="?attr/selectableItemBackground"
-            android:buttonTint="@color/purple_300" />
+            android:textColor="@color/on_surface"
+            android:textSize="16sp"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp"
+            android:buttonTint="@color/purple_300"
+            android:background="?attr/selectableItemBackground" />
 
     </RadioGroup>
 

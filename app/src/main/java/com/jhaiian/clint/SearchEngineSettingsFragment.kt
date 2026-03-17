@@ -69,7 +69,7 @@ class SearchEngineSettingsFragment : PreferenceFragmentCompat() {
             selectedEngine = radioIds.entries.firstOrNull { it.value == checkedId }?.key ?: current
         }
 
-        MaterialAlertDialogBuilder(requireContext())
+        MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_ClintBrowser_Dialog)
             .setTitle(getString(R.string.choose_search_engine))
             .setView(dialogView)
             .setNegativeButton(android.R.string.cancel, null)
@@ -90,7 +90,7 @@ class SearchEngineSettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun showGoogleWarning(onConfirm: () -> Unit) {
-        MaterialAlertDialogBuilder(requireContext())
+        MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_ClintBrowser_Dialog)
             .setTitle(getString(R.string.google_warning_title))
             .setMessage(getString(R.string.google_warning_message))
             .setNegativeButton(getString(R.string.choose_another), null)

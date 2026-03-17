@@ -62,7 +62,7 @@ class SetupActivity : AppCompatActivity() {
 
     private fun onNextFromPage1() {
         if (selectedEngine == "google") {
-            MaterialAlertDialogBuilder(this)
+            MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_ClintBrowser_Dialog)
                 .setTitle(getString(R.string.google_warning_title))
                 .setMessage(getString(R.string.google_warning_message))
                 .setNegativeButton(getString(R.string.choose_another), null)
