@@ -15,6 +15,15 @@
         <item name="android:statusBarColor">@color/toolbar_color</item>
         <item name="android:navigationBarColor">@color/toolbar_color</item>
     </style>
+
+    <style name="ClintDialogShape" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerSize">24dp</item>
+    </style>
+
+    <style name="ClintDialogTitle" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
+        <item name="android:textColor">@color/on_surface</item>
+    </style>
+
     <style name="ThemeOverlay.ClintBrowser.Dialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
         <item name="shapeAppearanceMediumComponent">@style/ClintDialogShape</item>
         <item name="colorSurface">@color/toolbar_color</item>
@@ -23,9 +32,5 @@
         <item name="android:textColorPrimary">@color/on_surface</item>
         <item name="android:textColorSecondary">@color/on_surface_medium</item>
         <item name="materialAlertDialogTitleTextStyle">@style/ClintDialogTitle</item>
-    </style>
-
-    <style name="ClintDialogTitle" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
-        <item name="android:textColor">@color/on_surface</item>
     </style>
 </resources>
