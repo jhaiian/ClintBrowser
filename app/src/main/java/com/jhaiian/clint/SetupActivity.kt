@@ -18,6 +18,7 @@ class SetupActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        CrashHandler.install(this)
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         if (prefs.getBoolean("setup_complete", false)) { startMainActivity(); return }
         binding = ActivitySetupBinding.inflate(layoutInflater)

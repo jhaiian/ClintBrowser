@@ -23,6 +23,13 @@
         app:fragment="com.jhaiian.clint.SearchEngineSettingsFragment" />
 
     <Preference
+        app:key="pref_debug"
+        app:title="@string/debug_title"
+        app:summary="@string/debug_summary"
+        app:icon="@drawable/ic_bug_24"
+        app:fragment="com.jhaiian.clint.CrashReportFragment" />
+
+    <Preference
         app:key="pref_about"
         app:title="@string/about"
         app:icon="@drawable/ic_info_24"

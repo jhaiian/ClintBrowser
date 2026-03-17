@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity(), TabSwitcherSheet.Listener {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        CrashHandler.install(this)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         prefs = PreferenceManager.getDefaultSharedPreferences(this)

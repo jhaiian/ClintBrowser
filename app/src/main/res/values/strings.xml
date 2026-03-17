@@ -87,4 +87,23 @@ Device architecture: %3$s</string>
     <string name="doh_provider_cloudflare_desc">1.1.1.1  -  Fast, privacy-first resolver by Cloudflare</string>
     <string name="doh_provider_quad9">Quad9</string>
     <string name="doh_provider_quad9_desc">9.9.9.9  -  Security-focused resolver with malware blocking</string>
+    <string name="debug_title">Debug &amp; Crash Reports</string>
+    <string name="debug_summary">View crash logs and create bug reports</string>
+    <string name="crash_reports_title">CRASH LOGS</string>
+    <string name="crash_no_reports">No crash reports found.</string>
+    <string name="crash_clear_all">Clear all</string>
+    <string name="crash_clear_title">Clear crash reports</string>
+    <string name="crash_clear_message">Delete all saved crash reports from this device?</string>
+    <string name="crash_clear_confirm">Delete</string>
+    <string name="crash_copied">Crash report copied to clipboard</string>
+    <string name="crash_copy">Copy crash report</string>
+    <string name="crash_delete">Delete report</string>
+    <string name="crash_report_title">FILE A BUG REPORT</string>
+    <string name="crash_report_instructions">Help improve Clint by reporting bugs on GitHub. No data is sent automatically — you choose what to share.</string>
+    <string name="crash_steps_title">How to file a report</string>
+    <string name="crash_steps">1. Reproduce the crash or bug\n2. Return here and tap the crash entry to expand it\n3. Tap the copy icon to copy the crash log\n4. Tap \"Open GitHub Issues\" below\n5. Click \"New issue\" on GitHub\n6. Copy the template below, paste it, and attach your crash log\n7. Fill in the steps that caused the crash and submit</string>
+    <string name="crash_template_title">Issue Template</string>
+    <string name="crash_copy_template">Copy template</string>
+    <string name="crash_template_copied">Template copied to clipboard</string>
+    <string name="crash_open_github">Open GitHub Issues</string>
 </resources>
