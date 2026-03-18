@@ -18,6 +18,11 @@
         android:title="@string/open_in_browser" />
 
     <item
+        android:id="@+id/action_desktop_mode"
+        android:title="@string/desktop_mode"
+        android:checkable="true" />
+
+    <item
         android:id="@+id/action_settings"
         android:title="@string/settings" />
 

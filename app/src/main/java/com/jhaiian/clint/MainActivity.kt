@@ -29,6 +29,7 @@ class MainActivity : AppCompatActivity(), TabSwitcherSheet.Listener {
     private lateinit var binding: ActivityMainBinding
     private lateinit var prefs: SharedPreferences
     private val tabManager = TabManager()
+    private var isDesktopMode = false
 
     private val prefsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         when (key) {
@@ -253,10 +254,13 @@ class MainActivity : AppCompatActivity(), TabSwitcherSheet.Listener {
     }
 
     private fun buildUserAgent(): String {
-        return if (prefs.getBoolean("custom_user_agent", true)) {
-            "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36"
-        } else {
-            WebSettings.getDefaultUserAgent(this)
+        return when {
+            isDesktopMode ->
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+            prefs.getBoolean("custom_user_agent", true) ->
+                "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36"
+            else ->
+                WebSettings.getDefaultUserAgent(this)
         }
     }
 
@@ -363,10 +367,20 @@ class MainActivity : AppCompatActivity(), TabSwitcherSheet.Listener {
         binding.btnMenu.setOnClickListener { view ->
             val popup = PopupMenu(this, view)
             popup.menuInflater.inflate(R.menu.main_menu, popup.menu)
+            popup.menu.findItem(R.id.action_desktop_mode)?.isChecked = isDesktopMode
             popup.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.action_new_tab -> { openNewTab(false); true }
                     R.id.action_new_incognito -> { openNewTab(true); true }
+                    R.id.action_desktop_mode -> {
+                        isDesktopMode = !isDesktopMode
+                        val activeWebView = tabManager.activeTab?.webView
+                        activeWebView?.settings?.userAgentString = buildUserAgent()
+                        activeWebView?.settings?.useWideViewPort = isDesktopMode
+                        activeWebView?.settings?.loadWithOverviewMode = isDesktopMode
+                        activeWebView?.reload()
+                        true
+                    }
                     R.id.action_settings -> { startActivity(Intent(this, SettingsActivity::class.java)); true }
                     R.id.action_share -> {
                         val i = Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, tabManager.activeTab?.webView?.url) }
