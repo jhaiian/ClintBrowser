@@ -3,10 +3,10 @@ package com.jhaiian.clint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.RadioButton
+import android.widget.RadioGroup
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
-import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class SearchEngineSettingsFragment : PreferenceFragmentCompat() {
@@ -41,11 +41,6 @@ class SearchEngineSettingsFragment : PreferenceFragmentCompat() {
         val dialogView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_search_engine, null)
 
-        val cards = mapOf(
-            "duckduckgo" to dialogView.findViewById<MaterialCardView>(R.id.cardDuckDialog),
-            "brave"      to dialogView.findViewById<MaterialCardView>(R.id.cardBraveDialog),
-            "google"     to dialogView.findViewById<MaterialCardView>(R.id.cardGoogleDialog)
-        )
         val radios = mapOf(
             "duckduckgo" to dialogView.findViewById<RadioButton>(R.id.radioDuckDialog),
             "brave"      to dialogView.findViewById<RadioButton>(R.id.radioBraveDialog),
@@ -56,17 +51,20 @@ class SearchEngineSettingsFragment : PreferenceFragmentCompat() {
 
         fun selectEngine(key: String) {
             selected = key
-            cards.forEach { (k, card) ->
-                val sel = k == key
-                card.alpha = if (sel) 1.0f else 0.55f
-                card.strokeWidth = if (sel) 3 else 0
-                radios[k]?.isChecked = sel
-            }
+            radios.forEach { (k, radio) -> radio.isChecked = k == key }
         }
 
         selectEngine(current)
 
-        cards.forEach { (key, card) -> card.setOnClickListener { selectEngine(key) } }
+        val radioGroup = dialogView.findViewById<RadioGroup>(R.id.radioGroup)
+        radioGroup.setOnCheckedChangeListener { _, checkedId ->
+            val key = when (checkedId) {
+                R.id.radioBraveDialog  -> "brave"
+                R.id.radioGoogleDialog -> "google"
+                else                   -> "duckduckgo"
+            }
+            selectEngine(key)
+        }
 
         MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_ClintBrowser_Dialog)
             .setTitle(getString(R.string.choose_search_engine))

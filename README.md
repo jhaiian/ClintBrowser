@@ -9,3 +9,4 @@ A privacy-focused, Chromium-based Android browser built without Google telemetry
 - Custom User-Agent
 - Material You dark purple theme
 
+##The First Release Are Still Work In Progress
