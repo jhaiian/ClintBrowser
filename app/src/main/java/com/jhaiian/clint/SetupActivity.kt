@@ -1,10 +1,14 @@
 package com.jhaiian.clint
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.widget.CheckBox
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jhaiian.clint.databinding.ActivitySetupBinding
 
@@ -16,6 +20,11 @@ class SetupActivity : AppCompatActivity() {
     private var selectedProvider = DohManager.PROVIDER_CLOUDFLARE
     private var currentPage = 0
 
+    companion object {
+        const val PRIVACY_POLICY_URL = "https://github.com/jhaiian/Clint-Browser/blob/main/PRIVACY_POLICY.md"
+        const val TERMS_URL = "https://github.com/jhaiian/Clint-Browser/blob/main/TERMS_OF_SERVICE.md"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         CrashHandler.install(this)
@@ -23,9 +32,27 @@ class SetupActivity : AppCompatActivity() {
         if (prefs.getBoolean("setup_complete", false)) { startMainActivity(); return }
         binding = ActivitySetupBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setupPage0()
         setupPage1()
         setupPage2()
         showPage(0)
+    }
+
+    private fun setupPage0() {
+        val checkbox = binding.root.findViewById<CheckBox>(R.id.checkboxConsent)
+        val btnContinue = binding.root.findViewById<MaterialButton>(R.id.btnAgreeAndContinue)
+        val tvPrivacy = binding.root.findViewById<TextView>(R.id.tvConsentPrivacyLink)
+        val tvTerms = binding.root.findViewById<TextView>(R.id.tvConsentTermsLink)
+
+        checkbox.setOnCheckedChangeListener { _, isChecked ->
+            btnContinue.isEnabled = isChecked
+            btnContinue.alpha = if (isChecked) 1.0f else 0.5f
+        }
+        btnContinue.alpha = 0.5f
+        btnContinue.setOnClickListener { showPage(1) }
+
+        tvPrivacy.setOnClickListener { openUrl(PRIVACY_POLICY_URL) }
+        tvTerms.setOnClickListener { openUrl(TERMS_URL) }
     }
 
     private fun setupPage1() {
@@ -67,10 +94,10 @@ class SetupActivity : AppCompatActivity() {
                 .setTitle(getString(R.string.google_warning_title))
                 .setMessage(getString(R.string.google_warning_message))
                 .setNegativeButton(getString(R.string.choose_another), null)
-                .setPositiveButton(getString(R.string.use_google_anyway)) { _, _ -> showPage(1) }
+                .setPositiveButton(getString(R.string.use_google_anyway)) { _, _ -> showPage(2) }
                 .show()
         } else {
-            showPage(1)
+            showPage(2)
         }
     }
 
@@ -132,6 +159,10 @@ class SetupActivity : AppCompatActivity() {
     private fun startMainActivity() {
         startActivity(Intent(this, MainActivity::class.java))
         finish()
+    }
+
+    private fun openUrl(url: String) {
+        runCatching { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
     }
 
     override fun onBackPressed() {

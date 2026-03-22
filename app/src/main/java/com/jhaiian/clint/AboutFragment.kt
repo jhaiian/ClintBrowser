@@ -42,6 +42,8 @@ class AboutFragment : Fragment() {
     private fun setupLinks() {
         makeClickable(binding.tvAuthorLink, "https://github.com/jhaiian")
         makeClickable(binding.tvGithubLink, "https://github.com/jhaiian/Clint-Browser")
+        makeClickable(binding.tvPrivacyPolicyLink, "https://github.com/jhaiian/Clint-Browser/blob/main/PRIVACY_POLICY.md")
+        makeClickable(binding.tvTermsLink, "https://github.com/jhaiian/Clint-Browser/blob/main/TERMS_OF_SERVICE.md")
         makeClickable(binding.tvDiscordLink, "https://discord.gg/4kUe4yPQ32")
         makeClickable(binding.tvKofiLink, "https://ko-fi.com/jhaiian")
         makeClickable(binding.tvPaypalLink, "mailto:jhaiianbetter@gmail.com")
