@@ -96,3 +96,28 @@ signingConfig.keyAlias=your_alias
 signingConfig.keyPa
 ssword=your_password
 ```
+
+To make your `release.yml` workflow work, set up the following **secrets** in your repository:
+
+| Secret Name               | Purpose                                                        |
+|----------------------------|----------------------------------------------------------------|
+| `BASE_64_SIGNING_KEY`      | Encoded release keystore for signing APKs.                    |
+| `LOCAL_PROPERTIES`         | Contents of your `local.properties` for SDK path and signing configs. |
+| `GIT_USERNAME`             | Your GitHub username for automated commits.                   |
+| `GIT_EMAIL`                | Your GitHub email for automated commits.                      |
+| `PERSONAL_GITHUB_TOKEN`    | GitHub Personal Access Token (PAT) for pushing commits/tags.  |
+
+---
+
+## How to create a Personal Access Token (PAT)
+
+Your workflow needs a GitHub token to push commits and tags. Follow these steps:
+
+1. Go to **GitHub Settings → Developer settings → Personal Access Tokens → Tokens (classic)**.
+2. Click **Generate new token → Generate new token (classic)**.
+3. Give the token a name (e.g., `Clint Browser CI`).
+4. Set an expiration (recommended: 90 days or no expiration if you rotate it regularly).
+5. Under **Scopes**, check:  
+   - `repo` → Full control of private repositories
+6. Click **Generate token**.
+7. Copy the token immediately and add it as the secret `PERSONAL_GITHUB_TOKEN` in your repository.

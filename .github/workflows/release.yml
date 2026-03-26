@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   release:
     name: Build and Publish APKs
@@ -32,10 +35,10 @@ jobs:
             MANIFEST="Update/Stable.json"
             RELEASE_LABEL="Stable"
           fi
-          echo "tag=$TAG"                     >> "$GITHUB_OUTPUT"
-          echo "version=$VERSION"             >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "is_prerelease=$IS_PRERELEASE" >> "$GITHUB_OUTPUT"
-          echo "manifest=$MANIFEST"           >> "$GITHUB_OUTPUT"
+          echo "manifest=$MANIFEST" >> "$GITHUB_OUTPUT"
           echo "release_label=$RELEASE_LABEL" >> "$GITHUB_OUTPUT"
 
       - name: Set up JDK 17
@@ -50,25 +53,56 @@ jobs:
           printf '%s' "${{ secrets.BASE_64_SIGNING_KEY }}" | tr -d '\n' | base64 -d > app/release_keystore.jks
 
       - name: Create local.properties
-        run: printf '%s\n' "${{ secrets.LOCAL_PROPERTIES }}" > local.properties
+        run: |
+          printf '%s\n' "${{ secrets.LOCAL_PROPERTIES }}" > local.properties
 
       - name: Grant Gradle wrapper execute permission
-        run: chmod +x gradlew
+        run: |
+          chmod +x gradlew
+
+      - name: Update versionName and versionCode in build.gradle
+        id: update_gradle
+        run: |
+          VERSION="${{ steps.info.outputs.version }}"
+
+          CURRENT_CODE=$(grep -oP '(?<=versionCode )\d+' app/build.gradle | head -1)
+
+          if ! [[ "$CURRENT_CODE" =~ ^[0-9]+$ ]]; then
+            echo "ERROR: could not parse a numeric versionCode from build.gradle."
+            echo "       Got: '$CURRENT_CODE'"
+            echo "       Resolve any merge conflicts in app/build.gradle first."
+            exit 1
+          fi
+
+          VERSION_CODE=$(( CURRENT_CODE + 1 ))
+
+          sed -i "0,/versionCode [0-9]*/s/versionCode [0-9]*/versionCode ${VERSION_CODE}/" app/build.gradle
+          sed -i "s/versionName \"[^\"]*\"/versionName \"${VERSION}\"/" app/build.gradle
+
+          echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push updated build.gradle
+        run: |
+          git config user.name "${{ secrets.GIT_USERNAME }}"
+          git config user.email "${{ secrets.GIT_EMAIL }}"
+          git add app/build.gradle
+          if git diff --cached --quiet; then
+            echo "No changes to commit — skipping."
+          else
+            git commit -m "bump version to ${{ steps.info.outputs.version }} [skip ci]"
+            git push https://x-access-token:${{ secrets.PERSONAL_GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
+          fi
 
       - name: Download Gradle wrapper JAR if missing
         run: |
           JAR="gradle/wrapper/gradle-wrapper.jar"
           if [ ! -f "$JAR" ]; then
-            curl -sL \
-              "https://raw.githubusercontent.com/gradle/gradle/v8.6.0/gradle/wrapper/gradle-wrapper.jar" \
-              -o "$JAR"
-            echo "gradle-wrapper.jar downloaded."
-          else
-            echo "gradle-wrapper.jar already present — skipping download."
+            curl -sL "https://raw.githubusercontent.com/gradle/gradle/v8.6.0/gradle/wrapper/gradle-wrapper.jar" -o "$JAR"
           fi
 
       - name: Build all release APKs
-        run: ./gradlew assembleRelease
+        run: |
+          ./gradlew assembleRelease
 
       - name: Rename APKs to ClintBrowser-VERSION-ARCH format
         id: apks
@@ -79,30 +113,38 @@ jobs:
           mkdir -p "$OUT_DIR"
           for apk in "$SRC_DIR"/*.apk; do
             fname=$(basename "$apk")
-            if   [[ "$fname" == *"arm64-v8a"*  ]]; then ARCH="arm64-v8a"
-            elif [[ "$fname" == *"armeabi-v7a"* ]]; then ARCH="armeabi-v7a"
-            elif [[ "$fname" == *"x86_64"*     ]]; then ARCH="x86_64"
-            elif [[ "$fname" == *"x86"*        ]]; then ARCH="x86"
-            elif [[ "$fname" == *"universal"*  ]]; then ARCH="universal"
-            else                                         ARCH="unknown"
+            if [[ "$fname" == *"arm64-v8a"* ]]; then
+              ARCH="arm64-v8a"
+            elif [[ "$fname" == *"armeabi-v7a"* ]]; then
+              ARCH="armeabi-v7a"
+            elif [[ "$fname" == *"x86_64"* ]]; then
+              ARCH="x86_64"
+            elif [[ "$fname" == *"x86"* ]]; then
+              ARCH="x86"
+            elif [[ "$fname" == *"universal"* ]]; then
+              ARCH="universal"
+            else
+              ARCH="unknown"
             fi
             NEW_NAME="ClintBrowser-${VERSION}-${ARCH}.apk"
             cp "$apk" "$OUT_DIR/$NEW_NAME"
           done
           echo "apk_dir=$OUT_DIR" >> "$GITHUB_OUTPUT"
 
-      - name: Update manifest with version, changelog, and download URLs
+      - name: Update manifest with version, versionCode, changelog, and download URLs
         env:
-          CB_VERSION:  ${{ steps.info.outputs.version }}
-          CB_TAG:      ${{ steps.info.outputs.tag }}
+          CB_VERSION: ${{ steps.info.outputs.version }}
+          CB_TAG: ${{ steps.info.outputs.tag }}
           CB_MANIFEST: ${{ steps.info.outputs.manifest }}
           CB_BASE_URL: "https://github.com/${{ github.repository }}/releases/download/${{ steps.info.outputs.tag }}"
+          VERSION_CODE: ${{ steps.update_gradle.outputs.version_code }}
         run: |
           python3 - <<'PYEOF'
           import json, os, re
 
-          version  = os.environ["CB_VERSION"]
-          tag      = os.environ["CB_TAG"]
+          version = os.environ["CB_VERSION"]
+          version_code = int(os.environ["VERSION_CODE"])
+          tag = os.environ["CB_TAG"]
           manifest = os.environ["CB_MANIFEST"]
           base_url = os.environ["CB_BASE_URL"]
 
@@ -111,10 +153,9 @@ jobs:
 
           pattern = r"(## " + re.escape(tag) + r"[^\n]*\n)(.*?)(?=\n## |\Z)"
           match = re.search(pattern, changelog_raw, re.DOTALL)
-
           if match:
               heading = match.group(1).rstrip("\n")
-              body    = match.group(2).strip()
+              body = match.group(2).strip()
               changelog_text = heading + "\n\n" + body if body else heading
           else:
               changelog_text = f"## {tag}"
@@ -122,7 +163,8 @@ jobs:
           with open(manifest, "r", encoding="utf-8") as fh:
               data = json.load(fh)
 
-          data["version"]   = version
+          data["version"] = version
+          data["versionCode"] = version_code
           data["changelog"] = changelog_text
 
           archs = ["arm64-v8a", "armeabi-v7a", "x86", "x86_64", "universal"]
@@ -135,26 +177,35 @@ jobs:
               fh.write("\n")
           PYEOF
 
+      - name: Commit and push updated manifest
+        run: |
+          git config user.name "${{ secrets.GIT_USERNAME }}"
+          git config user.email "${{ secrets.GIT_EMAIL }}"
+          git add "${{ steps.info.outputs.manifest }}"
+          if git diff --cached --quiet; then
+            echo "No changes to commit — skipping."
+          else
+            git commit -m "update manifest to v${{ steps.info.outputs.version }} [skip ci]"
+            git push https://x-access-token:${{ secrets.PERSONAL_GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
+          fi
+
+      - name: Delete draft release for tag if exists
+        run: |
+          DRAFT_ID=$(gh api repos/${{ github.repository }}/releases \
+            --jq ".[] | select(.tag_name == \"${{ steps.info.outputs.tag }}\" and .draft == true) | .id")
+          if [ -n "$DRAFT_ID" ]; then
+            gh api -X DELETE repos/${{ github.repository }}/releases/$DRAFT_ID
+            echo "Deleted draft release $DRAFT_ID"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create GitHub Release and upload APKs
         uses: softprops/action-gh-release@v2
         with:
-          tag_name:   ${{ steps.info.outputs.tag }}
-          name:       "ClintBrowser ${{ steps.info.outputs.version }} (${{ steps.info.outputs.release_label }})"
+          tag_name: ${{ steps.info.outputs.tag }}
+          name: "ClintBrowser ${{ steps.info.outputs.version }} (${{ steps.info.outputs.release_label }})"
           prerelease: ${{ steps.info.outputs.is_prerelease }}
-          files:      ${{ steps.apks.outputs.apk_dir }}/*.apk
+          files: ${{ steps.apks.outputs.apk_dir }}/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Commit and push updated manifest
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          MANIFEST="${{ steps.info.outputs.manifest }}"
-          VERSION="${{ steps.info.outputs.version }}"
-          git add "$MANIFEST"
-          if git diff --cached --quiet; then
-            echo "No changes in $MANIFEST — skipping commit."
-          else
-            git commit -m "chore: update ${MANIFEST} to v${VERSION} [skip ci]"
-            git push origin HEAD:main
-          fi
