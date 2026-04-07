@@ -4,6 +4,106 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.0.1 – Stable Release
+
+## ✨ New Features
+
+### 📑 Bookmarks
+- Save any page with a single tap from the navigation bar bookmark button  
+- Live-updating bookmark icon reflecting current page state  
+- Dedicated Bookmarks screen to view, open, and delete saved pages  
+- Bookmarks accessible from the ⋮ menu  
+- All bookmarks stored locally (no sync or upload)
+
+### 📤 Media & Upload Support
+- Upload support for images, videos, audio, and recordings  
+
+### 🖥️ Look & Feel & UI Enhancements
+- New **Look & Feel** section in Settings  
+- WebView Dark Mode support for easier night browsing  
+- Scroll-hide toolbar & navigation bar (auto hide/show on scroll)  
+- Pull-to-refresh automatically disabled while bars are hidden  
+
+### 🌐 Browser Behavior & Navigation
+- Default browser selection added (Setup + General settings)  
+- “Open in ___” option (grayed out if no compatible app exists)  
+- Improved intent handling:
+  - Better detection of supported apps  
+  - Prompt to choose between external app or in-app browsing  
+
+### ⬇️ Updates & System Tools
+- In-app updater with progress dialog (no browser redirect)  
+- “View Changelog” option in update settings  
+- Skip update checks on mobile data or metered connections  
+- Crash log viewer redesigned into dialog UI  
+- Terms of Service / Privacy Policy now open in dialogs instead of browser  
+
+---
+
+## 🔄 Improvements
+
+### 🌐 Web & Browsing
+- Address bar updates in real time (including redirects & SPA routing)  
+- Full URL display (protocol + full path)  
+- Improved desktop mode via JavaScript injection for compatibility  
+- SwipeRefreshLayout disabled on YouTube Shorts to fix refresh issues  
+
+### 📚 UI & Architecture
+- Settings reorganization:
+  - Appearance moved to **Look & Feel**
+  - Search engine moved to **General**
+  - Removed separate search engine screen  
+- Reworked `strings.xml` for readability  
+- Markwon integrated for Markdown rendering and credited in About page  
+- About page updates:
+  - Author link → `linktr.ee/jhaiian`  
+  - Updated contact system (email instead of PayPal)  
+  - Added Contributors section  
+
+### 📄 Documentation
+- Updated README with new screenshots and features  
+- Updated Privacy Policy (uploads + permissions + bookmarks)  
+- Updated CONTRIBUTING.md for new structure  
+
+---
+
+## 🐛 Fixes
+- Fixed download list resetting when app closes  
+- Fixed duplicate file numbering display issues  
+- Fixed incorrect download toast file numbering  
+- Fixed missing strings in `strings.xml`  
+- Fixed visible dot on loading progress bar  
+- Fixed YouTube Shorts refresh issue  
+
+---
+
+## ⚙️ Dependencies & Platform
+- `compileSdk` / `targetSdk` upgraded: 34 → 36  
+- `androidx.core:core-ktx`: 1.12.0 → 1.16.0  
+- `androidx.appcompat:appcompat`: 1.6.1 → 1.7.0  
+- `com.google.android.material:material`: 1.11.0 → 1.12.0  
+- `androidx.webkit:webkit`: 1.10.0 → 1.13.0  
+
+---
+
+## 🔁 CI/CD & Build System
+- Auto version bump on tag push (`versionName` & `versionCode`)  
+- Release manifest now includes `versionCode`  
+- Automatic deletion of old draft releases per tag  
+- GitHub Actions now uses `GIT_USERNAME` and `GIT_EMAIL` secrets  
+- Added `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` for Actions compatibility  
+
+---
+
+## 🧱 Internal Changes
+- Full package restructure:
+
+---
+
+## 🙏 Credits
+- **Vonjooo** — improvements to `release.yml` ([#1](https://github.com/jhaiian/Clint-Browser/pull/1))  
+- **snashyturner** — reported APK install issue in Downloads ([#2](https://github.com/jhaiian/Clint-Browser/issues/2))
+
 # v1.0.1-beta-2
 
 ## ✨ Added
