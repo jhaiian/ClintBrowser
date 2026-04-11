@@ -29,15 +29,26 @@ I added an App Theme setting in the **Look and Feel** fragment. From there, you 
 
 The `MainActivity.kt` file has now been split into multiple components to improve maintainability and reduce its size (it was previously 1092 lines, which made it hard to manage).
 
-| File | Lines | Responsibility |
-|---|---|---|
-| `MainActivity.kt` | 241 | Fields, lifecycle, preferences listener, back key handling |
-| `MainTabDelegate.kt` | 139 | Tab open/close/save/restore/switching |
-| `MainWebViewDelegate.kt` | 144 | WebView creation, settings, dark mode, user agent, desktop mode, search engine URLs |
-| `MainScrollDelegate.kt` | 131 | Bar animation, scroll tracking, swipe refresh |
-| `MainUiDelegate.kt` | 264 | Address bar, navigation buttons, popup menu, UI updates |
-| `MainFullscreenDelegate.kt` | 78 | Fullscreen enter/exit handling |
-| `MainFileChooserDelegate.kt` | 101 | File and camera chooser handling |
+- **MainActivity.kt (241 lines)**  
+  Handles fields, lifecycle, preferences listener, and back key handling.
+
+- **MainTabDelegate.kt (139 lines)**  
+  Manages tab opening, closing, saving, restoring, and switching.
+
+- **MainWebViewDelegate.kt (144 lines)**  
+  Responsible for WebView creation, settings configuration, dark mode, user agent, desktop mode, and search engine URLs.
+
+- **MainScrollDelegate.kt (131 lines)**  
+  Handles bar animations, scroll tracking, and swipe refresh behavior.
+
+- **MainUiDelegate.kt (264 lines)**  
+  Manages the address bar, navigation buttons, popup menu, and overall UI updates.
+
+- **MainFullscreenDelegate.kt (78 lines)**  
+  Handles entering and exiting fullscreen mode.
+
+- **MainFileChooserDelegate.kt (101 lines)**  
+  Manages file selection and camera chooser functionality.
 
 This change was made because `MainActivity.kt` had grown to 1092 lines, making it difficult to maintain and manage.
 
