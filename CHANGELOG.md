@@ -17,7 +17,7 @@ All notable changes to Clint Browser are documented here.
 
 ## 🚀 Improvements
 - 💻 Improved desktop mode JavaScript (thanks @Vonjoo [#3](https://github.com/jhaiian/Clint-Browser/pull/3))  
-- 📡 Improved desktop mode HTTPS request headers — no longer incorrectly identifies the device as non-mobile  
+- 📡 Improved desktop mode HTTPS request headers — no longer incorrectly identifies the device as mobile  
 - ❌ Added a cancel button to the Hide Status Bar dialog  
 
 ## 🔧 Refactor
