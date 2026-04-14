@@ -16,7 +16,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jhaiian.clint.R
-import com.jhaiian.clint.activities.ClintActivity
+import com.jhaiian.clint.base.ClintActivity
 import com.jhaiian.clint.network.DohManager
 
 class ClintWebViewClient(
@@ -24,10 +24,12 @@ class ClintWebViewClient(
     private val isActive: () -> Boolean = { true },
     private val onPageStartedCallback: (String) -> Unit = {},
     private val onPageFinishedCallback: (String) -> Unit = {},
-    private val onTabUrlUpdatedCallback: (WebView, String) -> Unit = { _, _ -> }
+    private val onTabUrlUpdatedCallback: (WebView, String) -> Unit = { _, _ -> },
+    private val getDesktopHeaders: () -> Map<String, String>? = { null }
 ) : WebViewClient() {
 
     private val cooldownDomains = mutableMapOf<String, Long>()
+    private var pendingHeaderLoad: String? = null
 
     companion object {
         private const val COOLDOWN_MS = 4000L
@@ -63,6 +65,7 @@ class ClintWebViewClient(
 
     override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
+        pendingHeaderLoad = null
         Uri.parse(url).host?.let { host ->
             DohManager.preResolveDns(host, prefs)
         }
@@ -99,6 +102,20 @@ class ClintWebViewClient(
         DohManager.preResolveDns(host, prefs)
 
         if (request.isForMainFrame && tryOpenInApp(view, uri)) return true
+
+        if (request.isForMainFrame) {
+            val uriStr = uri.toString()
+            if (pendingHeaderLoad == uriStr) {
+                pendingHeaderLoad = null
+                return false
+            }
+            val headers = getDesktopHeaders()
+            if (headers != null) {
+                pendingHeaderLoad = uriStr
+                view.loadUrl(uriStr, headers)
+                return true
+            }
+        }
 
         return false
     }
@@ -276,7 +293,8 @@ class ClintWebViewClient(
                     .setCancelable(false)
                     .setNegativeButton(activity.getString(R.string.open_in_app_dialog_stay_here)) { _, _ ->
                         startCooldown(host)
-                        view.loadUrl(uriStr)
+                        val h = getDesktopHeaders()
+                        if (h != null) view.loadUrl(uriStr, h) else view.loadUrl(uriStr)
                     }
                     .setPositiveButton(activity.getString(R.string.open_in_app_dialog_confirm)) { _, _ ->
                         try { context.startActivity(specificIntent) } catch (_: ActivityNotFoundException) {}
@@ -298,7 +316,8 @@ class ClintWebViewClient(
                     .setCancelable(false)
                     .setNegativeButton(activity.getString(R.string.open_in_app_dialog_stay_here)) { _, _ ->
                         startCooldown(host)
-                        view.loadUrl(uriStr)
+                        val h = getDesktopHeaders()
+                        if (h != null) view.loadUrl(uriStr, h) else view.loadUrl(uriStr)
                     }
                     .show()
 

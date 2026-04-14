@@ -17,6 +17,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jhaiian.clint.R
+import com.jhaiian.clint.base.ClintActivity
 import com.jhaiian.clint.databinding.FragmentCrashReportBinding
 import java.io.File
 import java.text.SimpleDateFormat
@@ -45,7 +46,7 @@ class CrashReportFragment : Fragment() {
         setupReportTemplate()
 
         binding.btnClearAll.setOnClickListener {
-            MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_ClintBrowser_Dialog)
+            MaterialAlertDialogBuilder(requireContext(), (requireActivity() as ClintActivity).getDialogTheme())
                 .setTitle(getString(R.string.crash_clear_title))
                 .setMessage(getString(R.string.crash_clear_message))
                 .setNegativeButton(android.R.string.cancel, null)
@@ -111,9 +112,25 @@ class CrashReportFragment : Fragment() {
         val ctx = requireContext()
         val dp = ctx.resources.displayMetrics.density
 
+        val ta = ctx.obtainStyledAttributes(
+            intArrayOf(
+                com.google.android.material.R.attr.colorOnSurface,
+                com.google.android.material.R.attr.colorPrimary,
+                com.google.android.material.R.attr.colorError,
+                R.attr.clintSecondaryTextColor,
+                R.attr.clintDividerColor
+            )
+        )
+        val colorOnSurface    = ta.getColor(0, 0xFFFFFFFF.toInt())
+        val colorPrimary      = ta.getColor(1, 0xFFBA68C8.toInt())
+        val colorError        = ta.getColor(2, 0xFFCF6679.toInt())
+        val colorSecondary    = ta.getColor(3, 0x99FFFFFF.toInt())
+        val colorDivider      = ta.getColor(4, 0x22FFFFFF.toInt())
+        ta.recycle()
+
         val logTv = TextView(ctx).apply {
             text = content
-            setTextColor(0xCCFFFFFF.toInt())
+            setTextColor(colorOnSurface)
             textSize = 11f
             typeface = android.graphics.Typeface.MONOSPACE
             setPadding(64, 24, 64, 8)
@@ -121,7 +138,7 @@ class CrashReportFragment : Fragment() {
         }
 
         val divider = View(ctx).apply {
-            setBackgroundColor(0x1FFFFFFF)
+            setBackgroundColor(colorDivider)
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, 1
             ).also { it.topMargin = (8 * dp).toInt() }
@@ -141,9 +158,9 @@ class CrashReportFragment : Fragment() {
             }
         }
 
-        val btnDelete = makeBtn(getString(R.string.action_delete), 0xFFCF6679.toInt())
-        val btnBack   = makeBtn(getString(R.string.back),          0x99FFFFFF.toInt())
-        val btnCopy   = makeBtn(getString(R.string.action_copy),   0xFFBA68C8.toInt())
+        val btnDelete = makeBtn(getString(R.string.action_delete), colorError)
+        val btnBack   = makeBtn(getString(R.string.back),          colorSecondary)
+        val btnCopy   = makeBtn(getString(R.string.action_copy),   colorPrimary)
 
         val buttonRow = LinearLayout(ctx).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -165,7 +182,7 @@ class CrashReportFragment : Fragment() {
             addView(buttonRow)
         }
 
-        val dialog = MaterialAlertDialogBuilder(ctx, R.style.ThemeOverlay_ClintBrowser_Dialog)
+        val dialog = MaterialAlertDialogBuilder(ctx, (requireActivity() as ClintActivity).getDialogTheme())
             .setTitle(title)
             .setView(container)
             .setCancelable(false)

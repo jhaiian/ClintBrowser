@@ -43,7 +43,7 @@ class UpdateSettingsFragment : PreferenceFragmentCompat() {
 
         findPreference<SwitchPreferenceCompat>("beta_channel")?.setOnPreferenceChangeListener { _, newValue ->
             if (newValue as Boolean) {
-                val activity = requireActivity() as com.jhaiian.clint.activities.ClintActivity
+                val activity = requireActivity() as com.jhaiian.clint.base.ClintActivity
                 MaterialAlertDialogBuilder(requireContext(), activity.getDialogTheme())
                     .setTitle(getString(R.string.beta_enrol_title))
                     .setMessage(getString(R.string.beta_enrol_message))

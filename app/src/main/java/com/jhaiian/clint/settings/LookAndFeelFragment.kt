@@ -9,8 +9,7 @@ import androidx.preference.PreferenceManager
 import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jhaiian.clint.R
-import com.jhaiian.clint.activities.ClintActivity
-import com.jhaiian.clint.activities.SettingsActivity
+import com.jhaiian.clint.base.ClintActivity
 
 class LookAndFeelFragment : PreferenceFragmentCompat() {
 
@@ -24,8 +23,8 @@ class LookAndFeelFragment : PreferenceFragmentCompat() {
             }
 
         findPreference<SwitchPreferenceCompat>("hide_status_bar")
-            ?.setOnPreferenceChangeListener { _, _ ->
-                showRestartDialog()
+            ?.setOnPreferenceChangeListener { _, newValue ->
+                showRestartDialog(newValue as Boolean)
                 true
             }
     }
@@ -104,17 +103,22 @@ class LookAndFeelFragment : PreferenceFragmentCompat() {
         dialog.show()
     }
 
-    private fun showRestartDialog() {
+    private fun showRestartDialog(newValue: Boolean) {
         val activity = requireActivity() as? SettingsActivity ?: return
+        val pref = findPreference<SwitchPreferenceCompat>("hide_status_bar") ?: return
         MaterialAlertDialogBuilder(activity, activity.getDialogTheme())
             .setTitle(getString(R.string.restart_required_title))
             .setMessage(getString(R.string.restart_required_message))
             .setCancelable(false)
-            .setNegativeButton(getString(R.string.action_later)) { _, _ ->
-                activity.pendingRestart = true
+            .setNegativeButton(getString(R.string.action_cancel)) { _, _ ->
+                pref.isChecked = !newValue
+                activity.pendingRestart = false
             }
-            .setPositiveButton(getString(R.string.restart_required_confirm)) { _, _ ->
+            .setNeutralButton(getString(R.string.restart_required_confirm)) { _, _ ->
                 activity.restartApp()
+            }
+            .setPositiveButton(getString(R.string.action_later)) { _, _ ->
+                activity.scheduleRestartIfChanged()
             }
             .show()
     }

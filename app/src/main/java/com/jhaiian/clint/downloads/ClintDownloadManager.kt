@@ -8,7 +8,6 @@ import android.content.Intent
 import android.os.Environment
 import androidx.core.app.NotificationCompat
 import com.jhaiian.clint.R
-import com.jhaiian.clint.activities.DownloadsActivity
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import android.os.Handler

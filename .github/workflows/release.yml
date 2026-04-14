@@ -154,8 +154,9 @@ jobs:
           pattern = r"(#{1,6} [^\n]*?" + re.escape(tag) + r"(?!-)[^\n]*\n)(.*?)(?=\n---|\n# |\Z)"
           match = re.search(pattern, changelog_raw, re.DOTALL)
           if match:
+              heading = match.group(1).strip()
               body = match.group(2).strip()
-              changelog_text = body if body else f"## {tag}"
+              changelog_text = f"{heading}\n\n{body}" if body else heading
           else:
               changelog_text = f"## {tag}"
 

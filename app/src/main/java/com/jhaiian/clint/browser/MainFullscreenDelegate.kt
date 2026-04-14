@@ -1,4 +1,4 @@
-package com.jhaiian.clint.activities
+package com.jhaiian.clint.browser
 
 import android.view.View
 import android.webkit.WebChromeClient
@@ -21,9 +21,7 @@ internal fun MainActivity.onShowCustomView(view: View, callback: WebChromeClient
     val ctrl = androidx.core.view.WindowCompat.getInsetsController(window, window.decorView)
     ctrl.hide(WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars())
     ctrl.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-    tabManager.activeTab?.webView?.evaluateJavascript(
-        "(function(){ var v = document.querySelector('video'); return v ? v.videoWidth + ',' + v.videoHeight : '0,0'; })()"
-    ) { result ->
+    tabManager.activeTab?.webView?.evaluateJavascript(loadJsAsset("video_dimensions.js")) { result ->
         val parts = result?.trim('"')?.split(",")
         val vw = parts?.getOrNull(0)?.toIntOrNull() ?: 0
         val vh = parts?.getOrNull(1)?.toIntOrNull() ?: 0
@@ -45,7 +43,7 @@ internal fun MainActivity.exitFullscreen() {
     barsHidden = false
     nestedScrollActive = false
     if (topBarFullHeight > 0) binding.toolbarTop.updateLayoutParams { height = topBarFullHeight }
-    if (bottomBarFullHeight > 0) binding.bottomBar.updateLayoutParams { height = bottomBarFullHeight }
+    binding.bottomBar.translationY = 0f
     binding.toolbarTop.visibility = View.VISIBLE
     binding.bottomBar.visibility = View.VISIBLE
     binding.swipeRefresh.isEnabled = true

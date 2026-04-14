@@ -1,4 +1,4 @@
-package com.jhaiian.clint.activities
+package com.jhaiian.clint.browser
 
 import android.content.Context
 import android.content.Intent
@@ -16,6 +16,9 @@ import androidx.webkit.WebViewFeature
 import com.jhaiian.clint.R
 import com.jhaiian.clint.bookmarks.Bookmark
 import com.jhaiian.clint.bookmarks.BookmarkManager
+import com.jhaiian.clint.bookmarks.BookmarksActivity
+import com.jhaiian.clint.downloads.DownloadsActivity
+import com.jhaiian.clint.settings.SettingsActivity
 import com.jhaiian.clint.webview.ClintWebViewClient
 
 internal fun MainActivity.setupAddressBar() {
@@ -127,9 +130,17 @@ private fun MainActivity.showPopupMenu(anchor: View) {
         desktopCheck.alpha = if (isDesktopMode) 1f else 0f
         tabManager.tabs.forEach { tab ->
             tab.webView.settings.userAgentString = buildUserAgent()
+            applyUserAgentMetadata(tab.webView)
             if (isDesktopMode) addDesktopScript(tab) else removeDesktopScript(tab)
         }
-        tabManager.activeTab?.webView?.reload()
+        val wv = tabManager.activeTab?.webView
+        val currentUrl = wv?.url
+        if (wv != null && !currentUrl.isNullOrEmpty()) {
+            val headers = buildDesktopHeaders()
+            if (headers != null) wv.loadUrl(currentUrl, headers) else wv.reload()
+        } else {
+            wv?.reload()
+        }
         popup.dismiss()
     }
     popupView.findViewById<View>(R.id.menu_settings).setOnClickListener {
@@ -144,8 +155,11 @@ private fun MainActivity.showPopupMenu(anchor: View) {
 }
 
 internal fun MainActivity.loadUrl(input: String) {
-    tabManager.activeTab?.webView?.loadUrl(formatUrl(input))
-    tabManager.activeTab?.url = formatUrl(input)
+    val url = formatUrl(input)
+    val wv = tabManager.activeTab?.webView ?: return
+    tabManager.activeTab?.url = url
+    val headers = buildDesktopHeaders()
+    if (headers != null) wv.loadUrl(url, headers) else wv.loadUrl(url)
     hideKeyboard()
 }
 
@@ -196,7 +210,7 @@ internal fun MainActivity.onPageFinished(url: String) {
             && !WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)
             && !WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)
         ) {
-            wv.evaluateJavascript(darkModeCss, null)
+            wv.evaluateJavascript(loadJsAsset("dark_mode.js"), null)
         }
     }
     nestedScrollActive = false

@@ -1,6 +1,8 @@
-package com.jhaiian.clint.activities
+package com.jhaiian.clint.setup
 
 import android.app.role.RoleManager
+import com.jhaiian.clint.base.ClintActivity
+import com.jhaiian.clint.browser.MainActivity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -9,19 +11,18 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.widget.CheckBox
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.preference.PreferenceManager
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jhaiian.clint.R
 import com.jhaiian.clint.crash.CrashHandler
 import com.jhaiian.clint.databinding.ActivitySetupBinding
 import com.jhaiian.clint.network.DohManager
+import com.jhaiian.clint.ui.DocumentViewer
 
 class SetupActivity : ClintActivity() {
 
@@ -94,16 +95,15 @@ class SetupActivity : ClintActivity() {
         btnContinue.setOnClickListener { showPage(1) }
 
         tvPrivacy.setOnClickListener {
-            com.jhaiian.clint.ui.DocumentViewer.show(this, "Privacy Policy", com.jhaiian.clint.ui.DocumentViewer.PRIVACY_POLICY_URL)
+            DocumentViewer.show(this, getString(R.string.document_viewer_privacy_policy_title), DocumentViewer.PRIVACY_POLICY_URL)
         }
         tvTerms.setOnClickListener {
-            com.jhaiian.clint.ui.DocumentViewer.show(this, "Terms of Service", com.jhaiian.clint.ui.DocumentViewer.TERMS_URL)
+            DocumentViewer.show(this, getString(R.string.document_viewer_terms_title), DocumentViewer.TERMS_URL)
         }
     }
 
     private fun setupPage1() {
         selectSetupTheme(selectedTheme)
-
         binding.cardSetupThemeDefault.setOnClickListener { onSetupThemeSelected("default") }
         binding.cardSetupThemeDark.setOnClickListener { onSetupThemeSelected("dark") }
         binding.cardSetupThemeLight.setOnClickListener { onSetupThemeSelected("light") }
@@ -111,10 +111,7 @@ class SetupActivity : ClintActivity() {
     }
 
     private fun onSetupThemeSelected(theme: String) {
-        if (theme == selectedTheme) {
-            showPage(2)
-            return
-        }
+        if (theme == selectedTheme) { showPage(2); return }
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         prefs.edit().putInt(KEY_PENDING_PAGE, 1).apply()
         captureAndRecreate(theme)
@@ -150,15 +147,11 @@ class SetupActivity : ClintActivity() {
             binding.cardDohDefault to DohManager.MODE_DEFAULT,
             binding.cardDohIncreased to DohManager.MODE_INCREASED,
             binding.cardDohMax to DohManager.MODE_MAX
-        ).forEach { (card, mode) ->
-            card.setOnClickListener { selectDohMode(mode) }
-        }
+        ).forEach { (card, mode) -> card.setOnClickListener { selectDohMode(mode) } }
         listOf(
             binding.cardSetupCloudflare to DohManager.PROVIDER_CLOUDFLARE,
             binding.cardSetupQuad9 to DohManager.PROVIDER_QUAD9
-        ).forEach { (card, provider) ->
-            card.setOnClickListener { selectProvider(provider) }
-        }
+        ).forEach { (card, provider) -> card.setOnClickListener { selectProvider(provider) } }
     }
 
     private fun refreshPage3Button() {

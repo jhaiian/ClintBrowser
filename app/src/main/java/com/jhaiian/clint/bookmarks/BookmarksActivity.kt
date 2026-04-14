@@ -1,4 +1,4 @@
-package com.jhaiian.clint.activities
+package com.jhaiian.clint.bookmarks
 
 import android.content.Intent
 import android.net.Uri
@@ -11,8 +11,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.jhaiian.clint.R
-import com.jhaiian.clint.bookmarks.BookmarkManager
-import com.jhaiian.clint.bookmarks.BookmarksAdapter
+import com.jhaiian.clint.base.ClintActivity
 
 class BookmarksActivity : ClintActivity() {
 

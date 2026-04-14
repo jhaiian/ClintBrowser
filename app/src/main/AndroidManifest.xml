@@ -52,8 +52,9 @@
         android:usesCleartextTraffic="false">
 
         <activity
-            android:name=".activities.SetupActivity"
+            android:name=".setup.SetupActivity"
             android:exported="true"
+            android:configChanges="uiMode"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -62,9 +63,9 @@
         </activity>
 
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".browser.MainActivity"
             android:exported="true"
-            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:configChanges="orientation|screenSize|keyboardHidden|uiMode"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -76,19 +77,22 @@
         </activity>
 
         <activity
-            android:name=".activities.SettingsActivity"
+            android:name=".settings.SettingsActivity"
             android:exported="false"
-            android:parentActivityName=".activities.MainActivity" />
+            android:configChanges="uiMode"
+            android:parentActivityName=".browser.MainActivity" />
 
         <activity
-            android:name=".activities.DownloadsActivity"
+            android:name=".downloads.DownloadsActivity"
             android:exported="false"
-            android:parentActivityName=".activities.MainActivity" />
+            android:configChanges="uiMode"
+            android:parentActivityName=".browser.MainActivity" />
 
         <activity
-            android:name=".activities.BookmarksActivity"
+            android:name=".bookmarks.BookmarksActivity"
             android:exported="false"
-            android:parentActivityName=".activities.MainActivity" />
+            android:configChanges="uiMode"
+            android:parentActivityName=".browser.MainActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

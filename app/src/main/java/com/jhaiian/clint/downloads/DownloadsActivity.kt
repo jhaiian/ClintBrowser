@@ -1,4 +1,4 @@
-package com.jhaiian.clint.activities
+package com.jhaiian.clint.downloads
 
 import android.content.Intent
 import android.net.Uri
@@ -15,11 +15,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jhaiian.clint.R
-import com.jhaiian.clint.downloads.ClintDownloadManager
+import com.jhaiian.clint.base.ClintActivity
 import com.jhaiian.clint.downloads.ClintDownloadManager.DownloadItem
-import com.jhaiian.clint.downloads.DownloadsAdapter
 
 class DownloadsActivity : ClintActivity() {
 
@@ -108,7 +106,7 @@ class DownloadsActivity : ClintActivity() {
     }
 
     private fun handleApkOpen(item: DownloadItem) {
-        MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_ClintBrowser_Dialog)
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this, getDialogTheme())
             .setTitle(getString(R.string.install_apk_dialog_title))
             .setMessage(getString(R.string.install_apk_dialog_message, item.filename))
             .setNegativeButton(getString(R.string.action_cancel), null)
@@ -123,7 +121,7 @@ class DownloadsActivity : ClintActivity() {
     }
 
     private fun showInstallPermissionDialog(item: DownloadItem) {
-        MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_ClintBrowser_Dialog)
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this, getDialogTheme())
             .setTitle(getString(R.string.install_apk_permission_title))
             .setMessage(getString(R.string.install_apk_permission_message))
             .setNegativeButton(getString(R.string.action_cancel), null)

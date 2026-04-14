@@ -1,4 +1,4 @@
-package com.jhaiian.clint.activities
+package com.jhaiian.clint.browser
 
 import android.annotation.SuppressLint
 import com.jhaiian.clint.tabs.BrowserTab
@@ -47,7 +47,8 @@ internal fun MainActivity.openNewTabSilent(url: String) {
         isActive = { tabManager.activeTab?.id == tab.id },
         onPageStartedCallback = { url -> if (tabManager.activeTab?.id == tab.id) onPageStarted(url) },
         onPageFinishedCallback = { url -> if (tabManager.activeTab?.id == tab.id) onPageFinished(url) },
-        onTabUrlUpdatedCallback = { wv, url -> onTabUrlUpdated(wv, url) }
+        onTabUrlUpdatedCallback = { wv, url -> onTabUrlUpdated(wv, url) },
+        getDesktopHeaders = { buildDesktopHeaders() }
     )
     webView.webChromeClient = ClintWebChromeClient(
         isActive = { tabManager.activeTab?.id == tab.id },
@@ -87,7 +88,8 @@ internal fun MainActivity.openNewTab(isIncognito: Boolean, url: String = getSear
         isActive = { tabManager.activeTab?.id == tab.id },
         onPageStartedCallback = { url -> if (tabManager.activeTab?.id == tab.id) onPageStarted(url) },
         onPageFinishedCallback = { url -> if (tabManager.activeTab?.id == tab.id) onPageFinished(url) },
-        onTabUrlUpdatedCallback = { wv, url -> onTabUrlUpdated(wv, url) }
+        onTabUrlUpdatedCallback = { wv, url -> onTabUrlUpdated(wv, url) },
+        getDesktopHeaders = { buildDesktopHeaders() }
     )
     webView.webChromeClient = ClintWebChromeClient(
         isActive = { tabManager.activeTab?.id == tab.id },
@@ -143,6 +145,7 @@ internal fun MainActivity.attachActiveWebView() {
     nestedScrollActive = false
     animateBars(hide = false, animated = false)
     attachScrollListener(tab.webView)
+    injectScrollTracker(tab.webView)
 }
 
 internal fun MainActivity.showTabSwitcher() {

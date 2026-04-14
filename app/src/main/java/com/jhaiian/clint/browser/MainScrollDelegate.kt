@@ -1,4 +1,4 @@
-package com.jhaiian.clint.activities
+package com.jhaiian.clint.browser
 
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -7,24 +7,7 @@ import android.animation.ValueAnimator
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import androidx.core.view.updateLayoutParams
-import androidx.webkit.WebViewFeature
 
-internal val scrollTrackJs = """
-    (function() {
-        if (window.__clintTracked) return;
-        window.__clintTracked = true;
-        window.__clintNestedScrolled = false;
-        document.addEventListener('scroll', function(e) {
-            var t = e.target;
-            var isRoot = !t || t === document || t === document.documentElement || t === document.body;
-            if (!isRoot) {
-                window.__clintNestedScrolled = (t.scrollTop > 0 || t.scrollLeft > 0);
-            } else {
-                window.__clintNestedScrolled = false;
-            }
-        }, true);
-    })();
-""".trimIndent()
 
 internal fun MainActivity.setupSwipeRefresh() {
     binding.swipeRefresh.canChildScrollUpCallback = {
@@ -102,7 +85,6 @@ internal fun MainActivity.attachScrollListener(webView: WebView) {
     webView.setOnTouchListener { _, event ->
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> accumulated = 0f
-            MotionEvent.ACTION_MOVE -> queryNestedScroll(webView)
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 if (!barsHidden) binding.swipeRefresh.isEnabled = true
             }
@@ -113,16 +95,7 @@ internal fun MainActivity.attachScrollListener(webView: WebView) {
 }
 
 internal fun MainActivity.injectScrollTracker(webView: WebView) {
-    webView.evaluateJavascript(scrollTrackJs, null)
-}
-
-internal fun MainActivity.queryNestedScroll(webView: WebView) {
-    if (isYouTubeShorts()) return
-    webView.evaluateJavascript(
-        "(typeof window.__clintNestedScrolled !== 'undefined' && window.__clintNestedScrolled).toString()"
-    ) { result ->
-        nestedScrollActive = result?.trim('"') == "true"
-    }
+    webView.evaluateJavascript(loadJsAsset("scroll_tracker.js"), null)
 }
 
 internal fun MainActivity.isYouTubeShorts(): Boolean {

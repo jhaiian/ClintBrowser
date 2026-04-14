@@ -1,4 +1,4 @@
-package com.jhaiian.clint.activities
+package com.jhaiian.clint.browser
 
 internal fun MainActivity.onShowFileChooser(
     callback: android.webkit.ValueCallback<Array<android.net.Uri>>,

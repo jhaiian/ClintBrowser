@@ -1,4 +1,4 @@
-package com.jhaiian.clint.activities
+package com.jhaiian.clint.ui
 
 import android.graphics.Bitmap
 

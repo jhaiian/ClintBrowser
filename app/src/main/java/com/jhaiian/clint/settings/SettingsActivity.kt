@@ -1,4 +1,4 @@
-package com.jhaiian.clint.activities
+package com.jhaiian.clint.settings
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,18 +8,22 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.jhaiian.clint.R
+import com.jhaiian.clint.base.ClintActivity
 import com.jhaiian.clint.databinding.ActivitySettingsBinding
-import com.jhaiian.clint.settings.MainSettingsFragment
 
 class SettingsActivity : ClintActivity(),
     PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
     var pendingRestart = false
+    private var hideStatusBarAtLaunch = false
 
     private lateinit var binding: ActivitySettingsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        hideStatusBarAtLaunch = androidx.preference.PreferenceManager
+            .getDefaultSharedPreferences(this)
+            .getBoolean("hide_status_bar", false)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -36,7 +40,8 @@ class SettingsActivity : ClintActivity(),
         setSupportActionBar(binding.settingsToolbar)
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
-            title = getString(R.string.settings)
+            title = savedInstanceState?.getCharSequence(KEY_TOOLBAR_TITLE)
+                ?: getString(R.string.settings)
         }
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
@@ -48,6 +53,11 @@ class SettingsActivity : ClintActivity(),
                 supportActionBar?.title = getString(R.string.settings)
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putCharSequence(KEY_TOOLBAR_TITLE, supportActionBar?.title)
     }
 
     override fun onPreferenceStartFragment(
@@ -82,9 +92,20 @@ class SettingsActivity : ClintActivity(),
         }
     }
 
+    fun scheduleRestartIfChanged() {
+        val current = androidx.preference.PreferenceManager
+            .getDefaultSharedPreferences(this)
+            .getBoolean("hide_status_bar", false)
+        pendingRestart = current != hideStatusBarAtLaunch
+    }
+
     fun restartApp() {
         val intent = packageManager.getLaunchIntentForPackage(packageName)!!
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
+    }
+
+    companion object {
+        private const val KEY_TOOLBAR_TITLE = "toolbar_title"
     }
 }

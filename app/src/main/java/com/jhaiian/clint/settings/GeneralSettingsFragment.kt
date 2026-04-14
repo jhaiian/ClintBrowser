@@ -15,7 +15,7 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jhaiian.clint.R
-import com.jhaiian.clint.activities.ClintActivity
+import com.jhaiian.clint.base.ClintActivity
 
 class GeneralSettingsFragment : PreferenceFragmentCompat() {
 

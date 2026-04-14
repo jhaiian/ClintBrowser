@@ -1,4 +1,4 @@
-package com.jhaiian.clint.activities
+package com.jhaiian.clint.base
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -14,6 +14,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.preference.PreferenceManager
 import com.jhaiian.clint.R
+import com.jhaiian.clint.ui.ThemeRevealHolder
+import com.jhaiian.clint.ui.ThemeRevealOverlay
 import kotlin.math.hypot
 import kotlin.math.max
 

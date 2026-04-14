@@ -54,8 +54,23 @@ APKs will be output to `app/build/outputs/apk/release/`.
 
 ```
 ClintBrowser/
+├── app/src/main/assets/
+│   └── JavaScript/
+│       ├── dark_mode.js              # Injects dark mode styles into pages
+│       ├── desktop_mode.js           # Overrides user-agent and viewport for desktop
+│       ├── scroll_tracker.js         # Tracks scroll position for hide-bars behavior
+│       └── video_dimensions.js       # Detects video dimensions for fullscreen sizing
 ├── app/src/main/java/com/jhaiian/clint/
-│   ├── activities/
+│   ├── app/
+│   │   └── ClintApplication.kt       # Application class
+│   ├── base/
+│   │   └── ClintActivity.kt          # Base activity (theming, dialogs)
+│   ├── bookmarks/
+│   │   ├── Bookmark.kt               # Bookmark data model
+│   │   ├── BookmarkManager.kt        # Local bookmark storage
+│   │   ├── BookmarksActivity.kt      # Bookmarks screen
+│   │   └── BookmarksAdapter.kt       # Bookmarks list adapter
+│   ├── browser/
 │   │   ├── MainActivity.kt           # Browser activity, state, and lifecycle
 │   │   ├── MainFileChooserDelegate.kt# File chooser and camera capture logic
 │   │   ├── MainFullscreenDelegate.kt # Video fullscreen enter/exit logic
@@ -63,23 +78,14 @@ ClintBrowser/
 │   │   ├── MainTabDelegate.kt        # Tab open, close, restore, and switching
 │   │   ├── MainUiDelegate.kt         # WebView setup, address bar, UI state updates
 │   │   ├── MainWebViewDelegate.kt    # WebView configuration and settings apply
-│   │   ├── ClintActivity.kt          # Base activity (theming, dialogs)
-│   │   ├── ThemeRevealHolder.kt      # Shared bitmap for theme-change animation
-│   │   ├── ThemeRevealOverlay.kt     # Circular reveal overlay for theme changes
-│   │   ├── BookmarksActivity.kt      # Bookmarks screen
-│   │   ├── DownloadsActivity.kt      # Downloads screen
-│   │   ├── SettingsActivity.kt       # Settings host activity
-│   │   └── SetupActivity.kt          # First-launch wizard
-│   ├── bookmarks/
-│   │   ├── Bookmark.kt               # Bookmark data model
-│   │   ├── BookmarkManager.kt        # Local bookmark storage
-│   │   └── BookmarksAdapter.kt       # Bookmarks list adapter
+│   │   └── JsAssetLoader.kt          # JavaScript asset loading
 │   ├── crash/
 │   │   ├── CrashHandler.kt           # Local crash reporting
 │   │   └── CrashReportFragment.kt    # Crash log viewer UI
 │   ├── downloads/
 │   │   ├── ClintDownloadManager.kt   # Custom download engine
 │   │   ├── DownloadActionReceiver.kt # Notification action receiver
+│   │   ├── DownloadsActivity.kt      # Downloads screen
 │   │   └── DownloadsAdapter.kt       # Downloads list adapter
 │   ├── network/
 │   │   └── DohManager.kt             # DNS over HTTPS
@@ -90,7 +96,10 @@ ClintBrowser/
 │   │   ├── PrivacySettingsFragment.kt# Privacy & security settings
 │   │   ├── DohSettingsFragment.kt    # DNS over HTTPS settings
 │   │   ├── UpdateSettingsFragment.kt # Update channel settings
-│   │   └── AboutFragment.kt          # About screen
+│   │   ├── AboutFragment.kt          # About screen
+│   │   └── SettingsActivity.kt       # Settings host activity
+│   ├── setup/
+│   │   └── SetupActivity.kt          # First-launch wizard
 │   ├── tabs/
 │   │   ├── BrowserTab.kt             # Tab data model
 │   │   ├── TabManager.kt             # Multi-tab state
@@ -98,7 +107,9 @@ ClintBrowser/
 │   │   ├── TabPreview.kt             # Tab thumbnail model
 │   │   └── TabSwitcherSheet.kt       # Bottom sheet tab switcher
 │   ├── ui/
-│   │   └── DocumentViewer.kt         # In-app document viewer
+│   │   ├── DocumentViewer.kt         # In-app document viewer
+│   │   ├── ThemeRevealHolder.kt      # Shared bitmap for theme-change animation
+│   │   └── ThemeRevealOverlay.kt     # Circular reveal overlay for theme changes
 │   ├── update/
 │   │   └── UpdateChecker.kt          # In-app update checker
 │   └── webview/

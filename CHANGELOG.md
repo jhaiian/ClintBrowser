@@ -4,6 +4,34 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.0.2-beta-2
+
+## 🛠️ Fixes
+- 🧊 Fixed crash dialog viewer not following the theme  
+- ⚠️ Fixed package installer warning dialog not following the theme  
+- 🧭 Fixed toolbar title changing after switching themes  
+- 📱 Fixed a status bar placeholder appearing in the main activity even when "Hide Status Bar" is enabled after a theme change  
+- 🔄 Fixed nested views staying hidden after pausing and resuming the app  
+- 🌐 Fixed desktop mode on GitHub and other websites  
+- 🔧 Fixed app restarting even though the "Hide Status Bar" changes were canceled by the user.
+
+## 🚀 Improvements
+- 💻 Improved desktop mode JavaScript (thanks @Vonjoo [#3](https://github.com/jhaiian/Clint-Browser/pull/3))  
+- 📡 Improved desktop mode HTTPS request headers — no longer incorrectly identifies the device as non-mobile  
+- ❌ Added a cancel button to the Hide Status Bar dialog  
+
+## 🔧 Refactor
+- 📁 Moved all JavaScript from hardcoded Kotlin files to the assets folder  
+
+## 🗂️ Project Structure
+- 🧹 Reorganized all Kotlin files  
+- 📖 For more details, see [Contributing.md](https://raw.githubusercontent.com/jhaiian/Clint-Browser/refs/heads/main/Contributing.md) on GitHub  
+
+## ⚙️ CI/CD
+- 🏷️ Fixed release changelog extraction not including the version heading
+
+---
+
 # 🚀 v1.0.2-beta-1
 
 I added an App Theme setting in the **Look and Feel** fragment. From there, you can select a theme:
