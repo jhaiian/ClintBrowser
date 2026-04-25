@@ -59,7 +59,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardBackgroundColor="?attr/clintCardBackground"
             app:cardCornerRadius="14dp"
             app:strokeWidth="0dp">
 
@@ -128,7 +128,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardBackgroundColor="?attr/clintCardBackground"
             app:cardCornerRadius="14dp"
             app:strokeWidth="0dp">
 
@@ -164,7 +164,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardBackgroundColor="?attr/clintCardBackground"
             app:cardCornerRadius="14dp"
             app:strokeWidth="0dp">
 
@@ -211,7 +211,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardBackgroundColor="?attr/clintCardBackground"
             app:cardCornerRadius="14dp"
             app:strokeWidth="0dp">
 
@@ -258,7 +258,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardBackgroundColor="?attr/clintCardBackground"
             app:cardCornerRadius="14dp"
             app:strokeWidth="0dp">
 
@@ -271,7 +271,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="LEGAL"
+                    android:text="@string/about_section_legal"
                     android:textColor="?attr/colorPrimary"
                     android:textSize="11sp"
                     android:fontFamily="sans-serif-medium"
@@ -289,7 +289,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Privacy Policy"
+                        android:text="@string/document_viewer_privacy_policy_title"
                         android:textColor="?attr/clintSecondaryTextColor"
                         android:textSize="13sp" />
 
@@ -297,7 +297,7 @@
                         android:id="@+id/tvPrivacyPolicyLink"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="View"
+                        android:text="@string/about_legal_view"
                         android:textColor="?attr/colorPrimary"
                         android:textSize="13sp"
                         android:fontFamily="sans-serif-medium"
@@ -322,7 +322,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Terms of Service"
+                        android:text="@string/document_viewer_terms_title"
                         android:textColor="?attr/clintSecondaryTextColor"
                         android:textSize="13sp" />
 
@@ -330,7 +330,7 @@
                         android:id="@+id/tvTermsLink"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="View"
+                        android:text="@string/about_legal_view"
                         android:textColor="?attr/colorPrimary"
                         android:textSize="13sp"
                         android:fontFamily="sans-serif-medium"
@@ -346,7 +346,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardBackgroundColor="?attr/clintCardBackground"
             app:cardCornerRadius="14dp"
             app:strokeWidth="0dp">
 
@@ -359,7 +359,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="COMMUNITY"
+                    android:text="@string/about_section_community"
                     android:textColor="?attr/colorPrimary"
                     android:textSize="11sp"
                     android:fontFamily="sans-serif-medium"
@@ -369,7 +369,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Join the official Clint Browser community on Discord to share feedback, report bugs, and connect with other users."
+                    android:text="@string/about_community_discord_text"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="13sp"
                     android:lineSpacingMultiplier="1.5"
@@ -385,7 +385,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Discord"
+                        android:text="@string/about_community_discord_label"
                         android:textColor="?attr/clintSecondaryTextColor"
                         android:textSize="13sp" />
 
@@ -393,7 +393,41 @@
                         android:id="@+id/tvDiscordLink"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="discord.gg/4kUe4yPQ32"
+                        android:text="@string/about_community_discord_url"
+                        android:textColor="?attr/colorPrimary"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="4dp" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?attr/clintSurfaceVariant"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/about_community_reddit_label"
+                        android:textColor="?attr/clintSecondaryTextColor"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvRedditLink"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/about_community_reddit_url"
                         android:textColor="?attr/colorPrimary"
                         android:textSize="13sp"
                         android:fontFamily="sans-serif-medium"
@@ -409,7 +443,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardBackgroundColor="?attr/clintCardBackground"
             app:cardCornerRadius="14dp"
             app:strokeWidth="0dp">
 
@@ -448,7 +482,41 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Ko-fi"
+                        android:text="@string/about_donate_patreon_label"
+                        android:textColor="?attr/clintSecondaryTextColor"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvPatreonLink"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/about_patreon_url"
+                        android:textColor="?attr/colorPrimary"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="4dp" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?attr/clintSurfaceVariant"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/about_donate_kofi_label"
                         android:textColor="?attr/clintSecondaryTextColor"
                         android:textSize="13sp" />
 
@@ -465,6 +533,39 @@
 
                 </LinearLayout>
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?attr/clintSurfaceVariant"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/about_donate_paypal_label"
+                        android:textColor="?attr/clintSecondaryTextColor"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvPaypalLink"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/about_paypal_url"
+                        android:textColor="?attr/colorPrimary"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="4dp" />
+
+                </LinearLayout>
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -473,7 +574,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardBackgroundColor="?attr/clintCardBackground"
             app:cardCornerRadius="14dp"
             app:strokeWidth="0dp">
 
@@ -503,7 +604,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Email"
+                        android:text="@string/about_contact_email_label"
                         android:textColor="?attr/clintSecondaryTextColor"
                         android:textSize="13sp" />
 
@@ -527,7 +628,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardBackgroundColor="?attr/clintCardBackground"
             app:cardCornerRadius="14dp"
             app:strokeWidth="0dp">
 
@@ -574,7 +675,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardBackgroundColor="?attr/clintCardBackground"
             app:cardCornerRadius="14dp"
             app:strokeWidth="0dp">
 

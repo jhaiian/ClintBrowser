@@ -2,6 +2,7 @@ package com.jhaiian.clint.crash
 
 import android.content.Context
 import android.os.Build
+import androidx.core.content.pm.PackageInfoCompat
 import java.io.File
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -51,7 +52,7 @@ class CrashHandler(private val context: Context) : Thread.UncaughtExceptionHandl
                 context.packageManager.getPackageInfo(context.packageName, 0)
             }.getOrNull()
             val version = pInfo?.versionName ?: "unknown"
-            val build = pInfo?.longVersionCode ?: 0
+            val build = pInfo?.let { PackageInfoCompat.getLongVersionCode(it) } ?: 0L
             val arch = Build.SUPPORTED_ABIS.firstOrNull() ?: "unknown"
             return buildString {
                 appendLine("App Version   : $version (build $build)")

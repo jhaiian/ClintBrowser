@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.jhaiian.clint.R
 import com.jhaiian.clint.base.ClintActivity
+import com.jhaiian.clint.ui.FaviconCache
 
 class BookmarksActivity : ClintActivity() {
 
@@ -49,6 +50,7 @@ class BookmarksActivity : ClintActivity() {
                     finish()
                 },
                 onDelete = { bookmark, position ->
+                    FaviconCache.evict(this, bookmark.url)
                     BookmarkManager.remove(this, bookmark.url)
                     (recycler.adapter as BookmarksAdapter).removeAt(position)
                     if (bookmarks.isEmpty()) {

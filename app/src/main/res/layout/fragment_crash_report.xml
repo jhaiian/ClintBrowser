@@ -11,8 +11,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Crash Reports Section -->
-        <LinearLayout
+<LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -59,16 +58,14 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" />
 
-        <!-- Divider -->
-        <View
+<View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="?attr/clintDividerColor"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp" />
 
-        <!-- Report Template Section -->
-        <TextView
+<TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/crash_report_title"
@@ -87,12 +84,11 @@
             android:lineSpacingMultiplier="1.5"
             android:layout_marginBottom="12dp" />
 
-        <!-- Steps -->
-        <com.google.android.material.card.MaterialCardView
+<com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardBackgroundColor="?attr/clintCardBackground"
             app:cardCornerRadius="12dp"
             app:strokeWidth="0dp">
 
@@ -129,12 +125,11 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Template -->
-        <com.google.android.material.card.MaterialCardView
+<com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardBackgroundColor="?attr/clintCardBackground"
             app:cardCornerRadius="12dp"
             app:strokeWidth="0dp">
 

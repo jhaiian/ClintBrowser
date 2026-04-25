@@ -12,8 +12,10 @@ import android.widget.ProgressBar
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.content.FileProvider
+import androidx.core.content.pm.PackageInfoCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jhaiian.clint.R
+import com.jhaiian.clint.base.ClintActivity
 import io.noties.markwon.Markwon
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -24,9 +26,9 @@ import java.util.concurrent.Executors
 object UpdateChecker {
 
     private const val STABLE_URL =
-        "https://raw.githubusercontent.com/jhaiian/Clint-Browser/main/Update/Stable.json"
+        "https://raw.githubusercontent.com/jhaiian/ClintBrowser/main/Update/Stable.json"
     private const val BETA_URL =
-        "https://raw.githubusercontent.com/jhaiian/Clint-Browser/main/Update/Beta.json"
+        "https://raw.githubusercontent.com/jhaiian/ClintBrowser/main/Update/Beta.json"
 
     private const val PREFS_NAME = "update_prefs"
     private const val KEY_SKIPPED_VERSION_CODE = "skipped_version_code"
@@ -36,18 +38,13 @@ object UpdateChecker {
     private val client = OkHttpClient()
 
     private fun getDialogTheme(context: Context): Int {
-        val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
-        return when (prefs.getString("app_theme", "default") ?: "default") {
-            "dark" -> R.style.ThemeOverlay_ClintBrowser_Dialog_Dark
-            "light" -> R.style.ThemeOverlay_ClintBrowser_Dialog_Light
-            else -> R.style.ThemeOverlay_ClintBrowser_Dialog
-        }
+        return if (context is ClintActivity) context.getDialogTheme()
+        else R.style.ThemeOverlay_ClintBrowser_Dialog
     }
 
-    private fun resolveColor(context: Context, dialogTheme: Int, attr: Int): Int {
-        val wrapped = android.view.ContextThemeWrapper(context, dialogTheme)
+    private fun resolveColor(context: Context, attr: Int): Int {
         val tv = android.util.TypedValue()
-        wrapped.theme.resolveAttribute(attr, tv, true)
+        context.theme.resolveAttribute(attr, tv, true)
         return tv.data
     }
 
@@ -73,8 +70,9 @@ object UpdateChecker {
                 val downloadUrl = downloads.optString(arch).takeIf { it.isNotEmpty() }
                     ?: downloads.optString("universal").takeIf { it.isNotEmpty() }
 
-                val currentVersionCode = activity.packageManager
-                    .getPackageInfo(activity.packageName, 0).longVersionCode
+                val currentVersionCode = PackageInfoCompat.getLongVersionCode(
+                    activity.packageManager.getPackageInfo(activity.packageName, 0)
+                )
 
                 val prefs = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 val skippedVersionCode = prefs.getLong(KEY_SKIPPED_VERSION_CODE, -1L)
@@ -91,7 +89,7 @@ object UpdateChecker {
                         showNoUpdateDialog(activity)
                     }
                 }
-            } catch (_: Exception) {
+            } catch (_: Throwable) {
                 if (!silent) {
                     activity.runOnUiThread { showErrorDialog(activity) }
                 }
@@ -131,13 +129,13 @@ object UpdateChecker {
 
         val dp = activity.resources.displayMetrics.density
 
-        val colorOnSurface = resolveColor(activity, dialogTheme, com.google.android.material.R.attr.colorOnSurface)
+        val colorOnSurface = resolveColor(activity, com.google.android.material.R.attr.colorOnSurface)
         val colorOnSurfaceMedium = run {
             val alpha = ((colorOnSurface ushr 24) * 0.6).toInt()
             (colorOnSurface and 0x00FFFFFF) or (alpha shl 24)
         }
-        val colorPrimary = resolveColor(activity, dialogTheme, com.google.android.material.R.attr.colorPrimary)
-        val dividerColor = resolveColor(activity, dialogTheme, R.attr.clintDividerColor)
+        val colorPrimary = resolveColor(activity, com.google.android.material.R.attr.colorPrimary)
+        val dividerColor = resolveColor(activity, R.attr.clintDividerColor)
 
         val changelogTv = TextView(activity).apply {
             setPadding(64, 24, 64, 8)
@@ -218,11 +216,12 @@ object UpdateChecker {
             } else {
                 activity.startActivity(
                     Intent(Intent.ACTION_VIEW,
-                        Uri.parse("https://github.com/jhaiian/Clint-Browser/releases"))
+                        Uri.parse("https://github.com/jhaiian/ClintBrowser/releases"))
                 )
             }
         }
 
+        (activity as? ClintActivity)?.applyStatusBarFlagToDialog(dialog)
         dialog.show()
     }
 
@@ -242,12 +241,12 @@ object UpdateChecker {
         apkFile.delete()
 
         val dialogTheme = getDialogTheme(activity)
-        val colorOnSurface = resolveColor(activity, dialogTheme, com.google.android.material.R.attr.colorOnSurface)
+        val colorOnSurface = resolveColor(activity, com.google.android.material.R.attr.colorOnSurface)
         val colorOnSurfaceMedium = run {
             val alpha = ((colorOnSurface ushr 24) * 0.6).toInt()
             (colorOnSurface and 0x00FFFFFF) or (alpha shl 24)
         }
-        val colorPrimary = resolveColor(activity, dialogTheme, com.google.android.material.R.attr.colorPrimary)
+        val colorPrimary = resolveColor(activity, com.google.android.material.R.attr.colorPrimary)
 
         val statusText = TextView(activity).apply {
             text = activity.getString(R.string.update_download_preparing)
@@ -267,7 +266,7 @@ object UpdateChecker {
         }
 
         val percentText = TextView(activity).apply {
-            text = "0%"
+            text = activity.getString(R.string.update_download_percent, 0)
             setTextColor(colorOnSurfaceMedium)
             textSize = 12f
             gravity = Gravity.END
@@ -289,7 +288,9 @@ object UpdateChecker {
             .setView(layout)
             .setCancelable(false)
             .setNegativeButton(activity.getString(R.string.action_cancel)) { _, _ -> call.cancel() }
-            .show()
+            .create()
+        (activity as? ClintActivity)?.applyStatusBarFlagToDialog(dialog)
+        dialog.show()
 
         executor.submit {
             try {
@@ -311,7 +312,7 @@ object UpdateChecker {
                                 val pct = (downloaded * 100 / contentLength).toInt()
                                 activity.runOnUiThread {
                                     progressBar.progress = pct
-                                    percentText.text = "$pct%"
+                                    percentText.text = activity.getString(R.string.update_download_percent, pct)
                                 }
                             }
                         }
@@ -350,7 +351,7 @@ object UpdateChecker {
             .setTitle(activity.getString(R.string.update_up_to_date_title))
             .setMessage(activity.getString(R.string.update_up_to_date_message))
             .setPositiveButton(activity.getString(R.string.action_ok), null)
-            .show()
+            .create().also { (activity as? ClintActivity)?.applyStatusBarFlagToDialog(it) }.show()
     }
 
     private fun showErrorDialog(activity: Activity) {
@@ -359,7 +360,7 @@ object UpdateChecker {
             .setTitle(activity.getString(R.string.update_check_failed_title))
             .setMessage(activity.getString(R.string.update_check_failed_message))
             .setPositiveButton(activity.getString(R.string.action_ok), null)
-            .show()
+            .create().also { (activity as? ClintActivity)?.applyStatusBarFlagToDialog(it) }.show()
     }
 
     private fun extractLatestChangelog(raw: String): String {

@@ -13,8 +13,7 @@
         android:inAnimation="@android:anim/slide_in_left"
         android:outAnimation="@android:anim/slide_out_right">
 
-        <!-- PAGE 0: Terms & Privacy Consent -->
-        <ScrollView
+<ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true">
@@ -36,7 +35,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="Welcome to Clint"
+                    android:text="@string/setup_welcome_title"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="28sp"
                     android:fontFamily="sans-serif-medium" />
@@ -46,7 +45,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="32dp"
-                    android:text="Before you get started, please review our terms."
+                    android:text="@string/setup_welcome_subtitle"
                     android:textColor="?attr/clintSecondaryTextColor"
                     android:textSize="14sp"
                     android:gravity="center"
@@ -56,7 +55,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
-                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
                     app:cardCornerRadius="14dp"
                     app:strokeWidth="0dp">
 
@@ -78,14 +77,14 @@
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 android:src="@drawable/ic_shield_24"
-                                android:alpha="0.7" />
+                                android:tint="?attr/colorPrimary" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:layout_marginStart="12dp"
-                                android:text="Privacy Policy"
+                                android:text="@string/document_viewer_privacy_policy_title"
                                 android:textColor="?attr/colorOnSurface"
                                 android:textSize="15sp"
                                 android:fontFamily="sans-serif-medium" />
@@ -94,7 +93,7 @@
                                 android:id="@+id/tvConsentPrivacyLink"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Read"
+                                android:text="@string/setup_terms_read"
                                 android:textColor="?attr/colorPrimary"
                                 android:textSize="13sp"
                                 android:fontFamily="sans-serif-medium"
@@ -120,14 +119,14 @@
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 android:src="@drawable/ic_info_24"
-                                android:alpha="0.7" />
+                                android:tint="?attr/colorPrimary" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:layout_marginStart="12dp"
-                                android:text="Terms of Service"
+                                android:text="@string/document_viewer_terms_title"
                                 android:textColor="?attr/colorOnSurface"
                                 android:textSize="15sp"
                                 android:fontFamily="sans-serif-medium" />
@@ -136,7 +135,7 @@
                                 android:id="@+id/tvConsentTermsLink"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Read"
+                                android:text="@string/setup_terms_read"
                                 android:textColor="?attr/colorPrimary"
                                 android:textSize="13sp"
                                 android:fontFamily="sans-serif-medium"
@@ -169,7 +168,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="8dp"
-                        android:text="I have read and agree to the Privacy Policy and Terms of Service"
+                        android:text="@string/setup_terms_agree"
                         android:textColor="?attr/clintSecondaryTextColor"
                         android:textSize="13sp"
                         android:lineSpacingMultiplier="1.4" />
@@ -181,7 +180,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
                     android:layout_marginBottom="24dp"
-                    android:text="Agree &amp; Continue"
+                    android:text="@string/setup_terms_continue"
                     android:textSize="15sp"
                     android:fontFamily="sans-serif-medium"
                     android:enabled="false"
@@ -191,9 +190,8 @@
             </LinearLayout>
         </ScrollView>
 
-
-        <!-- PAGE 1: Theme Picker -->
-        <ScrollView
+<ScrollView
+            android:id="@+id/scrollSetupPage1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true">
@@ -228,7 +226,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
-                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
                     app:cardCornerRadius="14dp"
                     app:strokeColor="?attr/colorPrimary"
                     app:strokeWidth="3dp">
@@ -280,7 +278,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
                     android:alpha="0.45"
-                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
                     app:cardCornerRadius="14dp"
                     app:strokeColor="?attr/colorPrimary"
                     app:strokeWidth="0dp">
@@ -333,7 +331,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
                     android:alpha="0.45"
-                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
                     app:cardCornerRadius="14dp"
                     app:strokeColor="?attr/colorPrimary"
                     app:strokeWidth="0dp">
@@ -380,6 +378,623 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
+                <TextView
+                    android:id="@+id/tvSetupAccentLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/setup_accent_section_label"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
+                    android:fontFamily="sans-serif-medium"
+                    android:visibility="gone" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupAccentDefault"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:alpha="0.45"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+                        <View
+                            android:id="@+id/swatchSetupAccentDefault"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/accent_default"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/accent_default_desc"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="13sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupAccentDefault"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupAccentMaterialYou"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:alpha="0.45"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+                        <View
+                            android:id="@+id/swatchSetupAccentMaterialYou"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/accent_material_you"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/accent_material_you_desc"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="13sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupAccentMaterialYou"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupAccentPurple"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:alpha="0.45"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+                        <View
+                            android:id="@+id/swatchSetupAccentPurple"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/accent_purple"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/accent_purple_desc"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="13sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupAccentPurple"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupAccentBlue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:alpha="0.45"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+                        <View
+                            android:id="@+id/swatchSetupAccentBlue"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/accent_blue"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/accent_blue_desc"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="13sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupAccentBlue"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupAccentYellow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:alpha="0.45"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+                        <View
+                            android:id="@+id/swatchSetupAccentYellow"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/accent_yellow"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/accent_yellow_desc"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="13sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupAccentYellow"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupAccentRed"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:alpha="0.45"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+                        <View
+                            android:id="@+id/swatchSetupAccentRed"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/accent_red"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/accent_red_desc"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="13sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupAccentRed"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupAccentGreen"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:alpha="0.45"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+                        <View
+                            android:id="@+id/swatchSetupAccentGreen"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/accent_green"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/accent_green_desc"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="13sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupAccentGreen"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupAccentOrange"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:alpha="0.45"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+                        <View
+                            android:id="@+id/swatchSetupAccentOrange"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/accent_orange"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/accent_orange_desc"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="13sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupAccentOrange"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:id="@+id/tvSetupIntensityLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/setup_intensity_section_label"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
+                    android:fontFamily="sans-serif-medium"
+                    android:visibility="gone" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupIntensitySoftTint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+                        <View
+                            android:id="@+id/swatchSetupIntensitySoftTint"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/surface_intensity_soft"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/surface_intensity_soft_desc"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="13sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupIntensitySoftTint"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupIntensityStrongTint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+                        <View
+                            android:id="@+id/swatchSetupIntensityStrongTint"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/surface_intensity_strong"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/surface_intensity_strong_desc"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="13sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupIntensityStrongTint"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupIntensityPureMode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+                        <View
+                            android:id="@+id/swatchSetupIntensityPureMode"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/surface_intensity_pure"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:id="@+id/tvSetupIntensityPureModeDesc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="13sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupIntensityPureMode"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSetupThemeNext"
                     android:layout_width="match_parent"
@@ -395,8 +1010,1000 @@
             </LinearLayout>
         </ScrollView>
 
-        <!-- PAGE 2: Search Engine -->
-        <ScrollView
+<ScrollView
+            android:id="@+id/scrollSetupPage2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="28dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/setup_layout_title"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="26sp"
+                    android:fontFamily="sans-serif-medium" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="28dp"
+                    android:text="@string/setup_layout_subtitle"
+                    android:textColor="?attr/clintSecondaryTextColor"
+                    android:textSize="13sp"
+                    android:lineSpacingMultiplier="1.5" />
+
+<TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/setup_section_address_bar"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
+                    android:fontFamily="sans-serif-medium" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupAddrTop"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="3dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="14dp"
+                        android:gravity="center_vertical">
+                        <FrameLayout
+                            android:id="@+id/swatchSetupAddrTop"
+                            android:layout_width="52dp"
+                            android:layout_height="64dp"
+                            android:clipChildren="true">
+                            <View
+                                android:id="@+id/swatchSetupAddrTopBar"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="top" />
+                            <View
+                                android:id="@+id/swatchSetupAddrTopPill"
+                                android:layout_width="28dp"
+                                android:layout_height="5dp"
+                                android:layout_gravity="top|center_horizontal"
+                                android:layout_marginTop="4dp"
+                                android:alpha="0.35" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:paddingStart="6dp"
+                                android:paddingEnd="6dp"
+                                android:paddingTop="20dp"
+                                android:paddingBottom="8dp"
+                                android:gravity="center_vertical">
+                                <View android:layout_width="match_parent" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                                <View android:layout_width="22dp" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                                <View android:layout_width="match_parent" android:layout_height="3dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                            </LinearLayout>
+                        </FrameLayout>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/address_bar_position_top"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/address_bar_position_top_desc"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="12sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupAddrTop"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupAddrBottom"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:alpha="0.45"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="14dp"
+                        android:gravity="center_vertical">
+                        <FrameLayout
+                            android:id="@+id/swatchSetupAddrBottom"
+                            android:layout_width="52dp"
+                            android:layout_height="64dp"
+                            android:clipChildren="true">
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:paddingStart="6dp"
+                                android:paddingEnd="6dp"
+                                android:paddingTop="8dp"
+                                android:paddingBottom="20dp"
+                                android:gravity="center_vertical">
+                                <View android:layout_width="match_parent" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                                <View android:layout_width="22dp" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                                <View android:layout_width="match_parent" android:layout_height="3dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                            </LinearLayout>
+                            <View
+                                android:id="@+id/swatchSetupAddrBottomBar"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="bottom" />
+                            <View
+                                android:id="@+id/swatchSetupAddrBottomPill"
+                                android:layout_width="28dp"
+                                android:layout_height="5dp"
+                                android:layout_gravity="bottom|center_horizontal"
+                                android:layout_marginBottom="4dp"
+                                android:alpha="0.35" />
+                        </FrameLayout>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/address_bar_position_bottom"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/address_bar_position_bottom_desc"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="12sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupAddrBottom"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupAddrSplit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:alpha="0.45"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="14dp"
+                        android:gravity="center_vertical">
+                        <FrameLayout
+                            android:id="@+id/swatchSetupAddrSplit"
+                            android:layout_width="52dp"
+                            android:layout_height="64dp"
+                            android:clipChildren="true">
+                            <View
+                                android:id="@+id/swatchSetupAddrSplitTopBar"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="top" />
+                            <View
+                                android:id="@+id/swatchSetupAddrSplitTopPill"
+                                android:layout_width="28dp"
+                                android:layout_height="5dp"
+                                android:layout_gravity="top|center_horizontal"
+                                android:layout_marginTop="4dp"
+                                android:alpha="0.35" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:paddingStart="6dp"
+                                android:paddingEnd="6dp"
+                                android:paddingTop="20dp"
+                                android:paddingBottom="20dp"
+                                android:gravity="center_vertical">
+                                <View android:layout_width="match_parent" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                                <View android:layout_width="22dp" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                                <View android:layout_width="match_parent" android:layout_height="3dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                            </LinearLayout>
+                            <View
+                                android:id="@+id/swatchSetupAddrSplitBottomBar"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="bottom" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="bottom"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical|center_horizontal">
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                            </LinearLayout>
+                        </FrameLayout>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/address_bar_position_split"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/address_bar_position_split_desc"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="12sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupAddrSplit"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+<TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/setup_section_menu_style"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
+                    android:fontFamily="sans-serif-medium" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupMenuPopup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="3dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="14dp"
+                        android:gravity="center_vertical">
+                        <FrameLayout
+                            android:id="@+id/swatchSetupMenuPopup"
+                            android:layout_width="52dp"
+                            android:layout_height="64dp"
+                            android:clipChildren="true">
+                            <View
+                                android:id="@+id/swatchSetupMenuPopupTopBar"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="top" />
+                            <View
+                                android:id="@+id/swatchSetupMenuPopupPill"
+                                android:layout_width="28dp"
+                                android:layout_height="5dp"
+                                android:layout_gravity="top|center_horizontal"
+                                android:layout_marginTop="4dp"
+                                android:alpha="0.35" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:paddingStart="6dp"
+                                android:paddingEnd="6dp"
+                                android:paddingTop="24dp"
+                                android:paddingBottom="8dp"
+                                android:gravity="center_vertical">
+                                <View android:layout_width="match_parent" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                                <View android:layout_width="22dp" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                                <View android:layout_width="match_parent" android:layout_height="3dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                            </LinearLayout>
+                            <FrameLayout
+                                android:id="@+id/swatchSetupMenuPopupCard"
+                                android:layout_width="28dp"
+                                android:layout_height="30dp"
+                                android:layout_gravity="top|end"
+                                android:layout_marginEnd="2dp"
+                                android:layout_marginTop="14dp"
+                                android:elevation="2dp">
+                                <View
+                                    android:id="@+id/swatchSetupMenuPopupCardBg"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent" />
+                                <View android:layout_width="18dp" android:layout_height="2dp" android:layout_gravity="top|center_horizontal" android:layout_marginTop="5dp" android:background="?attr/colorOnSurface" android:alpha="0.20" />
+                                <View android:layout_width="14dp" android:layout_height="2dp" android:layout_gravity="center" android:background="?attr/colorOnSurface" android:alpha="0.20" />
+                                <View android:layout_width="18dp" android:layout_height="2dp" android:layout_gravity="bottom|center_horizontal" android:layout_marginBottom="5dp" android:background="?attr/colorOnSurface" android:alpha="0.20" />
+                            </FrameLayout>
+                            <View
+                                android:id="@+id/swatchSetupMenuPopupBottomBar"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="bottom"
+                                android:visibility="gone" />
+                            <LinearLayout
+                                android:id="@+id/swatchSetupMenuPopupNavDots"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="bottom"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical|center_horizontal"
+                                android:visibility="gone">
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                            </LinearLayout>
+                        </FrameLayout>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/menu_style_popup"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/menu_style_popup_desc"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="12sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupMenuPopup"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupMenuSheet"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:alpha="0.45"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="14dp"
+                        android:gravity="center_vertical">
+                        <FrameLayout
+                            android:id="@+id/swatchSetupMenuSheet"
+                            android:layout_width="52dp"
+                            android:layout_height="64dp"
+                            android:clipChildren="true">
+                            <View
+                                android:id="@+id/swatchSetupMenuSheetTopBar"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="top" />
+                            <View
+                                android:id="@+id/swatchSetupMenuSheetPill"
+                                android:layout_width="28dp"
+                                android:layout_height="5dp"
+                                android:layout_gravity="top|center_horizontal"
+                                android:layout_marginTop="4dp"
+                                android:alpha="0.35" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:paddingStart="6dp"
+                                android:paddingEnd="6dp"
+                                android:paddingTop="24dp"
+                                android:paddingBottom="34dp"
+                                android:gravity="center_vertical">
+                                <View android:layout_width="match_parent" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                                <View android:layout_width="22dp" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                                <View android:layout_width="match_parent" android:layout_height="3dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                            </LinearLayout>
+                            <FrameLayout
+                                android:id="@+id/swatchSetupMenuSheetPanel"
+                                android:layout_width="match_parent"
+                                android:layout_height="30dp"
+                                android:layout_gravity="bottom">
+                                <View
+                                    android:id="@+id/swatchSetupMenuSheetPanelBg"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent" />
+                                <View android:layout_width="10dp" android:layout_height="2dp" android:layout_gravity="top|center_horizontal" android:layout_marginTop="4dp" android:background="?attr/colorOnSurface" android:alpha="0.30" />
+                                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="bottom" android:layout_marginBottom="5dp" android:paddingStart="4dp" android:paddingEnd="4dp" android:orientation="horizontal" android:gravity="center">
+                                    <View android:layout_width="0dp" android:layout_height="8dp" android:layout_weight="1" android:layout_marginEnd="2dp" android:background="?attr/colorOnSurface" android:alpha="0.12" />
+                                    <View android:layout_width="0dp" android:layout_height="8dp" android:layout_weight="1" android:layout_marginStart="2dp" android:background="?attr/colorOnSurface" android:alpha="0.12" />
+                                </LinearLayout>
+                            </FrameLayout>
+                            <View
+                                android:id="@+id/swatchSetupMenuSheetBottomBar"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="bottom"
+                                android:visibility="gone" />
+                            <LinearLayout
+                                android:id="@+id/swatchSetupMenuSheetNavDots"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="bottom"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical|center_horizontal"
+                                android:visibility="gone">
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                            </LinearLayout>
+                        </FrameLayout>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/menu_style_bottom_sheet"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/menu_style_bottom_sheet_desc"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="12sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupMenuSheet"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+<TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/setup_section_nested_scroll"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
+                    android:fontFamily="sans-serif-medium" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupScrollOff"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="3dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="14dp"
+                        android:gravity="center_vertical">
+                        <FrameLayout
+                            android:id="@+id/swatchSetupScrollOff"
+                            android:layout_width="52dp"
+                            android:layout_height="64dp"
+                            android:clipChildren="true">
+                            <View
+                                android:id="@+id/swatchSetupScrollOffTop"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="top" />
+                            <View
+                                android:id="@+id/swatchSetupScrollOffPill"
+                                android:layout_width="28dp"
+                                android:layout_height="5dp"
+                                android:layout_gravity="top|center_horizontal"
+                                android:layout_marginTop="4dp"
+                                android:alpha="0.35" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:paddingStart="6dp"
+                                android:paddingEnd="6dp"
+                                android:paddingTop="20dp"
+                                android:paddingBottom="20dp"
+                                android:gravity="center_vertical">
+                                <View android:layout_width="match_parent" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                                <View android:layout_width="22dp" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                                <View android:layout_width="match_parent" android:layout_height="3dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                            </LinearLayout>
+                            <View
+                                android:id="@+id/swatchSetupScrollOffBottom"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="bottom" />
+                            <LinearLayout
+                                android:id="@+id/swatchSetupScrollOffNavDots"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="bottom"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical|center_horizontal"
+                                android:visibility="gone">
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                            </LinearLayout>
+                        </FrameLayout>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/nested_scroll_off"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/nested_scroll_off_desc"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="12sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupScrollOff"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupScrollSearchBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:alpha="0.45"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="14dp"
+                        android:gravity="center_vertical">
+                        <FrameLayout
+                            android:id="@+id/swatchSetupScrollSearchBar"
+                            android:layout_width="52dp"
+                            android:layout_height="64dp"
+                            android:clipChildren="true">
+                            <View
+                                android:id="@+id/swatchSetupScrollSearchTop"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="top" />
+                            <View
+                                android:id="@+id/swatchSetupScrollSearchPill"
+                                android:layout_width="28dp"
+                                android:layout_height="5dp"
+                                android:layout_gravity="top|center_horizontal"
+                                android:layout_marginTop="4dp"
+                                android:alpha="0.35" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:paddingStart="6dp"
+                                android:paddingEnd="6dp"
+                                android:paddingTop="20dp"
+                                android:paddingBottom="20dp"
+                                android:gravity="center_vertical">
+                                <View android:layout_width="match_parent" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                                <View android:layout_width="22dp" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                                <View android:layout_width="match_parent" android:layout_height="3dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                            </LinearLayout>
+                            <View
+                                android:id="@+id/swatchSetupScrollSearchBottom"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="bottom" />
+                            <LinearLayout
+                                android:id="@+id/swatchSetupScrollSearchNavDots"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="bottom"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical|center_horizontal"
+                                android:visibility="gone">
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                            </LinearLayout>
+                        </FrameLayout>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/nested_scroll_search_bar"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/nested_scroll_search_bar_desc"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="12sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupScrollSearchBar"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupScrollNavBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:alpha="0.45"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="14dp"
+                        android:gravity="center_vertical">
+                        <FrameLayout
+                            android:id="@+id/swatchSetupScrollNavBar"
+                            android:layout_width="52dp"
+                            android:layout_height="64dp"
+                            android:clipChildren="true">
+                            <View
+                                android:id="@+id/swatchSetupScrollNavTop"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="top" />
+                            <View
+                                android:id="@+id/swatchSetupScrollNavPill"
+                                android:layout_width="28dp"
+                                android:layout_height="5dp"
+                                android:layout_gravity="top|center_horizontal"
+                                android:layout_marginTop="4dp"
+                                android:alpha="0.35" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:paddingStart="6dp"
+                                android:paddingEnd="6dp"
+                                android:paddingTop="20dp"
+                                android:paddingBottom="20dp"
+                                android:gravity="center_vertical">
+                                <View android:layout_width="match_parent" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                                <View android:layout_width="22dp" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                                <View android:layout_width="match_parent" android:layout_height="3dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                            </LinearLayout>
+                            <View
+                                android:id="@+id/swatchSetupScrollNavBottom"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="bottom" />
+                            <LinearLayout
+                                android:id="@+id/swatchSetupScrollNavNavDots"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="bottom"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical|center_horizontal"
+                                android:visibility="gone">
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                            </LinearLayout>
+                        </FrameLayout>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:id="@+id/tvSetupScrollNavBarTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/nested_scroll_nav_bar"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium" />
+                            <TextView
+                                android:id="@+id/tvSetupScrollNavBarDesc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/nested_scroll_nav_bar_desc"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="12sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupScrollNavBar"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupScrollBoth"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:alpha="0.45"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="14dp"
+                        android:gravity="center_vertical">
+                        <FrameLayout
+                            android:id="@+id/swatchSetupScrollBoth"
+                            android:layout_width="52dp"
+                            android:layout_height="64dp"
+                            android:clipChildren="true">
+                            <View
+                                android:id="@+id/swatchSetupScrollBothTop"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="top" />
+                            <View
+                                android:id="@+id/swatchSetupScrollBothPill"
+                                android:layout_width="28dp"
+                                android:layout_height="5dp"
+                                android:layout_gravity="top|center_horizontal"
+                                android:layout_marginTop="4dp"
+                                android:alpha="0.35" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:paddingStart="6dp"
+                                android:paddingEnd="6dp"
+                                android:paddingTop="20dp"
+                                android:paddingBottom="20dp"
+                                android:gravity="center_vertical">
+                                <View android:layout_width="match_parent" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                                <View android:layout_width="22dp" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                                <View android:layout_width="match_parent" android:layout_height="3dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                            </LinearLayout>
+                            <View
+                                android:id="@+id/swatchSetupScrollBothBottom"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="bottom" />
+                            <LinearLayout
+                                android:id="@+id/swatchSetupScrollBothNavDots"
+                                android:layout_width="match_parent"
+                                android:layout_height="14dp"
+                                android:layout_gravity="bottom"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical|center_horizontal"
+                                android:visibility="gone">
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                                <View android:layout_width="5dp" android:layout_height="5dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                            </LinearLayout>
+                        </FrameLayout>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/nested_scroll_both"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/nested_scroll_both_desc"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="12sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupScrollBoth"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+<TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/setup_section_status_bar"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
+                    android:fontFamily="sans-serif-medium" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupHideStatusBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="12dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/hide_status_bar"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/hide_status_bar_summary"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="12sp"
+                                android:layout_marginTop="2dp"
+                                android:lineSpacingMultiplier="1.3" />
+                        </LinearLayout>
+                        <Switch
+                            android:id="@+id/switchSetupHideStatusBar"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:clickable="false"
+                            android:focusable="false" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSetupLayoutNext"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginBottom="24dp"
+                    android:text="@string/next"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif-medium"
+                    app:backgroundTint="?attr/clintButtonBackground"
+                    app:cornerRadius="26dp" />
+
+            </LinearLayout>
+        </ScrollView>
+
+<ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true">
@@ -450,7 +2057,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
-                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
                     app:cardCornerRadius="14dp"
                     app:strokeColor="?attr/colorPrimary"
                     app:strokeWidth="3dp">
@@ -510,7 +2117,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
                     android:alpha="0.45"
-                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
                     app:cardCornerRadius="14dp"
                     app:strokeColor="?attr/colorPrimary"
                     app:strokeWidth="0dp">
@@ -556,7 +2163,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
                     android:alpha="0.45"
-                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
                     app:cardCornerRadius="14dp"
                     app:strokeColor="?attr/colorPrimary"
                     app:strokeWidth="0dp">
@@ -611,8 +2218,7 @@
             </LinearLayout>
         </ScrollView>
 
-        <!-- PAGE 3: DNS over HTTPS -->
-        <ScrollView
+<ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true">
@@ -657,7 +2263,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
                     app:cardCornerRadius="14dp"
                     app:strokeColor="?attr/colorPrimary"
                     app:strokeWidth="3dp">
@@ -676,7 +2282,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:alpha="0.45"
-                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
                     app:cardCornerRadius="14dp"
                     app:strokeColor="?attr/colorPrimary"
                     app:strokeWidth="0dp">
@@ -695,7 +2301,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:alpha="0.45"
-                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
                     app:cardCornerRadius="14dp"
                     app:strokeColor="?attr/colorPrimary"
                     app:strokeWidth="0dp">
@@ -714,7 +2320,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
                     android:alpha="0.45"
-                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
                     app:cardCornerRadius="14dp"
                     app:strokeColor="?attr/colorPrimary"
                     app:strokeWidth="0dp">
@@ -749,7 +2355,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        app:cardBackgroundColor="?attr/colorSurface"
+                        app:cardBackgroundColor="?attr/clintCardBackground"
                         app:cardCornerRadius="14dp"
                         app:strokeColor="?attr/colorPrimary"
                         app:strokeWidth="3dp">
@@ -768,7 +2374,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp"
                         android:alpha="0.45"
-                        app:cardBackgroundColor="?attr/colorSurface"
+                        app:cardBackgroundColor="?attr/clintCardBackground"
                         app:cardCornerRadius="14dp"
                         app:strokeColor="?attr/colorPrimary"
                         app:strokeWidth="0dp">
@@ -798,8 +2404,7 @@
             </LinearLayout>
         </ScrollView>
 
-        <!-- PAGE 4: Default Browser -->
-        <ScrollView
+<ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true">
@@ -833,7 +2438,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="24dp"
-                    app:cardBackgroundColor="?attr/colorSurface"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
                     app:cardCornerRadius="14dp"
                     app:strokeWidth="0dp">
 
@@ -848,7 +2453,7 @@
                             android:layout_width="36dp"
                             android:layout_height="36dp"
                             android:src="@drawable/ic_language_24"
-                            android:alpha="0.7" />
+                            android:tint="?attr/colorPrimary" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -881,6 +2486,7 @@
                             android:layout_height="22dp"
                             android:layout_marginStart="8dp"
                             android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary"
                             android:visibility="gone" />
 
                     </LinearLayout>

@@ -13,12 +13,12 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jhaiian.clint.R
 import com.jhaiian.clint.base.ClintActivity
 import com.jhaiian.clint.databinding.FragmentCrashReportBinding
+import com.jhaiian.clint.ui.ClintToast
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -40,7 +40,6 @@ class CrashReportFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        CrashHandler.deleteOldReports(requireContext())
         loadReports()
         setupSteps()
         setupReportTemplate()
@@ -51,26 +50,50 @@ class CrashReportFragment : Fragment() {
                 .setMessage(getString(R.string.crash_clear_message))
                 .setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(getString(R.string.crash_clear_confirm)) { _, _ ->
-                    CrashHandler.clearAllReports(requireContext())
-                    loadReports()
+                    val appCtx = requireContext().applicationContext
+                    Thread {
+                        CrashHandler.clearAllReports(appCtx)
+                        activity?.runOnUiThread { loadReports() }
+                    }.start()
                 }
-                .show()
+                .create().also { (requireActivity() as ClintActivity).applyStatusBarFlagToDialog(it) }.show()
         }
 
         binding.btnOpenGithub.setOnClickListener {
             runCatching {
                 startActivity(Intent(Intent.ACTION_VIEW,
-                    Uri.parse("https://github.com/jhaiian/Clint-Browser/issues/new")))
+                    Uri.parse("https://github.com/jhaiian/ClintBrowser/issues/new")))
             }
         }
     }
 
-    private fun loadReports() {
-        val files = CrashHandler.getCrashFiles(requireContext())
+    private fun loadReports(deleteFirst: File? = null) {
+        val appCtx = requireContext().applicationContext
+        val fileDateFmt = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US)
+        val displayFmt = SimpleDateFormat("MMM d, yyyy  HH:mm:ss", Locale.US)
+        Thread {
+            deleteFirst?.delete()
+            CrashHandler.deleteOldReports(appCtx)
+            val files = CrashHandler.getCrashFiles(appCtx)
+            val items = files.map { file ->
+                val nameWithoutExt = file.nameWithoutExtension.removePrefix("crash_")
+                val date = runCatching { fileDateFmt.parse(nameWithoutExt) }.getOrNull()
+                val title = date?.let { displayFmt.format(it) } ?: file.name
+                val content = file.readText()
+                Triple(file, title, content)
+            }
+            activity?.runOnUiThread {
+                if (_binding == null) return@runOnUiThread
+                populateReports(items)
+            }
+        }.start()
+    }
+
+    private fun populateReports(items: List<Triple<File, String, String>>) {
         val container = binding.crashListContainer
         container.removeAllViews()
 
-        if (files.isEmpty()) {
+        if (items.isEmpty()) {
             binding.tvNoCrashes.visibility = View.VISIBLE
             binding.btnClearAll.isEnabled = false
             return
@@ -79,30 +102,17 @@ class CrashReportFragment : Fragment() {
         binding.tvNoCrashes.visibility = View.GONE
         binding.btnClearAll.isEnabled = true
 
-        val fileDateFmt = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US)
-        val displayFmt = SimpleDateFormat("MMM d, yyyy  HH:mm:ss", Locale.US)
-
-        files.forEach { file ->
+        items.forEach { (file, title, content) ->
             val cardView = layoutInflater.inflate(R.layout.item_crash_report, container, false)
 
             val tvTitle = cardView.findViewById<TextView>(R.id.crashTitle)
             val btnCopy = cardView.findViewById<android.widget.ImageButton>(R.id.btnCopyCrash)
             val btnDelete = cardView.findViewById<android.widget.ImageButton>(R.id.btnDeleteCrash)
 
-            val nameWithoutExt = file.nameWithoutExtension.removePrefix("crash_")
-            val date = runCatching { fileDateFmt.parse(nameWithoutExt) }.getOrNull()
-            tvTitle.text = date?.let { displayFmt.format(it) } ?: file.name
-
-            val content = file.readText()
-
-            tvTitle.setOnClickListener { showCrashDialog(file, tvTitle.text.toString(), content) }
-
+            tvTitle.text = title
+            tvTitle.setOnClickListener { showCrashDialog(file, title, content) }
             btnCopy.setOnClickListener { copyToClipboard(content) }
-
-            btnDelete.setOnClickListener {
-                file.delete()
-                loadReports()
-            }
+            btnDelete.setOnClickListener { loadReports(deleteFirst = file) }
 
             container.addView(cardView)
         }
@@ -196,18 +206,18 @@ class CrashReportFragment : Fragment() {
         }
 
         btnDelete.setOnClickListener {
-            file.delete()
             dialog.dismiss()
-            loadReports()
+            loadReports(deleteFirst = file)
         }
 
+        (requireActivity() as ClintActivity).applyStatusBarFlagToDialog(dialog)
         dialog.show()
     }
 
     private fun copyToClipboard(content: String) {
         val cm = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         cm.setPrimaryClip(ClipData.newPlainText("Clint Crash Report", content))
-        Toast.makeText(requireContext(), getString(R.string.crash_copied), Toast.LENGTH_SHORT).show()
+        ClintToast.show(requireContext(), getString(R.string.crash_copied), R.drawable.ic_check_24)
     }
 
     private fun setupSteps() {
@@ -256,7 +266,7 @@ class CrashReportFragment : Fragment() {
         binding.btnCopyTemplate.setOnClickListener {
             val cm = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             cm.setPrimaryClip(ClipData.newPlainText("Bug Report Template", template))
-            Toast.makeText(requireContext(), getString(R.string.crash_template_copied), Toast.LENGTH_SHORT).show()
+            ClintToast.show(requireContext(), getString(R.string.crash_template_copied), R.drawable.ic_check_24)
         }
     }
 

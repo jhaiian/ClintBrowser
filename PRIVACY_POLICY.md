@@ -49,7 +49,7 @@ Clint Browser does not integrate any third-party analytics, advertising, or trac
 
 ## Open Source
 
-Clint Browser is fully open source. You can review the complete source code at [github.com/jhaiian/Clint-Browser](https://github.com/jhaiian/Clint-Browser) to independently verify these claims.
+Clint Browser is fully open source. You can review the complete source code at [github.com/jhaiian/ClintBrowser](https://github.com/jhaiian/ClintBrowser) to independently verify these claims.
 
 ## Changes to This Policy
 

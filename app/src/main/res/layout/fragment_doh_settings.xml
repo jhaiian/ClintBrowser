@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:alpha="0.55"
-            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardBackgroundColor="?attr/clintCardBackground"
             app:cardCornerRadius="12dp"
             app:strokeColor="?attr/colorPrimary"
             app:strokeWidth="0dp">
@@ -83,7 +83,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:alpha="0.55"
-            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardBackgroundColor="?attr/clintCardBackground"
             app:cardCornerRadius="12dp"
             app:strokeColor="?attr/colorPrimary"
             app:strokeWidth="0dp">
@@ -129,7 +129,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:alpha="0.55"
-            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardBackgroundColor="?attr/clintCardBackground"
             app:cardCornerRadius="12dp"
             app:strokeColor="?attr/colorPrimary"
             app:strokeWidth="0dp">
@@ -175,7 +175,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:alpha="0.55"
-            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardBackgroundColor="?attr/clintCardBackground"
             app:cardCornerRadius="12dp"
             app:strokeColor="?attr/colorPrimary"
             app:strokeWidth="0dp">
@@ -237,7 +237,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                app:cardBackgroundColor="?attr/colorSurface"
+                app:cardBackgroundColor="?attr/clintCardBackground"
                 app:cardCornerRadius="12dp"
                 app:strokeColor="?attr/colorPrimary"
                 app:strokeWidth="3dp">
@@ -284,7 +284,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
                 android:alpha="0.55"
-                app:cardBackgroundColor="?attr/colorSurface"
+                app:cardBackgroundColor="?attr/clintCardBackground"
                 app:cardCornerRadius="12dp"
                 app:strokeColor="?attr/colorPrimary"
                 app:strokeWidth="0dp">

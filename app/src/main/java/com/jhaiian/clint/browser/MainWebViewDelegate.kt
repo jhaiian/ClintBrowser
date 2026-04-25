@@ -40,9 +40,20 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
     }
     webView.setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null)
     webView.addJavascriptInterface(NestedScrollBridge(), "NestedScrollBridge")
+    webView.addJavascriptInterface(BottomNavBridge(), "BottomNavBridge")
     webView.setDownloadListener { url, userAgent, contentDisposition, mimetype, _ ->
-        val filename = URLUtil.guessFileName(url, contentDisposition, mimetype)
-        ClintDownloadManager.enqueue(this, url, filename, userAgent)
+        var filename = URLUtil.guessFileName(url, contentDisposition, mimetype)
+        // URLUtil maps application/octet-stream to .bin; recover the real extension from the URL
+        if (filename.endsWith(".bin")) {
+            val urlPath = url.substringBefore("?").substringBefore("#")
+            val urlExt = urlPath.substringAfterLast(".", "")
+            if (urlExt.isNotEmpty() && urlExt.length in 1..10 && !urlExt.contains("/")) {
+                filename = filename.dropLast(4) + ".$urlExt"
+            }
+        }
+        val referer = webView.url ?: ""
+        val cookies = CookieManager.getInstance().getCookie(url) ?: ""
+        ClintDownloadManager.enqueue(this, url, filename, userAgent, referer, cookies)
     }
     applyWebDarkMode(webView)
     return webView

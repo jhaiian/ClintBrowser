@@ -117,7 +117,7 @@ class DownloadsActivity : ClintActivity() {
                     showInstallPermissionDialog(item)
                 }
             }
-            .show()
+            .create().also { applyStatusBarFlagToDialog(it) }.show()
     }
 
     private fun showInstallPermissionDialog(item: DownloadItem) {
@@ -134,7 +134,7 @@ class DownloadsActivity : ClintActivity() {
                     )
                 )
             }
-            .show()
+            .create().also { applyStatusBarFlagToDialog(it) }.show()
     }
 
     private fun launchApkInstall(item: DownloadItem) {

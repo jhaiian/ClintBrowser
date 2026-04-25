@@ -12,4 +12,6 @@
     <attr name="clintButtonBackground" format="color" />
     <attr name="clintButtonTextColor" format="color" />
     <attr name="clintButtonIconTint" format="color" />
+    <attr name="clintIconTint" format="color" />
+    <attr name="clintCardBackground" format="color" />
 </resources>

@@ -12,6 +12,7 @@ import android.widget.ScrollView
 import android.widget.TextView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jhaiian.clint.R
+import com.jhaiian.clint.base.ClintActivity
 import io.noties.markwon.Markwon
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -24,38 +25,33 @@ object DocumentViewer {
     private val mainHandler = Handler(Looper.getMainLooper())
 
     const val PRIVACY_POLICY_URL =
-        "https://raw.githubusercontent.com/jhaiian/Clint-Browser/main/PRIVACY_POLICY.md"
+        "https://raw.githubusercontent.com/jhaiian/ClintBrowser/main/PRIVACY_POLICY.md"
     const val TERMS_URL =
-        "https://raw.githubusercontent.com/jhaiian/Clint-Browser/main/TERMS_OF_SERVICE.md"
+        "https://raw.githubusercontent.com/jhaiian/ClintBrowser/main/TERMS_OF_SERVICE.md"
     const val CHANGELOG_URL =
-        "https://raw.githubusercontent.com/jhaiian/Clint-Browser/main/CHANGELOG.md"
+        "https://raw.githubusercontent.com/jhaiian/ClintBrowser/main/CHANGELOG.md"
 
     private fun getDialogTheme(context: Context): Int {
-        val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context)
-        return when (prefs.getString("app_theme", "default") ?: "default") {
-            "dark" -> R.style.ThemeOverlay_ClintBrowser_Dialog_Dark
-            "light" -> R.style.ThemeOverlay_ClintBrowser_Dialog_Light
-            else -> R.style.ThemeOverlay_ClintBrowser_Dialog
-        }
+        return if (context is ClintActivity) context.getDialogTheme()
+        else R.style.ThemeOverlay_ClintBrowser_Dialog
     }
 
-    private fun resolveColor(context: Context, themeResId: Int, attr: Int): Int {
-        val themedContext = android.view.ContextThemeWrapper(context, themeResId)
-        val tv = TypedValue()
-        themedContext.theme.resolveAttribute(attr, tv, true)
+    private fun resolveColor(context: Context, attr: Int): Int {
+        val tv = android.util.TypedValue()
+        context.theme.resolveAttribute(attr, tv, true)
         return tv.data
     }
 
     fun show(context: Context, title: String, url: String) {
         val dp = context.resources.displayMetrics.density
         val dialogTheme = getDialogTheme(context)
-        val colorOnSurface = resolveColor(context, dialogTheme, com.google.android.material.R.attr.colorOnSurface)
+        val colorOnSurface = resolveColor(context, com.google.android.material.R.attr.colorOnSurface)
         val colorOnSurfaceMedium = (colorOnSurface and 0x00FFFFFF) or 0xCC000000.toInt().let {
             val alpha = ((colorOnSurface ushr 24) * 0.8).toInt()
             (colorOnSurface and 0x00FFFFFF) or (alpha shl 24)
         }
-        val colorPrimary = resolveColor(context, dialogTheme, com.google.android.material.R.attr.colorPrimary)
-        val dividerColor = resolveColor(context, dialogTheme, R.attr.clintDividerColor)
+        val colorPrimary = resolveColor(context, com.google.android.material.R.attr.colorPrimary)
+        val dividerColor = resolveColor(context, R.attr.clintDividerColor)
 
         val spinner = ProgressBar(context).apply {
             layoutParams = LinearLayout.LayoutParams(
@@ -140,6 +136,7 @@ object DocumentViewer {
             .create()
 
         btnBack.setOnClickListener { dialog.dismiss() }
+        (context as? ClintActivity)?.applyStatusBarFlagToDialog(dialog)
         dialog.show()
 
         executor.submit {

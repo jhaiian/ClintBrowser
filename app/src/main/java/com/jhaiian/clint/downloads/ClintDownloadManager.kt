@@ -12,7 +12,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import android.os.Handler
 import android.os.Looper
-import android.widget.Toast
+import com.jhaiian.clint.ui.ClintToast
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -30,6 +30,8 @@ object ClintDownloadManager {
         val url: String,
         var filename: String,
         val userAgent: String,
+        val referer: String = "",
+        val cookies: String = "",
         var bytesDownloaded: Long = 0L,
         var totalBytes: Long = -1L,
         var status: DownloadStatus = DownloadStatus.DOWNLOADING,
@@ -48,6 +50,7 @@ object ClintDownloadManager {
     private val futures = mutableMapOf<Int, Future<*>>()
     private var appContext: Context? = null
     private val mainHandler = Handler(Looper.getMainLooper())
+    private var initialized = false
 
     val downloads = mutableListOf<DownloadItem>()
     var onDownloadsChanged: (() -> Unit)? = null
@@ -67,7 +70,10 @@ object ClintDownloadManager {
 
     fun init(context: Context) {
         appContext = context.applicationContext
-        loadDownloads()
+        if (!initialized) {
+            initialized = true
+            loadDownloads()
+        }
     }
 
     private fun loadDownloads() {
@@ -85,6 +91,8 @@ object ClintDownloadManager {
                     url = obj.getString("url"),
                     filename = obj.getString("filename"),
                     userAgent = obj.getString("userAgent"),
+                    referer = obj.optString("referer"),
+                    cookies = obj.optString("cookies"),
                     bytesDownloaded = obj.getLong("bytesDownloaded"),
                     totalBytes = obj.getLong("totalBytes"),
                     status = status,
@@ -112,6 +120,8 @@ object ClintDownloadManager {
                     put("url", item.url)
                     put("filename", item.filename)
                     put("userAgent", item.userAgent)
+                    put("referer", item.referer)
+                    put("cookies", item.cookies)
                     put("bytesDownloaded", item.bytesDownloaded)
                     put("totalBytes", item.totalBytes)
                     put("status", item.status.name)
@@ -125,9 +135,9 @@ object ClintDownloadManager {
             .edit().putString(KEY_DOWNLOADS, arr.toString()).apply()
     }
 
-    fun enqueue(context: Context, url: String, filename: String, userAgent: String) {
+    fun enqueue(context: Context, url: String, filename: String, userAgent: String, referer: String = "", cookies: String = "") {
         val id = idCounter.getAndIncrement()
-        val item = DownloadItem(id = id, url = url, filename = filename, userAgent = userAgent)
+        val item = DownloadItem(id = id, url = url, filename = filename, userAgent = userAgent, referer = referer, cookies = cookies)
         synchronized(downloads) { downloads.add(0, item) }
         onDownloadsChanged?.invoke()
         showProgressNotification(context, item)
@@ -163,6 +173,12 @@ object ClintDownloadManager {
             val request = Request.Builder()
                 .url(item.url)
                 .header("User-Agent", item.userAgent)
+                .header("Accept", "*/*")
+                .header("Accept-Language", "en-US,en;q=0.9")
+                .apply {
+                    if (item.referer.isNotEmpty()) header("Referer", item.referer)
+                    if (item.cookies.isNotEmpty()) header("Cookie", item.cookies)
+                }
                 .build()
 
             val response = client.newCall(request).execute()
@@ -177,12 +193,12 @@ object ClintDownloadManager {
             val destDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             destDir.mkdirs()
             val destFile = uniqueFile(destDir, item.filename)
-            item.filename = destFile.name  // reflect the actual name (e.g. "file(1).pdf")
+            item.filename = destFile.name  
             item.file = destFile
             val ctx = appContext
             if (ctx != null) {
                 val msg = ctx.getString(R.string.toast_downloading, item.filename)
-                mainHandler.post { Toast.makeText(ctx, msg, Toast.LENGTH_SHORT).show() }
+                mainHandler.post { ClintToast.show(ctx, msg, R.drawable.ic_download_24) }
             }
 
             val buffer = ByteArray(8192)

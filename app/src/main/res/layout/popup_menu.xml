@@ -8,6 +8,79 @@
     android:paddingBottom="6dp">
 
     <LinearLayout
+        android:id="@+id/nav_icons_row"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:visibility="gone">
+
+        <ImageButton
+            android:id="@+id/popup_btn_back"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_arrow_back_24"
+            android:tint="?attr/clintIconTint"
+            android:contentDescription="@string/back" />
+
+        <ImageButton
+            android:id="@+id/popup_btn_forward"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_arrow_forward_24"
+            android:tint="?attr/clintIconTint"
+            android:contentDescription="@string/forward" />
+
+        <ImageButton
+            android:id="@+id/popup_btn_home"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_home_24"
+            android:tint="?attr/clintIconTint"
+            android:contentDescription="@string/home" />
+
+        <ImageButton
+            android:id="@+id/popup_btn_refresh"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_refresh_24"
+            android:tint="?attr/clintIconTint"
+            android:contentDescription="@string/refresh" />
+
+        <ImageButton
+            android:id="@+id/popup_btn_bookmark"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_bookmark_24"
+            android:tint="?attr/clintIconTint"
+            android:contentDescription="Bookmark" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/nav_icons_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:background="@drawable/popup_divider"
+        android:visibility="gone" />
+
+    <LinearLayout
         android:id="@+id/menu_new_tab"
         android:layout_width="match_parent"
         android:layout_height="48dp"
@@ -21,6 +94,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:src="@drawable/ic_add_24"
+            android:tint="?attr/colorPrimary"
             android:alpha="0.85" />
 
         <TextView
@@ -47,6 +121,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:src="@drawable/ic_incognito_24"
+            android:tint="?attr/colorPrimary"
             android:alpha="0.85" />
 
         <TextView
@@ -73,6 +148,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:src="@drawable/ic_share_24"
+            android:tint="?attr/colorPrimary"
             android:alpha="0.85" />
 
         <TextView
@@ -99,6 +175,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:src="@drawable/ic_open_in_new_24"
+            android:tint="?attr/colorPrimary"
             android:alpha="0.85" />
 
         <TextView
@@ -106,7 +183,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="14dp"
-            android:text="Open in app"
+            android:text="@string/menu_open_in_app"
             android:textColor="?attr/clintPopupTextColor"
             android:textSize="14sp" />
 
@@ -135,6 +212,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:src="@drawable/ic_download_24"
+            android:tint="?attr/colorPrimary"
             android:alpha="0.85" />
 
         <TextView
@@ -161,6 +239,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:src="@drawable/ic_bookmark_24"
+            android:tint="?attr/colorPrimary"
             android:alpha="0.85" />
 
         <TextView
@@ -196,6 +275,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:src="@drawable/ic_desktop_24"
+            android:tint="?attr/colorPrimary"
             android:alpha="0.85" />
 
         <TextView
@@ -240,6 +320,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:src="@drawable/ic_settings_24"
+            android:tint="?attr/colorPrimary"
             android:alpha="0.85" />
 
         <TextView

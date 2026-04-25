@@ -5,7 +5,6 @@ import android.webkit.WebChromeClient
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.core.view.updateLayoutParams
 
 internal fun MainActivity.onShowCustomView(view: View, callback: WebChromeClient.CustomViewCallback) {
     if (fullscreenView != null) { callback.onCustomViewHidden(); return }
@@ -17,6 +16,7 @@ internal fun MainActivity.onShowCustomView(view: View, callback: WebChromeClient
     ))
     binding.fullscreenContainer.visibility = View.VISIBLE
     binding.toolbarTop.visibility = View.GONE
+    binding.toolbarBottom.visibility = View.GONE
     binding.bottomBar.visibility = View.GONE
     val ctrl = androidx.core.view.WindowCompat.getInsetsController(window, window.decorView)
     ctrl.hide(WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars())
@@ -39,13 +39,32 @@ internal fun MainActivity.exitFullscreen() {
     fullscreenView?.let { binding.fullscreenContainer.removeView(it) }
     fullscreenView = null
     binding.fullscreenContainer.visibility = View.GONE
-    barAnimator?.cancel()
-    barsHidden = false
+    bottomBarAnimator2?.cancel()
+    topBarFraction = 0f
+    bottomBarFraction = 0f
     nestedScrollActive = false
-    if (topBarFullHeight > 0) binding.toolbarTop.updateLayoutParams { height = topBarFullHeight }
+    hasWebBottomNav = false
+    binding.toolbarTop.translationY = 0f
     binding.bottomBar.translationY = 0f
-    binding.toolbarTop.visibility = View.VISIBLE
-    binding.bottomBar.visibility = View.VISIBLE
+    updateMainContentInsets()
+    val position = prefs.getString("address_bar_position", "top") ?: "top"
+    when (position) {
+        "bottom" -> {
+            binding.toolbarTop.visibility = View.GONE
+            binding.toolbarBottom.visibility = View.VISIBLE
+            binding.bottomBar.visibility = View.GONE
+        }
+        "split" -> {
+            binding.toolbarTop.visibility = View.VISIBLE
+            binding.toolbarBottom.visibility = View.GONE
+            binding.bottomBar.visibility = View.VISIBLE
+        }
+        else -> {
+            binding.toolbarTop.visibility = View.VISIBLE
+            binding.toolbarBottom.visibility = View.GONE
+            binding.bottomBar.visibility = View.GONE
+        }
+    }
     binding.swipeRefresh.isEnabled = true
     val ctrl = androidx.core.view.WindowCompat.getInsetsController(window, window.decorView)
     ctrl.show(WindowInsetsCompat.Type.navigationBars())
@@ -55,6 +74,7 @@ internal fun MainActivity.exitFullscreen() {
         topBarFullHeight = 0
         bottomBarFullHeight = 0
         ViewCompat.requestApplyInsets(binding.toolbarTop)
+        ViewCompat.requestApplyInsets(binding.toolbarBottom)
         ViewCompat.requestApplyInsets(binding.bottomBar)
     }
 }

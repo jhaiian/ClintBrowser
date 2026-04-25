@@ -148,7 +148,9 @@ class ClintWebViewClient(
                             try { activity.startActivity(intent) } catch (_: ActivityNotFoundException) {}
                         }
                     if (appIcon != null) builder.setIcon(appIcon)
-                    builder.show()
+                    val d = builder.create()
+                    (activity as? ClintActivity)?.applyStatusBarFlagToDialog(d)
+                    d.show()
                 }
             } else {
                 val fallbackUrl = intent.getStringExtra("browser_fallback_url")
@@ -189,7 +191,9 @@ class ClintWebViewClient(
                         try { context.startActivity(intent) } catch (_: ActivityNotFoundException) {}
                     }
                 if (appIcon != null) builder.setIcon(appIcon)
-                builder.show()
+                val d = builder.create()
+                (activity as? ClintActivity)?.applyStatusBarFlagToDialog(d)
+                d.show()
             }
             return true
         }
@@ -300,7 +304,9 @@ class ClintWebViewClient(
                         try { context.startActivity(specificIntent) } catch (_: ActivityNotFoundException) {}
                     }
                 if (appIcon != null) builder.setIcon(appIcon)
-                builder.show()
+                val d = builder.create()
+                (activity as? ClintActivity)?.applyStatusBarFlagToDialog(d)
+                d.show()
             } else {
                 val listLayout = android.widget.LinearLayout(context).apply {
                     orientation = android.widget.LinearLayout.VERTICAL
@@ -319,7 +325,9 @@ class ClintWebViewClient(
                         val h = getDesktopHeaders()
                         if (h != null) view.loadUrl(uriStr, h) else view.loadUrl(uriStr)
                     }
-                    .show()
+                    .create()
+                (activity as? ClintActivity)?.applyStatusBarFlagToDialog(dialog)
+                dialog.show()
 
                 appMatches.forEach { ri ->
                     val appName = ri.loadLabel(pm).toString()

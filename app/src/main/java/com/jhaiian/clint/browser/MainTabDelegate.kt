@@ -143,7 +143,8 @@ internal fun MainActivity.attachActiveWebView() {
         cookieManager.setAcceptThirdPartyCookies(tab.webView, !prefs.getBoolean("block_third_party_cookies", true))
     }
     nestedScrollActive = false
-    animateBars(hide = false, animated = false)
+    hasWebBottomNav = false
+    animateBottomBarTo(0f, animated = false)
     attachScrollListener(tab.webView)
     injectScrollTracker(tab.webView)
 }

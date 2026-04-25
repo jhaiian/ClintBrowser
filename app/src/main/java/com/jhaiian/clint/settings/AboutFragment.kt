@@ -35,14 +35,19 @@ class AboutFragment : Fragment() {
     private fun populateVersionInfo() {
         val pInfo = requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
         val versionName = pInfo.versionName
-        val versionCode = pInfo.longVersionCode
+        val versionCode = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            pInfo.longVersionCode
+        } else {
+            @Suppress("DEPRECATION")
+            pInfo.versionCode.toLong()
+        }
         val arch = Build.SUPPORTED_ABIS.firstOrNull() ?: "unknown"
         binding.tvVersionInfo.text = getString(R.string.about_version_info, versionName, versionCode, arch)
     }
 
     private fun setupLinks() {
         makeClickable(binding.tvAuthorLink, "https://linktr.ee/jhaiian")
-        makeClickable(binding.tvGithubLink, "https://github.com/jhaiian/Clint-Browser")
+        makeClickable(binding.tvGithubLink, "https://github.com/jhaiian/ClintBrowser")
         binding.tvPrivacyPolicyLink.setOnClickListener {
             com.jhaiian.clint.ui.DocumentViewer.show(requireContext(), getString(R.string.document_viewer_privacy_policy_title), com.jhaiian.clint.ui.DocumentViewer.PRIVACY_POLICY_URL)
         }
@@ -50,10 +55,13 @@ class AboutFragment : Fragment() {
             com.jhaiian.clint.ui.DocumentViewer.show(requireContext(), getString(R.string.document_viewer_terms_title), com.jhaiian.clint.ui.DocumentViewer.TERMS_URL)
         }
         makeClickable(binding.tvDiscordLink, "https://discord.gg/4kUe4yPQ32")
+        makeClickable(binding.tvRedditLink, "https://www.reddit.com/r/ClintBrowser")
+        makeClickable(binding.tvPatreonLink, "https://www.patreon.com/Jhaiian")
         makeClickable(binding.tvKofiLink, "https://ko-fi.com/jhaiian")
+        makeClickable(binding.tvPaypalLink, "https://www.paypal.me/jhaiian")
         makeClickable(binding.tvLicenseLink, "https://www.gnu.org/licenses/gpl-3.0.html")
-        makeClickable(binding.tvContactEmail, "mailto:jhaiianbetter@gmail.com")
-        makeClickable(binding.tvContributorsLink, "https://github.com/jhaiian/Clint-Browser/blob/main/Contributors.md")
+        makeClickable(binding.tvContactEmail, "mailto:jhaiianbetter@duck.com")
+        makeClickable(binding.tvContributorsLink, "https://github.com/jhaiian/ClintBrowser/blob/main/Contributors.md")
         makeClickable(binding.tvMarkwonLink, "https://github.com/noties/Markwon")
         makeClickable(binding.tvMarkwonLicenseLink, "https://www.apache.org/licenses/LICENSE-2.0.txt")
     }

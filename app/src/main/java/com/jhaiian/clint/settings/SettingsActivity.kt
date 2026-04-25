@@ -15,7 +15,9 @@ class SettingsActivity : ClintActivity(),
     PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
     var pendingRestart = false
+    var pendingHideStatusBar: Boolean? = null
     private var hideStatusBarAtLaunch = false
+    private var addressBarPositionAtLaunch = ""
 
     private lateinit var binding: ActivitySettingsBinding
 
@@ -24,6 +26,9 @@ class SettingsActivity : ClintActivity(),
         hideStatusBarAtLaunch = androidx.preference.PreferenceManager
             .getDefaultSharedPreferences(this)
             .getBoolean("hide_status_bar", false)
+        addressBarPositionAtLaunch = androidx.preference.PreferenceManager
+            .getDefaultSharedPreferences(this)
+            .getString("address_bar_position", "top") ?: "top"
         WindowCompat.setDecorFitsSystemWindows(window, false)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -88,18 +93,29 @@ class SettingsActivity : ClintActivity(),
         super.onStop()
         if (pendingRestart) {
             pendingRestart = false
+            pendingHideStatusBar?.let { pending ->
+                androidx.preference.PreferenceManager.getDefaultSharedPreferences(this)
+                    .edit().putBoolean("hide_status_bar", pending).apply()
+                pendingHideStatusBar = null
+            }
             restartApp()
         }
     }
 
     fun scheduleRestartIfChanged() {
-        val current = androidx.preference.PreferenceManager
-            .getDefaultSharedPreferences(this)
-            .getBoolean("hide_status_bar", false)
-        pendingRestart = current != hideStatusBarAtLaunch
+        val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this)
+        val effectiveStatusBar = pendingHideStatusBar ?: prefs.getBoolean("hide_status_bar", false)
+        val statusBarChanged = effectiveStatusBar != hideStatusBarAtLaunch
+        val positionChanged = (prefs.getString("address_bar_position", "top") ?: "top") != addressBarPositionAtLaunch
+        pendingRestart = statusBarChanged || positionChanged
     }
 
     fun restartApp() {
+        pendingHideStatusBar?.let { pending ->
+            androidx.preference.PreferenceManager.getDefaultSharedPreferences(this)
+                .edit().putBoolean("hide_status_bar", pending).apply()
+            pendingHideStatusBar = null
+        }
         val intent = packageManager.getLaunchIntentForPackage(packageName)!!
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)

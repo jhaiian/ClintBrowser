@@ -4,6 +4,194 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.0.2
+
+## 🎨 Look and Feel Updates
+
+### Theme
+
+- **Default** – Deep purple signature Clint style
+- **Dark** – Dark background with white accents
+- **Light** – Clean white background with dark accents
+
+---
+
+## 🎨 Accent Color
+
+Select an accent color that changes backgrounds and UI accents in **Dark** and **Light** modes.  
+In the **Default** theme, only accent elements (icons, dialogs, etc.) are tinted.
+
+- **Default** – Standard theme colors
+- **Material You** – Dynamic colors based on wallpaper
+- **Purple** – Cool violet tones across the UI
+- **Blue** – Warm blue tones across the UI
+- **Yellow** – Warm golden tones across the UI
+- **Red** – Bold crimson tones across the UI
+- **Green** – Fresh forest tones across the UI
+- **Orange** – Warm sunset tones across the UI
+
+---
+
+## 🌗 Surface Intensity
+
+Controls how strong background and surface colors appear. Three modes are available:
+
+- **Soft Tint** – Subtle background with a gentle tint
+- **Strong Tint** – Deep dark surfaces with higher contrast
+- **Pure Mode** – Pure black or pure white surfaces for maximum contrast
+
+> ℹ️ **Availability**  
+> - **Purple, Blue, Yellow, Red, Green, Orange**: All three modes.  
+> - **Default Accent**: Only Soft Tint and Pure Mode.
+> - **Material You**: Strong Tint is not available (system limitation).  
+> - **Default theme**: Surface Intensity is not applied (preserves original design).
+
+
+🔢 **Estimated ~52 possible theme combinations**
+
+---
+
+## 🧭 Address Bar Position
+
+Choose the location of the address bar / toolbar:
+
+- **Top** – Only the address bar is shown; navigation moves to the menu
+- **Bottom** – Address bar placed at the bottom of the screen (navigation also moves to the menu)
+- **Split** – Address bar at the top, navigation buttons below (classic style)
+
+---
+
+## 📋 Menu Style
+
+Choose how the main menu appears:
+
+- **Pop-up Menu** – Compact menu floating near the toolbar/address bar (classic style)
+- **Bottom Sheet** – Full-width menu sliding up from the bottom (new style)
+
+---
+
+## 🔄 Nested Scroll (Reworked)
+
+The old “Hide Bar on Scroll” setting has been reworked into **Nested Scroll**.
+
+- **Off** – Bars always stay visible
+- **Search Bar** – Address bar / toolbar hides when scrolling down
+- **Navigation Bar** – Navigation buttons / bottom bar hide when scrolling down *(Split only)*
+- **Both** – Both bars hide when scrolling down *(Split only)*
+
+---
+
+## 🗂️ Tab Menu Rework
+
+- Normal tabs and Incognito tabs now clearly separated with headers
+- Improved visual structure for easier navigation
+- Better distinction between private and regular sessions
+
+---
+
+## 🖼️ Bookmark & Favicon System
+
+- Added bookmark favicon system to the tab menu
+- Tabs now display website favicons instead of generic icons
+
+---
+
+## 🌐 Favicon System (Reworked)
+
+- Uses caching to avoid reloading each time
+- Reduces network requests for faster loading
+- **Removed Google favicon service** due to privacy concerns
+- Primary source: website favicon
+- Fallback: DuckDuckGo favicon service
+
+---
+
+## ❤️ About Page Updates
+
+- Added Patreon link
+- Added PayPal link
+- Added subreddit link
+- Updated contact information
+
+---
+
+## 🔗 Repository Update
+
+- Renamed repository to `ClintBrowser`
+- Previous URL: `https://github.com/jhaiian/Clint-Browser`
+- New URL: `https://github.com/jhaiian/ClintBrowser`
+- All GitHub links updated; the old link still redirects for backward compatibility
+
+---
+
+## ⚙️ Improvements
+
+- Improved desktop mode JavaScript (thanks @Vonjoo [#3](https://github.com/jhaiian/ClintBrowser/pull/3))
+- Improved desktop mode HTTPS request headers
+- Improved overall update and download stability
+- Reworked search engine dialog in General Settings using Material Cards (matches setup screen)
+- Replaced default Android Toast with a custom toast system
+- Toasts now match all available app themes for a consistent UI experience
+
+---
+
+## 🔧 Dependency Updates
+
+- **Android Gradle Plugin** – 8.6.0 → 9.2.0
+- **Kotlin** – 2.0.0 → 2.3.10
+- **Gradle Wrapper** – 8.7 → 9.4.1
+- **core-ktx** – 1.16.0 → 1.18.0
+- **appcompat** – 1.7.0 → 1.7.1
+- **webkit** – 1.13.0 → 1.15.0
+- **swiperefreshlayout** – 1.1.0 → 1.2.0
+- **okhttp + dnsoverhttps** – 4.12.0 → 5.3.0
+
+---
+
+## 🐞 Fixes
+
+- Fixed all bugs and issues in notification downloads
+- Fixed Builder.yml not recognizing CHANGELOG.md format
+- Fixed changelog reader cutting off content
+- Fixed beta enrollment not checking stable releases
+- Fixed app restarting after canceled status bar changes
+- Fixed cancel behavior in Hide Status Bar dialog
+- Fixed incorrect mobile detection in desktop mode
+- Fixed both bars blocking WebView content
+- Fixed update checker on lower Android versions
+- Fixed status bar issues on lower Android versions
+- Fixed Debug & Crash Reports crashing on lower Android versions
+- Fixed downloads failing on some sites (missing headers/data)
+- Fixed incorrect download file extensions
+- Fixed About page crashing on lower Android versions
+- Fixed issue where some icons did not properly follow the selected theme
+- Fixed memory leak in DNS-over-HTTPS (DoH) causing app crashes (thanks @Snashy [#4](https://github.com/jhaiian/ClintBrowser/issues/4))
+
+---
+
+## 📁 Project Structure
+
+- Reorganized Kotlin files for better structure
+- Refactored modules for cleaner architecture
+- Moved hardcoded strings to `strings.xml`
+- Renamed and updated strings for clarity
+- Removed unused strings
+- Removed unused drawable resources
+- For more details, see [Contributing.md](https://github.com/jhaiian/ClintBrowser/blob/main/Contributing.md)
+
+---
+
+## 🔥 TL;DR
+
+- Major UI customization update (themes, accents, surface intensity)
+- New address bar positions and menu styles
+- Reworked tab menu with favicon support
+- Improved privacy with new favicon system (no Google dependency)
+- Better support and fixes for lower Android versions
+- General performance, stability, and codebase improvements
+
+---
+
 # v1.0.2-beta-2
 
 ## 🛠️ Fixes

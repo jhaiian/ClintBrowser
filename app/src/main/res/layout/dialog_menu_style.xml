@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp"
+    android:paddingTop="4dp"
+    android:paddingBottom="8dp">
+
+    <LinearLayout
+        android:id="@+id/option_menu_popup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
+
+        <FrameLayout
+            android:id="@+id/swatch_menu_popup"
+            android:layout_width="52dp"
+            android:layout_height="64dp"
+            android:clipChildren="true">
+
+            <View
+                android:id="@+id/swatch_popup_topbar"
+                android:layout_width="match_parent"
+                android:layout_height="14dp"
+                android:layout_gravity="top" />
+
+            <View
+                android:id="@+id/swatch_popup_pill"
+                android:layout_width="28dp"
+                android:layout_height="5dp"
+                android:layout_gravity="top|center_horizontal"
+                android:layout_marginTop="4dp"
+                android:alpha="0.35" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:paddingTop="24dp"
+                android:paddingBottom="8dp"
+                android:gravity="center_vertical">
+
+                <View android:layout_width="match_parent" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                <View android:layout_width="22dp" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                <View android:layout_width="match_parent" android:layout_height="3dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/swatch_popup_card"
+                android:layout_width="28dp"
+                android:layout_height="30dp"
+                android:layout_gravity="bottom|end"
+                android:layout_marginEnd="2dp"
+                android:layout_marginBottom="4dp"
+                android:elevation="2dp">
+
+                <View
+                    android:id="@+id/swatch_popup_card_bg"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <View android:layout_width="18dp" android:layout_height="2dp" android:layout_gravity="top|center_horizontal" android:layout_marginTop="5dp" android:background="?attr/colorOnSurface" android:alpha="0.20" />
+                <View android:layout_width="14dp" android:layout_height="2dp" android:layout_gravity="center" android:background="?attr/colorOnSurface" android:alpha="0.20" />
+                <View android:layout_width="18dp" android:layout_height="2dp" android:layout_gravity="bottom|center_horizontal" android:layout_marginBottom="5dp" android:background="?attr/colorOnSurface" android:alpha="0.20" />
+
+            </FrameLayout>
+
+            <View
+                android:id="@+id/swatch_popup_bottombar"
+                android:layout_width="match_parent"
+                android:layout_height="14dp"
+                android:layout_gravity="bottom"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/swatch_popup_nav_dots"
+                android:layout_width="match_parent"
+                android:layout_height="14dp"
+                android:layout_gravity="bottom"
+                android:orientation="horizontal"
+                android:gravity="center_vertical|center_horizontal"
+                android:visibility="gone">
+                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                <View android:layout_width="5dp" android:layout_height="5dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+            </LinearLayout>
+
+        </FrameLayout>
+
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="16dp" android:layout_marginEnd="8dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/menu_style_popup" android:textSize="15sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/menu_style_popup_desc" android:textSize="13sp" android:textColor="?attr/colorOnSurface" android:alpha="0.65" android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <ImageView android:id="@+id/check_menu_popup" android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_check_24" android:tint="?attr/colorPrimary" />
+
+    </LinearLayout>
+
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginStart="84dp" android:layout_marginEnd="16dp" android:background="?attr/colorOnSurface" android:alpha="0.08" />
+
+    <LinearLayout
+        android:id="@+id/option_menu_bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
+
+        <FrameLayout
+            android:id="@+id/swatch_menu_bottom_sheet"
+            android:layout_width="52dp"
+            android:layout_height="64dp"
+            android:clipChildren="true">
+
+            <View
+                android:id="@+id/swatch_sheet_topbar"
+                android:layout_width="match_parent"
+                android:layout_height="14dp"
+                android:layout_gravity="top" />
+
+            <View
+                android:id="@+id/swatch_sheet_pill"
+                android:layout_width="28dp"
+                android:layout_height="5dp"
+                android:layout_gravity="top|center_horizontal"
+                android:layout_marginTop="4dp"
+                android:alpha="0.35" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:paddingTop="24dp"
+                android:paddingBottom="34dp"
+                android:gravity="center_vertical">
+
+                <View android:layout_width="match_parent" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                <View android:layout_width="22dp" android:layout_height="3dp" android:layout_marginBottom="4dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+                <View android:layout_width="match_parent" android:layout_height="3dp" android:background="?attr/colorOnSurface" android:alpha="0.15" />
+
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/swatch_sheet_panel"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_gravity="bottom">
+
+                <View
+                    android:id="@+id/swatch_sheet_panel_bg"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <View android:layout_width="10dp" android:layout_height="2dp" android:layout_gravity="top|center_horizontal" android:layout_marginTop="4dp" android:background="?attr/colorOnSurface" android:alpha="0.30" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="bottom" android:layout_marginBottom="5dp" android:paddingStart="4dp" android:paddingEnd="4dp" android:orientation="horizontal" android:gravity="center">
+                    <View android:layout_width="0dp" android:layout_height="8dp" android:layout_weight="1" android:layout_marginEnd="2dp" android:background="?attr/colorOnSurface" android:alpha="0.12" />
+                    <View android:layout_width="0dp" android:layout_height="8dp" android:layout_weight="1" android:layout_marginStart="2dp" android:background="?attr/colorOnSurface" android:alpha="0.12" />
+                </LinearLayout>
+
+            </FrameLayout>
+
+            <View
+                android:id="@+id/swatch_sheet_bottombar"
+                android:layout_width="match_parent"
+                android:layout_height="14dp"
+                android:layout_gravity="bottom"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/swatch_sheet_nav_dots"
+                android:layout_width="match_parent"
+                android:layout_height="14dp"
+                android:layout_gravity="bottom"
+                android:orientation="horizontal"
+                android:gravity="center_vertical|center_horizontal"
+                android:visibility="gone">
+                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                <View android:layout_width="5dp" android:layout_height="5dp" android:layout_marginEnd="3dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+                <View android:layout_width="5dp" android:layout_height="5dp" android:background="?attr/colorOnSurface" android:alpha="0.25" />
+            </LinearLayout>
+
+        </FrameLayout>
+
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="16dp" android:layout_marginEnd="8dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/menu_style_bottom_sheet" android:textSize="15sp" android:textStyle="bold" android:textColor="?attr/colorOnSurface" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/menu_style_bottom_sheet_desc" android:textSize="13sp" android:textColor="?attr/colorOnSurface" android:alpha="0.65" android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <ImageView android:id="@+id/check_menu_bottom_sheet" android:layout_width="22dp" android:layout_height="22dp" android:src="@drawable/ic_check_24" android:tint="?attr/colorPrimary" />
+
+    </LinearLayout>
+
+</LinearLayout>

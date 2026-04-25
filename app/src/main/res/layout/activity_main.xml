@@ -5,112 +5,15 @@
     android:layout_height="match_parent"
     android:background="?android:attr/colorBackground">
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/mainContent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:id="@+id/toolbarTop"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="?attr/colorSurface"
-            android:clipChildren="true"
-            android:clipToPadding="true"
-            android:elevation="4dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingStart="10dp"
-                android:paddingEnd="6dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp">
-
-                <ImageView
-                    android:id="@+id/incognitoIcon"
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:src="@drawable/ic_incognito_24"
-                    android:tint="@color/incognito_accent"
-                    android:layout_marginEnd="4dp"
-                    android:visibility="gone"
-                    android:contentDescription="@string/incognito" />
-
-                <ImageView
-                    android:id="@+id/lockIcon"
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:src="@drawable/ic_lock_24"
-                    android:tint="?attr/colorPrimary"
-                    android:layout_marginEnd="6dp"
-                    android:contentDescription="@string/connection_secure" />
-
-                <EditText
-                    android:id="@+id/addressBar"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="40dp"
-                    android:background="@drawable/address_bar_background"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textColorHint="?attr/clintSecondaryTextColor"
-                    android:hint="@string/address_bar_hint"
-                    android:paddingStart="14dp"
-                    android:paddingEnd="14dp"
-                    android:singleLine="true"
-                    android:imeOptions="actionGo"
-                    android:inputType="textUri"
-                    android:textSize="14sp"
-                    android:selectAllOnFocus="true" />
-
-                <TextView
-                    android:id="@+id/btnTabCount"
-                    android:layout_width="34dp"
-                    android:layout_height="26dp"
-                    android:layout_marginStart="8dp"
-                    android:text="1"
-                    android:textColor="?attr/colorPrimary"
-                    android:textSize="12sp"
-                    android:fontFamily="sans-serif-medium"
-                    android:gravity="center"
-                    android:background="@drawable/tab_count_background"
-                    android:contentDescription="@string/tabs" />
-
-                <ImageButton
-                    android:id="@+id/btnMenu"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_more_vert_24"
-                    android:tint="?attr/colorPrimary"
-                    android:layout_marginStart="2dp"
-                    android:contentDescription="@string/menu" />
-
-            </LinearLayout>
-
-            <com.google.android.material.progressindicator.LinearProgressIndicator
-                android:id="@+id/progressBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="invisible"
-                android:max="100"
-                android:progress="0"
-                app:trackThickness="3dp"
-                app:indicatorColor="?attr/colorPrimary"
-                app:trackColor="?attr/colorSurface"
-                app:trackStopIndicatorSize="0dp" />
-
-        </LinearLayout>
+        android:layout_height="match_parent">
 
         <com.jhaiian.clint.webview.ClintSwipeRefreshLayout
             android:id="@+id/swipeRefresh"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_height="match_parent">
 
             <FrameLayout
                 android:id="@+id/webContainer"
@@ -118,6 +21,102 @@
                 android:layout_height="match_parent" />
 
         </com.jhaiian.clint.webview.ClintSwipeRefreshLayout>
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/toolbarTop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:orientation="vertical"
+        android:background="?attr/colorSurface"
+        android:clipChildren="true"
+        android:clipToPadding="true"
+        android:elevation="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="10dp"
+            android:paddingEnd="6dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+
+            <ImageView
+                android:id="@+id/incognitoIcon"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_incognito_24"
+                android:tint="@color/incognito_accent"
+                android:layout_marginEnd="4dp"
+                android:visibility="gone"
+                android:contentDescription="@string/incognito" />
+
+            <ImageView
+                android:id="@+id/lockIcon"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_lock_24"
+                android:tint="?attr/clintIconTint"
+                android:layout_marginEnd="6dp"
+                android:contentDescription="@string/connection_secure" />
+
+            <EditText
+                android:id="@+id/addressBar"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="40dp"
+                android:background="@drawable/address_bar_background"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/clintSecondaryTextColor"
+                android:hint="@string/address_bar_hint"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:singleLine="true"
+                android:imeOptions="actionGo"
+                android:inputType="textUri"
+                android:textSize="14sp"
+                android:selectAllOnFocus="true" />
+
+            <TextView
+                android:id="@+id/btnTabCount"
+                android:layout_width="34dp"
+                android:layout_height="26dp"
+                android:layout_marginStart="8dp"
+                android:text="1"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:background="@drawable/tab_count_background"
+                android:contentDescription="@string/tabs" />
+
+            <ImageButton
+                android:id="@+id/btnMenu"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_more_vert_24"
+                android:tint="?attr/clintIconTint"
+                android:layout_marginStart="2dp"
+                android:contentDescription="@string/menu" />
+
+        </LinearLayout>
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:max="100"
+            android:progress="0"
+            app:trackThickness="3dp"
+            app:indicatorColor="?attr/colorPrimary"
+            app:trackColor="?attr/colorSurface"
+            app:trackStopIndicatorSize="0dp" />
 
     </LinearLayout>
 
@@ -132,11 +131,108 @@
         android:orientation="horizontal"
         android:elevation="8dp">
 
-        <ImageButton android:id="@+id/btnBack" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_arrow_back_24" android:tint="?attr/colorPrimary" android:alpha="0.38" android:contentDescription="@string/back" />
-        <ImageButton android:id="@+id/btnForward" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_arrow_forward_24" android:tint="?attr/colorPrimary" android:alpha="0.38" android:contentDescription="@string/forward" />
-        <ImageButton android:id="@+id/btnHome" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_home_24" android:tint="?attr/colorPrimary" android:contentDescription="@string/home" />
-        <ImageButton android:id="@+id/btnRefresh" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_refresh_24" android:tint="?attr/colorPrimary" android:contentDescription="@string/refresh" />
-        <ImageButton android:id="@+id/btnBookmark" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_bookmark_24" android:tint="?attr/colorPrimary" android:contentDescription="Bookmark" />
+        <ImageButton android:id="@+id/btnBack" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_arrow_back_24" android:tint="?attr/clintIconTint" android:alpha="0.38" android:contentDescription="@string/back" />
+        <ImageButton android:id="@+id/btnForward" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_arrow_forward_24" android:tint="?attr/clintIconTint" android:alpha="0.38" android:contentDescription="@string/forward" />
+        <ImageButton android:id="@+id/btnHome" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_home_24" android:tint="?attr/clintIconTint" android:contentDescription="@string/home" />
+        <ImageButton android:id="@+id/btnRefresh" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_refresh_24" android:tint="?attr/clintIconTint" android:contentDescription="@string/refresh" />
+        <ImageButton android:id="@+id/btnBookmark" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_bookmark_24" android:tint="?attr/clintIconTint" android:contentDescription="Bookmark" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/toolbarBottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="?attr/colorSurface"
+        android:clipChildren="true"
+        android:clipToPadding="true"
+        android:orientation="vertical"
+        android:elevation="8dp"
+        android:visibility="gone">
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressBarBottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:max="100"
+            android:progress="0"
+            app:trackThickness="3dp"
+            app:indicatorColor="?attr/colorPrimary"
+            app:trackColor="?attr/colorSurface"
+            app:trackStopIndicatorSize="0dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="10dp"
+            android:paddingEnd="6dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+
+            <ImageView
+                android:id="@+id/incognitoIconBottom"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_incognito_24"
+                android:tint="@color/incognito_accent"
+                android:layout_marginEnd="4dp"
+                android:visibility="gone"
+                android:contentDescription="@string/incognito" />
+
+            <ImageView
+                android:id="@+id/lockIconBottom"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_lock_24"
+                android:tint="?attr/clintIconTint"
+                android:layout_marginEnd="6dp"
+                android:contentDescription="@string/connection_secure" />
+
+            <EditText
+                android:id="@+id/addressBarBottom"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="40dp"
+                android:background="@drawable/address_bar_background"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/clintSecondaryTextColor"
+                android:hint="@string/address_bar_hint"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:singleLine="true"
+                android:imeOptions="actionGo"
+                android:inputType="textUri"
+                android:textSize="14sp"
+                android:selectAllOnFocus="true" />
+
+            <TextView
+                android:id="@+id/btnTabCountBottom"
+                android:layout_width="34dp"
+                android:layout_height="26dp"
+                android:layout_marginStart="8dp"
+                android:text="1"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:background="@drawable/tab_count_background"
+                android:contentDescription="@string/tabs" />
+
+            <ImageButton
+                android:id="@+id/btnMenuBottom"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_more_vert_24"
+                android:tint="?attr/clintIconTint"
+                android:layout_marginStart="2dp"
+                android:contentDescription="@string/menu" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -146,5 +242,15 @@
         android:layout_height="match_parent"
         android:background="#000000"
         android:visibility="gone" />
+
+    <View
+        android:id="@+id/statusBarBackground"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="top"
+        android:background="?attr/colorSurface"
+        android:clickable="false"
+        android:focusable="false"
+        android:elevation="6dp" />
 
 </FrameLayout>

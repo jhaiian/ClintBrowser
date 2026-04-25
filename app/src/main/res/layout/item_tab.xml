@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    app:cardBackgroundColor="?attr/colorSurface"
+    app:cardBackgroundColor="?attr/clintCardBackground"
     app:cardCornerRadius="12dp"
     app:strokeWidth="0dp">
 
@@ -30,7 +30,7 @@
             android:layout_height="22dp"
             android:layout_marginEnd="12dp"
             android:src="@drawable/ic_globe_24"
-            android:tint="?attr/colorPrimary" />
+            android:tint="?attr/colorOnSurface" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -42,7 +42,7 @@
                 android:id="@+id/tabTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="New Tab"
+                android:text="@string/new_tab"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="14sp"
                 android:maxLines="1"

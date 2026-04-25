@@ -2,7 +2,7 @@
 
 Contributions, bug reports, and feature requests are welcome.
 
-1. [Open an issue](https://github.com/jhaiian/Clint-Browser/issues) to report a bug or suggest a feature
+1. [Open an issue](https://github.com/jhaiian/ClintBrowser/issues) to report a bug or suggest a feature
 2. Fork the repo and create a branch for your change
 3. Submit a pull request with a clear description
 
@@ -14,13 +14,13 @@ To report a crash, use the built-in **Debug & Crash Reports** screen in Settings
 
 ### Prerequisites
 - Android Studio or JDK 17
-- Android SDK (API 34)
-- Gradle 8.6+
+- Android SDK (API 36)
+- Gradle 9.4.1
 
 ### Steps
 
 ```bash
-git clone https://github.com/jhaiian/Clint-Browser.git
+git clone https://github.com/jhaiian/ClintBrowser.git
 cd ClintBrowser
 ```
 
@@ -56,6 +56,7 @@ APKs will be output to `app/build/outputs/apk/release/`.
 ClintBrowser/
 ├── app/src/main/assets/
 │   └── JavaScript/
+│       ├── bottom_nav_detector.js    # Detects bottom navigation bars for scroll behavior
 │       ├── dark_mode.js              # Injects dark mode styles into pages
 │       ├── desktop_mode.js           # Overrides user-agent and viewport for desktop
 │       ├── scroll_tracker.js         # Tracks scroll position for hide-bars behavior
@@ -71,6 +72,7 @@ ClintBrowser/
 │   │   ├── BookmarksActivity.kt      # Bookmarks screen
 │   │   └── BookmarksAdapter.kt       # Bookmarks list adapter
 │   ├── browser/
+│   │   ├── JsAssetLoader.kt          # JavaScript asset loading
 │   │   ├── MainActivity.kt           # Browser activity, state, and lifecycle
 │   │   ├── MainFileChooserDelegate.kt# File chooser and camera capture logic
 │   │   ├── MainFullscreenDelegate.kt # Video fullscreen enter/exit logic
@@ -78,7 +80,7 @@ ClintBrowser/
 │   │   ├── MainTabDelegate.kt        # Tab open, close, restore, and switching
 │   │   ├── MainUiDelegate.kt         # WebView setup, address bar, UI state updates
 │   │   ├── MainWebViewDelegate.kt    # WebView configuration and settings apply
-│   │   └── JsAssetLoader.kt          # JavaScript asset loading
+│   │   └── MenuBottomSheet.kt        # Browser action menu bottom sheet
 │   ├── crash/
 │   │   ├── CrashHandler.kt           # Local crash reporting
 │   │   └── CrashReportFragment.kt    # Crash log viewer UI
@@ -90,38 +92,43 @@ ClintBrowser/
 │   ├── network/
 │   │   └── DohManager.kt             # DNS over HTTPS
 │   ├── settings/
-│   │   ├── MainSettingsFragment.kt   # Settings root screen
+│   │   ├── AboutFragment.kt          # About screen
+│   │   ├── DohSettingsFragment.kt    # DNS over HTTPS settings
 │   │   ├── GeneralSettingsFragment.kt# General settings (scroll-hide, display)
 │   │   ├── LookAndFeelFragment.kt    # Appearance & theme settings
+│   │   ├── MainSettingsFragment.kt   # Settings root screen
+│   │   ├── MiscFragment.kt           # Miscellaneous settings screen
 │   │   ├── PrivacySettingsFragment.kt# Privacy & security settings
-│   │   ├── DohSettingsFragment.kt    # DNS over HTTPS settings
-│   │   ├── UpdateSettingsFragment.kt # Update channel settings
-│   │   ├── AboutFragment.kt          # About screen
-│   │   └── SettingsActivity.kt       # Settings host activity
+│   │   ├── SettingsActivity.kt       # Settings host activity
+│   │   └── UpdateSettingsFragment.kt # Update channel settings
 │   ├── setup/
 │   │   └── SetupActivity.kt          # First-launch wizard
 │   ├── tabs/
 │   │   ├── BrowserTab.kt             # Tab data model
-│   │   ├── TabManager.kt             # Multi-tab state
 │   │   ├── TabAdapter.kt             # Tab switcher adapter
+│   │   ├── TabManager.kt             # Multi-tab state
 │   │   ├── TabPreview.kt             # Tab thumbnail model
 │   │   └── TabSwitcherSheet.kt       # Bottom sheet tab switcher
 │   ├── ui/
+│   │   ├── ClintToast.kt             # Custom themed toast
 │   │   ├── DocumentViewer.kt         # In-app document viewer
+│   │   ├── FaviconCache.kt           # Favicon download and memory/disk cache
 │   │   ├── ThemeRevealHolder.kt      # Shared bitmap for theme-change animation
-│   │   └── ThemeRevealOverlay.kt     # Circular reveal overlay for theme changes
+│   │   ├── ThemeRevealOverlay.kt     # Circular reveal overlay for theme changes
+│   │   └── ThemeSwatchUtils.kt       # Builds theme swatch drawables for the theme picker
 │   ├── update/
 │   │   └── UpdateChecker.kt          # In-app update checker
 │   └── webview/
-│       ├── ClintWebViewClient.kt     # Request interception, tracker blocking
-│       ├── ClintWebChromeClient.kt   # Progress, title, fullscreen updates
 │       ├── ClintSwipeRefreshLayout.kt# Custom swipe refresh with scroll callbacks
+│       ├── ClintWebChromeClient.kt   # Progress, title, fullscreen updates
+│       ├── ClintWebViewClient.kt     # Request interception, tracker blocking
 │       └── WebViewCookieJar.kt       # OkHttp cookie integration
 ├── Update/
 │   ├── Stable.json                   # Stable channel update manifest
 │   └── Beta.json                     # Beta channel update manifest
 ├── docs/
 │   ├── clint_logo.png
+│   ├── clint_logo_backgroud.jpg
 │   ├── screenshot1.jpg               # Welcome screen
 │   ├── screenshot2.jpg               # Search engine setup
 │   ├── screenshot3.jpg               # Secure DNS setup
@@ -131,7 +138,9 @@ ClintBrowser/
 │   ├── screenshot7.jpg               # Menu
 │   ├── screenshot8.jpg               # Settings
 │   ├── screenshot9.jpg               # Downloads
-│   └── screenshot10.jpg              # Bookmarks
+│   ├── screenshot10.jpg              # Bookmarks
+│   ├── screenshot11.jpg
+│   └── screenshot12.jpg
 ├── CHANGELOG.md
 ├── Contributing.md
 ├── Contributors.md

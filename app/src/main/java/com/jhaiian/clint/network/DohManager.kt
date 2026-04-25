@@ -5,7 +5,9 @@ import okhttp3.OkHttpClient
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.dnsoverhttps.DnsOverHttps
 import java.net.InetAddress
-import java.util.concurrent.Executors
+import java.util.Collections
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
 object DohManager {
@@ -18,12 +20,21 @@ object DohManager {
     const val PROVIDER_CLOUDFLARE = "cloudflare"
     const val PROVIDER_QUAD9 = "quad9"
 
+    private const val CACHE_MAX_SIZE = 512
+
     @Volatile private var dnsClient: OkHttpClient? = null
     @Volatile private var cachedMode: String = MODE_OFF
     @Volatile private var cachedProvider: String = PROVIDER_CLOUDFLARE
 
-    private val executor = Executors.newCachedThreadPool()
-    private val resolvedCache = mutableSetOf<String>()
+    private val executor = ThreadPoolExecutor(
+        2, 4,
+        60L, TimeUnit.SECONDS,
+        LinkedBlockingQueue(64),
+        ThreadPoolExecutor.DiscardPolicy()
+    )
+
+    private val resolvedCache: MutableSet<String> =
+        Collections.newSetFromMap(java.util.concurrent.ConcurrentHashMap())
 
     private val bootstrapClient = OkHttpClient.Builder()
         .connectTimeout(5, TimeUnit.SECONDS)
@@ -72,7 +83,9 @@ object DohManager {
         executor.submit {
             runCatching {
                 client.dns.lookup(host)
-                resolvedCache.add(host)
+                if (resolvedCache.size < CACHE_MAX_SIZE) {
+                    resolvedCache.add(host)
+                }
             }
         }
     }

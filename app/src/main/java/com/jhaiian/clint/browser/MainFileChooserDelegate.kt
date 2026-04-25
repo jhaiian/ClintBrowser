@@ -28,7 +28,7 @@ internal fun MainActivity.onShowFileChooser(
                 .setPositiveButton(getString(com.jhaiian.clint.R.string.action_allow)) { _, _ ->
                     cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
                 }
-                .show()
+                .create().also { applyStatusBarFlagToDialog(it) }.show()
         } else {
             cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
         }
