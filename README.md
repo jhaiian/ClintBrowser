@@ -6,7 +6,7 @@
 
 **Customizable Layered Internet Navigation Tool**
 
-A privacy‑first Android browser built on Android WebView — no Google telemetry, no tracking, no compromises.
+A customizable, privacy focused Android browser built on Android WebView.
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blueviolet.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B-blueviolet.svg)](https://developer.android.com)
@@ -196,6 +196,8 @@ Clint supports four DoH protection levels:
 ## Installation
 
 Download the latest APK from the [Releases](https://github.com/jhaiian/ClintBrowser/releases) page.
+
+1 download = 1 petition for Hawkeye Season 2
 
 Choose the APK that matches your device architecture:
 
