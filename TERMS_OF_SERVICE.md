@@ -41,4 +41,4 @@ These terms may be updated from time to time. Any changes will be reflected in t
 
 ## Contact
 
-For questions regarding these Terms of Service, contact the developer at `jhaiianbetter@gmail.com` or through the community Discord at [discord.gg/4kUe4yPQ32](https://discord.gg/4kUe4yPQ32).
+For questions regarding these Terms of Service, contact the developer at `jhaiianbetter@duck.com` or through the community Discord at [discord.gg/4kUe4yPQ32](https://discord.gg/4kUe4yPQ32).
