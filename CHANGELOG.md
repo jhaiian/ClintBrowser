@@ -4,7 +4,7 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
-# v.1.0.2-r2
+# v1.0.2-r2
 
 - Remove QUERY_ALL_PACKAGES permission. I forgot to remove this before.
 
