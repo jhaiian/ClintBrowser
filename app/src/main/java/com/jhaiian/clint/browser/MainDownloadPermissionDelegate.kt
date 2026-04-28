@@ -27,7 +27,7 @@ internal fun MainActivity.handleDownloadRequest(
         return
     }
 
-    pendingDownload = PendingDownload(url, filename, userAgent, referer, cookies)
+    pendingDownload = MainActivity.PendingDownload(url, filename, userAgent, referer, cookies)
 
     MaterialAlertDialogBuilder(this, getDialogTheme())
         .setTitle(getString(R.string.download_storage_permission_title))
