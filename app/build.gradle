@@ -20,12 +20,16 @@ android {
         versionName "1.0.2"
     }
 
-    signingConfigs {
-        release {
-            storeFile rootProject.file(localProperties.getProperty('signingConfig.storeFile', 'app/release_keystore.jks'))
-            storePassword localProperties.getProperty('signingConfig.storePassword')
-            keyAlias localProperties.getProperty('signingConfig.keyAlias')
-            keyPassword localProperties.getProperty('signingConfig.keyPassword')
+    def hasSigningConfig = localProperties.getProperty('signingConfig.storePassword') != null
+
+    if (hasSigningConfig) {
+        signingConfigs {
+            release {
+                storeFile rootProject.file(localProperties.getProperty('signingConfig.storeFile', 'app/release_keystore.jks'))
+                storePassword localProperties.getProperty('signingConfig.storePassword')
+                keyAlias localProperties.getProperty('signingConfig.keyAlias')
+                keyPassword localProperties.getProperty('signingConfig.keyPassword')
+            }
         }
     }
 
@@ -34,7 +38,9 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            if (hasSigningConfig) {
+                signingConfig signingConfigs.release
+            }
         }
         debug {
             applicationIdSuffix ".debug"

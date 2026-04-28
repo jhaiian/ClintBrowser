@@ -55,7 +55,7 @@
     <string name="about_section_repository">SOURCE CODE</string>
     <string name="about_section_donate">SUPPORT DEVELOPMENT</string>
     <string name="about_created_by">Created by</string>
-    <string name="about_description">Clint is a privacy-focused Android browser built on the Android WebView engine. It strips out Google telemetry and tracking, blocks ads and trackers at the network level, and puts control back in your hands.\n\nClint is completely free and open source software, released under the GNU General Public License v3. You are free to use, study, modify, and distribute it.</string>
+    <string name="about_description">Clint is a free, open‑source Android browser that puts privacy control in your hands and lets you tailor the entire look and feel to your taste. It blocks trackers and analytics at the network level, supports DNS over HTTPS, isolates incognito sessions completely, and ships with zero Google telemetry baked in. Every feature is built with the philosophy that your browsing data belongs to you and only you.</string>
     <string name="about_version_info">Version: %1$s (build %2$d)\nDevice architecture: %3$s</string>
     <string name="about_license_text">Clint is licensed under the GNU General Public License v3.0. This means you are free to view, modify, and redistribute the source code under the same license.</string>
     <string name="about_license_link_label">View GPL v3.0 license \u2197</string>
@@ -177,6 +177,8 @@
 
     <string name="camera_permission_title">Camera access</string>
     <string name="camera_permission_message">Camera access is needed so you can take photos or record videos to upload directly from this page.</string>
+    <string name="download_storage_permission_title">Storage access</string>
+    <string name="download_storage_permission_message">Storage access is needed to save downloaded files to your Downloads folder.</string>
 
     <string name="toast_downloading">Downloading %1$s</string>
 

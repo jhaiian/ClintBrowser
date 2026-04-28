@@ -1,5 +1,6 @@
 package com.jhaiian.clint.browser
 
+import android.Manifest
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
@@ -59,6 +60,26 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
     internal var filePathCallback: android.webkit.ValueCallback<Array<android.net.Uri>>? = null
     internal var cameraImageUri: android.net.Uri? = null
     internal var cameraVideoUri: android.net.Uri? = null
+
+    internal data class PendingDownload(
+        val url: String,
+        val filename: String,
+        val userAgent: String,
+        val referer: String,
+        val cookies: String
+    )
+
+    internal var pendingDownload: PendingDownload? = null
+
+    internal val storagePermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        val pending = pendingDownload
+        pendingDownload = null
+        if (granted && pending != null) {
+            ClintDownloadManager.enqueue(this, pending.url, pending.filename, pending.userAgent, pending.referer, pending.cookies)
+        }
+    }
 
     internal val notifPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()

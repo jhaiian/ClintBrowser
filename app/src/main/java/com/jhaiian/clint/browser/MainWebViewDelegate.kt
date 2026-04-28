@@ -53,7 +53,7 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
         }
         val referer = webView.url ?: ""
         val cookies = CookieManager.getInstance().getCookie(url) ?: ""
-        ClintDownloadManager.enqueue(this, url, filename, userAgent, referer, cookies)
+        handleDownloadRequest(url, filename, userAgent, referer, cookies)
     }
     applyWebDarkMode(webView)
     return webView

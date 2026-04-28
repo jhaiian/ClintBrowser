@@ -4,6 +4,13 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v.1.0.2-r2
+
+Remove QUERY_ALL_PACKAGES permission. I forgot to remove this before.
+Fixed download on lower Android versions. This was because WRITE_EXTERNAL_STORAGE was never requested. Now there is a runtime permission request.
+
+---
+
 # v1.0.2
 
 ## 🎨 Look and Feel Updates
