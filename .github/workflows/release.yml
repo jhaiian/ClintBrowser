@@ -26,6 +26,7 @@ jobs:
         run: |
           TAG="${GITHUB_REF_NAME}"
           VERSION="${TAG#v}"
+          VERSION="${VERSION#.}"
           if [[ "$TAG" == *"-beta"* ]]; then
             IS_PRERELEASE="true"
             MANIFEST="Update/Beta.json"
