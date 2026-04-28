@@ -1,6 +1,6 @@
 {
   "version": "1.0.2-r2",
-  "changelog": "# v.1.0.2-r2\n\n- Remove QUERY_ALL_PACKAGES permission. I forgot to remove this before.\n\n- Fixed download on lower Android versions. This was because WRITE_EXTERNAL_STORAGE was never requested. Now there is a runtime permission request.\n\n---",
+  "changelog": "# v1.0.2-r2\n\n- Remove QUERY_ALL_PACKAGES permission. I forgot to remove this before.\n\n- Fixed download on lower Android versions. This was because WRITE_EXTERNAL_STORAGE was never requested. Now there is a runtime permission request.\n\n---",
   "downloads": {
     "arm64-v8a": "https://github.com/jhaiian/ClintBrowser/releases/download/v.1.0.2-r2/ClintBrowser-1.0.2-r2-arm64-v8a.apk",
     "armeabi-v7a": "https://github.com/jhaiian/ClintBrowser/releases/download/v.1.0.2-r2/ClintBrowser-1.0.2-r2-armeabi-v7a.apk",
