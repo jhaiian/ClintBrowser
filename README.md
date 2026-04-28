@@ -20,7 +20,7 @@ A customizable, privacy focused Android browser built on Android WebView.
 
 ## What is Clint?
 
-Clint is a free, open‑source Android browser that puts privacy control in your hands — and lets you tailor the entire look and feel to your taste. It blocks trackers and analytics at the network level, supports DNS over HTTPS, isolates incognito sessions completely, and ships with zero Google telemetry baked in. Every feature is built with the philosophy that your browsing data belongs to you — and only you.
+Clint is a free, open‑source Android browser that puts privacy control in your hands — and lets you tailor the entire look and feel to your taste. It blocks trackers and analytics at the network level, supports DNS over HTTPS, isolates incognito sessions completely, and ships with zero Google telemetry baked in. Every feature is built with the philosophy that your browsing data belongs to you and only you.
 
 Built and maintained by **[@jhaiian](https://github.com/jhaiian)** — a solo developer from the Philippines 🇵🇭
 
