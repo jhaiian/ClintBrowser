@@ -151,7 +151,7 @@ jobs:
           with open("CHANGELOG.md", "r", encoding="utf-8") as fh:
               changelog_raw = fh.read()
 
-          pattern = r"(#{1,6} [^\n]*?" + re.escape(tag) + r"(?!-)[^\n]*\n)(.*?)(?=\n---|\n# |\Z)"
+          pattern = r"(#{1,6} [^\n]*?" + re.escape(tag) + r"(?!-)[^\n]*\n)(.*?)(?=\n# |\Z)"
           match = re.search(pattern, changelog_raw, re.DOTALL)
           if match:
               heading = match.group(1).strip()

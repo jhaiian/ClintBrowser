@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/clint_logo.png" width="120" alt="Clint Browser logo" />
+<img src="fastlane/metadata/android/en-US/images/icon.png" width="120" alt="Clint Browser logo" />
 
 # Clint Browser
 
@@ -32,22 +32,12 @@ Built and maintained by **[@jhaiian](https://github.com/jhaiian)** — a solo de
 
 <table>
   <tr>
-    <td align="center"><img src="docs/screenshot1.jpg" width="180" alt="Welcome screen" /><br/><sub>Welcome</sub></td>
-    <td align="center"><img src="docs/screenshot2.jpg" width="180" alt="Choose Your Theme setup screen" /><br/><sub>Theme Setup</sub></td>
-    <td align="center"><img src="docs/screenshot3.jpg" width="180" alt="Browser Layout setup screen" /><br/><sub>Browser Layout</sub></td>
-    <td align="center"><img src="docs/screenshot4.jpg" width="180" alt="Search engine setup" /><br/><sub>Search Engine Setup</sub></td>
-    <td align="center"><img src="docs/screenshot5.jpg" width="180" alt="Search engine setup with yellow accent" /><br/><sub>Accent Colors</sub></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="docs/screenshot6.jpg" width="180" alt="Secure DNS setup" /><br/><sub>Secure DNS</sub></td>
-    <td align="center"><img src="docs/screenshot7.jpg" width="180" alt="Default browser setup" /><br/><sub>Default Browser</sub></td>
-    <td align="center"><img src="docs/screenshot8.jpg" width="180" alt="Settings" /><br/><sub>Settings</sub></td>
-    <td align="center"><img src="docs/screenshot9.jpg" width="180" alt="Browsing" /><br/><sub>Browsing</sub></td>
-    <td align="center"><img src="docs/screenshot10.jpg" width="180" alt="Tab switcher" /><br/><sub>Tab Switcher</sub></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="docs/screenshot11.jpg" width="180" alt="Bookmarks" /><br/><sub>Bookmarks</sub></td>
-    <td align="center"><img src="docs/screenshot12.jpg" width="180" alt="Downloads" /><br/><sub>Downloads</sub></td>
+    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="180" alt="Browsing" /></td>
+    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="180" alt="Private Search" /></td>
+    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg" width="180" alt="Look and Feel" /></td>
+    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg" width="180" alt="Tab Switcher" /></td>
+    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg" width="180" alt="Bookmarks" /></td>
+    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.jpg" width="180" alt="Downloads" /></td>
   </tr>
 </table>
 
@@ -242,6 +232,11 @@ You are free to use, study, modify, and distribute this software under the same 
 See [LICENSE](LICENSE) for the full text.
 
 ---
+
+## Disclaimer
+
+This app is not associated with Marvel, Clint Barton, or Hawkeye in any way. 
+The app’s name, design, and logo are simply inspired by Hawkeye and have no official connection to Marvel.
 
 ## Legal
 

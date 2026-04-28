@@ -1,0 +1,47 @@
+Clint — Customizable Layered Internet Navigation Tool — is a free, open-source Android browser that puts privacy control in your hands and lets you tailor the entire look and feel to your taste.
+
+It blocks trackers and analytics at the network level, isolates incognito sessions completely, and ships with zero Google telemetry baked in. Every feature is built with the philosophy that your browsing data belongs to you — and only you.
+
+BROWSER CORE
+- Multi-tab browsing with a bottom sheet tab switcher, with clear separation of normal and incognito tabs.
+- Incognito mode — fully isolated session: no cookies, cache, or history saved.
+- Pull-to-refresh with smart detection for nested scrollable content.
+- Configurable toolbar visibility with Nested Scroll control.
+- Desktop Mode toggle with JavaScript injection.
+- Full-screen video and media support.
+- Intent handling — links open installed apps (YouTube, Spotify, etc.) with a prompt to choose between external app or staying in-app.
+
+PRIVACY & SECURITY
+- Tracker blocking — 16+ known analytics and ad domains blocked at the network level.
+- Third-party cookie blocking — prevents cross-site tracking.
+- Generic User-Agent — reduces browser fingerprinting.
+- DNS over HTTPS (DoH) — four protection levels with Cloudflare and Quad9 support.
+- SSL enforcement — invalid certificates are always rejected, no exceptions.
+- Incognito isolation — separate cookie, cache, and DNS context for each incognito tab.
+- Favicon privacy — favicons use DuckDuckGo's service, not Google.
+
+LOOK & FEEL
+- Three themes: Default (deep purple), Dark, and Light.
+- Eight accent colors including Material You (dynamic wallpaper colors).
+- Three surface intensity modes: Soft Tint, Strong Tint, and Pure Mode.
+- Address bar position: Top, Bottom, or Split.
+- Menu style: Pop-up or Bottom Sheet.
+- Approximately 52 distinct theme combinations.
+
+DOWNLOADS
+- Custom download engine built on OkHttp
+- Real-time progress with percentage and file size.
+- Cancel downloads in-app or from the notification.
+- Install APK files directly from the downloads screen.
+
+BOOKMARKS & TABS
+- Tabs display the website's own favicon.
+- Save any page with a single tap; bookmark icon updates live to reflect saved state.
+- All bookmarks stored locally — never synced or uploaded.
+
+SEARCH ENGINES
+- DuckDuckGo (default), Brave Search, Google (with privacy warning).
+
+CRASH REPORTS
+- Local crash log viewer — everything stays on your device, nothing is transmitted.
+- One-tap copy of crash logs and a pre-filled GitHub issue template.
