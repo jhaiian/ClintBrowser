@@ -1,6 +1,6 @@
 # Privacy Policy for Clint Browser
 
-*Last updated: April 6 2026*
+*Last updated: April 29 2026*
 
 ## Overview
 
@@ -36,6 +36,7 @@ Clint Browser requests the following permissions:
 - **Post Notifications** (Android 13 and above) — used to show download progress notifications
 - **Request Install Packages** — used in two cases: to install app updates downloaded through the browser's built-in update checker, and to allow you to install APK files you have manually downloaded through the browser. In both cases, installation only happens when you explicitly confirm it. This permission is never used to install software without your knowledge or consent.
 - **Camera** — used to allow you to take photos or record video when uploading content through the browser. Camera access is only activated when you initiate an upload that requires it. Clint Browser never accesses your camera in the background or without your direct action.
+- **Query All Packages** — This permission allows Clint Browser to see which apps are installed on your device. It is used to detect whether an app (e.g., YouTube, Twitter, Reddit) can handle a link you try to open. That way, when you click a link that works better in a dedicated app, the browser can offer to open it directly in that app instead of the webpage. This permission is not used to track you or collect personal data — it only checks for app names locally on your device, at the moment you click a link.
 
 No permission is used for data collection or tracking purposes.
 
