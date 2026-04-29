@@ -1,6 +1,6 @@
 {
   "version": "1.0.2-r3",
-  "changelog": "## v1.0.2-r3",
+  "changelog": "# v1.0.2-r3\n\n- Fixed the bug related to \"Open in apps\" by re-adding the QUERY_ALL_PACKAGES permission.",
   "downloads": {
     "arm64-v8a": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.0.2-r3/ClintBrowser-1.0.2-r3-arm64-v8a.apk",
     "armeabi-v7a": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.0.2-r3/ClintBrowser-1.0.2-r3-armeabi-v7a.apk",
