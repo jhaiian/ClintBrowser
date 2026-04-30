@@ -10,8 +10,8 @@ A customizable, privacy focused Android browser built on Android WebView.
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blueviolet.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B-blueviolet.svg)](https://developer.android.com)
-[![Stable](https://img.shields.io/badge/Stable-1.0.2-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.2)
-[![Beta](https://img.shields.io/badge/Beta-1.0.2-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.2)
+[![Stable](https://img.shields.io/badge/Stable-1.0.2--r3-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.2-r3)
+[![Beta](https://img.shields.io/badge/Beta-1.0.3--beta--1-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.3-beta-1)
 [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser)
 
 </div>
@@ -102,6 +102,7 @@ Built and maintained by **[@jhaiian](https://github.com/jhaiian)** — a solo de
 - Open completed files directly from the downloads screen.
 - Install APK files straight from the downloads screen.
 - Automatic duplicate filename handling.
+- Download images inside the WebView.
 
 ### 🎨 Look & Feel
 The dedicated **Look & Feel** section in Settings gives you full control over the interface:

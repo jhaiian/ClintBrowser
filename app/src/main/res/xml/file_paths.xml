@@ -3,4 +3,5 @@
     <external-path name="downloads" path="Download/" />
     <cache-path name="apk_updates" path="updates/" />
     <cache-path name="camera_uploads" path="uploads/" />
+    <cache-path name="image_cache" path="image_cache/" />
 </paths>

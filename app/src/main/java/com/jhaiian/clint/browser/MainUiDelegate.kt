@@ -389,6 +389,7 @@ internal fun MainActivity.onPageFinished(url: String) {
     tabManager.activeTab?.webView?.let { wv ->
         injectScrollTracker(wv)
         injectBottomNavDetector(wv)
+        wv.evaluateJavascript(loadJsAsset("link_touch_tracker.js"), null)
         val theme = prefs.getString("app_theme", "default") ?: "default"
         val darkWeb = when (theme) { "dark" -> true; "light" -> false; else -> prefs.getBoolean("force_dark_web", false) }
         if (darkWeb

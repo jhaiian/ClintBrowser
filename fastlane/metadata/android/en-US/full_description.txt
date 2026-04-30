@@ -33,6 +33,7 @@ DOWNLOADS
 - Real-time progress with percentage and file size.
 - Cancel downloads in-app or from the notification.
 - Install APK files directly from the downloads screen.
+- Download images inside the WebView.
 
 BOOKMARKS & TABS
 - Tabs display the website's own favicon.

@@ -149,9 +149,22 @@
     <string name="about_section_contributors">CONTRIBUTORS</string>
     <string name="about_contributors_text">View the full list of people who contributed to Clint.</string>
     <string name="about_contributors_link">Contributors.md \u2197</string>
-    <string name="about_section_libraries">OPEN SOURCE LIBRARIES</string>
+    <string name="about_section_libraries">USED LIBRARIES</string>
+    <string name="about_library_androidx_label">AndroidX by Google</string>
+    <string name="about_library_androidx_license">Apache License 2.0 \u2197</string>
+    <string name="about_library_androidx_usage">Core UI components, WebView integration, settings, preferences, and lifecycle management throughout the app.</string>
     <string name="about_library_markwon_label">Markwon by Noties</string>
     <string name="about_library_markwon_license">Apache License 2.0 \u2197</string>
+    <string name="about_library_markwon_usage">Renders Markdown content from GitHub to display in the app.</string>
+    <string name="about_library_material_label">Material Components by Google</string>
+    <string name="about_library_material_license">Apache License 2.0 \u2197</string>
+    <string name="about_library_material_usage">Bottom sheets, cards, dialogs, and other UI elements that follow Material Design.</string>
+    <string name="about_library_okhttp_label">OkHttp by Square</string>
+    <string name="about_library_okhttp_license">Apache License 2.0 \u2197</string>
+    <string name="about_library_okhttp_usage">Handles network requests throughout the app, including update checking, document viewers, DNS over HTTPS, browser image loading, and downloads, and much more.</string>
+    <string name="about_library_simplemagic_label">SimpleMagic by j256</string>
+    <string name="about_library_simplemagic_license">ISC License \u2197</string>
+    <string name="about_library_simplemagic_usage">Detects file MIME types from content bytes when downloading files.</string>
     <string name="about_linktree_url">jhaiian \u2197</string>
     <string name="open_in_app_dialog_title">Open in app?</string>
     <string name="open_in_app_dialog_message">%1$s wants to open %2$s.</string>
@@ -337,4 +350,24 @@
     <string name="exit_dialog_title">Exit?</string>
     <string name="exit_dialog_message">Are you sure you want to exit Clint?</string>
     <string name="exit_dialog_confirm">Exit</string>
+
+    <string name="image_open_in_new_tab">Open image in new tab</string>
+    <string name="image_open_incognito">Open image in incognito</string>
+    <string name="image_open_in_current_tab">Open image in current tab</string>
+    <string name="image_preview">Preview image</string>
+    <string name="image_copy">Copy image</string>
+    <string name="image_download">Download image</string>
+    <string name="image_share">Share image</string>
+    <string name="image_copied">Image copied to clipboard</string>
+    <string name="image_copy_failed">Failed to copy image</string>
+
+    <string name="link_open_in_new_tab">Open in new tab</string>
+    <string name="link_open_incognito">Open in incognito</string>
+    <string name="link_preview_page">Preview page</string>
+    <string name="preview_link_open_in_current_tab">Open in current tab</string>
+    <string name="link_copy_address">Copy link address</string>
+    <string name="link_copy_text">Copy link text</string>
+    <string name="link_share">Share link</string>
+    <string name="link_address_copied">Link address copied</string>
+    <string name="link_text_copied">Link text copied</string>
 </resources>

@@ -64,6 +64,14 @@ class AboutFragment : Fragment() {
         makeClickable(binding.tvContributorsLink, "https://github.com/jhaiian/ClintBrowser/blob/main/Contributors.md")
         makeClickable(binding.tvMarkwonLink, "https://github.com/noties/Markwon")
         makeClickable(binding.tvMarkwonLicenseLink, "https://www.apache.org/licenses/LICENSE-2.0.txt")
+        makeClickable(binding.tvAndroidXLink, "https://developer.android.com/jetpack/androidx")
+        makeClickable(binding.tvAndroidXLicenseLink, "https://www.apache.org/licenses/LICENSE-2.0.txt")
+        makeClickable(binding.tvMaterialLink, "https://github.com/material-components/material-components-android")
+        makeClickable(binding.tvMaterialLicenseLink, "https://www.apache.org/licenses/LICENSE-2.0.txt")
+        makeClickable(binding.tvOkHttpLink, "https://github.com/square/okhttp")
+        makeClickable(binding.tvOkHttpLicenseLink, "https://www.apache.org/licenses/LICENSE-2.0.txt")
+        makeClickable(binding.tvSimpleMagicLink, "https://github.com/j256/simplemagic")
+        makeClickable(binding.tvSimpleMagicLicenseLink, "https://opensource.org/licenses/ISC")
     }
 
     private fun makeClickable(view: TextView, url: String) {

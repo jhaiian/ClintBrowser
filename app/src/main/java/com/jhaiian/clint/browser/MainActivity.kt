@@ -30,7 +30,7 @@ import com.jhaiian.clint.update.UpdateChecker
 import com.jhaiian.clint.ui.ClintToast
 import androidx.webkit.ScriptHandler
 
-class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet.Listener {
+class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet.Listener, ImageLongPressSheet.Listener, LinkLongPressSheet.Listener, ContentPreviewSheet.Listener, PreviewLinkLongPressSheet.Listener {
 
     internal lateinit var binding: ActivityMainBinding
     internal lateinit var prefs: SharedPreferences
@@ -424,6 +424,35 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
                 prefs.edit().putString("scroll_hide_mode", newValue).apply()
             }
         }
+    }
+
+    override fun onImageOpenInNewTab(imageUrl: String) { handleImageOpenInNewTab(imageUrl) }
+    override fun onImageOpenIncognito(imageUrl: String) { openNewTab(isIncognito = true, url = imageUrl) }
+    override fun onImageOpenInCurrentTab(imageUrl: String) { dismissContentPreview(); loadUrl(imageUrl) }
+    override fun onImagePreview(imageUrl: String) { handleImagePreview(imageUrl) }
+    override fun onImageCopy(imageUrl: String) { handleImageCopy(imageUrl) }
+    override fun onImageDownload(imageUrl: String, altText: String) { handleImageDownload(imageUrl, altText) }
+    override fun onImageShare(imageUrl: String) { handleImageShare(imageUrl) }
+
+    override fun onLinkOpenInNewTab(url: String) { handleLinkOpenInNewTab(url) }
+    override fun onLinkOpenIncognito(url: String) { handleLinkOpenIncognito(url) }
+    override fun onLinkPreviewPage(url: String) { handleLinkPreviewPage(url) }
+    override fun onLinkCopyAddress(url: String) { handleLinkCopyAddress(url) }
+    override fun onLinkCopyText(url: String, text: String) { handleLinkCopyText(text) }
+    override fun onLinkShare(url: String) { handleLinkShare(url) }
+
+    override fun onPreviewOpenInNewTab(url: String) { openNewTab(isIncognito = false, url = url) }
+
+    override fun onPreviewLinkOpenInNewTab(url: String) { dismissContentPreview(); handleLinkOpenInNewTab(url) }
+    override fun onPreviewLinkOpenIncognito(url: String) { dismissContentPreview(); handleLinkOpenIncognito(url) }
+    override fun onPreviewLinkOpenInCurrentTab(url: String) { dismissContentPreview(); loadUrl(url) }
+    override fun onPreviewLinkCopyAddress(url: String) { handleLinkCopyAddress(url) }
+    override fun onPreviewLinkCopyText(url: String, text: String) { handleLinkCopyText(text) }
+    override fun onPreviewLinkShare(url: String) { handleLinkShare(url) }
+
+    private fun dismissContentPreview() {
+        (supportFragmentManager.findFragmentByTag("link_preview") as? ContentPreviewSheet)?.dismiss()
+        (supportFragmentManager.findFragmentByTag("image_preview") as? ContentPreviewSheet)?.dismiss()
     }
 
     private fun applyStatusBarVisibility() {

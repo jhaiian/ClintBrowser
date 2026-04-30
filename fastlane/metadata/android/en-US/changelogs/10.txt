@@ -1,0 +1,11 @@
+Features:
+- Added image long-press actions in WebView (open in new tab/incognito, preview, copy, download, share)
+- Added link long-press actions (open in new tab/incognito, preview page, copy/share)
+- Preview mode supports both image and link interactions
+
+Fixes:
+- Fixed incorrect file extension detection during downloads
+- Improved MIME type detection using SimpleMagic (j256)
+
+Other:
+- Updated About page with full library list and usage details

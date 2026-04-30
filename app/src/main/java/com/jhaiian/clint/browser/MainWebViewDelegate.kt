@@ -43,12 +43,11 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
     webView.addJavascriptInterface(BottomNavBridge(), "BottomNavBridge")
     webView.setDownloadListener { url, userAgent, contentDisposition, mimetype, _ ->
         var filename = URLUtil.guessFileName(url, contentDisposition, mimetype)
-        // URLUtil maps application/octet-stream to .bin; recover the real extension from the URL
         if (filename.endsWith(".bin")) {
             val urlPath = url.substringBefore("?").substringBefore("#")
             val urlExt = urlPath.substringAfterLast(".", "")
-            if (urlExt.isNotEmpty() && urlExt.length in 1..10 && !urlExt.contains("/")) {
-                filename = filename.dropLast(4) + ".$urlExt"
+            if (urlExt.isNotEmpty() && urlExt.length in 1..10 && urlExt != "bin" && !urlExt.contains("/")) {
+                filename = filename.removeSuffix(".bin") + ".$urlExt"
             }
         }
         val referer = webView.url ?: ""
@@ -56,6 +55,10 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
         handleDownloadRequest(url, filename, userAgent, referer, cookies)
     }
     applyWebDarkMode(webView)
+    setupImageLongPress(webView)
+    if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
+        WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("link_touch_tracker.js"), setOf("*"))
+    }
     return webView
 }
 

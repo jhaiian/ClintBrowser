@@ -4,6 +4,62 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.0.3-beta-1
+
+## ✨ Added Image Hold Listener in WebView
+
+Added an image hold listener in WebView. Basically, when you long-press an image on a webpage, a bottom sheet will appear with these options:
+
+- Open image in new tab  
+- Open image in incognito  
+- Preview image  
+- Copy image  
+- Download image  
+- Share image  
+
+### 🖼️ Preview Image Feature
+
+“Preview image” opens a bottom sheet WebView that shows a preview of the image or the webpage content.
+
+This image listener is also available inside the preview WebView. However, instead of **Preview image**, it is replaced with:
+
+- Open image in current tab  
+
+Everything else is self-explanatory.
+
+---
+
+## 🔗 Added Hold Link Listener
+
+Added a hold link listener, similar to the image hold feature but for links. When long-pressing a link, the following options appear:
+
+- Open in new tab  
+- Open in incognito  
+- Preview page  
+- Copy link address  
+- Copy link text  
+- Share link  
+
+### 🌐 Preview Page Behavior
+
+Just like the image feature, in the preview WebView the **Preview page** option replaces **Open in current tab**.
+
+---
+
+## 🛠️ Fixes
+
+- Fixed download issue caused by incorrect file extension detection  
+- Now using the **SimpleMagic by j256** library to properly detect file MIME types from content bytes  
+
+---
+
+## 📦 About Page
+
+- Added remaining libraries used in the About page  
+- Documented their usage across the app for better transparency
+
+---
+
 # v1.0.2-r3
 
 - Fixed the bug related to “Open in apps” by re-adding the QUERY_ALL_PACKAGES permission.
