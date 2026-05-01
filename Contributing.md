@@ -54,11 +54,36 @@ APKs will be output to `app/build/outputs/apk/release/`.
 
 ```
 ClintBrowser/
+├── app/src/main/res/
+│   ├── drawable/                     # Vector icons and shape drawables
+│   ├── layout/
+│   │   ├── activity_*.xml            # Activity root layouts
+│   │   ├── bottom_sheet_*.xml        # Bottom sheet layouts
+│   │   ├── dialog_*.xml              # Dialog layouts
+│   │   ├── fragment_*.xml            # Fragment layouts
+│   │   ├── item_*.xml                # RecyclerView item layouts
+│   │   └── popup_menu.xml            # Overflow popup menu layout
+│   ├── menu/
+│   │   └── main_menu.xml             # Options menu
+│   ├── mipmap-*/                     # Launcher icons (hdpi → xxxhdpi + anydpi-v26)
+│   ├── values/
+│   │   ├── arrays.xml                # String arrays (search engines, DNS providers)
+│   │   ├── attrs.xml                 # Custom theme attributes
+│   │   ├── colors.xml                # Color palette
+│   │   ├── strings.xml               # All user-facing strings
+│   │   └── themes.xml                # App themes and style definitions
+│   └── xml/
+│       ├── file_paths.xml            # FileProvider paths for downloads and camera
+│       ├── *_preferences.xml         # Preference screen definitions
+│       └── preferences.xml           # Root preference hierarchy
 ├── app/src/main/assets/
 │   └── JavaScript/
 │       ├── bottom_nav_detector.js    # Detects bottom navigation bars for scroll behavior
 │       ├── dark_mode.js              # Injects dark mode styles into pages
 │       ├── desktop_mode.js           # Overrides user-agent and viewport for desktop
+│       ├── image_alt_text.js         # Reads alt text of a long-pressed image
+│       ├── link_text.js              # Reads the text content of a long-pressed link
+│       ├── link_touch_tracker.js     # Tracks the last touched link for long-press context menus
 │       ├── scroll_tracker.js         # Tracks scroll position for hide-bars behavior
 │       └── video_dimensions.js       # Detects video dimensions for fullscreen sizing
 ├── app/src/main/java/com/jhaiian/clint/
@@ -72,15 +97,22 @@ ClintBrowser/
 │   │   ├── BookmarksActivity.kt      # Bookmarks screen
 │   │   └── BookmarksAdapter.kt       # Bookmarks list adapter
 │   ├── browser/
+│   │   ├── ContentPreviewSheet.kt    # Bottom sheet for previewing a page or image URL
+│   │   ├── ImageLongPressSheet.kt    # Bottom sheet shown on image long-press
 │   │   ├── JsAssetLoader.kt          # JavaScript asset loading
+│   │   ├── LinkLongPressSheet.kt     # Bottom sheet shown on link long-press
 │   │   ├── MainActivity.kt           # Browser activity, state, and lifecycle
+│   │   ├── MainDownloadPermissionDelegate.kt # Runtime storage permission handling for downloads
 │   │   ├── MainFileChooserDelegate.kt# File chooser and camera capture logic
 │   │   ├── MainFullscreenDelegate.kt # Video fullscreen enter/exit logic
+│   │   ├── MainImageDelegate.kt      # Image long-press action handlers
+│   │   ├── MainLinkDelegate.kt       # Link long-press action handlers
 │   │   ├── MainScrollDelegate.kt     # Scroll-hide bars and swipe refresh setup
 │   │   ├── MainTabDelegate.kt        # Tab open, close, restore, and switching
 │   │   ├── MainUiDelegate.kt         # WebView setup, address bar, UI state updates
 │   │   ├── MainWebViewDelegate.kt    # WebView configuration and settings apply
-│   │   └── MenuBottomSheet.kt        # Browser action menu bottom sheet
+│   │   ├── MenuBottomSheet.kt        # Browser action menu bottom sheet
+│   │   └── PreviewLinkLongPressSheet.kt # Bottom sheet shown on link long-press inside a content preview
 │   ├── crash/
 │   │   ├── CrashHandler.kt           # Local crash reporting
 │   │   └── CrashReportFragment.kt    # Crash log viewer UI
@@ -126,21 +158,27 @@ ClintBrowser/
 ├── Update/
 │   ├── Stable.json                   # Stable channel update manifest
 │   └── Beta.json                     # Beta channel update manifest
+├── fastlane/
+│   └── metadata/android/en-US/
+│       ├── changelogs/
+│       │   ├── 7.txt
+│       │   ├── 8.txt
+│       │   ├── 9.txt
+│       │   └── 10.txt
+│       ├── images/
+│       │   ├── icon.png
+│       │   └── phoneScreenshots/
+│       │       ├── 1.jpg
+│       │       ├── 2.jpg
+│       │       ├── 3.jpg
+│       │       ├── 4.jpg
+│       │       ├── 5.jpg
+│       │       └── 6.jpg
+│       ├── full_description.txt
+│       ├── short_description.txt
+│       └── title.txt
 ├── docs/
-│   ├── clint_logo.png
-│   ├── clint_logo_backgroud.jpg
-│   ├── screenshot1.jpg               # Welcome screen
-│   ├── screenshot2.jpg               # Search engine setup
-│   ├── screenshot3.jpg               # Secure DNS setup
-│   ├── screenshot4.jpg               # Default browser setup
-│   ├── screenshot5.jpg               # Browsing
-│   ├── screenshot6.jpg               # Tab switcher
-│   ├── screenshot7.jpg               # Menu
-│   ├── screenshot8.jpg               # Settings
-│   ├── screenshot9.jpg               # Downloads
-│   ├── screenshot10.jpg              # Bookmarks
-│   ├── screenshot11.jpg
-│   └── screenshot12.jpg
+│   └── clint_logo_backgroud.jpg
 ├── CHANGELOG.md
 ├── Contributing.md
 ├── Contributors.md
