@@ -81,9 +81,11 @@ ClintBrowser/
 │       ├── bottom_nav_detector.js    # Detects bottom navigation bars for scroll behavior
 │       ├── dark_mode.js              # Injects dark mode styles into pages
 │       ├── desktop_mode.js           # Overrides user-agent and viewport for desktop
+│       ├── disable_autoplay.js       # Prevents media from autoplaying on page load
 │       ├── image_alt_text.js         # Reads alt text of a long-pressed image
 │       ├── link_text.js              # Reads the text content of a long-pressed link
 │       ├── link_touch_tracker.js     # Tracks the last touched link for long-press context menus
+│       ├── reader_mode.js            # Extracts and reformats page content for reader view
 │       ├── scroll_tracker.js         # Tracks scroll position for hide-bars behavior
 │       └── video_dimensions.js       # Detects video dimensions for fullscreen sizing
 ├── app/src/main/java/com/jhaiian/clint/
@@ -125,6 +127,8 @@ ClintBrowser/
 │   │   └── DohManager.kt             # DNS over HTTPS
 │   ├── settings/
 │   │   ├── AboutFragment.kt          # About screen
+│   │   ├── BrowserSettingsFragment.kt# WebView/browser engine settings
+│   │   ├── DataSaverFragment.kt      # Data saver settings screen
 │   │   ├── DohSettingsFragment.kt    # DNS over HTTPS settings
 │   │   ├── GeneralSettingsFragment.kt# General settings (scroll-hide, display)
 │   │   ├── LookAndFeelFragment.kt    # Appearance & theme settings
@@ -164,7 +168,8 @@ ClintBrowser/
 │       │   ├── 7.txt
 │       │   ├── 8.txt
 │       │   ├── 9.txt
-│       │   └── 10.txt
+│       │   ├── 10.txt
+│       │   └── 11.txt
 │       ├── images/
 │       │   ├── icon.png
 │       │   └── phoneScreenshots/
