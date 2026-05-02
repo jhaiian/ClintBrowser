@@ -23,15 +23,6 @@
             app:singleLineTitle="false" />
 
         <SwitchPreferenceCompat
-            app:key="javascript_enabled"
-            app:title="@string/javascript_enabled"
-            app:summary="@string/javascript_enabled_summary"
-            app:defaultValue="true"
-            app:icon="@drawable/ic_desktop_24"
-        app:iconTint="?attr/colorPrimary"
-            app:singleLineTitle="false" />
-
-        <SwitchPreferenceCompat
             app:key="custom_user_agent"
             app:title="@string/custom_user_agent"
             app:summary="@string/custom_user_agent_summary"

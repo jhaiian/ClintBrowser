@@ -2,12 +2,16 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <Preference
-        app:key="rerun_setup"
-        app:title="@string/pref_rerun_setup_title"
-        app:summary="@string/pref_rerun_setup_summary"
-        app:icon="@drawable/ic_refresh_24"
-        app:iconTint="?attr/colorPrimary"
-        app:singleLineTitle="false" />
+    <PreferenceCategory android:title="@string/pref_category_setup">
+
+        <Preference
+            app:key="rerun_setup"
+            app:title="@string/pref_rerun_setup_title"
+            app:summary="@string/pref_rerun_setup_summary"
+            app:icon="@drawable/ic_refresh_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false" />
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

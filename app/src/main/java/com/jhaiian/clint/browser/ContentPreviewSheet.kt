@@ -82,6 +82,9 @@ class ContentPreviewSheet : BottomSheetDialogFragment() {
         val url = arguments?.getString(ARG_URL) ?: ""
         val isPage = arguments?.getBoolean(ARG_IS_PAGE) ?: false
         val isDesktop = arguments?.getBoolean(ARG_IS_DESKTOP) ?: false
+        val isReaderMode = arguments?.getBoolean(ARG_IS_READER_MODE) ?: false
+        val readerHtml = arguments?.getString(ARG_READER_HTML) ?: ""
+        val readerTitle = arguments?.getString(ARG_READER_TITLE) ?: ""
 
         val titleView = view.findViewById<TextView>(R.id.preview_title)
         val urlView = view.findViewById<TextView>(R.id.preview_url)
@@ -98,14 +101,37 @@ class ContentPreviewSheet : BottomSheetDialogFragment() {
 
         val host = runCatching { java.net.URL(url).host }.getOrElse { "" }
 
-        if (isPage) {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val dataSaverEnabled = prefs.getBoolean("data_saver_enabled", false)
+        val disableImages = dataSaverEnabled && prefs.getBoolean("data_saver_disable_images", false)
+        val disableAutoplay = dataSaverEnabled && prefs.getBoolean("data_saver_disable_autoplay", true)
+        val httpsOnly = prefs.getBoolean("https_only", true)
+        val effectiveCacheMode = resolveEffectiveCacheMode(prefs)
+
+        if (isReaderMode) {
+            titleView.text = readerTitle.ifEmpty { host }
+            urlView.text = if (host.isNotEmpty()) host else url
+            faviconView.setImageResource(R.drawable.ic_reader_mode_24)
+            ImageViewCompat.setImageTintList(faviconView, iconTint)
+            if (url.isNotEmpty()) {
+                val faviconUrl = FaviconCache.faviconUrlFor(url)
+                if (faviconUrl.isNotEmpty()) {
+                    FaviconCache.load(requireContext(), faviconUrl, disableImages) { bmp ->
+                        if (isAdded && bmp != null) {
+                            faviconView.setImageBitmap(bmp)
+                            ImageViewCompat.setImageTintList(faviconView, null)
+                        }
+                    }
+                }
+            }
+        } else if (isPage) {
             titleView.text = host
             urlView.text = url
             faviconView.setImageResource(R.drawable.ic_globe_24)
             ImageViewCompat.setImageTintList(faviconView, iconTint)
             val faviconUrl = FaviconCache.faviconUrlFor(url)
             if (faviconUrl.isNotEmpty()) {
-                FaviconCache.load(requireContext(), faviconUrl) { bmp ->
+                FaviconCache.load(requireContext(), faviconUrl, disableImages) { bmp ->
                     if (isAdded && bmp != null) {
                         faviconView.setImageBitmap(bmp)
                         ImageViewCompat.setImageTintList(faviconView, null)
@@ -132,6 +158,9 @@ class ContentPreviewSheet : BottomSheetDialogFragment() {
             loadWithOverviewMode = true
             useWideViewPort = true
             userAgentString = buildPreviewUserAgent(isDesktop)
+            loadsImagesAutomatically = !disableImages
+            mediaPlaybackRequiresUserGesture = disableAutoplay
+            cacheMode = effectiveCacheMode
         }
 
         if (isPage && WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
@@ -144,14 +173,31 @@ class ContentPreviewSheet : BottomSheetDialogFragment() {
             WebViewCompat.addDocumentStartJavaScript(wv, js, setOf("*"))
         }
 
-        applyPreviewDarkMode(wv)
+        if (disableAutoplay && WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
+            val autoplayJs = requireContext().assets.open("JavaScript/disable_autoplay.js").bufferedReader().use { it.readText() }
+            WebViewCompat.addDocumentStartJavaScript(wv, autoplayJs, setOf("*"))
+        }
+
+        if (!isReaderMode) applyPreviewDarkMode(wv)
 
         wv.setOnScrollChangeListener { _, _, scrollY, _, _ ->
             sheetBehavior?.isDraggable = scrollY == 0
         }
 
         wv.webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest) = false
+            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                val uri = request.url
+                val scheme = uri.scheme?.lowercase() ?: return false
+                if (scheme == "http" && request.isForMainFrame && httpsOnly) {
+                    val host = uri.host ?: ""
+                    val isIp = host.matches(Regex("""^(\d{1,3}\.){3}\d{1,3}$"""))
+                    if (!isIp) {
+                        view.loadUrl(uri.buildUpon().scheme("https").build().toString())
+                        return true
+                    }
+                }
+                return false
+            }
             override fun onPageFinished(view: WebView, pageUrl: String) {
                 if (isPage && isAdded) {
                     val pageTitle = view.title
@@ -225,7 +271,9 @@ class ContentPreviewSheet : BottomSheetDialogFragment() {
             }
         }
 
-        if (url.isNotEmpty()) {
+        if (isReaderMode) {
+            wv.loadDataWithBaseURL(url.ifEmpty { null }, readerHtml, "text/html", "UTF-8", null)
+        } else if (url.isNotEmpty()) {
             if (isDesktop && isPage) {
                 wv.loadUrl(url, buildDesktopHeaders(wv))
             } else {
@@ -295,6 +343,9 @@ class ContentPreviewSheet : BottomSheetDialogFragment() {
         private const val ARG_URL = "url"
         private const val ARG_IS_PAGE = "is_page"
         private const val ARG_IS_DESKTOP = "is_desktop"
+        private const val ARG_IS_READER_MODE = "is_reader_mode"
+        private const val ARG_READER_HTML = "reader_html"
+        private const val ARG_READER_TITLE = "reader_title"
 
         fun newInstanceForImage(imageUrl: String): ContentPreviewSheet {
             return ContentPreviewSheet().apply {
@@ -302,6 +353,7 @@ class ContentPreviewSheet : BottomSheetDialogFragment() {
                     putString(ARG_URL, imageUrl)
                     putBoolean(ARG_IS_PAGE, false)
                     putBoolean(ARG_IS_DESKTOP, false)
+                    putBoolean(ARG_IS_READER_MODE, false)
                 }
             }
         }
@@ -312,6 +364,20 @@ class ContentPreviewSheet : BottomSheetDialogFragment() {
                     putString(ARG_URL, pageUrl)
                     putBoolean(ARG_IS_PAGE, true)
                     putBoolean(ARG_IS_DESKTOP, isDesktop)
+                    putBoolean(ARG_IS_READER_MODE, false)
+                }
+            }
+        }
+
+        fun newInstanceForReaderMode(pageUrl: String, pageTitle: String, html: String): ContentPreviewSheet {
+            return ContentPreviewSheet().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_URL, pageUrl)
+                    putString(ARG_READER_TITLE, pageTitle)
+                    putString(ARG_READER_HTML, html)
+                    putBoolean(ARG_IS_PAGE, false)
+                    putBoolean(ARG_IS_DESKTOP, false)
+                    putBoolean(ARG_IS_READER_MODE, true)
                 }
             }
         }

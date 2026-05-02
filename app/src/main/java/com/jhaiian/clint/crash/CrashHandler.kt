@@ -2,6 +2,7 @@ package com.jhaiian.clint.crash
 
 import android.content.Context
 import android.os.Build
+import android.webkit.WebView
 import androidx.core.content.pm.PackageInfoCompat
 import java.io.File
 import java.io.PrintWriter
@@ -54,6 +55,15 @@ class CrashHandler(private val context: Context) : Thread.UncaughtExceptionHandl
             val version = pInfo?.versionName ?: "unknown"
             val build = pInfo?.let { PackageInfoCompat.getLongVersionCode(it) } ?: 0L
             val arch = Build.SUPPORTED_ABIS.firstOrNull() ?: "unknown"
+            val webViewPkg = WebView.getCurrentWebViewPackage()
+            val webViewInfo = if (webViewPkg != null) {
+                val appName = webViewPkg.applicationInfo
+                    ?.let { context.packageManager.getApplicationLabel(it).toString() }
+                    ?: webViewPkg.packageName
+                "$appName v${webViewPkg.versionName ?: "unknown"} (${webViewPkg.packageName})"
+            } else {
+                "Unavailable"
+            }
             return buildString {
                 appendLine("App Version   : $version (build $build)")
                 appendLine("Architecture  : $arch")
@@ -61,6 +71,7 @@ class CrashHandler(private val context: Context) : Thread.UncaughtExceptionHandl
                 appendLine("Android       : ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})")
                 appendLine("Brand         : ${Build.BRAND}")
                 appendLine("Product       : ${Build.PRODUCT}")
+                appendLine("WebView       : $webViewInfo")
             }
         }
     }

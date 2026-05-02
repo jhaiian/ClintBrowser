@@ -1,6 +1,7 @@
 package com.jhaiian.clint.browser
 
 import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import android.webkit.CookieManager
 import android.webkit.URLUtil
 import android.webkit.WebSettings
@@ -18,14 +19,16 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
     val settings = webView.settings
     settings.javaScriptEnabled = prefs.getBoolean("javascript_enabled", true)
     settings.domStorageEnabled = !isIncognito
-    settings.cacheMode = if (isIncognito) WebSettings.LOAD_NO_CACHE else WebSettings.LOAD_DEFAULT
+    settings.cacheMode = if (isIncognito) WebSettings.LOAD_NO_CACHE else resolveEffectiveCacheMode(prefs)
     settings.setSupportZoom(true)
     settings.setSupportMultipleWindows(true)
     settings.builtInZoomControls = true
     settings.displayZoomControls = false
     settings.loadWithOverviewMode = true
     settings.useWideViewPort = true
-    settings.mediaPlaybackRequiresUserGesture = false
+    val dataSaverEnabled = prefs.getBoolean("data_saver_enabled", false)
+    settings.mediaPlaybackRequiresUserGesture = !isIncognito && dataSaverEnabled && prefs.getBoolean("data_saver_disable_autoplay", true)
+    settings.loadsImagesAutomatically = !(dataSaverEnabled && prefs.getBoolean("data_saver_disable_images", false))
     settings.allowFileAccess = false
     settings.allowContentAccess = false
     settings.safeBrowsingEnabled = false
@@ -58,6 +61,12 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
     setupImageLongPress(webView)
     if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
         WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("link_touch_tracker.js"), setOf("*"))
+    }
+    val dataSaverActive = !isIncognito
+        && prefs.getBoolean("data_saver_enabled", false)
+        && prefs.getBoolean("data_saver_disable_autoplay", true)
+    if (dataSaverActive && WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
+        WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("disable_autoplay.js"), setOf("*"))
     }
     return webView
 }
@@ -106,6 +115,54 @@ internal fun MainActivity.applyWebDarkMode(webView: WebView) {
                 if (enabled) WebSettingsCompat.FORCE_DARK_ON else WebSettingsCompat.FORCE_DARK_OFF
             )
     }
+}
+
+internal fun resolveCacheMode(key: String?): Int = when (key) {
+    "cache_else_network" -> WebSettings.LOAD_CACHE_ELSE_NETWORK
+    "no_cache"           -> WebSettings.LOAD_NO_CACHE
+    "cache_only"         -> WebSettings.LOAD_CACHE_ONLY
+    else                 -> WebSettings.LOAD_DEFAULT
+}
+
+internal fun resolveEffectiveCacheMode(prefs: android.content.SharedPreferences): Int {
+    val dataSaverEnabled = prefs.getBoolean("data_saver_enabled", false)
+    if (dataSaverEnabled && prefs.getBoolean("data_saver_cache_first", true)) {
+        return WebSettings.LOAD_CACHE_ELSE_NETWORK
+    }
+    return resolveCacheMode(prefs.getString("cache_mode", "default"))
+}
+
+internal fun MainActivity.applyCacheMode() {
+    val mode = resolveEffectiveCacheMode(prefs)
+    tabManager.tabs.forEach { tab ->
+        if (!tab.isIncognito) tab.webView.settings.cacheMode = mode
+    }
+    tabManager.activeTab?.webView?.reload()
+}
+
+internal fun MainActivity.addAutoplayScript(tab: BrowserTab) {
+    if (!WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) return
+    removeAutoplayScript(tab)
+    autoplayScriptHandlers[tab.id] = WebViewCompat.addDocumentStartJavaScript(tab.webView, loadJsAsset("disable_autoplay.js"), setOf("*"))
+}
+
+internal fun MainActivity.removeAutoplayScript(tab: BrowserTab) {
+    autoplayScriptHandlers.remove(tab.id)?.remove()
+}
+
+internal fun MainActivity.applyDataSaverSettings() {
+    val dataSaverEnabled = prefs.getBoolean("data_saver_enabled", false)
+    val disableImages = dataSaverEnabled && prefs.getBoolean("data_saver_disable_images", false)
+    val disableAutoplay = dataSaverEnabled && prefs.getBoolean("data_saver_disable_autoplay", true)
+    tabManager.tabs.forEach { tab ->
+        if (!tab.isIncognito) {
+            tab.webView.settings.loadsImagesAutomatically = !disableImages
+            tab.webView.settings.mediaPlaybackRequiresUserGesture = disableAutoplay
+            tab.webView.settings.cacheMode = resolveEffectiveCacheMode(prefs)
+            if (disableAutoplay) addAutoplayScript(tab) else removeAutoplayScript(tab)
+        }
+    }
+    tabManager.activeTab?.webView?.reload()
 }
 
 internal fun MainActivity.applyJavaScript() {

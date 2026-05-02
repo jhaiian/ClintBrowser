@@ -21,6 +21,15 @@
         app:singleLineTitle="false" />
 
     <Preference
+        app:key="pref_browser"
+        app:title="@string/browser_settings"
+        app:summary="@string/browser_settings_summary"
+        app:icon="@drawable/ic_explore_24"
+        app:iconTint="?attr/colorPrimary"
+        app:fragment="com.jhaiian.clint.settings.BrowserSettingsFragment"
+        app:singleLineTitle="false" />
+
+    <Preference
         app:key="pref_privacy"
         app:title="@string/privacy_settings"
         app:summary="@string/privacy_settings_summary"
@@ -36,6 +45,15 @@
         app:icon="@drawable/ic_dns_24"
         app:iconTint="?attr/colorPrimary"
         app:fragment="com.jhaiian.clint.settings.DohSettingsFragment"
+        app:singleLineTitle="false" />
+
+    <Preference
+        app:key="pref_data_saver"
+        app:title="@string/data_saver_title"
+        app:summary="@string/data_saver_settings_summary"
+        app:icon="@drawable/ic_data_saver_on_24"
+        app:iconTint="?attr/colorPrimary"
+        app:fragment="com.jhaiian.clint.settings.DataSaverFragment"
         app:singleLineTitle="false" />
 
     <Preference

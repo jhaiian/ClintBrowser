@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:title="@string/browser_settings">
+
+        <SwitchPreferenceCompat
+            app:key="javascript_enabled"
+            app:title="@string/javascript_enabled"
+            app:summary="@string/javascript_enabled_summary"
+            app:defaultValue="true"
+            app:icon="@drawable/ic_desktop_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false" />
+
+        <Preference
+            app:key="cache_mode"
+            app:title="@string/cache_mode_title"
+            app:icon="@drawable/ic_cached_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

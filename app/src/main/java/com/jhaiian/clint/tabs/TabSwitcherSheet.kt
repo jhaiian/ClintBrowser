@@ -52,9 +52,8 @@ class TabSwitcherSheet : BottomSheetDialogFragment() {
             val sheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
             sheet?.let {
                 val behavior = BottomSheetBehavior.from(it)
-                behavior.peekHeight = resources.displayMetrics.heightPixels / 2
+                behavior.skipCollapsed = true
                 behavior.state = BottomSheetBehavior.STATE_EXPANDED
-                behavior.skipCollapsed = false
             }
         }
         return dialog

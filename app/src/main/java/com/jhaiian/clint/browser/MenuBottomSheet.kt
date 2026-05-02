@@ -32,6 +32,9 @@ class MenuBottomSheet : BottomSheetDialogFragment() {
         fun onMenuBookmarks()
         fun onMenuDesktopMode()
         fun onMenuSettings()
+        fun onMenuReaderMode()
+        fun onMenuDataSaver()
+        fun onMenuOpenDataSaverSettings()
     }
 
     var showNavRow: Boolean = false
@@ -40,6 +43,7 @@ class MenuBottomSheet : BottomSheetDialogFragment() {
     var isBookmarked: Boolean = false
     var isLoading: Boolean = false
     var isDesktopMode: Boolean = false
+    var isDataSaverEnabled: Boolean = false
     var openInAppLabel: String? = null
     var openInAppEnabled: Boolean = false
 
@@ -83,6 +87,7 @@ class MenuBottomSheet : BottomSheetDialogFragment() {
         val navRow = view.findViewById<View>(R.id.nav_icons_row_sheet)
         val navDivider = view.findViewById<View>(R.id.nav_icons_divider_sheet)
         val desktopCheck = view.findViewById<ImageView>(R.id.sheet_desktop_mode_check)
+        val dataSaverCheck = view.findViewById<ImageView>(R.id.sheet_data_saver_check)
 
         if (showNavRow) {
             navRow.visibility = View.VISIBLE
@@ -106,6 +111,17 @@ class MenuBottomSheet : BottomSheetDialogFragment() {
         }
 
         desktopCheck.alpha = if (isDesktopMode) 1f else 0f
+        dataSaverCheck.alpha = if (isDataSaverEnabled) 1f else 0f
+
+        view.findViewById<View>(R.id.sheet_menu_data_saver).setOnClickListener {
+            dismiss()
+            listener?.onMenuDataSaver()
+        }
+        view.findViewById<View>(R.id.sheet_menu_data_saver).setOnLongClickListener {
+            dismiss()
+            listener?.onMenuOpenDataSaverSettings()
+            true
+        }
 
         val openInAppItem = view.findViewById<View>(R.id.sheet_menu_open_in_app)
         val openInAppText = view.findViewById<TextView>(R.id.sheet_menu_open_in_app_text)
@@ -126,6 +142,7 @@ class MenuBottomSheet : BottomSheetDialogFragment() {
             dismiss()
             listener?.onMenuDesktopMode()
         }
+        view.findViewById<View>(R.id.sheet_menu_reader_mode).setOnClickListener { dismiss(); listener?.onMenuReaderMode() }
         view.findViewById<View>(R.id.sheet_menu_settings).setOnClickListener { dismiss(); listener?.onMenuSettings() }
     }
 }

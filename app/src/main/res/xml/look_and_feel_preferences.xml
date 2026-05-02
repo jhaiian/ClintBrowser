@@ -2,70 +2,78 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <Preference
-        app:key="app_theme"
-        app:title="@string/pref_app_theme_title"
-        app:summary="@string/pref_app_theme_summary"
-        app:icon="@drawable/ic_palette_24"
-        app:iconTint="?attr/colorPrimary"
-        app:singleLineTitle="false" />
+    <PreferenceCategory android:title="@string/pref_category_appearance">
 
-    <Preference
-        app:key="accent_color"
-        app:title="@string/pref_accent_color_title"
-        app:summary="@string/pref_accent_color_summary"
-        app:icon="@drawable/ic_brush_24"
-        app:iconTint="?attr/colorPrimary"
-        app:singleLineTitle="false" />
+        <Preference
+            app:key="app_theme"
+            app:title="@string/pref_app_theme_title"
+            app:summary="@string/pref_app_theme_summary"
+            app:icon="@drawable/ic_palette_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false" />
 
-    <Preference
-        app:key="surface_intensity"
-        app:title="@string/pref_surface_intensity_title"
-        app:summary="@string/pref_surface_intensity_summary"
-        app:icon="@drawable/ic_contrast_24"
-        app:iconTint="?attr/colorPrimary"
-        app:singleLineTitle="false" />
+        <Preference
+            app:key="accent_color"
+            app:title="@string/pref_accent_color_title"
+            app:summary="@string/pref_accent_color_summary"
+            app:icon="@drawable/ic_brush_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false" />
 
-    <SwitchPreferenceCompat
-        app:key="force_dark_web"
-        app:title="@string/force_dark_web_title"
-        app:summary="@string/force_dark_web_summary"
-        app:defaultValue="true"
-        app:icon="@drawable/ic_dark_mode_24"
-        app:iconTint="?attr/colorPrimary"
-        app:singleLineTitle="false" />
+        <Preference
+            app:key="surface_intensity"
+            app:title="@string/pref_surface_intensity_title"
+            app:summary="@string/pref_surface_intensity_summary"
+            app:icon="@drawable/ic_contrast_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false" />
 
-    <Preference
-        app:key="scroll_hide_mode"
-        app:title="@string/pref_nested_scroll_title"
-        app:summary="@string/pref_nested_scroll_summary"
-        app:icon="@drawable/ic_swap_vert_24"
-        app:iconTint="?attr/colorPrimary"
-        app:singleLineTitle="false" />
+        <SwitchPreferenceCompat
+            app:key="force_dark_web"
+            app:title="@string/force_dark_web_title"
+            app:summary="@string/force_dark_web_summary"
+            app:defaultValue="true"
+            app:icon="@drawable/ic_dark_mode_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false" />
 
-    <Preference
-        app:key="address_bar_position"
-        app:title="@string/pref_address_bar_position_title"
-        app:summary="@string/pref_address_bar_position_summary"
-        app:icon="@drawable/ic_web_asset_24"
-        app:iconTint="?attr/colorPrimary"
-        app:singleLineTitle="false" />
+    </PreferenceCategory>
 
-    <Preference
-        app:key="menu_style"
-        app:title="@string/pref_menu_style_title"
-        app:summary="@string/pref_menu_style_summary"
-        app:icon="@drawable/ic_more_vert_24"
-        app:iconTint="?attr/colorPrimary"
-        app:singleLineTitle="false" />
+    <PreferenceCategory android:title="@string/pref_category_layout">
 
-    <SwitchPreferenceCompat
-        app:key="hide_status_bar"
-        app:title="@string/hide_status_bar"
-        app:summary="@string/hide_status_bar_summary"
-        app:defaultValue="false"
-        app:icon="@drawable/ic_fullscreen_24"
-        app:iconTint="?attr/colorPrimary"
-        app:singleLineTitle="false" />
+        <Preference
+            app:key="scroll_hide_mode"
+            app:title="@string/pref_nested_scroll_title"
+            app:summary="@string/pref_nested_scroll_summary"
+            app:icon="@drawable/ic_swap_vert_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false" />
+
+        <Preference
+            app:key="address_bar_position"
+            app:title="@string/pref_address_bar_position_title"
+            app:summary="@string/pref_address_bar_position_summary"
+            app:icon="@drawable/ic_web_asset_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false" />
+
+        <Preference
+            app:key="menu_style"
+            app:title="@string/pref_menu_style_title"
+            app:summary="@string/pref_menu_style_summary"
+            app:icon="@drawable/ic_more_vert_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false" />
+
+        <SwitchPreferenceCompat
+            app:key="hide_status_bar"
+            app:title="@string/hide_status_bar"
+            app:summary="@string/hide_status_bar_summary"
+            app:defaultValue="false"
+            app:icon="@drawable/ic_fullscreen_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false" />
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

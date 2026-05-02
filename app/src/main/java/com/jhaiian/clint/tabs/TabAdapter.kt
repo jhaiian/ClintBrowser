@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import com.jhaiian.clint.R
@@ -119,6 +120,10 @@ class TabAdapter(
         val faviconUrl = FaviconCache.faviconUrlFor(tab.url)
         if (faviconUrl.isEmpty()) return
 
+        val prefs = PreferenceManager.getDefaultSharedPreferences(ctx)
+        val cacheOnly = prefs.getBoolean("data_saver_enabled", false) &&
+            prefs.getBoolean("data_saver_disable_images", false)
+
         if (tab.isIncognito) {
             FaviconCache.loadMemoryOnly(faviconUrl) { bmp ->
                 if (holder.bindingAdapterPosition == position && bmp != null) {
@@ -127,7 +132,7 @@ class TabAdapter(
                 }
             }
         } else {
-            FaviconCache.load(ctx, faviconUrl) { bmp ->
+            FaviconCache.load(ctx, faviconUrl, cacheOnly) { bmp ->
                 if (holder.bindingAdapterPosition == position && bmp != null) {
                     holder.icon.setImageBitmap(bmp)
                     ImageViewCompat.setImageTintList(holder.icon, null)

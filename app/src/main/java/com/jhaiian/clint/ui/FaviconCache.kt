@@ -23,7 +23,7 @@ object FaviconCache {
         }.getOrDefault("")
     }
 
-    fun load(context: Context, faviconUrl: String, onResult: (Bitmap?) -> Unit) {
+    fun load(context: Context, faviconUrl: String, cacheOnly: Boolean = false, onResult: (Bitmap?) -> Unit) {
         if (faviconUrl.isEmpty()) {
             onResult(null)
             return
@@ -38,6 +38,10 @@ object FaviconCache {
                 onResult(bmp)
                 return
             }
+        }
+        if (cacheOnly) {
+            onResult(null)
+            return
         }
         executor.execute {
             val bmp = tryFetch(faviconUrl) ?: tryFetch(fallbackUrlFor(faviconUrl))

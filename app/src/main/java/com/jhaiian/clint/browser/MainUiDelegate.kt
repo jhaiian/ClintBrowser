@@ -158,6 +158,7 @@ private fun MainActivity.showBottomSheetMenu() {
         isBookmarked = currentUrl.isNotEmpty() && BookmarkManager.isBookmarked(this@showBottomSheetMenu, currentUrl)
         this.isLoading = isLoading
         this.isDesktopMode = this@showBottomSheetMenu.isDesktopMode
+        this.isDataSaverEnabled = prefs.getBoolean("data_saver_enabled", false)
         this.openInAppEnabled = openInAppEnabled
         this.openInAppLabel = openInAppLabel
     }
@@ -294,6 +295,10 @@ private fun MainActivity.showPopupMenu(anchor: View) {
     popupView.findViewById<View>(R.id.menu_bookmarks).setOnClickListener {
         popup.dismiss(); startActivity(Intent(this, BookmarksActivity::class.java))
     }
+    popupView.findViewById<View>(R.id.menu_reader_mode).setOnClickListener {
+        popup.dismiss()
+        onMenuReaderMode()
+    }
     popupView.findViewById<View>(R.id.menu_desktop_mode).setOnClickListener {
         isDesktopMode = !isDesktopMode
         desktopCheck.alpha = if (isDesktopMode) 1f else 0f
@@ -311,6 +316,18 @@ private fun MainActivity.showPopupMenu(anchor: View) {
             wv?.reload()
         }
         popup.dismiss()
+    }
+
+    val dataSaverCheck = popupView.findViewById<ImageView>(R.id.data_saver_check)
+    dataSaverCheck.alpha = if (prefs.getBoolean("data_saver_enabled", false)) 1f else 0f
+    popupView.findViewById<View>(R.id.menu_data_saver).setOnClickListener {
+        popup.dismiss()
+        onMenuDataSaver()
+    }
+    popupView.findViewById<View>(R.id.menu_data_saver).setOnLongClickListener {
+        popup.dismiss()
+        onMenuOpenDataSaverSettings()
+        true
     }
     popupView.findViewById<View>(R.id.menu_settings).setOnClickListener {
         popup.dismiss(); startActivity(Intent(this, SettingsActivity::class.java))
@@ -345,7 +362,11 @@ internal fun MainActivity.formatUrl(input: String): String {
     val t = input.trim()
     return when {
         t.startsWith("http://") || t.startsWith("https://") -> t
-        t.contains(".") && !t.contains(" ") -> "https://$t"
+        t.contains(".") && !t.contains(" ") -> {
+            val host = t.substringBefore("/").substringBefore(":")
+            val isIpAddress = host.matches(Regex("""^(\d{1,3}\.){3}\d{1,3}$"""))
+            if (isIpAddress) "http://$t" else "https://$t"
+        }
         else -> getSearchQueryUrl(t)
     }
 }

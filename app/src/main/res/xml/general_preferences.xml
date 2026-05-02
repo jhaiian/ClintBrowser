@@ -2,26 +2,34 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <Preference
-        app:key="search_engine"
-        app:title="@string/search_engine"
-        app:summary="DuckDuckGo"
-        app:icon="@drawable/ic_search_24"
-        app:iconTint="?attr/colorPrimary"
-        app:singleLineTitle="false" />
+    <PreferenceCategory android:title="@string/pref_category_search">
 
-    <Preference
-        app:key="exit_confirmation"
-        app:title="@string/exit_confirmation_title"
-        app:icon="@drawable/ic_close_24"
-        app:iconTint="?attr/colorPrimary"
-        app:singleLineTitle="false" />
+        <Preference
+            app:key="search_engine"
+            app:title="@string/search_engine"
+            app:summary="DuckDuckGo"
+            app:icon="@drawable/ic_search_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false" />
 
-    <Preference
-        app:key="default_browser"
-        app:title="@string/default_browser_title"
-        app:icon="@drawable/ic_language_24"
-        app:iconTint="?attr/colorPrimary"
-        app:singleLineTitle="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_category_app">
+
+        <Preference
+            app:key="exit_confirmation"
+            app:title="@string/exit_confirmation_title"
+            app:icon="@drawable/ic_close_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false" />
+
+        <Preference
+            app:key="default_browser"
+            app:title="@string/default_browser_title"
+            app:icon="@drawable/ic_language_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false" />
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

@@ -49,9 +49,22 @@ class SettingsActivity : ClintActivity(),
                 ?: getString(R.string.settings)
         }
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.settings_container, MainSettingsFragment())
-                .commit()
+            val openFragment = intent.getStringExtra(EXTRA_OPEN_FRAGMENT)
+            if (openFragment == "data_saver") {
+                val dataSaverFragment = DataSaverFragment()
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.settings_container, MainSettingsFragment())
+                    .commit()
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.settings_container, dataSaverFragment)
+                    .addToBackStack(null)
+                    .commit()
+                supportActionBar?.title = getString(R.string.data_saver_title)
+            } else {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.settings_container, MainSettingsFragment())
+                    .commit()
+            }
         }
         supportFragmentManager.addOnBackStackChangedListener {
             if (supportFragmentManager.backStackEntryCount == 0) {
@@ -123,5 +136,6 @@ class SettingsActivity : ClintActivity(),
 
     companion object {
         private const val KEY_TOOLBAR_TITLE = "toolbar_title"
+        const val EXTRA_OPEN_FRAGMENT = "extra_open_fragment"
     }
 }

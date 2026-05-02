@@ -14,7 +14,14 @@
     <string name="share_url">Share URL</string>
     <string name="downloading">Downloading\u2026</string>
     <string name="privacy_settings">Privacy &amp; Security</string>
-    <string name="privacy_settings_summary">Trackers, cookies, JavaScript, User-Agent</string>
+    <string name="browser_settings">Browser</string>
+    <string name="browser_settings_summary">JavaScript and web content settings</string>
+    <string name="pref_category_appearance">Appearance</string>
+    <string name="pref_category_layout">Layout</string>
+    <string name="pref_category_search">Search</string>
+    <string name="pref_category_app">App</string>
+    <string name="pref_category_setup">Setup</string>
+    <string name="privacy_settings_summary">Trackers, cookies, User-Agent, HTTPS</string>
     <string name="block_trackers">Block trackers</string>
     <string name="block_trackers_summary">Block known tracking and analytics domains</string>
     <string name="javascript_enabled">Enable JavaScript</string>
@@ -177,6 +184,7 @@
     <string name="menu_open_in_named_app">Open in %1$s</string>
     <string name="menu_downloads">Downloads</string>
     <string name="menu_bookmarks">Bookmarks</string>
+    <string name="reader_mode">Reader Mode</string>
 
     <string name="action_ok">OK</string>
     <string name="action_cancel">Cancel</string>
@@ -370,4 +378,37 @@
     <string name="link_share">Share link</string>
     <string name="link_address_copied">Link address copied</string>
     <string name="link_text_copied">Link text copied</string>
+
+    <string name="cache_mode_title">Resource Caching</string>
+    <string name="cache_mode_summary_smart">Smart Cache</string>
+    <string name="cache_mode_summary_cache_first">Cache First</string>
+    <string name="cache_mode_summary_always_fresh">Always Fresh</string>
+    <string name="cache_mode_summary_offline">Offline Only</string>
+    <string name="cache_mode_dialog_title">Choose your cache strategy</string>
+    <string name="cache_mode_smart">Smart Cache</string>
+    <string name="cache_mode_smart_desc">Use network with cached data as a fallback when available</string>
+    <string name="cache_mode_cache_first">Cache First</string>
+    <string name="cache_mode_cache_first_desc">Show saved pages first, fetch from network only if missing</string>
+    <string name="cache_mode_always_fresh">Always Fresh</string>
+    <string name="cache_mode_always_fresh_desc">Always fetch from network, never use locally saved pages</string>
+    <string name="cache_mode_offline">Offline Only</string>
+    <string name="cache_mode_offline_desc">Only load saved pages, never contact the network</string>
+
+    <string name="https_only">HTTPS-Only Mode</string>
+    <string name="https_only_summary">Redirect HTTP connections to HTTPS and block sites that don\u2019t support it</string>
+
+    <string name="data_saver_category">Data Saver</string>
+    <string name="data_saver_title">Data Saver</string>
+    <string name="data_saver_summary">Reduce data usage with smarter loading</string>
+    <string name="data_saver_settings_summary">Disable Images, caching, and autoplay controls</string>
+    <string name="data_saver_disable_images_title">Disable Images</string>
+    <string name="data_saver_disable_images_summary">All images will not load</string>
+    <string name="data_saver_cache_first_title">Cache First</string>
+    <string name="data_saver_cache_first_summary">Show saved pages first, fetch from network only if missing</string>
+    <string name="data_saver_disable_autoplay_title">Disable Autoplay</string>
+    <string name="data_saver_disable_autoplay_summary">Videos and media will not play automatically</string>
+    <string name="menu_data_saver">Data Saver</string>
+    <string name="about_webview_label">WEBVIEW</string>
+    <string name="about_webview_info">%1$s\n%2$s\nv%3$s</string>
+    <string name="about_webview_unavailable">Unavailable</string>
 </resources>

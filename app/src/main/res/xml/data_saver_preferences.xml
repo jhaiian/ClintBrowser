@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:title="@string/data_saver_category">
+
+        <SwitchPreferenceCompat
+            app:key="data_saver_enabled"
+            app:title="@string/data_saver_title"
+            app:summary="@string/data_saver_summary"
+            app:defaultValue="false"
+            app:icon="@drawable/ic_data_saver_on_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false" />
+
+        <SwitchPreferenceCompat
+            app:key="data_saver_disable_images"
+            app:title="@string/data_saver_disable_images_title"
+            app:summary="@string/data_saver_disable_images_summary"
+            app:defaultValue="false"
+            app:icon="@drawable/ic_hide_image_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false"
+            app:dependency="data_saver_enabled" />
+
+        <SwitchPreferenceCompat
+            app:key="data_saver_cache_first"
+            app:title="@string/data_saver_cache_first_title"
+            app:summary="@string/data_saver_cache_first_summary"
+            app:defaultValue="true"
+            app:icon="@drawable/ic_cached_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false"
+            app:dependency="data_saver_enabled" />
+
+        <SwitchPreferenceCompat
+            app:key="data_saver_disable_autoplay"
+            app:title="@string/data_saver_disable_autoplay_title"
+            app:summary="@string/data_saver_disable_autoplay_summary"
+            app:defaultValue="true"
+            app:icon="@drawable/ic_pause_presentation_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false"
+            app:dependency="data_saver_enabled" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

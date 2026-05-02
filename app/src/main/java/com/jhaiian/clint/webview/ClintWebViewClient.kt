@@ -95,6 +95,16 @@ class ClintWebViewClient(
             return handleCustomScheme(view, uri)
         }
 
+        if (scheme == "http" && request.isForMainFrame && prefs.getBoolean("https_only", true)) {
+            val host = uri.host ?: ""
+            val isIpAddress = host.matches(Regex("""^(\d{1,3}\.){3}\d{1,3}$"""))
+            if (!isIpAddress) {
+                val httpsUri = uri.buildUpon().scheme("https").build()
+                view.loadUrl(httpsUri.toString())
+                return true
+            }
+        }
+
         val host = uri.host ?: return false
         if (prefs.getBoolean("block_trackers", true)) {
             if (trackerHosts.any { host.contains(it) }) return true

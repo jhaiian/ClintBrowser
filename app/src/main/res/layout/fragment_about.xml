@@ -157,6 +157,32 @@
                     android:lineSpacingMultiplier="1.6"
                     android:fontFamily="monospace" />
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:background="?attr/clintDividerColor" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/about_webview_label"
+                    android:textColor="?attr/clintSecondaryTextColor"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:letterSpacing="0.05"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:id="@+id/tvWebViewInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="13sp"
+                    android:lineSpacingMultiplier="1.6"
+                    android:fontFamily="monospace" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

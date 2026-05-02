@@ -4,6 +4,54 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.0.3-beta-2
+
+## Added
+
+### Reader Mode
+- Added Reader Mode, available via the menu.
+- Reader Mode opens in content preview.
+
+### Browser Fragment (New in Settings)
+- Added a new Browser Fragment in Settings.
+- Moved JavaScript setting from Privacy & Security to Browser Fragment.
+
+#### Resource Caching Modes
+You can now choose from 4 caching modes:
+
+- **Smart Cache** – Uses network with cached data as a fallback when available
+- **Cache First** – Shows saved pages first, fetches from network only if missing
+- **Always Fresh** – Always fetches from the network, never uses locally saved pages
+- **Offline Only** – Only loads saved pages, never connects to the network
+
+This is essentially WebView cache behavior with renamed modes.
+
+Offline Only is an advanced option and may rarely be needed, but it is available.
+
+### Data Saver Fragment (New)
+- **Data Saver** – Master switch available in both menu popup and bottom sheet
+- **Disable Images** – Prevents all images from loading
+- **Cache First** – Shows saved pages first, fetches from network only if missing (overrides Resource Caching)
+- **Disable Autoplay** – Prevents videos and media from playing automatically
+
+---
+
+## WebView Version Information
+
+- WebView version information added to the About page
+- WebView version information included in crash handler reports
+- WebView version information added to the GitHub issue template
+
+All of this information is based on the WebView version installed on your device that helps run this app. This will help with bug identification, debugging, and general diagnostics.
+
+---
+
+## Fixed
+
+- Fixed tab switcher floating issue
+
+---
+
 # v1.0.3-beta-1
 
 ## ✨ Added Image Hold Listener in WebView

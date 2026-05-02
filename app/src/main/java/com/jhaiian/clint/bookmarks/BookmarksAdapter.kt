@@ -8,6 +8,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.widget.ImageViewCompat
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import com.jhaiian.clint.R
@@ -45,7 +46,10 @@ class BookmarksAdapter(
         val faviconUrl = FaviconCache.faviconUrlFor(bookmark.url)
 
         if (faviconUrl.isNotEmpty()) {
-            FaviconCache.load(holder.itemView.context, faviconUrl) { bmp ->
+            val prefs = PreferenceManager.getDefaultSharedPreferences(holder.itemView.context)
+            val cacheOnly = prefs.getBoolean("data_saver_enabled", false) &&
+                prefs.getBoolean("data_saver_disable_images", false)
+            FaviconCache.load(holder.itemView.context, faviconUrl, cacheOnly) { bmp ->
                 if (holder.bindingAdapterPosition == position && bmp != null) {
                     holder.favicon.setImageBitmap(bmp)
                     ImageViewCompat.setImageTintList(holder.favicon, null)

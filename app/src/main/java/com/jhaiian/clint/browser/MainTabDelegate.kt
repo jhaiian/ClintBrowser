@@ -152,6 +152,7 @@ internal fun MainActivity.attachActiveWebView() {
 internal fun MainActivity.showTabSwitcher() {
     val existing = supportFragmentManager.findFragmentByTag("tab_switcher") as? TabSwitcherSheet
     if (existing != null && existing.isAdded) return
+    hideKeyboard()
     val sheet = TabSwitcherSheet()
     sheet.tabs = tabManager.previews().toMutableList()
     sheet.activeIndex = tabManager.activeIndex

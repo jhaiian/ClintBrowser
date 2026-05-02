@@ -252,6 +252,33 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/menu_reader_mode"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@drawable/popup_item_ripple">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_reader_mode_24"
+            android:tint="?attr/colorPrimary"
+            android:alpha="0.85" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:text="@string/reader_mode"
+            android:textColor="?attr/clintPopupTextColor"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
@@ -289,6 +316,52 @@
 
         <ImageView
             android:id="@+id/desktop_mode_check"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_check_24"
+            android:alpha="0"
+            android:tint="?attr/clintPopupCheckColor" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:background="@drawable/popup_divider" />
+
+    <LinearLayout
+        android:id="@+id/menu_data_saver"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@drawable/popup_item_ripple"
+        android:longClickable="true">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_data_saver_on_24"
+            android:tint="?attr/colorPrimary"
+            android:alpha="0.85" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="14dp"
+            android:text="@string/menu_data_saver"
+            android:textColor="?attr/clintPopupTextColor"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/data_saver_check"
             android:layout_width="18dp"
             android:layout_height="18dp"
             android:src="@drawable/ic_check_24"

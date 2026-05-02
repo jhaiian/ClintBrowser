@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.jhaiian.clint.R
@@ -43,6 +44,18 @@ class AboutFragment : Fragment() {
         }
         val arch = Build.SUPPORTED_ABIS.firstOrNull() ?: "unknown"
         binding.tvVersionInfo.text = getString(R.string.about_version_info, versionName, versionCode, arch)
+
+        val webViewPackage = WebView.getCurrentWebViewPackage()
+        if (webViewPackage != null) {
+            val appName = webViewPackage.applicationInfo
+                ?.let { requireContext().packageManager.getApplicationLabel(it).toString() }
+                ?: webViewPackage.packageName
+            val packageName = webViewPackage.packageName
+            val version = webViewPackage.versionName ?: getString(R.string.about_webview_unavailable)
+            binding.tvWebViewInfo.text = getString(R.string.about_webview_info, appName, packageName, version)
+        } else {
+            binding.tvWebViewInfo.text = getString(R.string.about_webview_unavailable)
+        }
     }
 
     private fun setupLinks() {

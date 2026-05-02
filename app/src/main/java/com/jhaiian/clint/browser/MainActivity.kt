@@ -37,6 +37,7 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
     internal val tabManager = TabManager()
     internal var isDesktopMode = false
     internal val desktopScriptHandlers = mutableMapOf<String, ScriptHandler>()
+    internal val autoplayScriptHandlers = mutableMapOf<String, ScriptHandler>()
 
     internal var topBarFullHeight = 0
     internal var bottomBarFullHeight = 0
@@ -126,9 +127,11 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
     private val prefsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         when (key) {
             "javascript_enabled" -> applyJavaScript()
+            "cache_mode" -> applyCacheMode()
             "block_third_party_cookies" -> applyCookiePolicy()
             "custom_user_agent" -> applyUserAgent()
             "block_trackers" -> reattachWebClients()
+            "data_saver_enabled", "data_saver_disable_images", "data_saver_cache_first", "data_saver_disable_autoplay" -> applyDataSaverSettings()
             "doh_mode", "doh_provider" -> { DohManager.invalidate(); reattachWebClients() }
             "force_dark_web" -> {
                 tabManager.tabs.forEach { applyWebDarkMode(it.webView) }
@@ -391,6 +394,68 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
         } else wv?.reload()
     }
     override fun onMenuSettings() { startActivity(android.content.Intent(this, com.jhaiian.clint.settings.SettingsActivity::class.java)) }
+    override fun onMenuDataSaver() {
+        val enabled = !prefs.getBoolean("data_saver_enabled", false)
+        prefs.edit().putBoolean("data_saver_enabled", enabled).apply()
+    }
+    override fun onMenuOpenDataSaverSettings() {
+        startActivity(android.content.Intent(this, com.jhaiian.clint.settings.SettingsActivity::class.java)
+            .putExtra(com.jhaiian.clint.settings.SettingsActivity.EXTRA_OPEN_FRAGMENT, "data_saver"))
+    }
+    override fun onMenuReaderMode() {
+        val wv = tabManager.activeTab?.webView ?: return
+        val pageUrl = wv.url ?: return
+        val js = assets.open("JavaScript/reader_mode.js").bufferedReader().use { it.readText() }
+        wv.evaluateJavascript(js) { raw ->
+            if (isFinishing) return@evaluateJavascript
+            val json = runCatching {
+                val unescaped = raw?.removeSurrounding("\"")
+                    ?.replace("\\\"", "\"")
+                    ?.replace("\\\\", "\\")
+                    ?.replace("\\n", "\n")
+                    ?.replace("\\t", "\t")
+                    ?: ""
+                org.json.JSONObject(unescaped)
+            }.getOrNull() ?: return@evaluateJavascript
+            val title = json.optString("title", "")
+            val content = json.optString("content", "")
+            val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this)
+            val theme = prefs.getString("app_theme", "default") ?: "default"
+            val isDark = when (theme) {
+                "dark" -> true
+                "light" -> false
+                else -> (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+            }
+            val bgColor = if (isDark) "#121212" else "#ffffff"
+            val textColor = if (isDark) "#e0e0e0" else "#1a1a1a"
+            val secondaryColor = if (isDark) "#aaaaaa" else "#555555"
+            val linkColor = if (isDark) "#90caf9" else "#1a73e8"
+            val html = """<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body{font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.75;max-width:700px;margin:0 auto;padding:16px 20px 32px;background-color:$bgColor;color:$textColor;}
+h1,h2,h3,h4,h5,h6{font-family:-apple-system,sans-serif;line-height:1.3;color:$textColor;}
+a{color:$linkColor;}
+img{max-width:100%;height:auto;display:block;margin:12px auto;}
+pre,code{overflow-x:auto;font-size:14px;}
+blockquote{border-left:3px solid $secondaryColor;margin:0;padding:4px 16px;color:$secondaryColor;}
+figure{margin:12px 0;}
+figcaption{font-size:13px;color:$secondaryColor;text-align:center;margin-top:4px;}
+table{border-collapse:collapse;width:100%;}
+td,th{border:1px solid $secondaryColor;padding:6px 8px;}
+</style>
+</head>
+<body>$content</body>
+</html>"""
+            runOnUiThread {
+                val sheet = ContentPreviewSheet.newInstanceForReaderMode(pageUrl, title, html)
+                sheet.show(supportFragmentManager, "reader_mode_preview")
+            }
+        }
+    }
 
     inner class NestedScrollBridge {
         @android.webkit.JavascriptInterface

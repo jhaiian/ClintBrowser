@@ -1,12 +1,14 @@
 Clint — Customizable Layered Internet Navigation Tool — is a free, open-source Android browser that puts privacy control in your hands and lets you tailor the entire look and feel to your taste.
 
-It blocks trackers and analytics at the network level, isolates incognito sessions completely, and ships with zero Google telemetry baked in. Every feature is built with the philosophy that your browsing data belongs to you  and only you.
+It blocks trackers and analytics at the network level, isolates incognito sessions completely, and ships with zero Google telemetry baked in. Every feature is built with the philosophy that your browsing data belongs to you and only you.
 
 BROWSER CORE
 - Multi-tab browsing with a bottom sheet tab switcher, with clear separation of normal and incognito tabs.
 - Incognito mode — fully isolated session: no cookies, cache, or history saved.
 - Pull-to-refresh with smart detection for nested scrollable content.
-- Configurable toolbar visibility with Nested Scroll control.
+- Reader Mode — strip away clutter for a clean, readable article view.
+- Data Saver — block images and disable auto-play video to save bandwidth.
+- Configurable search bar visibility with Nested Scroll control.
 - Desktop Mode toggle with JavaScript injection.
 - Full-screen video and media support.
 - Intent handling — links open installed apps (YouTube, Spotify, etc.) with a prompt to choose between external app or staying in-app.
@@ -31,7 +33,6 @@ LOOK & FEEL
 DOWNLOADS
 - Custom download engine built on OkHttp
 - Real-time progress with percentage and file size.
-- Cancel downloads in-app or from the notification.
 - Install APK files directly from the downloads screen.
 - Download images inside the WebView.
 
@@ -42,7 +43,3 @@ BOOKMARKS & TABS
 
 SEARCH ENGINES
 - DuckDuckGo (default), Brave Search, Google (with privacy warning).
-
-CRASH REPORTS
-- Local crash log viewer — everything stays on your device, nothing is transmitted.
-- One-tap copy of crash logs and a pre-filled GitHub issue template.

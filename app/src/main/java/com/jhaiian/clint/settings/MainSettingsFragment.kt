@@ -23,7 +23,7 @@ class MainSettingsFragment : PreferenceFragmentCompat() {
     private fun applyIconTints() {
         val color = MaterialColors.getColor(requireContext(), R.attr.clintIconTint, 0)
         val tint = ColorStateList.valueOf(color)
-        listOf("pref_general", "pref_look_and_feel", "pref_privacy", "pref_doh", "pref_debug", "pref_updates", "pref_misc", "pref_about").forEach { key ->
+        listOf("pref_general", "pref_look_and_feel", "pref_browser", "pref_privacy", "pref_doh", "pref_data_saver", "pref_debug", "pref_updates", "pref_misc", "pref_about").forEach { key ->
             findPreference<Preference>(key)?.let { pref ->
                 pref.icon?.mutate()?.let { icon ->
                     DrawableCompat.setTintList(DrawableCompat.wrap(icon), tint)

@@ -1,0 +1,16 @@
+ADDED
+
+Reader Mode - Available via menu
+
+Data Saver - Master switch with:
+- Disable Images
+- Cache First  
+- Disable Autoplay
+
+Browser Settings - New Browser Fragment with 4 cache modes:
+Smart Cache, Cache First, Always Fresh, Offline Only
+
+WebView Info - Added to About page & crash reports
+
+FIXED
+Tab switcher floating issue
