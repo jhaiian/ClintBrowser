@@ -23,6 +23,7 @@ All notable changes to Clint Browser are documented here.
 - Delete individual or all history entries
 - Sort history by Title (ascending/descending)
 - Sort history by Last Visit (ascending/descending)
+- Search from the list
 - Saved locally using SQLite
 
 ### Intent Support
@@ -44,6 +45,7 @@ All notable changes to Clint Browser are documented here.
 - Complete UI redesign matching the new history page layout
 - New sorting options: Title, Last Visit, and Date Added
 - Ascending and descending order for all sort types
+- Search from the list
 - Consistent look and feel with history section
 
 ### Search Bar Component
