@@ -1,0 +1,12 @@
+Added
+
+· Search suggestions via DuckDuckGo API
+· Voice search in address bar
+· Search history (SQLite, sortable by title or last visit)
+· More intent actions for app integration
+
+Changed
+
+· Bookmarks now use SQLite (faster, better organization)
+· New bookmark UI matching history page layout
+· Modern Material Search Bar replacing old search box

@@ -8,17 +8,20 @@ BROWSER CORE
 - Pull-to-refresh with smart detection for nested scrollable content.
 - Reader Mode — strip away clutter for a clean, readable article view.
 - Data Saver — block images and disable auto-play video to save bandwidth.
+- Speech-to-text support — voice input in address bar for hands-free searching.
+- Search suggestions — real-time predictions powered by DuckDuckGo API.
+- Material Design search bar — modern look and feel.
 - Configurable search bar visibility with Nested Scroll control.
 - Desktop Mode toggle with JavaScript injection.
 - Full-screen video and media support.
 - Intent handling — links open installed apps (YouTube, Spotify, etc.) with a prompt to choose between external app or staying in-app.
+- Enhanced intent support — more actions and better third-party app integration.
 
 PRIVACY & SECURITY
 - Tracker blocking — 16+ known analytics and ad domains blocked at the network level.
 - Third-party cookie blocking — prevents cross-site tracking.
 - Generic User-Agent — reduces browser fingerprinting.
 - DNS over HTTPS (DoH) — four protection levels with Cloudflare and Quad9 support.
-- SSL enforcement — invalid certificates are always rejected, no exceptions.
 - Incognito isolation — separate cookie, cache, and DNS context for each incognito tab.
 - Favicon privacy — favicons use DuckDuckGo's service, not Google.
 
@@ -36,10 +39,12 @@ DOWNLOADS
 - Install APK files directly from the downloads screen.
 - Download images inside the WebView.
 
-BOOKMARKS & TABS
+BOOKMARKS & HISTORY
 - Tabs display the website's own favicon.
-- Save any page with a single tap; bookmark icon updates live to reflect saved state.
-- All bookmarks stored locally — never synced or uploaded.
+- Save any page with a single tap; bookmark icon updates live.
+- Redesigned bookmark UI with sorting by Title, Last Visit, or Date Added.
+- Search history — view, delete, and sort by Title or Last Visit.
+- All data stored locally using SQLite — never synced or uploaded.
 
 SEARCH ENGINES
 - DuckDuckGo (default), Brave Search, Google (with privacy warning).

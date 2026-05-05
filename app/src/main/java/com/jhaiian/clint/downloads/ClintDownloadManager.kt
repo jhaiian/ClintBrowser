@@ -378,7 +378,7 @@ object ClintDownloadManager {
 
         fun at(i: Int) = b.getOrElse(i) { 0 }.toInt() and 0xFF
 
-        // MP4 / M4V / M4A / MOV – ISO base media file format: box-size then "ftyp" at offset 4
+        
         if (b.size >= 8
             && at(4) == 0x66 && at(5) == 0x74 && at(6) == 0x79 && at(7) == 0x70) {
             if (b.size >= 12) {
@@ -396,13 +396,13 @@ object ClintDownloadManager {
             return "mp4"
         }
 
-        // WebM / MKV – EBML signature
+        
         if (at(0) == 0x1A && at(1) == 0x45 && at(2) == 0xDF && at(3) == 0xA3) {
             val header = String(b, 0, minOf(b.size, 64), Charsets.ISO_8859_1)
             return if (header.contains("webm", ignoreCase = true)) "webm" else "mkv"
         }
 
-        // RIFF-container formats (AVI / WAV / WebP)
+        
         if (at(0) == 0x52 && at(1) == 0x49 && at(2) == 0x46 && at(3) == 0x46 && b.size >= 12) {
             return when {
                 at(8) == 0x41 && at(9) == 0x56 && at(10) == 0x49 -> "avi"
@@ -412,13 +412,13 @@ object ClintDownloadManager {
             }
         }
 
-        // FLV
+        
         if (at(0) == 0x46 && at(1) == 0x4C && at(2) == 0x56) return "flv"
 
-        // MPEG Transport Stream (188-byte sync)
+        
         if (at(0) == 0x47 && b.size >= 189 && at(188) == 0x47) return "ts"
 
-        // MPEG Program Stream / MPEG-1/2 video elementary stream
+        
         if (at(0) == 0x00 && at(1) == 0x00 && at(2) == 0x01) {
             return when (at(3)) {
                 0xBA -> "mpg"
@@ -427,40 +427,40 @@ object ClintDownloadManager {
             }
         }
 
-        // OGG (covers Ogg Vorbis, Ogg Theora, Opus in Ogg)
+        
         if (at(0) == 0x4F && at(1) == 0x67 && at(2) == 0x67 && at(3) == 0x53) return "ogg"
 
-        // MP3 – ID3 tag
+        
         if (at(0) == 0x49 && at(1) == 0x44 && at(2) == 0x33) return "mp3"
 
-        // MP3 – sync word (no ID3)
+        
         if (at(0) == 0xFF && (at(1) and 0xE0) == 0xE0) {
             val layer = (at(1) shr 1) and 0x03
             if (layer == 1) return "mp3"
         }
 
-        // AAC ADTS
+        
         if (at(0) == 0xFF && (at(1) == 0xF1 || at(1) == 0xF9)) return "aac"
 
-        // FLAC
+        
         if (at(0) == 0x66 && at(1) == 0x4C && at(2) == 0x61 && at(3) == 0x43) return "flac"
 
-        // JPEG
+        
         if (at(0) == 0xFF && at(1) == 0xD8 && at(2) == 0xFF) return "jpg"
 
-        // PNG
+        
         if (at(0) == 0x89 && at(1) == 0x50 && at(2) == 0x4E && at(3) == 0x47) return "png"
 
-        // GIF
+        
         if (at(0) == 0x47 && at(1) == 0x49 && at(2) == 0x46) return "gif"
 
-        // BMP
+        
         if (at(0) == 0x42 && at(1) == 0x4D) return "bmp"
 
-        // PDF
+        
         if (at(0) == 0x25 && at(1) == 0x50 && at(2) == 0x44 && at(3) == 0x46) return "pdf"
 
-        // ZIP / APK / DOCX / XLSX / PPTX (PK header)
+        
         if (at(0) == 0x50 && at(1) == 0x4B && at(2) == 0x03 && at(3) == 0x04) {
             return try {
                 if (contentInfoUtil == null) contentInfoUtil = com.j256.simplemagic.ContentInfoUtil()
@@ -470,16 +470,16 @@ object ClintDownloadManager {
             } catch (_: Throwable) { "zip" }
         }
 
-        // RAR
+        
         if (at(0) == 0x52 && at(1) == 0x61 && at(2) == 0x72 && at(3) == 0x21) return "rar"
 
-        // 7-Zip
+        
         if (at(0) == 0x37 && at(1) == 0x7A && at(2) == 0xBC && at(3) == 0xAF) return "7z"
 
-        // gzip
+        
         if (at(0) == 0x1F && at(1) == 0x8B) return "gz"
 
-        // Fall back to simplemagic for anything else
+        
         return try {
             if (contentInfoUtil == null) contentInfoUtil = com.j256.simplemagic.ContentInfoUtil()
             val info = contentInfoUtil?.findMatch(b) ?: return null

@@ -11,7 +11,7 @@ A customizable, privacy focused Android browser built on Android WebView.
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blueviolet.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B-blueviolet.svg)](https://developer.android.com)
 [![Stable](https://img.shields.io/badge/Stable-1.0.2--r3-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.2-r3)
-[![Beta](https://img.shields.io/badge/Beta-1.0.3--beta--2-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.3-beta-2)
+[![Beta](https://img.shields.io/badge/Beta-1.0.3--beta--3-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.3-beta-3)
 [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser)
 
 </div>
@@ -30,16 +30,9 @@ Built and maintained by **[@jhaiian](https://github.com/jhaiian)** — a solo de
 
 <div align="center">
 
-<td>
-  <tr>
-    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="180" alt="Browsing" /></td>
-    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="180" alt="Private Search" /></td>
-    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg" width="180" alt="Look and Feel" /></td>
-    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg" width="180" alt="Tab Switcher" /></td>
-    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg" width="180" alt="Bookmarks" /></td>
-    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.jpg" width="180" alt="Downloads" /></td>
-  </tr>
-</table>
+| <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="180" alt="Browsing" /> | <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="180" alt="Private Search" /> | <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg" width="180" alt="Look and Feel" /> |
+|:---:|:---:|:---:|
+| <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg" width="180" alt="Tab Switcher" /> | <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg" width="180" alt="Bookmarks" /> | <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.jpg" width="180" alt="Downloads" /> |
 
 </div>
 
@@ -53,6 +46,8 @@ Built and maintained by **[@jhaiian](https://github.com/jhaiian)** — a solo de
 - Pull‑to‑refresh with smart detection for nested scrollable content.
 - **Reader Mode** — strip away clutter and distractions for a clean, readable article view.
 - **Data Saver** — block all images from loading and disable auto-play video to save bandwidth and speed up browsing.
+- **Speech‑to‑Text Support** — voice input in address bar for hands‑free searching.
+- **Search Suggestions** — real‑time query predictions powered by DuckDuckGo API.
 - **Nested Scroll** controls exactly which bars hide on scroll:
   - *Off* – both bars always visible
   - *Search Bar* – search bar hides when scrolling down
@@ -65,6 +60,7 @@ Built and maintained by **[@jhaiian](https://github.com/jhaiian)** — a solo de
 - Back, forward, refresh, and home navigation.
 - Intent handling — links open installed apps (YouTube, Spotify, etc.) with a prompt to choose between external app or staying in‑app.
 - **"Open in ___"** button in the menu (grayed out when no compatible app is available).
+- Enhanced intent support with more actions and deep linking capabilities.
 - Full‑screen video and media support.
 
 ### 🗂️ Tab Switcher & Favicons
@@ -86,7 +82,20 @@ Built and maintained by **[@jhaiian](https://github.com/jhaiian)** — a solo de
 ### 🔖 Bookmarks
 - Save any page with a single tap from the navigation bar; the bookmark icon updates live to reflect the saved state.
 - View, open, and delete bookmarks from a dedicated screen.
-- All bookmarks are stored locally on your device — never synced or uploaded.
+- **New UI** — redesigned bookmark page matching the history page layout.
+- **Sorting options** — sort by Title, Last Visit, or Date Added (ascending or descending).
+- All bookmarks are stored locally on your device using SQLite — never synced or uploaded.
+
+### 📜 Search History
+- Access via Settings → Browser → History
+- Delete individual or all history entries
+- Sort history by Title or Last Visit (ascending or descending)
+- Saved locally using SQLite
+
+### 🔍 Search Bar
+- **Material Design Search Bar** — modern look and feel with improved interaction
+- **Speech‑to‑Text** — voice input support
+- **Search Suggestions** — real‑time predictions from DuckDuckGo
 
 ### 🔒 Privacy & Security
 - **Tracker blocking** — 16+ known analytics and ad domains blocked at the network level.

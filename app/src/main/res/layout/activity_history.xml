@@ -7,7 +7,7 @@
     android:background="?android:attr/colorBackground">
 
     <LinearLayout
-        android:id="@+id/bookmarks_toolbar"
+        android:id="@+id/history_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="4dp"
-                android:text="@string/bookmarks_title"
+                android:text="@string/history_title"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="19sp"
                 android:fontFamily="sans-serif-medium" />
@@ -49,7 +49,7 @@
                 android:layout_weight="1"
                 android:layout_marginStart="4dp"
                 android:layout_marginEnd="4dp"
-                android:hint="@string/bookmarks_search_hint"
+                android:hint="@string/history_search_hint"
                 android:textColor="?attr/colorOnSurface"
                 android:textColorHint="?attr/clintSecondaryTextColor"
                 android:textSize="16sp"
@@ -68,7 +68,7 @@
                 android:padding="12dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:tint="?attr/clintIconTint"
-                android:contentDescription="@string/bookmarks_search"
+                android:contentDescription="@string/history_search"
                 android:visibility="gone" />
 
             <ImageView
@@ -79,7 +79,7 @@
                 android:padding="12dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:tint="?attr/clintIconTint"
-                android:contentDescription="@string/bookmarks_search" />
+                android:contentDescription="@string/history_search" />
 
             <ImageView
                 android:id="@+id/btn_sort"
@@ -119,17 +119,17 @@
         android:layout_weight="1">
 
         <TextView
-            android:id="@+id/bookmarks_empty"
+            android:id="@+id/history_empty"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="@string/bookmarks_empty"
+            android:text="@string/history_empty"
             android:textColor="?attr/clintSecondaryTextColor"
             android:textSize="15sp"
             android:visibility="gone" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/bookmarks_recycler"
+            android:id="@+id/history_recycler"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingTop="6dp"
@@ -139,7 +139,7 @@
             android:visibility="gone" />
 
         <com.jhaiian.clint.history.HistoryFastScroller
-            android:id="@+id/bookmarks_fast_scroller"
+            android:id="@+id/history_fast_scroller"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone" />
@@ -152,7 +152,7 @@
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="24dp"
             android:src="@drawable/ic_delete_24"
-            android:contentDescription="@string/bookmarks_delete_selected_desc"
+            android:contentDescription="@string/history_delete_selected_desc"
             app:backgroundTint="?attr/clintButtonBackground"
             app:tint="?attr/clintButtonIconTint"
             app:fabSize="normal"

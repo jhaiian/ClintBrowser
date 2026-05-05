@@ -15,7 +15,7 @@
     <string name="downloading">Downloading\u2026</string>
     <string name="privacy_settings">Privacy &amp; Security</string>
     <string name="browser_settings">Browser</string>
-    <string name="browser_settings_summary">JavaScript and web content settings</string>
+    <string name="browser_settings_summary">JavaScript, cache, and history settings</string>
     <string name="pref_category_appearance">Appearance</string>
     <string name="pref_category_layout">Layout</string>
     <string name="pref_category_search">Search</string>
@@ -200,6 +200,10 @@
     <string name="camera_permission_message">Camera access is needed so you can take photos or record videos to upload directly from this page.</string>
     <string name="download_storage_permission_title">Storage access</string>
     <string name="download_storage_permission_message">Storage access is needed to save downloaded files to your Downloads folder.</string>
+    <string name="voice_search">Voice search</string>
+    <string name="voice_search_permission_title">Microphone access</string>
+    <string name="voice_search_permission_message">Clint needs microphone access to use voice search.</string>
+    <string name="voice_search_not_available">Voice search is not available on this device</string>
 
     <string name="toast_downloading">Downloading %1$s</string>
 
@@ -327,6 +331,15 @@
 
     <string name="bookmarks_title">Bookmarks</string>
     <string name="bookmarks_empty">No bookmarks yet</string>
+    <string name="bookmarks_search">Search</string>
+    <string name="bookmarks_search_hint">Search bookmarks…</string>
+    <string name="bookmarks_selected_count">%d selected</string>
+    <string name="bookmarks_delete_selected">Delete</string>
+    <string name="bookmarks_delete_selected_desc">Delete selected bookmarks</string>
+    <string name="bookmarks_delete_confirm_title">Delete bookmarks</string>
+    <string name="bookmarks_delete_confirm_message">Delete %d bookmark(s)?</string>
+    <string name="bookmarks_items_deleted">Bookmarks deleted</string>
+    <string name="bookmarks_sort_by_date_added">Date Added</string>
 
     <string name="downloads_title">Downloads</string>
     <string name="downloads_clear_done">Clear done</string>
@@ -411,4 +424,39 @@
     <string name="about_webview_label">WEBVIEW</string>
     <string name="about_webview_info">%1$s\n%2$s\nv%3$s</string>
     <string name="about_webview_unavailable">Unavailable</string>
+
+    <string name="suggestion_icon_desc">Search suggestion</string>
+    <string name="suggestion_fill_desc">Fill into search bar</string>
+    <string name="history_delete_desc">Remove from history</string>
+    <string name="suggestion_url_desc">Page URL</string>
+    <string name="suggestion_bookmark_icon_desc">Bookmark</string>
+    <string name="clear_search_history">Clear search history</string>
+    <string name="clear_search_history_summary">Delete all saved search and URL history</string>
+    <string name="clear_search_history_confirm">Clear history</string>
+    <string name="clear_search_history_message">All search history will be permanently deleted.</string>
+    <string name="search_history_cleared">Search history cleared</string>
+    <string name="history_title">History</string>
+    <string name="history_summary">View and manage browsing and search history</string>
+    <string name="history_empty">No history yet</string>
+    <string name="history_clear_all">Clear all</string>
+    <string name="history_clear_all_desc">Clear all history</string>
+    <string name="history_item_delete_desc">Remove from history</string>
+    <string name="history_selected_count">%d selected</string>
+    <string name="history_select_all">Select All</string>
+    <string name="history_invert_selection">Invert</string>
+    <string name="history_deselect_all">Deselect All</string>
+    <string name="history_delete_selected">Delete</string>
+    <string name="history_delete_selected_desc">Delete selected items</string>
+    <string name="history_sort">Sort</string>
+    <string name="history_sort_by_title">Title</string>
+    <string name="history_sort_by_last_visit">Last Visit</string>
+    <string name="history_sort_ascending">Ascending</string>
+    <string name="history_sort_descending">Descending</string>
+    <string name="history_more_options">More options</string>
+    <string name="history_search">Search</string>
+    <string name="history_search_hint">Search history…</string>
+    <string name="history_cancel_selection_desc">Cancel selection</string>
+    <string name="history_delete_confirm_title">Delete items</string>
+    <string name="history_delete_confirm_message">Remove %d item(s) from history?</string>
+    <string name="history_items_deleted">Removed from history</string>
 </resources>

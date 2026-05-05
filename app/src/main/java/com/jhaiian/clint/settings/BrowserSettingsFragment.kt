@@ -1,5 +1,6 @@
 package com.jhaiian.clint.settings
 
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,6 +14,7 @@ import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jhaiian.clint.R
 import com.jhaiian.clint.base.ClintActivity
+import com.jhaiian.clint.history.HistoryActivity
 
 class BrowserSettingsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -21,6 +23,11 @@ class BrowserSettingsFragment : PreferenceFragmentCompat() {
 
         findPreference<Preference>("cache_mode")?.setOnPreferenceClickListener {
             showCacheModeDialog()
+            true
+        }
+
+        findPreference<Preference>("history")?.setOnPreferenceClickListener {
+            startActivity(Intent(requireContext(), HistoryActivity::class.java))
             true
         }
     }
@@ -33,7 +40,7 @@ class BrowserSettingsFragment : PreferenceFragmentCompat() {
     private fun applyIconTints() {
         val color = MaterialColors.getColor(requireContext(), R.attr.clintIconTint, 0)
         val tint = ColorStateList.valueOf(color)
-        listOf("javascript_enabled", "cache_mode").forEach { key ->
+        listOf("javascript_enabled", "cache_mode", "history").forEach { key ->
             findPreference<Preference>(key)?.let { pref ->
                 pref.icon?.mutate()?.let { icon ->
                     DrawableCompat.setTintList(DrawableCompat.wrap(icon), tint)

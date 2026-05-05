@@ -37,13 +37,11 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingStart="10dp"
-            android:paddingEnd="6dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp">
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp">
 
             <ImageView
                 android:id="@+id/incognitoIcon"
@@ -51,35 +49,19 @@
                 android:layout_height="18dp"
                 android:src="@drawable/ic_incognito_24"
                 android:tint="@color/incognito_accent"
-                android:layout_marginEnd="4dp"
+                android:layout_marginEnd="2dp"
+                android:layout_marginStart="4dp"
                 android:visibility="gone"
                 android:contentDescription="@string/incognito" />
 
-            <ImageView
-                android:id="@+id/lockIcon"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:src="@drawable/ic_lock_24"
-                android:tint="?attr/clintIconTint"
-                android:layout_marginEnd="6dp"
-                android:contentDescription="@string/connection_secure" />
-
-            <EditText
+            <com.google.android.material.search.SearchBar
                 android:id="@+id/addressBar"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="40dp"
-                android:background="@drawable/address_bar_background"
-                android:textColor="?attr/colorOnSurface"
-                android:textColorHint="?attr/clintSecondaryTextColor"
+                android:layout_height="wrap_content"
+                style="@style/Widget.Clint.SearchBar"
                 android:hint="@string/address_bar_hint"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:singleLine="true"
-                android:imeOptions="actionGo"
-                android:inputType="textUri"
-                android:textSize="14sp"
-                android:selectAllOnFocus="true" />
+                app:navigationIcon="@drawable/ic_lock_24" />
 
             <TextView
                 android:id="@+id/btnTabCount"
@@ -165,13 +147,11 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingStart="10dp"
-            android:paddingEnd="6dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp">
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp">
 
             <ImageView
                 android:id="@+id/incognitoIconBottom"
@@ -179,35 +159,19 @@
                 android:layout_height="18dp"
                 android:src="@drawable/ic_incognito_24"
                 android:tint="@color/incognito_accent"
-                android:layout_marginEnd="4dp"
+                android:layout_marginEnd="2dp"
+                android:layout_marginStart="4dp"
                 android:visibility="gone"
                 android:contentDescription="@string/incognito" />
 
-            <ImageView
-                android:id="@+id/lockIconBottom"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:src="@drawable/ic_lock_24"
-                android:tint="?attr/clintIconTint"
-                android:layout_marginEnd="6dp"
-                android:contentDescription="@string/connection_secure" />
-
-            <EditText
+            <com.google.android.material.search.SearchBar
                 android:id="@+id/addressBarBottom"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="40dp"
-                android:background="@drawable/address_bar_background"
-                android:textColor="?attr/colorOnSurface"
-                android:textColorHint="?attr/clintSecondaryTextColor"
+                android:layout_height="wrap_content"
+                style="@style/Widget.Clint.SearchBar"
                 android:hint="@string/address_bar_hint"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:singleLine="true"
-                android:imeOptions="actionGo"
-                android:inputType="textUri"
-                android:textSize="14sp"
-                android:selectAllOnFocus="true" />
+                app:navigationIcon="@drawable/ic_lock_24" />
 
             <TextView
                 android:id="@+id/btnTabCountBottom"
@@ -235,6 +199,40 @@
         </LinearLayout>
 
     </LinearLayout>
+
+    <com.google.android.material.search.SearchView
+        android:id="@+id/addressBarSearch"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:hint="@string/address_bar_hint"
+        android:inputType="textUri"
+        android:imeOptions="actionGo">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/suggestionsListTop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            android:clipToPadding="false" />
+
+    </com.google.android.material.search.SearchView>
+
+    <com.google.android.material.search.SearchView
+        android:id="@+id/addressBarSearchBottom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:hint="@string/address_bar_hint"
+        android:inputType="textUri"
+        android:imeOptions="actionGo">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/suggestionsListBottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            android:clipToPadding="false" />
+
+    </com.google.android.material.search.SearchView>
 
     <FrameLayout
         android:id="@+id/fullscreenContainer"

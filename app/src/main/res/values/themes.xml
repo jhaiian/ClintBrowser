@@ -26,6 +26,7 @@
         <item name="clintButtonBackground">@color/default_button_background</item>
         <item name="clintButtonTextColor">@color/default_button_text</item>
         <item name="clintButtonIconTint">@color/default_button_text</item>
+        <item name="colorSurfaceContainerHigh">?attr/colorSurface</item>
         <item name="clintCardBackground">?attr/colorSurface</item>
         <item name="clintIconTint">?attr/colorPrimary</item>
     </style>
@@ -88,6 +89,7 @@
         <item name="clintButtonBackground">@color/dark_button_background</item>
         <item name="clintButtonTextColor">@color/dark_button_text</item>
         <item name="clintButtonIconTint">@color/dark_button_text</item>
+        <item name="colorSurfaceContainerHigh">?attr/colorSurface</item>
         <item name="clintCardBackground">?attr/colorSurface</item>
         <item name="clintIconTint">?attr/colorPrimary</item>
     </style>
@@ -120,6 +122,7 @@
         <item name="clintButtonBackground">@color/light_button_background</item>
         <item name="clintButtonTextColor">@color/light_button_text</item>
         <item name="clintButtonIconTint">@color/light_button_text</item>
+        <item name="colorSurfaceContainerHigh">?attr/colorSurface</item>
         <item name="clintCardBackground">?attr/colorSurface</item>
         <item name="clintIconTint">?attr/colorPrimary</item>
     </style>
@@ -1322,5 +1325,17 @@
     <style name="ThemeOverlay.ClintBrowser.Dialog.PureMode.Green.Dark" parent="ThemeOverlay.ClintBrowser.Dialog.SoftTint.Green.Dark" />
 
     <style name="ThemeOverlay.ClintBrowser.Dialog.PureMode.Green.Light" parent="ThemeOverlay.ClintBrowser.Dialog.SoftTint.Green.Light" />
+    <style name="Widget.Clint.SearchBar" parent="Widget.Material3.SearchBar">
+        <item name="backgroundTint">?attr/clintAddressBarColor</item>
+        <item name="android:elevation">0dp</item>
+        <item name="android:layout_marginStart">0dp</item>
+        <item name="android:layout_marginEnd">0dp</item>
+        <item name="android:layout_marginTop">0dp</item>
+        <item name="android:layout_marginBottom">0dp</item>
+        <item name="hintTextColor">?attr/clintSecondaryTextColor</item>
+        <item name="android:textColorHint">?attr/clintSecondaryTextColor</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="navigationIconTint">?attr/clintIconTint</item>
+    </style>
 
 </resources>

@@ -53,6 +53,9 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
     internal var fullscreenView: View? = null
     internal var fullscreenCallback: WebChromeClient.CustomViewCallback? = null
 
+    internal var suggestionFetcherTop: SuggestionFetcher? = null
+    internal var suggestionFetcherBottom: SuggestionFetcher? = null
+
     private var backPressedOnce = false
     private val backPressHandler = Handler(Looper.getMainLooper())
 
@@ -71,6 +74,7 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
     )
 
     internal var pendingDownload: PendingDownload? = null
+    internal var pendingVoiceSearchEditText: android.widget.EditText? = null
 
     internal val storagePermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -98,6 +102,27 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
         } else if (cb != null) {
             cb.onReceiveValue(null)
         }
+    }
+
+    internal val microphonePermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) launchVoiceSearch()
+        else pendingVoiceSearchEditText = null
+    }
+
+    internal val voiceSearchLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            val matches = result.data?.getStringArrayListExtra(android.speech.RecognizerIntent.EXTRA_RESULTS)
+            val text = matches?.firstOrNull() ?: return@registerForActivityResult
+            pendingVoiceSearchEditText?.let { editText ->
+                editText.setText(text)
+                editText.setSelection(text.length)
+            }
+        }
+        pendingVoiceSearchEditText = null
     }
 
     internal val fileChooserLauncher = registerForActivityResult(
@@ -224,7 +249,7 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
         setupAddressBar()
         setupNavigationButtons()
         applyAddressBarPosition()
-        val intentUrl = intent?.data?.toString()
+        val intentUrl = getUrlFromIntent(intent)
         if (!intentUrl.isNullOrEmpty()) {
             restoreTabs()
             openNewTab(isIncognito = false, url = intentUrl)
@@ -235,7 +260,7 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
 
     override fun onNewIntent(intent: android.content.Intent) {
         super.onNewIntent(intent)
-        val url = intent.data?.toString()
+        val url = getUrlFromIntent(intent)
         if (!url.isNullOrEmpty()) {
             openNewTab(isIncognito = false, url = url)
         }
@@ -274,12 +299,16 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
     override fun onDestroy() {
         prefs.unregisterOnSharedPreferenceChangeListener(prefsListener)
         tabManager.destroyAll()
+        suggestionFetcherTop?.cancel()
+        suggestionFetcherBottom?.cancel()
         super.onDestroy()
     }
 
     override fun onKeyDown(keyCode: Int, event: android.view.KeyEvent?): Boolean {
         if (keyCode == android.view.KeyEvent.KEYCODE_BACK) {
             if (fullscreenView != null) { exitFullscreen(); return true }
+            if (binding.addressBarSearch.isShowing) { binding.addressBarSearch.hide(); return true }
+            if (binding.addressBarSearchBottom.isShowing) { binding.addressBarSearchBottom.hide(); return true }
             val wv = tabManager.activeTab?.webView
             if (wv?.canGoBack() == true) { wv.goBack(); return true }
             handleExitConfirmation()
@@ -518,6 +547,14 @@ td,th{border:1px solid $secondaryColor;padding:6px 8px;}
     private fun dismissContentPreview() {
         (supportFragmentManager.findFragmentByTag("link_preview") as? ContentPreviewSheet)?.dismiss()
         (supportFragmentManager.findFragmentByTag("image_preview") as? ContentPreviewSheet)?.dismiss()
+    }
+
+    private fun getUrlFromIntent(intent: android.content.Intent?): String? {
+        if (intent == null) return null
+        return when (intent.action) {
+            android.content.Intent.ACTION_SEND -> intent.getStringExtra(android.content.Intent.EXTRA_TEXT)
+            else -> intent.data?.toString()
+        }
     }
 
     private fun applyStatusBarVisibility() {

@@ -1,15 +1,14 @@
-package com.jhaiian.clint.bookmarks
+package com.jhaiian.clint.history
 
 import android.content.Intent
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.PopupWindow
@@ -23,16 +22,14 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jhaiian.clint.R
 import com.jhaiian.clint.base.ClintActivity
-import com.jhaiian.clint.history.HistoryFastScroller
 import com.jhaiian.clint.ui.ClintToast
-import com.jhaiian.clint.ui.FaviconCache
 
-class BookmarksActivity : ClintActivity() {
+class HistoryActivity : ClintActivity() {
 
-    enum class SortBy { TITLE, LAST_VISIT, DATE_ADDED }
+    enum class SortBy { TITLE, LAST_VISIT }
     enum class SortOrder { ASCENDING, DESCENDING }
 
-    private lateinit var adapter: BookmarksAdapter
+    private lateinit var adapter: HistoryAdapter
     private lateinit var emptyView: TextView
     private lateinit var recycler: RecyclerView
     private lateinit var toolbarTitle: TextView
@@ -41,29 +38,29 @@ class BookmarksActivity : ClintActivity() {
     private lateinit var btnMoreOptions: ImageView
     private lateinit var fabDelete: FloatingActionButton
     private lateinit var fastScroller: HistoryFastScroller
-    private lateinit var btnSearch: ImageView
-    private lateinit var btnSearchClose: ImageView
-    private lateinit var searchEditText: EditText
 
+    private lateinit var btnSearch: android.widget.ImageView
+    private lateinit var btnSearchClose: android.widget.ImageView
+    private lateinit var searchEditText: EditText
     private var isSearchMode = false
+
     private var sortBy: SortBy = SortBy.LAST_VISIT
     private var sortOrder: SortOrder = SortOrder.DESCENDING
-    private var allItems: MutableList<Bookmark> = mutableListOf()
+    private var allItems: MutableList<HistoryItem> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        setContentView(R.layout.activity_bookmarks)
+        setContentView(R.layout.activity_history)
 
-        val toolbar = findViewById<View>(R.id.bookmarks_toolbar)
+        val toolbar = findViewById<View>(R.id.history_toolbar)
         ViewCompat.setOnApplyWindowInsetsListener(toolbar) { v, insets ->
             val statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
             v.setPadding(0, statusBars.top, 0, 0)
             insets
         }
 
-        val recyclerView = findViewById<RecyclerView>(R.id.bookmarks_recycler)
-        ViewCompat.setOnApplyWindowInsetsListener(recyclerView) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.history_recycler)) { v, insets ->
             val navBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
             v.setPadding(0, 0, 0, navBars.bottom)
             insets
@@ -85,9 +82,8 @@ class BookmarksActivity : ClintActivity() {
         btnSearch = findViewById(R.id.btn_search)
         btnSearchClose = findViewById(R.id.btn_search_close)
         searchEditText = findViewById(R.id.search_edit_text)
-        emptyView = findViewById(R.id.bookmarks_empty)
-        recycler = recyclerView
-        fastScroller = findViewById(R.id.bookmarks_fast_scroller)
+        emptyView = findViewById(R.id.history_empty)
+        recycler = findViewById(R.id.history_recycler)
 
         btnBack.setOnClickListener {
             when {
@@ -125,7 +121,8 @@ class BookmarksActivity : ClintActivity() {
         fabDelete.setOnClickListener { showDeleteConfirmDialog() }
 
         recycler.layoutManager = LinearLayoutManager(this)
-        loadBookmarks()
+        fastScroller = findViewById(R.id.history_fast_scroller)
+        loadHistory()
     }
 
     @Deprecated("Deprecated in Java")
@@ -138,66 +135,87 @@ class BookmarksActivity : ClintActivity() {
     }
 
     private fun showSortMenu(anchor: View) {
-        val popupView = LayoutInflater.from(this).inflate(R.layout.popup_bookmarks_sort, null)
-        val popup = PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true)
+        val popupView = LayoutInflater.from(this).inflate(R.layout.popup_history_sort, null)
+        val popup = PopupWindow(
+            popupView,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            true
+        )
         popup.elevation = 12f
         popup.isOutsideTouchable = true
 
+        
         popupView.findViewById<View>(R.id.check_sort_by_title).visibility =
             if (sortBy == SortBy.TITLE) View.VISIBLE else View.GONE
         popupView.findViewById<View>(R.id.check_sort_by_last_visit).visibility =
             if (sortBy == SortBy.LAST_VISIT) View.VISIBLE else View.GONE
-        popupView.findViewById<View>(R.id.check_sort_by_date_added).visibility =
-            if (sortBy == SortBy.DATE_ADDED) View.VISIBLE else View.GONE
         popupView.findViewById<View>(R.id.check_sort_ascending).visibility =
             if (sortOrder == SortOrder.ASCENDING) View.VISIBLE else View.GONE
         popupView.findViewById<View>(R.id.check_sort_descending).visibility =
             if (sortOrder == SortOrder.DESCENDING) View.VISIBLE else View.GONE
 
         popupView.findViewById<View>(R.id.menu_sort_by_title).setOnClickListener {
-            popup.dismiss(); sortBy = SortBy.TITLE; sortOrder = SortOrder.ASCENDING; applySortAndRefresh()
+            popup.dismiss()
+            sortBy = SortBy.TITLE
+            sortOrder = SortOrder.ASCENDING
+            applySortAndRefresh()
         }
         popupView.findViewById<View>(R.id.menu_sort_by_last_visit).setOnClickListener {
-            popup.dismiss(); sortBy = SortBy.LAST_VISIT; sortOrder = SortOrder.DESCENDING; applySortAndRefresh()
-        }
-        popupView.findViewById<View>(R.id.menu_sort_by_date_added).setOnClickListener {
-            popup.dismiss(); sortBy = SortBy.DATE_ADDED; sortOrder = SortOrder.DESCENDING; applySortAndRefresh()
+            popup.dismiss()
+            sortBy = SortBy.LAST_VISIT
+            sortOrder = SortOrder.DESCENDING
+            applySortAndRefresh()
         }
         popupView.findViewById<View>(R.id.menu_sort_ascending).setOnClickListener {
-            popup.dismiss(); sortOrder = SortOrder.ASCENDING; applySortAndRefresh()
+            popup.dismiss()
+            sortOrder = SortOrder.ASCENDING
+            applySortAndRefresh()
         }
         popupView.findViewById<View>(R.id.menu_sort_descending).setOnClickListener {
-            popup.dismiss(); sortOrder = SortOrder.DESCENDING; applySortAndRefresh()
+            popup.dismiss()
+            sortOrder = SortOrder.DESCENDING
+            applySortAndRefresh()
         }
 
         popupView.measure(
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         )
-        popup.showAsDropDown(anchor, -popupView.measuredWidth + anchor.width, 0, Gravity.TOP or Gravity.END)
+        val xOff = -popupView.measuredWidth + anchor.width
+        popup.showAsDropDown(anchor, xOff, 0, Gravity.TOP or Gravity.END)
     }
 
     private fun showMoreOptionsMenu(anchor: View) {
         val popupView = LayoutInflater.from(this).inflate(R.layout.popup_history_selection, null)
-        val popup = PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true)
+        val popup = PopupWindow(
+            popupView,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            true
+        )
         popup.elevation = 12f
         popup.isOutsideTouchable = true
 
         popupView.findViewById<View>(R.id.menu_select_all).setOnClickListener {
-            popup.dismiss(); if (::adapter.isInitialized) adapter.selectAll()
+            popup.dismiss()
+            if (::adapter.isInitialized) adapter.selectAll()
         }
         popupView.findViewById<View>(R.id.menu_invert_selection).setOnClickListener {
-            popup.dismiss(); if (::adapter.isInitialized) adapter.invertSelection()
+            popup.dismiss()
+            if (::adapter.isInitialized) adapter.invertSelection()
         }
         popupView.findViewById<View>(R.id.menu_deselect_all).setOnClickListener {
-            popup.dismiss(); if (::adapter.isInitialized) adapter.deselectAll()
+            popup.dismiss()
+            if (::adapter.isInitialized) adapter.deselectAll()
         }
 
         popupView.measure(
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         )
-        popup.showAsDropDown(anchor, -popupView.measuredWidth + anchor.width, 0, Gravity.TOP or Gravity.END)
+        val xOff = -popupView.measuredWidth + anchor.width
+        popup.showAsDropDown(anchor, xOff, 0, Gravity.TOP or Gravity.END)
     }
 
     private fun enterSearchMode() {
@@ -220,7 +238,9 @@ class BookmarksActivity : ClintActivity() {
         btnSearchClose.visibility = View.GONE
         toolbarTitle.visibility = View.VISIBLE
         btnSearch.visibility = View.VISIBLE
-        if (::adapter.isInitialized && !adapter.isInSelectionMode) btnSort.visibility = View.VISIBLE
+        if (::adapter.isInitialized && !adapter.isInSelectionMode) {
+            btnSort.visibility = View.VISIBLE
+        }
         if (::adapter.isInitialized) {
             fastScroller.isInteractive = sortBy == SortBy.TITLE
             fastScroller.notifyDataChanged()
@@ -235,11 +255,11 @@ class BookmarksActivity : ClintActivity() {
         }
     }
 
-    private fun loadBookmarks() {
+    private fun loadHistory() {
         Thread {
-            val items = BookmarkManager.getAll(this)
+            val items = SearchHistoryManager.getAll(this)
             runOnUiThread {
-                allItems = items
+                allItems = items.toMutableList()
                 if (allItems.isEmpty()) showEmpty() else showList(getSortedItems())
             }
         }.start()
@@ -247,18 +267,20 @@ class BookmarksActivity : ClintActivity() {
 
     private fun applySortAndRefresh() {
         if (allItems.isEmpty()) return
+        val sorted = getSortedItems()
         if (::adapter.isInitialized) {
-            adapter.updateItems(getSortedItems())
+            adapter.updateItems(sorted)
             fastScroller.isInteractive = sortBy == SortBy.TITLE
             fastScroller.notifyDataChanged()
         }
     }
 
-    private fun getSortedItems(): MutableList<Bookmark> {
+    private fun getSortedItems(): MutableList<HistoryItem> {
         val sorted = when (sortBy) {
-            SortBy.TITLE -> allItems.sortedWith(compareBy { it.title.ifBlank { it.url }.lowercase() })
-            SortBy.LAST_VISIT -> allItems.sortedBy { it.lastVisit }
-            SortBy.DATE_ADDED -> allItems.sortedBy { it.addedAt }
+            SortBy.TITLE -> allItems.sortedWith(
+                compareBy { item -> item.title.ifBlank { item.query }.lowercase() }
+            )
+            SortBy.LAST_VISIT -> allItems.sortedBy { it.timestamp }
         }
         return if (sortOrder == SortOrder.DESCENDING) sorted.reversed().toMutableList()
         else sorted.toMutableList()
@@ -269,14 +291,25 @@ class BookmarksActivity : ClintActivity() {
         recycler.visibility = View.GONE
     }
 
-    private fun showList(items: MutableList<Bookmark>) {
+    private fun showList(items: MutableList<HistoryItem>) {
         emptyView.visibility = View.GONE
         recycler.visibility = View.VISIBLE
 
-        adapter = BookmarksAdapter(
+        adapter = HistoryAdapter(
             items = items,
-            onOpen = { bookmark ->
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(bookmark.url))
+            onOpen = { item ->
+                val url = if (item.query.startsWith("http")) {
+                    item.query
+                } else {
+                    val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this)
+                    val encoded = Uri.encode(item.query)
+                    when (prefs.getString("search_engine", "duckduckgo")) {
+                        "brave" -> "https://search.brave.com/search?q=$encoded"
+                        "google" -> "https://www.google.com/search?q=$encoded"
+                        else -> "https://duckduckgo.com/?q=$encoded"
+                    }
+                }
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                 intent.setPackage(packageName)
                 startActivity(intent)
                 finish()
@@ -284,7 +317,7 @@ class BookmarksActivity : ClintActivity() {
             onSelectionChanged = { count -> updateSelectionUi(count) }
         )
         recycler.adapter = adapter
-        fastScroller.visibility = View.VISIBLE
+        fastScroller.visibility = android.view.View.VISIBLE
         fastScroller.isInteractive = sortBy == SortBy.TITLE
         fastScroller.attach(recycler, adapter)
     }
@@ -295,16 +328,20 @@ class BookmarksActivity : ClintActivity() {
         btnMoreOptions.visibility = if (inSelectionMode) View.VISIBLE else View.GONE
         btnSort.visibility = if (inSelectionMode) View.GONE else View.VISIBLE
 
-        if (inSelectionMode && selectedCount > 0) fabDelete.show() else fabDelete.hide()
+        if (inSelectionMode && selectedCount > 0) {
+            fabDelete.show()
+        } else {
+            fabDelete.hide()
+        }
 
         if (inSelectionMode) {
-            toolbarTitle.text = getString(R.string.bookmarks_selected_count, selectedCount)
+            toolbarTitle.text = getString(R.string.history_selected_count, selectedCount)
             btnBack.setImageResource(R.drawable.ic_close_24)
             fastScroller.visibility = View.GONE
             fastScroller.detach()
             btnSearch.visibility = View.GONE
         } else {
-            toolbarTitle.text = getString(R.string.bookmarks_title)
+            toolbarTitle.text = getString(R.string.history_title)
             btnBack.setImageResource(R.drawable.ic_arrow_back_24)
             if (!isSearchMode) {
                 btnSearch.visibility = View.VISIBLE
@@ -328,23 +365,20 @@ class BookmarksActivity : ClintActivity() {
         if (!::adapter.isInitialized || adapter.selectedCount == 0) return
         val count = adapter.selectedCount
         MaterialAlertDialogBuilder(this, getDialogTheme())
-            .setTitle(getString(R.string.bookmarks_delete_confirm_title))
-            .setMessage(getString(R.string.bookmarks_delete_confirm_message, count))
+            .setTitle(getString(R.string.history_delete_confirm_title))
+            .setMessage(getString(R.string.history_delete_confirm_message, count))
             .setNegativeButton(android.R.string.cancel, null)
-            .setPositiveButton(getString(R.string.bookmarks_delete_selected)) { _, _ ->
+            .setPositiveButton(getString(R.string.history_delete_selected)) { _, _ ->
                 val toDelete = adapter.getSelectedItems()
                 Thread {
-                    for (item in toDelete) {
-                        FaviconCache.evict(applicationContext, item.url)
-                        BookmarkManager.remove(applicationContext, item.url)
-                    }
+                    for (item in toDelete) SearchHistoryManager.delete(this, item.query)
                     runOnUiThread {
-                        val deletedUrls = toDelete.map { it.url }.toSet()
-                        allItems.removeAll { it.url in deletedUrls }
+                        val deletedQueries = toDelete.map { it.query }.toSet()
+                        allItems.removeAll { it.query in deletedQueries }
                         adapter.removeSelectedItems()
                         updateSelectionUi(0)
                         if (adapter.itemCount == 0) showEmpty()
-                        ClintToast.show(this, getString(R.string.bookmarks_items_deleted), R.drawable.ic_delete_24)
+                        ClintToast.show(this, getString(R.string.history_items_deleted), R.drawable.ic_delete_24)
                     }
                 }.start()
             }

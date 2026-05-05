@@ -2,12 +2,11 @@ package com.jhaiian.clint.browser
 
 import android.content.Context
 import android.content.Intent
+import android.Manifest
 import android.util.TypedValue
 import android.view.Gravity
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -15,11 +14,13 @@ import android.widget.PopupWindow
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.webkit.WebViewFeature
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jhaiian.clint.R
 import com.jhaiian.clint.bookmarks.Bookmark
 import com.jhaiian.clint.bookmarks.BookmarkManager
 import com.jhaiian.clint.bookmarks.BookmarksActivity
 import com.jhaiian.clint.downloads.DownloadsActivity
+import com.jhaiian.clint.history.SearchHistoryManager
 import com.jhaiian.clint.settings.SettingsActivity
 import com.jhaiian.clint.webview.ClintWebViewClient
 
@@ -74,23 +75,193 @@ private fun MainActivity.restoreStatusBarInset() {
 }
 
 internal fun MainActivity.setupAddressBar() {
-    val setupBar = { bar: android.widget.EditText ->
-        bar.setOnEditorActionListener { _, actionId, event ->
-            if (actionId == EditorInfo.IME_ACTION_GO ||
-                (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN)) {
-                navigateFromBar(bar); true
+    suggestionFetcherTop = SuggestionFetcher()
+    suggestionFetcherBottom = SuggestionFetcher()
+
+    val bgHandler = android.os.Handler(android.os.Looper.getMainLooper())
+
+    val buildAdapter = { searchBar: com.google.android.material.search.SearchBar,
+                         searchView: com.google.android.material.search.SearchView,
+                         fetcher: SuggestionFetcher,
+                         recyclerView: androidx.recyclerview.widget.RecyclerView ->
+
+        var adapterRef: SearchSuggestionsAdapter? = null
+        val adapter = SearchSuggestionsAdapter(
+            onItemClick = { item ->
+                val formatted = formatUrl(item)
+                searchBar.setText(formatted)
+                setSearchBarLockIcon(searchBar, formatted)
+                searchView.hide()
+                SearchHistoryManager.add(this, item)
+                loadUrl(item)
+            },
+            onItemFill = { item ->
+                searchView.editText.setText(item)
+                searchView.editText.setSelection(item.length)
+            },
+            onHistoryDelete = { item ->
+                Thread {
+                    SearchHistoryManager.delete(this, item)
+                    val query = searchView.editText.text?.toString() ?: ""
+                    val history = SearchHistoryManager.search(this, query)
+                    val bookmarks = BookmarkManager.search(this, query)
+                    bgHandler.post { adapterRef?.submitCombined(bookmarks, history, emptyList()) }
+                }.start()
+            }
+        )
+        adapterRef = adapter
+        recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
+        recyclerView.adapter = adapter
+        adapter
+    }
+
+    val adapterTop = buildAdapter(
+        binding.addressBar,
+        binding.addressBarSearch,
+        suggestionFetcherTop!!,
+        binding.suggestionsListTop
+    )
+    val adapterBottom = buildAdapter(
+        binding.addressBarBottom,
+        binding.addressBarSearchBottom,
+        suggestionFetcherBottom!!,
+        binding.suggestionsListBottom
+    )
+
+    val setupPair = { searchBar: com.google.android.material.search.SearchBar,
+                      searchView: com.google.android.material.search.SearchView,
+                      fetcher: SuggestionFetcher,
+                      adapter: SearchSuggestionsAdapter ->
+
+        searchBar.setOnClickListener { searchView.show() }
+
+        val relevantToolbar: View = if (searchBar === binding.addressBar) binding.toolbarTop else binding.toolbarBottom
+        var savedToolbarVisibility = View.VISIBLE
+
+        searchView.addTransitionListener { _, _, newState ->
+            if (newState == com.google.android.material.search.SearchView.TransitionState.SHOWN) {
+                savedToolbarVisibility = relevantToolbar.visibility
+                relevantToolbar.visibility = View.INVISIBLE
+                val current = tabManager.activeTab?.webView?.url ?: ""
+                searchView.editText.setText(current)
+                searchView.editText.selectAll()
+                Thread {
+                    val history = SearchHistoryManager.getAll(this)
+                    val bookmarks = BookmarkManager.getAll(this)
+                    bgHandler.post { adapter.submitCombined(bookmarks, history, emptyList()) }
+                }.start()
+            } else if (newState == com.google.android.material.search.SearchView.TransitionState.HIDING) {
+                relevantToolbar.visibility = savedToolbarVisibility
+            } else if (newState == com.google.android.material.search.SearchView.TransitionState.HIDDEN) {
+                fetcher.cancel()
+                adapter.submitCombined(emptyList(), emptyList(), emptyList())
+                val current = tabManager.activeTab?.url ?: ""
+                setSearchBarLockIcon(searchBar, current)
+                searchBar.setText(current)
+            }
+        }
+
+        searchView.editText.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val query = s?.toString() ?: ""
+                Thread {
+                    val history = SearchHistoryManager.search(this@setupAddressBar, query)
+                    val bookmarks = BookmarkManager.search(this@setupAddressBar, query)
+                    bgHandler.post {
+                        if (query.isBlank()) {
+                            fetcher.cancel()
+                            adapter.submitCombined(bookmarks, history, emptyList())
+                        } else {
+                            fetcher.fetch(query) { suggestions ->
+                                adapter.submitCombined(bookmarks, history, suggestions)
+                            }
+                        }
+                    }
+                }.start()
+            }
+        })
+
+        searchView.editText.setOnEditorActionListener { _, actionId, event ->
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_GO ||
+                actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH ||
+                (event?.keyCode == android.view.KeyEvent.KEYCODE_ENTER &&
+                    event.action == android.view.KeyEvent.ACTION_DOWN)) {
+                val input = searchView.editText.text?.toString()?.trim() ?: ""
+                if (input.isNotEmpty()) {
+                    val formatted = formatUrl(input)
+                    searchBar.setText(formatted)
+                    setSearchBarLockIcon(searchBar, formatted)
+                    searchView.hide()
+                    Thread { SearchHistoryManager.add(this, input) }.start()
+                    loadUrl(input)
+                }
+                true
             } else false
         }
-        bar.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                bar.post { bar.selectAll() }
-            } else {
-                updateAddressBar(tabManager.activeTab?.webView?.url ?: "")
+
+        searchView.post {
+            if (searchView.toolbar.menu.size() == 0) {
+                searchView.toolbar.inflateMenu(R.menu.search_view_actions)
+                val tintColor = getThemeColor(R.attr.clintIconTint)
+                val tintList = android.content.res.ColorStateList.valueOf(tintColor)
+                val micItem = searchView.toolbar.menu.findItem(R.id.action_voice_search)
+                micItem?.icon?.mutate()?.let { icon ->
+                    androidx.core.graphics.drawable.DrawableCompat.setTintList(icon, tintList)
+                    micItem.icon = icon
+                }
+                searchView.editText.addTextChangedListener(object : android.text.TextWatcher {
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                    override fun afterTextChanged(s: android.text.Editable?) {}
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                        micItem?.isVisible = s?.isEmpty() == true
+                    }
+                })
+                searchView.toolbar.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.action_voice_search -> { handleVoiceSearchTap(searchView); true }
+                        else -> false
+                    }
+                }
             }
         }
     }
-    setupBar(binding.addressBar)
-    setupBar(binding.addressBarBottom)
+
+    setupPair(binding.addressBar, binding.addressBarSearch, suggestionFetcherTop!!, adapterTop)
+    setupPair(binding.addressBarBottom, binding.addressBarSearchBottom, suggestionFetcherBottom!!, adapterBottom)
+    binding.addressBarSearch.setupWithSearchBar(binding.addressBar)
+    binding.addressBarSearchBottom.setupWithSearchBar(binding.addressBarBottom)
+    binding.addressBarSearchBottom.post {
+        var rootLinear: android.widget.LinearLayout? = null
+        for (i in 0 until binding.addressBarSearchBottom.childCount) {
+            val child = binding.addressBarSearchBottom.getChildAt(i)
+            if (child is android.widget.LinearLayout) {
+                rootLinear = child
+                break
+            }
+        }
+        val linear = rootLinear ?: return@post
+        if (linear.childCount < 2) return@post
+        val first = linear.getChildAt(0)
+        val second = linear.getChildAt(1)
+        linear.removeAllViews()
+        linear.addView(second)
+        linear.addView(first)
+        linear.gravity = android.view.Gravity.BOTTOM
+    }
+
+    val tintColor = getThemeColor(R.attr.clintIconTint)
+    val tintList = android.content.res.ColorStateList.valueOf(tintColor)
+    listOf(binding.addressBarSearch, binding.addressBarSearchBottom).forEach { searchView ->
+        searchView.post {
+            val navIcon = searchView.toolbar.navigationIcon?.mutate()
+            if (navIcon != null) {
+                androidx.core.graphics.drawable.DrawableCompat.setTintList(navIcon, tintList)
+                searchView.toolbar.navigationIcon = navIcon
+            }
+        }
+    }
 }
 
 internal fun MainActivity.setupNavigationButtons() {
@@ -349,13 +520,16 @@ internal fun MainActivity.loadUrl(input: String) {
     tabManager.activeTab?.url = url
     val headers = buildDesktopHeaders()
     if (headers != null) wv.loadUrl(url, headers) else wv.loadUrl(url)
-    hideKeyboard()
+    val imm = getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+    imm.hideSoftInputFromWindow(binding.root.windowToken, 0)
 }
 
-private fun MainActivity.navigateFromBar(bar: android.widget.EditText) {
-    val input = bar.text?.toString()?.trim() ?: ""
-    if (input.isNotEmpty()) loadUrl(input)
-    hideKeyboard()
+private fun MainActivity.setSearchBarLockIcon(
+    searchBar: com.google.android.material.search.SearchBar,
+    url: String
+) {
+    val lockRes = if (url.startsWith("https://")) R.drawable.ic_lock_24 else R.drawable.ic_lock_open_24
+    searchBar.navigationIcon = androidx.core.content.ContextCompat.getDrawable(this, lockRes)
 }
 
 internal fun MainActivity.formatUrl(input: String): String {
@@ -372,17 +546,20 @@ internal fun MainActivity.formatUrl(input: String): String {
 }
 
 internal fun MainActivity.updateAddressBar(url: String) {
-    if (!binding.addressBar.isFocused) binding.addressBar.setText(url)
-    if (!binding.addressBarBottom.isFocused) binding.addressBarBottom.setText(url)
-    val lockRes = if (url.startsWith("https://")) R.drawable.ic_lock_24 else R.drawable.ic_lock_open_24
-    binding.lockIcon.setImageResource(lockRes)
-    binding.lockIconBottom.setImageResource(lockRes)
+    if (!binding.addressBarSearch.isShowing) {
+        setSearchBarLockIcon(binding.addressBar, url)
+        binding.addressBar.setText(url)
+    }
+    if (!binding.addressBarSearchBottom.isShowing) {
+        setSearchBarLockIcon(binding.addressBarBottom, url)
+        binding.addressBarBottom.setText(url)
+    }
 }
 
 internal fun MainActivity.onTabUrlUpdated(webView: android.webkit.WebView, url: String) {
     tabManager.tabs.find { it.webView === webView }?.url = url
     if (tabManager.activeTab?.webView === webView &&
-        !binding.addressBar.isFocused && !binding.addressBarBottom.isFocused) {
+        !binding.addressBarSearch.isShowing && !binding.addressBarSearchBottom.isShowing) {
         updateAddressBar(url)
     }
 }
@@ -422,6 +599,16 @@ internal fun MainActivity.onPageFinished(url: String) {
     }
     nestedScrollActive = false
     updateBookmarkIcon()
+
+    if (url.startsWith("http") && !SearchHistoryManager.isSearchEngineUrl(url)) {
+        val title = tabManager.activeTab?.webView?.title ?: ""
+        Thread {
+            SearchHistoryManager.add(applicationContext, url, title)
+            if (com.jhaiian.clint.bookmarks.BookmarkManager.isBookmarked(applicationContext, url)) {
+                com.jhaiian.clint.bookmarks.BookmarkManager.updateLastVisit(applicationContext, url)
+            }
+        }.start()
+    }
 }
 
 internal fun MainActivity.onProgressChanged(progress: Int) {
@@ -480,15 +667,43 @@ internal fun MainActivity.updateSwipeRefreshColors(isIncognito: Boolean) {
 }
 
 internal fun MainActivity.hideKeyboard() {
+    if (binding.addressBarSearch.isShowing) binding.addressBarSearch.hide()
+    if (binding.addressBarSearchBottom.isShowing) binding.addressBarSearchBottom.hide()
     val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    imm.hideSoftInputFromWindow(binding.addressBar.windowToken, 0)
-    imm.hideSoftInputFromWindow(binding.addressBarBottom.windowToken, 0)
-    binding.addressBar.clearFocus()
-    binding.addressBarBottom.clearFocus()
+    imm.hideSoftInputFromWindow(binding.root.windowToken, 0)
 }
 
 internal fun MainActivity.getThemeColor(attrId: Int): Int {
     val typedValue = TypedValue()
     theme.resolveAttribute(attrId, typedValue, true)
     return typedValue.data
+}
+
+internal fun MainActivity.handleVoiceSearchTap(searchView: com.google.android.material.search.SearchView) {
+    if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+        == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+        pendingVoiceSearchEditText = searchView.editText
+        launchVoiceSearch()
+    } else {
+        pendingVoiceSearchEditText = searchView.editText
+        MaterialAlertDialogBuilder(this, getDialogTheme())
+            .setTitle(getString(R.string.voice_search_permission_title))
+            .setMessage(getString(R.string.voice_search_permission_message))
+            .setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                microphonePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+            }
+            .create().also { applyStatusBarFlagToDialog(it) }.show()
+    }
+}
+
+internal fun MainActivity.launchVoiceSearch() {
+    val intent = android.content.Intent(android.speech.RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+        putExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+            android.speech.RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH)
+    }
+    runCatching { voiceSearchLauncher.launch(intent) }.onFailure {
+        pendingVoiceSearchEditText = null
+        com.jhaiian.clint.ui.ClintToast.show(this, getString(R.string.voice_search_not_available), R.drawable.ic_mic_24)
+    }
 }

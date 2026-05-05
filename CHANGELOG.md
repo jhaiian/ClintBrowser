@@ -4,6 +4,55 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.0.3-beta-3
+
+## Added
+
+### Search Suggestions
+- Powered by DuckDuckGo API (`https://duckduckgo.com/ac/?q=`)
+- Real-time query predictions
+- Improved search UX with instant suggestions
+
+### Speech-to-Text Support
+- Voice input in address bar
+- Hands-free searching capability
+- Enhanced accessibility features
+
+### Search History Management
+- Access via Settings → Browser → History
+- Delete individual or all history entries
+- Sort history by Title (ascending/descending)
+- Sort history by Last Visit (ascending/descending)
+- Saved locally using SQLite
+
+### Intent Support
+- Added more intent actions for better app integration
+- Enhanced deep linking capabilities
+- Improved third-party app communication
+
+---
+
+## Changed
+
+### Bookmark System
+- Complete overhaul of bookmark save system
+- Migrated to SQLite
+- Better performance and faster loading
+- Cleaner bookmark organization
+
+### Bookmark UI
+- Complete UI redesign matching the new history page layout
+- New sorting options: Title, Last Visit, and Date Added
+- Ascending and descending order for all sort types
+- Consistent look and feel with history section
+
+### Search Bar Component
+- Replaced standard EditText with Material Search Bar
+- Modern Material Design look and feel
+- Improved user interaction and visual feedback
+
+---
+
 # v1.0.3-beta-2
 
 ## Added
