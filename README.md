@@ -242,11 +242,29 @@ Join the official Clint Browser community on Discord and Reddit to share feedbac
 
 ---
 
-## License
+# License & Trademark Policy
 
-Clint Browser is licensed under the **GNU General Public License v3.0**.  
-You are free to use, study, modify, and distribute this software under the same license.  
-See [LICENSE](LICENSE) for the full text.
+**Clint Browser** is licensed under the **GNU General Public License v3.0**.
+You are free to use, study, modify, and distribute the **source code** of this software under the terms of the GPL v3.0. See the full license text in the [LICENSE](https://github.com/jhaiian/ClintBrowser/blob/main/LICENSE) file for details.
+
+---
+
+### ⚠️ Trademark & Visual Asset Restrictions
+
+Pursuant to **Section 7 of the GNU General Public License v3.0**, the following additional terms apply to the name, branding, and visual identity of this project:
+
+1.  **Name & Logo Protection:**
+    The name **"Clint"**, **"Clint Browser"**, and the associated application **logo/icon** are trademarks of the original developer (**John Cristian Lucas**). Permission to use these trademarks is not granted under the GPL v3.0.
+
+2.  **Visual Assets & Screenshots:**
+    All **screenshots**, **promotional graphics**, and **UI design elements** contained within this repository or used in official distribution channels are excluded from the general license. They may not be used for redistribution or commercial purposes without explicit written consent.
+
+3.  **Redistribution Requirements (De-branding):**
+    If you choose to distribute a modified version of this software (a "fork"), you **must** rename the application and remove all official "Clint" branding. This is to prevent user confusion, ensure clear attribution, and protect the integrity of the official release.
+
+---
+
+*Failure to comply with these terms constitutes a violation of both the GPL v3.0 (due to lack of proper attribution/source disclosure) and Trademark Law.*
 
 ---
 
