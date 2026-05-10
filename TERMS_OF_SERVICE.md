@@ -1,6 +1,6 @@
 # Terms of Service for Clint Browser
 
-*Last updated: April 26 2026*
+*Last updated: May 10 2026*
 
 ## Acceptance of Terms
 
@@ -19,6 +19,16 @@ You agree to use Clint Browser only for lawful purposes. You may not use the app
 - Distribute malware or harmful software
 - Violate the rights of others including intellectual property rights
 
+## Intellectual Property: Open Source License and Trademarks
+
+**Open Source License**
+
+Clint Browser is licensed under the [GNU General Public License v3.0 (GPL-3.0)](https://github.com/jhaiian/ClintBrowser/blob/main/LICENSE). You are free to view, modify, and distribute the source code in accordance with that license. The full license text is also available at [gnu.org/licenses/gpl-3.0.html](https://www.gnu.org/licenses/gpl-3.0.html) and within the app itself.
+
+**Trademarks and Branding Assets**
+
+The names "Clint" and "Clint Browser," the logo, screenshots, custom-made drawables, and all related branding assets are **trademarks** or **proprietary assets** of the author and are **not licensed under the GPL**. Use of these assets requires explicit written permission from the author. You may not modify, redistribute, or use these assets in derivative works without permission.
+
 ## No Warranty
 
 Clint Browser is provided "as is" without warranty of any kind, express or implied. The developer makes no guarantees regarding availability, reliability, accuracy, or fitness for a particular purpose. Your use of the app is entirely at your own risk.
@@ -30,10 +40,6 @@ To the maximum extent permitted by law, the developer of Clint Browser shall not
 ## Third-Party Content
 
 Clint Browser is a browser — it renders content from websites and services that are entirely outside the developer's control. The developer is not responsible for the content, accuracy, legality, or privacy practices of any website accessed through the app.
-
-## Open Source License
-
-Clint Browser is licensed under the GNU General Public License v3.0 (GPL-3.0). You are free to view, modify, and distribute the source code in accordance with that license. The full license text is available at [gnu.org/licenses/gpl-3.0.html](https://www.gnu.org/licenses/gpl-3.0.html) and within the app itself.
 
 ## Changes to These Terms
 
