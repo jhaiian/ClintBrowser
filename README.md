@@ -242,11 +242,11 @@ Join the official Clint Browser community on Discord and Reddit to share feedbac
 
 ---
 
-# License & Trademark Policy
+# License
 
 The source code of this project is licensed under the [GNU General Public License v3.0 (GPLv3)](https://github.com/jhaiian/ClintBrowser/blob/main/LICENSE).  
 
-The names "Clint" and "Clint Browser," the logo, screenshots, custom-made drawables, and all related branding assets are **trademarks** or **proprietary assets** of the author and are **not licensed under the GPL**. Use of these assets requires explicit written permission from the author.
+The names "Clint" and "Clint Browser," the logo, screenshots, custom-made drawables, and all related branding assets are **trademarks** or **proprietary assets** of the author and are **not licensed under the GPL**. Use of these assets requires explicit permission from the author.
 
 ---
 
