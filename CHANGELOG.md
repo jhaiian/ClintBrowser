@@ -4,7 +4,7 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
-# 1.0.3-beta-4
+# v1.0.3-beta-4
 
 ## 🗑️ Removed DNS over HTTPS (DoH)
 
