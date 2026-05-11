@@ -49,30 +49,33 @@ class CrashHandler(private val context: Context) : Thread.UncaughtExceptionHandl
         }
 
         fun buildDeviceInfo(context: Context): String {
-            val pInfo = runCatching {
-                context.packageManager.getPackageInfo(context.packageName, 0)
-            }.getOrNull()
-            val version = pInfo?.versionName ?: "unknown"
-            val build = pInfo?.let { PackageInfoCompat.getLongVersionCode(it) } ?: 0L
-            val arch = Build.SUPPORTED_ABIS.firstOrNull() ?: "unknown"
-            val webViewPkg = WebView.getCurrentWebViewPackage()
-            val webViewInfo = if (webViewPkg != null) {
-                val appName = webViewPkg.applicationInfo
-                    ?.let { context.packageManager.getApplicationLabel(it).toString() }
-                    ?: webViewPkg.packageName
-                "$appName v${webViewPkg.versionName ?: "unknown"} (${webViewPkg.packageName})"
-            } else {
-                "Unavailable"
-            }
-            return buildString {
-                appendLine("App Version   : $version (build $build)")
-                appendLine("Architecture  : $arch")
-                appendLine("Device        : ${Build.MANUFACTURER} ${Build.MODEL}")
-                appendLine("Android       : ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})")
-                appendLine("Brand         : ${Build.BRAND}")
-                appendLine("Product       : ${Build.PRODUCT}")
-                appendLine("WebView       : $webViewInfo")
-            }
+            return runCatching {
+                val pInfo = runCatching {
+                    context.packageManager.getPackageInfo(context.packageName, 0)
+                }.getOrNull()
+                val version = pInfo?.versionName ?: "unknown"
+                val build = pInfo?.let { PackageInfoCompat.getLongVersionCode(it) } ?: 0L
+                val arch = Build.SUPPORTED_ABIS.firstOrNull() ?: "unknown"
+                val webViewPkg = runCatching { WebView.getCurrentWebViewPackage() }.getOrNull()
+                val webViewInfo = if (webViewPkg != null) {
+                    val appName = runCatching {
+                        webViewPkg.applicationInfo
+                            ?.let { context.packageManager.getApplicationLabel(it).toString() }
+                    }.getOrNull() ?: webViewPkg.packageName
+                    "$appName v${webViewPkg.versionName ?: "unknown"} (${webViewPkg.packageName})"
+                } else {
+                    "Unavailable"
+                }
+                buildString {
+                    appendLine("App Version   : $version (build $build)")
+                    appendLine("Architecture  : $arch")
+                    appendLine("Device        : ${Build.MANUFACTURER} ${Build.MODEL}")
+                    appendLine("Android       : ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})")
+                    appendLine("Brand         : ${Build.BRAND}")
+                    appendLine("Product       : ${Build.PRODUCT}")
+                    appendLine("WebView       : $webViewInfo")
+                }
+            }.getOrElse { "Device info unavailable" }
         }
     }
 

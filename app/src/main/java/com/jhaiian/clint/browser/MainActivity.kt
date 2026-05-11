@@ -1,4 +1,9 @@
 package com.jhaiian.clint.browser
+import com.jhaiian.clint.browser.delegates.*
+import com.jhaiian.clint.browser.menu.*
+import com.jhaiian.clint.browser.sheets.*
+import com.jhaiian.clint.browser.suggestions.*
+import com.jhaiian.clint.browser.webview.*
 
 import android.Manifest
 import android.animation.ValueAnimator
@@ -23,7 +28,6 @@ import com.jhaiian.clint.R
 import com.jhaiian.clint.crash.CrashHandler
 import com.jhaiian.clint.databinding.ActivityMainBinding
 import com.jhaiian.clint.downloads.ClintDownloadManager
-import com.jhaiian.clint.network.DohManager
 import com.jhaiian.clint.tabs.TabManager
 import com.jhaiian.clint.tabs.TabSwitcherSheet
 import com.jhaiian.clint.update.UpdateChecker
@@ -36,6 +40,8 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
     internal lateinit var prefs: SharedPreferences
     internal val tabManager = TabManager()
     internal var isDesktopMode = false
+    internal var desktopModeHost: String? = null
+    internal var autoDesktopPendingReload: String? = null
     internal val desktopScriptHandlers = mutableMapOf<String, ScriptHandler>()
     internal val autoplayScriptHandlers = mutableMapOf<String, ScriptHandler>()
 
@@ -75,6 +81,13 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
 
     internal var pendingDownload: PendingDownload? = null
     internal var pendingVoiceSearchEditText: android.widget.EditText? = null
+    internal var pendingWebPermissionRequest: android.webkit.PermissionRequest? = null
+    internal var pendingWebMicPermissionRequest: android.webkit.PermissionRequest? = null
+    internal var pendingWebGeoOrigin: String? = null
+    internal var pendingWebGeoCallback: android.webkit.GeolocationPermissions.Callback? = null
+    internal var pendingBridgeNotifCallbackId: String? = null
+    internal var pendingBridgeNotifOrigin: String? = null
+    internal var pendingBridgeNotifWebView: android.webkit.WebView? = null
 
     internal val storagePermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -109,6 +122,62 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
     ) { granted ->
         if (granted) launchVoiceSearch()
         else pendingVoiceSearchEditText = null
+    }
+
+    internal val webCameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        val request = pendingWebPermissionRequest
+        pendingWebPermissionRequest = null
+        if (granted && request != null) {
+            showWebCameraDialog(request)
+        } else {
+            request?.deny()
+        }
+    }
+
+    internal val webMicrophonePermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        val request = pendingWebMicPermissionRequest
+        pendingWebMicPermissionRequest = null
+        if (granted && request != null) {
+            showWebMicDialog(request)
+        } else {
+            request?.deny()
+        }
+    }
+
+    internal val webLocationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        val origin = pendingWebGeoOrigin
+        val callback = pendingWebGeoCallback
+        pendingWebGeoOrigin = null
+        pendingWebGeoCallback = null
+        if (granted && origin != null && callback != null) {
+            showWebLocationDialog(origin, callback)
+        } else {
+            callback?.invoke(origin ?: "", false, false)
+        }
+    }
+
+    internal val webNotificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        val callbackId = pendingBridgeNotifCallbackId
+        val origin = pendingBridgeNotifOrigin
+        val wv = pendingBridgeNotifWebView
+        pendingBridgeNotifCallbackId = null
+        pendingBridgeNotifOrigin = null
+        pendingBridgeNotifWebView = null
+        if (wv == null || callbackId == null) return@registerForActivityResult
+        val safeId = callbackId.replace("'", "")
+        if (granted && origin != null) {
+            showWebNotificationPermissionFromBridge(wv, safeId, origin)
+        } else {
+            wv.evaluateJavascript("window._ClintResolvePermission('$safeId','denied')", null)
+        }
     }
 
     internal val voiceSearchLauncher = registerForActivityResult(
@@ -157,7 +226,6 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
             "custom_user_agent" -> applyUserAgent()
             "block_trackers" -> reattachWebClients()
             "data_saver_enabled", "data_saver_disable_images", "data_saver_cache_first", "data_saver_disable_autoplay" -> applyDataSaverSettings()
-            "doh_mode", "doh_provider" -> { DohManager.invalidate(); reattachWebClients() }
             "force_dark_web" -> {
                 tabManager.tabs.forEach { applyWebDarkMode(it.webView) }
                 tabManager.activeTab?.webView?.reload()
@@ -231,6 +299,7 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
         }
         ClintDownloadManager.createNotificationChannel(this)
         ClintDownloadManager.init(this)
+        createWebNotificationChannel()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
                 != android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -395,7 +464,7 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
     override fun onMenuOpenInApp() {
         val currentUrl = tabManager.activeTab?.webView?.url ?: return
         val currentUri = runCatching { android.net.Uri.parse(currentUrl) }.getOrNull() ?: return
-        val webClient = tabManager.activeTab?.webView?.webViewClient as? com.jhaiian.clint.webview.ClintWebViewClient ?: return
+        val webClient = tabManager.activeTab?.webView?.webViewClient as? com.jhaiian.clint.browser.webview.ClintWebViewClient ?: return
         val appMatches = webClient.resolveAppMatches(currentUri, this)
         if (appMatches.size == 1) {
             val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, currentUri)
@@ -408,15 +477,45 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
     }
     override fun onMenuDownloads() { startActivity(android.content.Intent(this, com.jhaiian.clint.downloads.DownloadsActivity::class.java)) }
     override fun onMenuBookmarks() { startActivity(android.content.Intent(this, com.jhaiian.clint.bookmarks.BookmarksActivity::class.java)) }
+    override fun onMenuHistory() { startActivity(android.content.Intent(this, com.jhaiian.clint.history.HistoryActivity::class.java)) }
     override fun onMenuDesktopMode() {
         isDesktopMode = !isDesktopMode
+
+        val wv = tabManager.activeTab?.webView
+        val currentWebUrl = wv?.url
+        val host = currentWebUrl?.let { runCatching { android.net.Uri.parse(it).host }.getOrNull() }
+
+        desktopModeHost = if (isDesktopMode) host else null
+
+        if (host != null) {
+            val shouldSave = prefs.getString(
+                com.jhaiian.clint.settings.desktopmode.DesktopModeActivity.PREF_DESKTOP_MODE_SAVE_STATE,
+                com.jhaiian.clint.settings.desktopmode.DesktopModeActivity.VALUE_SAVE_STATE
+            ) == com.jhaiian.clint.settings.desktopmode.DesktopModeActivity.VALUE_SAVE_STATE
+
+            when {
+                isDesktopMode && shouldSave -> {
+                    com.jhaiian.clint.settings.sitepermissions.SitePermissionManager.setState(
+                        this, host,
+                        com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.TYPE_DESKTOP_MODE,
+                        com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.STATE_ALLOW
+                    )
+                }
+                !isDesktopMode && shouldSave -> {
+                    com.jhaiian.clint.settings.sitepermissions.SitePermissionManager.deleteEntry(
+                        this, host,
+                        com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.TYPE_DESKTOP_MODE
+                    )
+                }
+            }
+        }
+
         tabManager.tabs.forEach { tab ->
             tab.webView.settings.userAgentString = buildUserAgent()
             applyUserAgentMetadata(tab.webView)
             if (isDesktopMode) addDesktopScript(tab) else removeDesktopScript(tab)
         }
-        val wv = tabManager.activeTab?.webView
-        val currentWebUrl = wv?.url
+
         if (wv != null && !currentWebUrl.isNullOrEmpty()) {
             val headers = buildDesktopHeaders()
             if (headers != null) wv.loadUrl(currentWebUrl, headers) else wv.reload()
@@ -501,6 +600,110 @@ td,th{border:1px solid $secondaryColor;padding:6px 8px;}
                     hasWebBottomNav = true
                 }
             }
+        }
+    }
+
+    inner class NotificationBridge(private val webView: android.webkit.WebView) {
+        @android.webkit.JavascriptInterface
+        fun getPermissionState(origin: String): String {
+            val tab = tabManager.tabs.find { it.webView == webView }
+            if (tab?.isIncognito == true) return "denied"
+            val rawOrigin = origin.trim()
+            return when (com.jhaiian.clint.settings.sitepermissions.SitePermissionManager.getState(
+                this@MainActivity, rawOrigin,
+                com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.TYPE_NOTIFICATION
+            )) {
+                com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.STATE_ALLOW -> "granted"
+                com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.STATE_DENY -> "denied"
+                else -> "default"
+            }
+        }
+
+        @android.webkit.JavascriptInterface
+        fun requestPermission(callbackId: String, origin: String) {
+            runOnUiThread {
+                val tab = tabManager.tabs.find { it.webView == webView }
+                val safeId = callbackId.replace("'", "")
+                if (tab?.isIncognito == true) {
+                    webView.evaluateJavascript("window._ClintResolvePermission('$safeId','denied')", null)
+                    return@runOnUiThread
+                }
+                val rawOrigin = origin.trim()
+                val stored = com.jhaiian.clint.settings.sitepermissions.SitePermissionManager.getState(
+                    this@MainActivity, rawOrigin,
+                    com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.TYPE_NOTIFICATION
+                )
+                when (stored) {
+                    com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.STATE_ALLOW -> {
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU &&
+                            !isSystemPermissionGranted(android.Manifest.permission.POST_NOTIFICATIONS)
+                        ) {
+                            pendingBridgeNotifCallbackId = safeId
+                            pendingBridgeNotifOrigin = rawOrigin
+                            pendingBridgeNotifWebView = webView
+                            webNotificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                        } else {
+                            webView.evaluateJavascript("window._ClintResolvePermission('$safeId','granted')", null)
+                        }
+                    }
+                    com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.STATE_DENY -> {
+                        webView.evaluateJavascript("window._ClintResolvePermission('$safeId','denied')", null)
+                    }
+                    else -> {
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU &&
+                            !isSystemPermissionGranted(android.Manifest.permission.POST_NOTIFICATIONS)
+                        ) {
+                            pendingBridgeNotifCallbackId = safeId
+                            pendingBridgeNotifOrigin = rawOrigin
+                            pendingBridgeNotifWebView = webView
+                            val needsRationale = shouldShowRequestPermissionRationale(android.Manifest.permission.POST_NOTIFICATIONS)
+                            if (needsRationale) {
+                                com.google.android.material.dialog.MaterialAlertDialogBuilder(this@MainActivity, getDialogTheme())
+                                    .setTitle(getString(R.string.notification_permission_title))
+                                    .setMessage(getString(R.string.notification_permission_message))
+                                    .setNegativeButton(getString(R.string.action_deny)) { _, _ ->
+                                        pendingBridgeNotifCallbackId = null
+                                        pendingBridgeNotifOrigin = null
+                                        pendingBridgeNotifWebView = null
+                                        webView.evaluateJavascript("window._ClintResolvePermission('$safeId','denied')", null)
+                                    }
+                                    .setPositiveButton(getString(R.string.action_allow)) { _, _ ->
+                                        webNotificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                                    }
+                                    .create().also { applyStatusBarFlagToDialog(it) }.show()
+                            } else {
+                                webNotificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                            }
+                        } else {
+                            showWebNotificationPermissionFromBridge(webView, safeId, rawOrigin)
+                        }
+                    }
+                }
+            }
+        }
+
+        @android.webkit.JavascriptInterface
+        fun postNotification(title: String, body: String, tag: String, origin: String) {
+            val rawOrigin = origin.trim()
+            val tab = tabManager.tabs.find { it.webView == webView }
+            if (tab?.isIncognito == true) return
+            val stored = com.jhaiian.clint.settings.sitepermissions.SitePermissionManager.getState(
+                this@MainActivity, rawOrigin,
+                com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.TYPE_NOTIFICATION
+            )
+            if (stored != com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.STATE_ALLOW) return
+            runOnUiThread { postWebNotification(title, body, tag, rawOrigin) }
+        }
+    }
+
+    inner class BlobDownloadBridge {
+        @android.webkit.JavascriptInterface
+        fun receiveBlob(base64: String, filename: String, mimeType: String) {
+            com.jhaiian.clint.downloads.ClintDownloadManager.enqueueBlob(this@MainActivity, base64, filename, mimeType)
+        }
+
+        @android.webkit.JavascriptInterface
+        fun onError(error: String) {
         }
     }
 

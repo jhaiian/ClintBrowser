@@ -3,21 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <Preference
-        app:key="pref_general"
-        app:title="@string/general_settings"
-        app:summary="@string/general_settings_summary"
-        app:icon="@drawable/ic_settings_24"
-        app:iconTint="?attr/colorPrimary"
-        app:fragment="com.jhaiian.clint.settings.GeneralSettingsFragment"
-        app:singleLineTitle="false" />
-
-    <Preference
         app:key="pref_look_and_feel"
         app:title="@string/look_and_feel"
         app:summary="@string/look_and_feel_summary"
         app:icon="@drawable/ic_palette_24"
         app:iconTint="?attr/colorPrimary"
-        app:fragment="com.jhaiian.clint.settings.LookAndFeelFragment"
+        app:fragment="com.jhaiian.clint.settings.fragments.LookAndFeelFragment"
         app:singleLineTitle="false" />
 
     <Preference
@@ -26,7 +17,7 @@
         app:summary="@string/browser_settings_summary"
         app:icon="@drawable/ic_explore_24"
         app:iconTint="?attr/colorPrimary"
-        app:fragment="com.jhaiian.clint.settings.BrowserSettingsFragment"
+        app:fragment="com.jhaiian.clint.settings.fragments.BrowserSettingsFragment"
         app:singleLineTitle="false" />
 
     <Preference
@@ -35,16 +26,7 @@
         app:summary="@string/privacy_settings_summary"
         app:icon="@drawable/ic_lock_24"
         app:iconTint="?attr/colorPrimary"
-        app:fragment="com.jhaiian.clint.settings.PrivacySettingsFragment"
-        app:singleLineTitle="false" />
-
-    <Preference
-        app:key="pref_doh"
-        app:title="@string/doh_title"
-        app:summary="@string/doh_settings_summary"
-        app:icon="@drawable/ic_dns_24"
-        app:iconTint="?attr/colorPrimary"
-        app:fragment="com.jhaiian.clint.settings.DohSettingsFragment"
+        app:fragment="com.jhaiian.clint.settings.fragments.PrivacySettingsFragment"
         app:singleLineTitle="false" />
 
     <Preference
@@ -53,7 +35,25 @@
         app:summary="@string/data_saver_settings_summary"
         app:icon="@drawable/ic_data_saver_on_24"
         app:iconTint="?attr/colorPrimary"
-        app:fragment="com.jhaiian.clint.settings.DataSaverFragment"
+        app:fragment="com.jhaiian.clint.settings.fragments.DataSaverFragment"
+        app:singleLineTitle="false" />
+
+    <Preference
+        app:key="pref_updates"
+        app:title="@string/pref_updates_title"
+        app:summary="@string/pref_updates_summary"
+        app:icon="@drawable/ic_update_24"
+        app:iconTint="?attr/colorPrimary"
+        app:fragment="com.jhaiian.clint.settings.fragments.UpdateSettingsFragment"
+        app:singleLineTitle="false" />
+
+    <Preference
+        app:key="pref_misc"
+        app:title="@string/pref_misc_title"
+        app:summary="@string/pref_misc_summary"
+        app:icon="@drawable/ic_tune_24"
+        app:iconTint="?attr/colorPrimary"
+        app:fragment="com.jhaiian.clint.settings.fragments.MiscFragment"
         app:singleLineTitle="false" />
 
     <Preference
@@ -66,29 +66,11 @@
         app:singleLineTitle="false" />
 
     <Preference
-        app:key="pref_updates"
-        app:title="@string/pref_updates_title"
-        app:summary="@string/pref_updates_summary"
-        app:icon="@drawable/ic_update_24"
-        app:iconTint="?attr/colorPrimary"
-        app:fragment="com.jhaiian.clint.settings.UpdateSettingsFragment"
-        app:singleLineTitle="false" />
-
-    <Preference
-        app:key="pref_misc"
-        app:title="@string/pref_misc_title"
-        app:summary="@string/pref_misc_summary"
-        app:icon="@drawable/ic_tune_24"
-        app:iconTint="?attr/colorPrimary"
-        app:fragment="com.jhaiian.clint.settings.MiscFragment"
-        app:singleLineTitle="false" />
-
-    <Preference
         app:key="pref_about"
         app:title="@string/about"
         app:icon="@drawable/ic_info_24"
         app:iconTint="?attr/colorPrimary"
-        app:fragment="com.jhaiian.clint.settings.AboutFragment"
+        app:fragment="com.jhaiian.clint.settings.fragments.AboutFragment"
         app:singleLineTitle="false" />
 
 </PreferenceScreen>

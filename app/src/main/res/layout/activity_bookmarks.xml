@@ -93,7 +93,7 @@
                 android:contentDescription="@string/history_sort" />
 
             <ImageView
-                android:id="@+id/btn_more_options"
+                android:id="@+id/btn_selection_options"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:src="@drawable/ic_checklist_24"
@@ -107,11 +107,6 @@
         </LinearLayout>
 
     </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="?attr/clintDividerColor" />
 
     <FrameLayout
         android:layout_width="match_parent"

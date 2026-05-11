@@ -42,4 +42,29 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="@string/history_title">
+
+        <Preference
+            app:key="history"
+            app:title="@string/history_title"
+            app:summary="@string/history_summary"
+            app:icon="@drawable/ic_history_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/site_settings">
+
+        <Preference
+            app:key="pref_site_settings"
+            app:title="@string/site_settings"
+            app:summary="@string/site_settings_summary"
+            app:icon="@drawable/ic_web_asset_24"
+            app:iconTint="?attr/colorPrimary"
+            app:fragment="com.jhaiian.clint.settings.fragments.SiteSettingsFragment"
+            app:singleLineTitle="false" />
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

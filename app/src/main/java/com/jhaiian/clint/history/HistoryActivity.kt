@@ -35,7 +35,7 @@ class HistoryActivity : ClintActivity() {
     private lateinit var toolbarTitle: TextView
     private lateinit var btnBack: ImageView
     private lateinit var btnSort: ImageView
-    private lateinit var btnMoreOptions: ImageView
+    private lateinit var btnSelectionOptions: ImageView
     private lateinit var fabDelete: FloatingActionButton
     private lateinit var fastScroller: HistoryFastScroller
 
@@ -78,7 +78,7 @@ class HistoryActivity : ClintActivity() {
         toolbarTitle = findViewById(R.id.toolbar_title)
         btnBack = findViewById(R.id.btn_back)
         btnSort = findViewById(R.id.btn_sort)
-        btnMoreOptions = findViewById(R.id.btn_more_options)
+        btnSelectionOptions = findViewById(R.id.btn_selection_options)
         btnSearch = findViewById(R.id.btn_search)
         btnSearchClose = findViewById(R.id.btn_search_close)
         searchEditText = findViewById(R.id.search_edit_text)
@@ -117,7 +117,7 @@ class HistoryActivity : ClintActivity() {
         }
 
         btnSort.setOnClickListener { showSortMenu(it) }
-        btnMoreOptions.setOnClickListener { showMoreOptionsMenu(it) }
+        btnSelectionOptions.setOnClickListener { showMoreOptionsMenu(it) }
         fabDelete.setOnClickListener { showDeleteConfirmDialog() }
 
         recycler.layoutManager = LinearLayoutManager(this)
@@ -325,7 +325,7 @@ class HistoryActivity : ClintActivity() {
     private fun updateSelectionUi(selectedCount: Int) {
         val inSelectionMode = ::adapter.isInitialized && adapter.isInSelectionMode
 
-        btnMoreOptions.visibility = if (inSelectionMode) View.VISIBLE else View.GONE
+        btnSelectionOptions.visibility = if (inSelectionMode) View.VISIBLE else View.GONE
         btnSort.visibility = if (inSelectionMode) View.GONE else View.VISIBLE
 
         if (inSelectionMode && selectedCount > 0) {

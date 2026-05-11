@@ -1,0 +1,9 @@
+· Removed DoH (never worked)
+· Removed General settings section
+· Added Site Settings (permissions + exceptions)
+· Desktop Mode: Save State or session-only
+· Popup protection alerts
+· History shortcut added
+· Fixed blob URL download error
+· UI & legal updates
+· Project restructure

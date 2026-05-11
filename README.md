@@ -11,7 +11,7 @@ A customizable, privacy focused Android browser built on Android WebView.
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blueviolet.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B-blueviolet.svg)](https://developer.android.com)
 [![Stable](https://img.shields.io/badge/Stable-1.0.2--r3-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.2-r3)
-[![Beta](https://img.shields.io/badge/Beta-1.0.3--beta--3-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.3-beta-3)
+[![Beta](https://img.shields.io/badge/Beta-1.0.3--beta--4-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.3-beta-4)
 [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser)
 
 </div>
@@ -20,7 +20,7 @@ A customizable, privacy focused Android browser built on Android WebView.
 
 ## What is Clint?
 
-Clint is a free, open‑source Android browser that puts privacy control in your hands — and lets you tailor the entire look and feel to your taste. It blocks trackers and analytics at the network level, supports DNS over HTTPS, isolates incognito sessions completely, and ships with zero Google telemetry baked in. Every feature is built with the philosophy that your browsing data belongs to you and only you.
+Clint is a free, open-source Android browser with no dedicated backend infrastructure, built with privacy in mind. It features a clean, customizable interface that lets users tailor the look and feel to their preference. It blocks known trackers and analytics, completely isolates incognito sessions, and ships with zero Google telemetry built in. Every feature is designed around the philosophy that your browsing data belongs to you and only you.
 
 Built and maintained by **[@jhaiian](https://github.com/jhaiian)** — a solo developer from the Philippines 🇵🇭
 
@@ -62,6 +62,14 @@ Built and maintained by **[@jhaiian](https://github.com/jhaiian)** — a solo de
 - **"Open in ___"** button in the menu (grayed out when no compatible app is available).
 - Enhanced intent support with more actions and deep linking capabilities.
 - Full‑screen video and media support.
+- **Popup Protection** — when a website tries to open a new window or popup, an alert asks if you want to allow it, helping prevent unwanted ads and tabs.
+
+### 🔐 Site Settings
+Manage website permissions in one place:
+- **Camera**, **Microphone**, **Location**, **Notifications**
+- Each permission has configurable defaults: *Ask first*, *Always deny*, or *Always allow*
+- **Site Exceptions** — override default behavior for specific websites
+- Sites you choose "Don't ask again" for are automatically added to exceptions
 
 ### 🗂️ Tab Switcher & Favicons
 - Tabs display the website's own favicon instead of a generic icon.
@@ -87,10 +95,11 @@ Built and maintained by **[@jhaiian](https://github.com/jhaiian)** — a solo de
 - All bookmarks are stored locally on your device using SQLite — never synced or uploaded.
 
 ### 📜 Search History
-- Access via Settings → Browser → History
+- Access via Settings → History
 - Delete individual or all history entries
 - Sort history by Title or Last Visit (ascending or descending)
 - Saved locally using SQLite
+- **History shortcut** added in both menus for quicker access
 
 ### 🔍 Search Bar
 - **Material Design Search Bar** — modern look and feel with improved interaction
@@ -101,15 +110,14 @@ Built and maintained by **[@jhaiian](https://github.com/jhaiian)** — a solo de
 - **Tracker blocking** — 16+ known analytics and ad domains blocked at the network level.
 - **Third‑party cookie blocking** — prevents cross‑site tracking.
 - **Generic User‑Agent** — reduces browser fingerprinting.
-- **DNS over HTTPS (DoH)** — four protection levels with Cloudflare and Quad9 support.
 - **SSL enforcement** — invalid certificates are always rejected, no exceptions.
-- **Incognito isolation** — separate cookie, cache, and DNS context for each incognito tab.
+- **Incognito isolation** — separate cookie and cache context for each incognito tab.
 
 ### 🔍 Search Engines
 - DuckDuckGo (default)
 - Brave Search
 - Google *(with privacy warning)*
-- Change at any time from Settings → General
+- Change at any time from Settings → Search Engine
 
 ### ⬇️ Downloads
 - Custom download engine built on OkHttp — no reliance on the system DownloadManager.
@@ -178,21 +186,6 @@ All these options combine to give you **~52 distinct theme combinations**, and t
 
 ---
 
-## DNS over HTTPS
-
-Clint supports four DoH protection levels:
-
-| Mode | Behavior |
-|---|---|
-| **Off** | System DNS resolver, no encryption |
-| **Default** | Pre‑resolves via your provider, falls back to system DNS if unavailable |
-| **Increased** | Pre‑resolves via your provider, minimal fallback |
-| **Max** | Only your provider — DNS fails if the provider is unreachable |
-
-**Providers:** Cloudflare (`1.1.1.1`) and Quad9 (`9.9.9.9`)
-
----
-
 ## Requirements
 
 - Android 8.0 (API 26) or higher
@@ -246,7 +239,7 @@ Join the official Clint Browser community on Discord and Reddit to share feedbac
 
 The source code of this project is licensed under the [GNU General Public License v3.0 (GPLv3)](https://github.com/jhaiian/ClintBrowser/blob/main/LICENSE).  
 
-The names "Clint" and "Clint Browser," the logo, screenshots, custom-made drawables, and all related branding assets are **trademarks** or **proprietary assets** of the author and are **not licensed under the GPL**. Use of these assets requires explicit permission from the author.
+The names "Clint" and "Clint Browser," the logo, screenshots, and all related branding assets are **trademarks** or **proprietary assets** of the author and are **not licensed under the GPL**. Use of these assets requires explicit permission from the author.
 
 ---
 

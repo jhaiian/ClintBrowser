@@ -75,5 +75,15 @@
             app:singleLineTitle="false" />
 
     </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_category_navigation">
+
+        <Preference
+            app:key="exit_confirmation"
+            app:title="@string/exit_confirmation_title"
+            app:icon="@drawable/ic_close_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false" />
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

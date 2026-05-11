@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Preference
+        app:key="pref_site_camera"
+        app:title="@string/site_settings_camera"
+        app:summary="@string/site_settings_camera_summary"
+        app:icon="@drawable/ic_videocam_24"
+        app:iconTint="?attr/colorPrimary"
+        app:singleLineTitle="false" />
+
+    <Preference
+        app:key="pref_site_mic"
+        app:title="@string/site_settings_mic"
+        app:summary="@string/site_settings_mic_summary"
+        app:icon="@drawable/ic_mic_24"
+        app:iconTint="?attr/colorPrimary"
+        app:singleLineTitle="false" />
+
+    <Preference
+        app:key="pref_site_location"
+        app:title="@string/site_settings_location"
+        app:summary="@string/site_settings_location_summary"
+        app:icon="@drawable/ic_location_on_24"
+        app:iconTint="?attr/colorPrimary"
+        app:singleLineTitle="false" />
+
+    <Preference
+        app:key="pref_site_notifications"
+        app:title="@string/site_settings_notifications"
+        app:summary="@string/site_settings_notifications_summary"
+        app:icon="@drawable/ic_notifications_24"
+        app:iconTint="?attr/colorPrimary"
+        app:singleLineTitle="false" />
+
+    <Preference
+        app:key="pref_site_desktop_mode"
+        app:title="@string/site_settings_desktop_mode"
+        app:summary="@string/site_settings_desktop_mode_summary"
+        app:icon="@drawable/ic_desktop_24"
+        app:iconTint="?attr/colorPrimary"
+        app:singleLineTitle="false" />
+
+</PreferenceScreen>

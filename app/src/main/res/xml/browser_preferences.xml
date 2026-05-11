@@ -2,6 +2,18 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <PreferenceCategory android:title="@string/pref_category_search">
+
+        <Preference
+            app:key="search_engine"
+            app:title="@string/search_engine"
+            app:summary="DuckDuckGo"
+            app:icon="@drawable/ic_search_24"
+            app:iconTint="?attr/colorPrimary"
+            app:singleLineTitle="false" />
+
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="@string/browser_settings">
 
         <SwitchPreferenceCompat
@@ -17,14 +29,6 @@
             app:key="cache_mode"
             app:title="@string/cache_mode_title"
             app:icon="@drawable/ic_cached_24"
-            app:iconTint="?attr/colorPrimary"
-            app:singleLineTitle="false" />
-
-        <Preference
-            app:key="history"
-            app:title="@string/history_title"
-            app:summary="@string/history_summary"
-            app:icon="@drawable/ic_history_24"
             app:iconTint="?attr/colorPrimary"
             app:singleLineTitle="false" />
 

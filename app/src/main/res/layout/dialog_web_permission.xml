@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp"
+    android:paddingTop="4dp"
+    android:paddingBottom="8dp">
+
+    <TextView
+        android:id="@+id/tvWebPermissionMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="14sp" />
+
+    <CheckBox
+        android:id="@+id/checkWebPermissionRemember"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/camera_web_request_remember"
+        android:checked="true"
+        android:buttonTint="?attr/colorPrimary"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="14sp" />
+
+</LinearLayout>

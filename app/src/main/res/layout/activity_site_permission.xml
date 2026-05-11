@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="?android:attr/colorBackground">
+
+    <LinearLayout
+        android:id="@+id/site_permission_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="?attr/colorSurface"
+        android:elevation="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp">
+
+            <ImageView
+                android:id="@+id/btn_back"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_arrow_back_24"
+                android:padding="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/back" />
+
+            <TextView
+                android:id="@+id/toolbar_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="19sp"
+                android:fontFamily="sans-serif-medium" />
+
+            <EditText
+                android:id="@+id/search_edit_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                android:hint="@string/site_permission_search_hint"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/clintSecondaryTextColor"
+                android:textSize="16sp"
+                android:background="@null"
+                android:inputType="text"
+                android:imeOptions="actionSearch"
+                android:singleLine="true"
+                android:maxLines="1"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/btn_search_close"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_close_24"
+                android:padding="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="?attr/clintIconTint"
+                android:contentDescription="@string/history_search"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/btn_sort"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_sort_24"
+                android:padding="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="?attr/clintIconTint"
+                android:contentDescription="@string/history_sort" />
+
+            <ImageView
+                android:id="@+id/btn_selection_options"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_checklist_24"
+                android:padding="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="?attr/clintIconTint"
+                android:contentDescription="@string/site_permission_selection_options"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/btn_search"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_search_24"
+                android:padding="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="?attr/clintIconTint"
+                android:contentDescription="@string/history_search" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/clintDividerColor" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/site_permission_default_behavior"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="12sp"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.05"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="10dp" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_ask_first"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="8dp"
+            app:cardBackgroundColor="?attr/clintCardBackground"
+            app:cardCornerRadius="14dp"
+            app:strokeColor="?attr/colorPrimary"
+            app:strokeWidth="3dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="14dp"
+                android:gravity="center_vertical">
+
+                <RadioButton
+                    android:id="@+id/radio_ask_first"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:buttonTint="?attr/colorPrimary"
+                    android:clickable="false"
+                    android:focusable="false" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/site_permission_ask_first"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/site_permission_ask_first_desc"
+                        android:textColor="?attr/clintSecondaryTextColor"
+                        android:textSize="13sp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/default_label"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="11sp"
+                    android:background="@drawable/chip_background"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp"
+                    android:fontFamily="sans-serif-medium" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_always_deny"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="8dp"
+            android:alpha="0.45"
+            app:cardBackgroundColor="?attr/clintCardBackground"
+            app:cardCornerRadius="14dp"
+            app:strokeColor="?attr/colorPrimary"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="14dp"
+                android:gravity="center_vertical">
+
+                <RadioButton
+                    android:id="@+id/radio_always_deny"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:buttonTint="?attr/colorPrimary"
+                    android:clickable="false"
+                    android:focusable="false" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/site_permission_always_deny"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/site_permission_always_deny_desc"
+                        android:textColor="?attr/clintSecondaryTextColor"
+                        android:textSize="13sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_always_allow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="8dp"
+            android:alpha="0.45"
+            app:cardBackgroundColor="?attr/clintCardBackground"
+            app:cardCornerRadius="14dp"
+            app:strokeColor="?attr/colorPrimary"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="14dp"
+                android:gravity="center_vertical">
+
+                <RadioButton
+                    android:id="@+id/radio_always_allow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:buttonTint="?attr/colorPrimary"
+                    android:clickable="false"
+                    android:focusable="false" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/site_permission_always_allow"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/site_permission_always_allow_desc"
+                        android:textColor="?attr/clintSecondaryTextColor"
+                        android:textSize="13sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="4dp"
+            android:background="?attr/clintDividerColor" />
+
+        <TextView
+            android:id="@+id/tv_exceptions_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/site_permission_exceptions"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="12sp"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.05"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="8dp" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/tv_empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/site_permission_no_exceptions"
+            android:textColor="?attr/clintSecondaryTextColor"
+            android:textSize="15sp"
+            android:visibility="visible" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_exceptions"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="6dp"
+            android:paddingBottom="88dp"
+            android:clipToPadding="false"
+            android:scrollbars="none"
+            android:visibility="gone" />
+
+        <com.jhaiian.clint.settings.sitepermissions.SitePermissionFastScroller
+            android:id="@+id/site_permission_fast_scroller"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="24dp"
+            android:src="@drawable/ic_delete_24"
+            android:contentDescription="@string/history_delete_selected_desc"
+            app:backgroundTint="?attr/clintButtonBackground"
+            app:tint="?attr/clintButtonIconTint"
+            app:fabSize="normal"
+            android:visibility="gone" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="24dp"
+            android:src="@drawable/ic_add_24"
+            android:contentDescription="@string/site_permission_add_exception"
+            app:backgroundTint="?attr/clintButtonBackground"
+            app:tint="?attr/clintButtonIconTint"
+            app:fabSize="normal" />
+
+    </FrameLayout>
+
+</LinearLayout>

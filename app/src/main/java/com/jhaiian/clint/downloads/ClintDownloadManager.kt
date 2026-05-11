@@ -135,6 +135,46 @@ object ClintDownloadManager {
             .edit().putString(KEY_DOWNLOADS, arr.toString()).apply()
     }
 
+    fun enqueueBlob(context: Context, base64: String, filename: String, mimeType: String) {
+        val id = idCounter.getAndIncrement()
+        val item = DownloadItem(id = id, url = "blob:", filename = filename, userAgent = "")
+        synchronized(downloads) { downloads.add(0, item) }
+        onDownloadsChanged?.invoke()
+        showProgressNotification(context, item)
+        val future = executor.submit {
+            try {
+                val bytes = android.util.Base64.decode(base64, android.util.Base64.DEFAULT)
+                var finalFilename = filename
+                if (finalFilename.endsWith(".bin") || !finalFilename.contains(".")) {
+                    val ext = detectExtFromMagicBytes(bytes.copyOf(minOf(bytes.size, 512)))
+                        ?: android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
+                    if (ext != null) finalFilename = "${finalFilename.removeSuffix(".bin")}.$ext"
+                }
+                item.filename = finalFilename
+                val destDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                destDir.mkdirs()
+                val destFile = uniqueFile(destDir, finalFilename)
+                item.filename = destFile.name
+                item.file = destFile
+                item.totalBytes = bytes.size.toLong()
+                val ctx = appContext
+                if (ctx != null) {
+                    val msg = ctx.getString(R.string.toast_downloading, item.filename)
+                    mainHandler.post { ClintToast.show(ctx, msg, R.drawable.ic_download_24) }
+                }
+                FileOutputStream(destFile).use { it.write(bytes) }
+                item.bytesDownloaded = bytes.size.toLong()
+                item.status = DownloadStatus.COMPLETE
+                saveDownloads()
+                onDownloadsChanged?.invoke()
+                showCompleteNotification(context, item)
+            } catch (e: Throwable) {
+                fail(context, item, e.message ?: context.getString(R.string.download_error_unknown))
+            }
+        }
+        futures[id] = future
+    }
+
     fun enqueue(context: Context, url: String, filename: String, userAgent: String, referer: String = "", cookies: String = "") {
         val id = idCounter.getAndIncrement()
         val item = DownloadItem(id = id, url = url, filename = filename, userAgent = userAgent, referer = referer, cookies = cookies)

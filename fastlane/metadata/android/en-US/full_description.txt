@@ -21,7 +21,6 @@ PRIVACY & SECURITY
 - Tracker blocking — 16+ known analytics and ad domains blocked at the network level.
 - Third-party cookie blocking — prevents cross-site tracking.
 - Generic User-Agent — reduces browser fingerprinting.
-- DNS over HTTPS (DoH) — four protection levels with Cloudflare and Quad9 support.
 - Incognito isolation — separate cookie, cache, and DNS context for each incognito tab.
 - Favicon privacy — favicons use DuckDuckGo's service, not Google.
 

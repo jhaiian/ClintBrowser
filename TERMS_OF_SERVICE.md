@@ -1,6 +1,6 @@
 # Terms of Service for Clint Browser
 
-*Last updated: May 10 2026*
+*Last updated: May 11, 2026*
 
 ## Acceptance of Terms
 
@@ -8,7 +8,7 @@ By downloading, installing, or using Clint Browser, you agree to these Terms of 
 
 ## Description of Service
 
-Clint Browser is a free, open-source Android web browser. It provides a WebView-based browsing experience with privacy features including tracker blocking, DNS over HTTPS, and incognito mode. The app is provided as-is, free of charge, with no subscription or payment required.
+Clint is a free, open-source Android browser with no dedicated backend infrastructure, built with privacy in mind. It features a clean, customizable interface that lets users tailor the look and feel to their preference. It blocks known trackers and analytics, completely isolates incognito sessions, and ships with zero Google telemetry built in. Every feature is designed around the philosophy that your browsing data belongs to you and only you.
 
 ## Acceptable Use
 
@@ -27,7 +27,7 @@ Clint Browser is licensed under the [GNU General Public License v3.0 (GPL-3.0)](
 
 **Trademarks and Branding Assets**
 
-The names "Clint" and "Clint Browser," the logo, screenshots, custom-made drawables, and all related branding assets are **trademarks** or **proprietary assets** of the author and are **not licensed under the GPL**. Use of these assets requires explicit written permission from the author. You may not modify, redistribute, or use these assets in derivative works without permission.
+The names "Clint" and "Clint Browser," the logo, screenshots, and all related branding assets are **trademarks** or **proprietary assets** of the author and are **not licensed under the GPL**. Use of these assets requires explicit written permission from the author. You may not modify, redistribute, or use these assets in derivative works without permission.
 
 ## No Warranty
 

@@ -5,13 +5,45 @@
     android:orientation="vertical"
     android:background="?android:attr/colorBackground">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/settingsToolbar"
+    <LinearLayout
+        android:id="@+id/settings_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="?attr/actionBarSize"
+        android:orientation="vertical"
         android:background="?attr/colorSurface"
-        android:elevation="4dp" />
+        android:elevation="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp">
+
+            <ImageView
+                android:id="@+id/btn_back"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_arrow_back_24"
+                android:padding="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/back" />
+
+            <TextView
+                android:id="@+id/toolbar_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:text="@string/settings"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="19sp"
+                android:fontFamily="sans-serif-medium" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/settings_container"

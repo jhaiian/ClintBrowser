@@ -1,7 +1,11 @@
 package com.jhaiian.clint.settings
+import com.jhaiian.clint.settings.fragments.MainSettingsFragment
+import com.jhaiian.clint.settings.fragments.DataSaverFragment
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.core.view.ViewCompat
@@ -20,6 +24,8 @@ class SettingsActivity : ClintActivity(),
     private var addressBarPositionAtLaunch = ""
 
     private lateinit var binding: ActivitySettingsBinding
+    private lateinit var toolbarTitle: TextView
+    private lateinit var btnBack: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +38,10 @@ class SettingsActivity : ClintActivity(),
         WindowCompat.setDecorFitsSystemWindows(window, false)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        toolbarTitle = binding.toolbarTitle
+        btnBack = binding.btnBack
+
         ViewCompat.setOnApplyWindowInsetsListener(binding.settingsToolbar) { v, insets ->
             val statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
             v.setPadding(0, statusBars.top, 0, 0)
@@ -42,12 +52,18 @@ class SettingsActivity : ClintActivity(),
             v.setPadding(0, 0, 0, navBars.bottom)
             insets
         }
-        setSupportActionBar(binding.settingsToolbar)
-        supportActionBar?.apply {
-            setDisplayHomeAsUpEnabled(true)
-            title = savedInstanceState?.getCharSequence(KEY_TOOLBAR_TITLE)
-                ?: getString(R.string.settings)
+
+        toolbarTitle.text = savedInstanceState?.getCharSequence(KEY_TOOLBAR_TITLE)
+            ?: getString(R.string.settings)
+
+        btnBack.setOnClickListener {
+            if (supportFragmentManager.backStackEntryCount > 0) {
+                supportFragmentManager.popBackStack()
+            } else {
+                onBackPressedDispatcher.onBackPressed()
+            }
         }
+
         if (savedInstanceState == null) {
             val openFragment = intent.getStringExtra(EXTRA_OPEN_FRAGMENT)
             if (openFragment == "data_saver") {
@@ -59,7 +75,7 @@ class SettingsActivity : ClintActivity(),
                     .replace(R.id.settings_container, dataSaverFragment)
                     .addToBackStack(null)
                     .commit()
-                supportActionBar?.title = getString(R.string.data_saver_title)
+                toolbarTitle.text = getString(R.string.data_saver_title)
             } else {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.settings_container, MainSettingsFragment())
@@ -68,14 +84,14 @@ class SettingsActivity : ClintActivity(),
         }
         supportFragmentManager.addOnBackStackChangedListener {
             if (supportFragmentManager.backStackEntryCount == 0) {
-                supportActionBar?.title = getString(R.string.settings)
+                toolbarTitle.text = getString(R.string.settings)
             }
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putCharSequence(KEY_TOOLBAR_TITLE, supportActionBar?.title)
+        outState.putCharSequence(KEY_TOOLBAR_TITLE, toolbarTitle.text)
     }
 
     override fun onPreferenceStartFragment(
@@ -89,16 +105,7 @@ class SettingsActivity : ClintActivity(),
             .replace(R.id.settings_container, fragment)
             .addToBackStack(null)
             .commit()
-        supportActionBar?.title = pref.title
-        return true
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        if (supportFragmentManager.backStackEntryCount > 0) {
-            supportFragmentManager.popBackStack()
-            return true
-        }
-        onBackPressedDispatcher.onBackPressed()
+        toolbarTitle.text = pref.title
         return true
     }
 

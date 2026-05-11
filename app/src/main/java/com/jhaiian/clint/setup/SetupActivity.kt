@@ -58,7 +58,6 @@ import com.jhaiian.clint.crash.CrashHandler
 
 import com.jhaiian.clint.databinding.ActivitySetupBinding
 
-import com.jhaiian.clint.network.DohManager
 
 import com.jhaiian.clint.ui.ClintToast
 
@@ -98,13 +97,9 @@ private val browserRoleLauncher = registerForActivityResult(
 
     ) {
 
-        refreshPage5()
+        refreshPage4()
 
     }
-
-    private var selectedDohMode = DohManager.MODE_OFF
-
-    private var selectedProvider = DohManager.PROVIDER_CLOUDFLARE
 
     private var currentPage = 0
 
@@ -182,8 +177,6 @@ setupPage0()
 
         setupPage4()
 
-        setupPage5()
-
 val pendingPage = prefs.getInt(KEY_PENDING_PAGE, -1)
 
         if (pendingPage >= 0) {
@@ -214,9 +207,7 @@ override fun onResume() {
 
         super.onResume()
 
-        if (currentPage == 4) refreshPage4Button()
-
-        if (currentPage == 5) refreshPage5()
+        if (currentPage == 4) refreshPage4()
 
     }
 
@@ -740,59 +731,17 @@ private fun setupPage3() {
 
     }
 
+
+
+
+
 private fun setupPage4() {
-
-        selectDohMode(DohManager.MODE_OFF)
-
-        selectProvider(DohManager.PROVIDER_CLOUDFLARE)
-
-        listOf(
-
-            binding.cardDohOff to DohManager.MODE_OFF,
-
-            binding.cardDohDefault to DohManager.MODE_DEFAULT,
-
-            binding.cardDohIncreased to DohManager.MODE_INCREASED,
-
-            binding.cardDohMax to DohManager.MODE_MAX
-
-        ).forEach { (card, mode) -> card.setOnClickListener { selectDohMode(mode) } }
-
-        listOf(
-
-            binding.cardSetupCloudflare to DohManager.PROVIDER_CLOUDFLARE,
-
-            binding.cardSetupQuad9 to DohManager.PROVIDER_QUAD9
-
-        ).forEach { (card, provider) -> card.setOnClickListener { selectProvider(provider) } }
-
-    }
-
-private fun refreshPage4Button() {
-
-        if (isClintDefaultBrowser()) {
-
-            binding.btnGetStarted.text = getString(R.string.get_started)
-
-            binding.btnGetStarted.setOnClickListener { saveAndProceed() }
-
-        } else {
-
-            binding.btnGetStarted.text = getString(R.string.next)
-
-            binding.btnGetStarted.setOnClickListener { showPage(5) }
-
-        }
-
-    }
-
-private fun setupPage5() {
 
         binding.btnSkipDefaultBrowser.setOnClickListener { saveAndProceed() }
 
     }
 
-private fun refreshPage5() {
+private fun refreshPage4() {
 
         if (isClintDefaultBrowser()) {
 
@@ -842,9 +791,7 @@ private fun showPage(page: Int, animate: Boolean = true) {
 
         if (page == 2) updatePage2Swatches()
 
-        if (page == 4) refreshPage4Button()
-
-        if (page == 5) refreshPage5()
+        if (page == 4) refreshPage4()
 
     }
 
@@ -1309,61 +1256,9 @@ private fun selectEngine(engine: String) {
 
     }
 
-private fun selectDohMode(mode: String) {
 
-        selectedDohMode = mode
 
-        listOf(
 
-            Triple(binding.cardDohOff, binding.radioDohSetupOff, DohManager.MODE_OFF),
-
-            Triple(binding.cardDohDefault, binding.radioDohSetupDefault, DohManager.MODE_DEFAULT),
-
-            Triple(binding.cardDohIncreased, binding.radioDohSetupIncreased, DohManager.MODE_INCREASED),
-
-            Triple(binding.cardDohMax, binding.radioDohSetupMax, DohManager.MODE_MAX)
-
-        ).forEach { (card, radio, key) ->
-
-            val sel = key == mode
-
-            card.alpha = if (sel) 1.0f else 0.45f
-
-            card.strokeWidth = if (sel) 3 else 0
-
-            radio.isChecked = sel
-
-        }
-
-        binding.setupProviderSection.visibility =
-
-            if (mode == DohManager.MODE_OFF) View.GONE else View.VISIBLE
-
-    }
-
-private fun selectProvider(provider: String) {
-
-        selectedProvider = provider
-
-        listOf(
-
-            Triple(binding.cardSetupCloudflare, binding.radioSetupCloudflare, DohManager.PROVIDER_CLOUDFLARE),
-
-            Triple(binding.cardSetupQuad9, binding.radioSetupQuad9, DohManager.PROVIDER_QUAD9)
-
-        ).forEach { (card, radio, key) ->
-
-            val sel = key == provider
-
-            card.alpha = if (sel) 1.0f else 0.45f
-
-            card.strokeWidth = if (sel) 3 else 0
-
-            radio.isChecked = sel
-
-        }
-
-    }
 
 private fun saveAndProceed() {
 
@@ -1372,10 +1267,6 @@ private fun saveAndProceed() {
         prefs.edit()
 
             .putString("search_engine", selectedEngine)
-
-            .putString("doh_mode", selectedDohMode)
-
-            .putString("doh_provider", selectedProvider)
 
             .putString("address_bar_position", selectedAddressBarPosition)
 

@@ -28,6 +28,10 @@ class CrashReportFragment : Fragment() {
     private var _binding: FragmentCrashReportBinding? = null
     private val binding get() = _binding!!
 
+    companion object {
+        private const val MAX_CLIP_CHARS = 450_000
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -138,8 +142,12 @@ class CrashReportFragment : Fragment() {
         val colorDivider      = ta.getColor(4, 0x22FFFFFF.toInt())
         ta.recycle()
 
+        val displayContent = if (content.length > MAX_CLIP_CHARS)
+            content.take(MAX_CLIP_CHARS) + "\n${getString(R.string.crash_log_truncated)}"
+        else content
+
         val logTv = TextView(ctx).apply {
-            text = content
+            text = displayContent
             setTextColor(colorOnSurface)
             textSize = 11f
             typeface = android.graphics.Typeface.MONOSPACE
@@ -216,8 +224,11 @@ class CrashReportFragment : Fragment() {
 
     private fun copyToClipboard(content: String) {
         val cm = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        cm.setPrimaryClip(ClipData.newPlainText("Clint Crash Report", content))
-        ClintToast.show(requireContext(), getString(R.string.crash_copied), R.drawable.ic_check_24)
+        val truncated = content.length > MAX_CLIP_CHARS
+        val clipped = if (truncated) content.take(MAX_CLIP_CHARS) + "\n${getString(R.string.crash_log_truncated)}" else content
+        cm.setPrimaryClip(ClipData.newPlainText("Clint Crash Report", clipped))
+        val msg = if (truncated) getString(R.string.crash_copied_truncated) else getString(R.string.crash_copied)
+        ClintToast.show(requireContext(), msg, R.drawable.ic_check_24)
     }
 
     private fun setupSteps() {
