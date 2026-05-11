@@ -1,12 +1,12 @@
 {
-  "version": "1.0.3-beta-3",
-  "changelog": "# v1.0.3-beta-3\n\n## Added\n\n### Search Suggestions\n- Powered by DuckDuckGo API (`https://duckduckgo.com/ac/?q=`)\n- Real-time query predictions\n- Improved search UX with instant suggestions\n\n### Speech-to-Text Support\n- Voice input in address bar\n- Hands-free searching capability\n- Enhanced accessibility features\n\n### Search History Management\n- Access via Settings → Browser → History\n- Delete individual or all history entries\n- Sort history by Title (ascending/descending)\n- Sort history by Last Visit (ascending/descending)\n- Search from the list\n- Saved locally using SQLite\n\n### Intent Support\n- Added more intent actions for better app integration\n- Enhanced deep linking capabilities\n- Improved third-party app communication\n\n---\n\n## Changed\n\n### Bookmark System\n- Complete overhaul of bookmark save system\n- Migrated to SQLite\n- Better performance and faster loading\n- Cleaner bookmark organization\n\n### Bookmark UI\n- Complete UI redesign matching the new history page layout\n- New sorting options: Title, Last Visit, and Date Added\n- Ascending and descending order for all sort types\n- Search from the list\n- Consistent look and feel with history section\n\n### Search Bar Component\n- Replaced standard EditText with Material Search Bar\n- Modern Material Design look and feel\n- Improved user interaction and visual feedback\n\n---",
+  "version": "1.0.3-beta-4",
+  "changelog": "## v1.0.3-beta-4",
   "downloads": {
-    "arm64-v8a": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.0.3-beta-3/ClintBrowser-1.0.3-beta-3-arm64-v8a.apk",
-    "armeabi-v7a": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.0.3-beta-3/ClintBrowser-1.0.3-beta-3-armeabi-v7a.apk",
-    "x86": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.0.3-beta-3/ClintBrowser-1.0.3-beta-3-x86.apk",
-    "x86_64": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.0.3-beta-3/ClintBrowser-1.0.3-beta-3-x86_64.apk",
-    "universal": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.0.3-beta-3/ClintBrowser-1.0.3-beta-3-universal.apk"
+    "arm64-v8a": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.0.3-beta-4/ClintBrowser-1.0.3-beta-4-arm64-v8a.apk",
+    "armeabi-v7a": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.0.3-beta-4/ClintBrowser-1.0.3-beta-4-armeabi-v7a.apk",
+    "x86": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.0.3-beta-4/ClintBrowser-1.0.3-beta-4-x86.apk",
+    "x86_64": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.0.3-beta-4/ClintBrowser-1.0.3-beta-4-x86_64.apk",
+    "universal": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.0.3-beta-4/ClintBrowser-1.0.3-beta-4-universal.apk"
   },
-  "versionCode": 12
+  "versionCode": 13
 }
