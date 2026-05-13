@@ -212,7 +212,7 @@ private fun MainActivity.showPopupMenu(anchor: View) {
 
         desktopModeHost = if (isDesktopMode) host else null
 
-        if (host != null) {
+        if (host != null && tabManager.activeTab?.isIncognito != true) {
             val shouldSave = prefs.getString(
                 com.jhaiian.clint.settings.desktopmode.DesktopModeActivity.PREF_DESKTOP_MODE_SAVE_STATE,
                 com.jhaiian.clint.settings.desktopmode.DesktopModeActivity.VALUE_SAVE_STATE

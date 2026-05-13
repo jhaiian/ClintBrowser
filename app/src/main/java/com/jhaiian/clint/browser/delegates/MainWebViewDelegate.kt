@@ -29,7 +29,7 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
     settings.loadWithOverviewMode = true
     settings.useWideViewPort = true
     val dataSaverEnabled = prefs.getBoolean("data_saver_enabled", false)
-    settings.mediaPlaybackRequiresUserGesture = !isIncognito && dataSaverEnabled && prefs.getBoolean("data_saver_disable_autoplay", true)
+    settings.mediaPlaybackRequiresUserGesture = dataSaverEnabled && prefs.getBoolean("data_saver_disable_autoplay", true)
     settings.loadsImagesAutomatically = !(dataSaverEnabled && prefs.getBoolean("data_saver_disable_images", false))
     settings.allowFileAccess = false
     settings.allowContentAccess = false
@@ -89,8 +89,7 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
         WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("link_touch_tracker.js"), setOf("*"))
         WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("web_notification_bridge.js"), setOf("*"))
     }
-    val dataSaverActive = !isIncognito
-        && prefs.getBoolean("data_saver_enabled", false)
+    val dataSaverActive = prefs.getBoolean("data_saver_enabled", false)
         && prefs.getBoolean("data_saver_disable_autoplay", true)
     if (dataSaverActive && WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
         WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("disable_autoplay.js"), setOf("*"))
@@ -182,11 +181,11 @@ internal fun MainActivity.applyDataSaverSettings() {
     val disableImages = dataSaverEnabled && prefs.getBoolean("data_saver_disable_images", false)
     val disableAutoplay = dataSaverEnabled && prefs.getBoolean("data_saver_disable_autoplay", true)
     tabManager.tabs.forEach { tab ->
+        tab.webView.settings.loadsImagesAutomatically = !disableImages
+        tab.webView.settings.mediaPlaybackRequiresUserGesture = disableAutoplay
+        if (disableAutoplay) addAutoplayScript(tab) else removeAutoplayScript(tab)
         if (!tab.isIncognito) {
-            tab.webView.settings.loadsImagesAutomatically = !disableImages
-            tab.webView.settings.mediaPlaybackRequiresUserGesture = disableAutoplay
             tab.webView.settings.cacheMode = resolveEffectiveCacheMode(prefs)
-            if (disableAutoplay) addAutoplayScript(tab) else removeAutoplayScript(tab)
         }
     }
     tabManager.activeTab?.webView?.reload()

@@ -1,1 +1,1 @@
-A customizable, privacy focused Android browser built on Android WebView.
+A customizable Android browser built on Android WebView that respects your privacy.

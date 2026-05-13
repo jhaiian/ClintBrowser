@@ -17,6 +17,7 @@
         android:paddingBottom="4dp">
 
         <ImageView
+            android:id="@+id/link_favicon"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:src="@drawable/ic_link_24"

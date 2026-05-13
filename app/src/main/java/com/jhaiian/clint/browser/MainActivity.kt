@@ -319,6 +319,7 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
         setupNavigationButtons()
         applyAddressBarPosition()
         val intentUrl = getUrlFromIntent(intent)
+        setIntent(android.content.Intent())
         if (!intentUrl.isNullOrEmpty()) {
             restoreTabs()
             openNewTab(isIncognito = false, url = intentUrl)
@@ -330,6 +331,7 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
     override fun onNewIntent(intent: android.content.Intent) {
         super.onNewIntent(intent)
         val url = getUrlFromIntent(intent)
+        setIntent(android.content.Intent())
         if (!url.isNullOrEmpty()) {
             openNewTab(isIncognito = false, url = url)
         }
@@ -486,29 +488,6 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
         val host = currentWebUrl?.let { runCatching { android.net.Uri.parse(it).host }.getOrNull() }
 
         desktopModeHost = if (isDesktopMode) host else null
-
-        if (host != null) {
-            val shouldSave = prefs.getString(
-                com.jhaiian.clint.settings.desktopmode.DesktopModeActivity.PREF_DESKTOP_MODE_SAVE_STATE,
-                com.jhaiian.clint.settings.desktopmode.DesktopModeActivity.VALUE_SAVE_STATE
-            ) == com.jhaiian.clint.settings.desktopmode.DesktopModeActivity.VALUE_SAVE_STATE
-
-            when {
-                isDesktopMode && shouldSave -> {
-                    com.jhaiian.clint.settings.sitepermissions.SitePermissionManager.setState(
-                        this, host,
-                        com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.TYPE_DESKTOP_MODE,
-                        com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.STATE_ALLOW
-                    )
-                }
-                !isDesktopMode && shouldSave -> {
-                    com.jhaiian.clint.settings.sitepermissions.SitePermissionManager.deleteEntry(
-                        this, host,
-                        com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.TYPE_DESKTOP_MODE
-                    )
-                }
-            }
-        }
 
         tabManager.tabs.forEach { tab ->
             tab.webView.settings.userAgentString = buildUserAgent()

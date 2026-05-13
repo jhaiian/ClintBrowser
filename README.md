@@ -1,17 +1,17 @@
 <div align="center">
 
-<img src="fastlane/metadata/android/en-US/images/icon.png" width="120" alt="Clint Browser logo" />
+<img src="docs/icon.png" width="120" alt="Clint Browser logo" />
 
 # Clint Browser
 
 **Customizable Layered Internet Navigation Tool**
 
-A customizable, privacy focused Android browser built on Android WebView.
+A customizable Android browser built on Android WebView that respects your privacy.
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blueviolet.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B-blueviolet.svg)](https://developer.android.com)
-[![Stable](https://img.shields.io/badge/Stable-1.0.2--r3-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.2-r3)
-[![Beta](https://img.shields.io/badge/Beta-1.0.3--beta--4-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.3-beta-4)
+[![Stable](https://img.shields.io/badge/Stable-1.0.3-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.3)
+[![Beta](https://img.shields.io/badge/Beta-1.0.3-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.3)
 [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser)
 
 </div>
@@ -29,11 +29,23 @@ Built and maintained by **[@jhaiian](https://github.com/jhaiian)** — a solo de
 ## Screenshots
 
 <div align="center">
-
-| <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="180" alt="Browsing" /> | <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="180" alt="Private Search" /> | <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg" width="180" alt="Look and Feel" /> |
-|:---:|:---:|:---:|
-| <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg" width="180" alt="Tab Switcher" /> | <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg" width="180" alt="Bookmarks" /> | <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.jpg" width="180" alt="Downloads" /> |
-
+<table>
+  <tr>
+    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="180" /></td>
+    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="180" /></td>
+    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg" width="180" /></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg" width="180" /></td>
+    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg" width="180" /></td>
+    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.jpg" width="180" /></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7.jpg" width="180" /></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
 </div>
 
 ---
@@ -84,13 +96,11 @@ Manage website permissions in one place:
 - Real‑time progress with percentage and file size.
 - Cancel downloads in‑app or from the notification.
 - Open completed files directly from the downloads screen.
-- Install APK files straight from the downloads screen.
 - Automatic duplicate filename handling.
 
 ### 🔖 Bookmarks
 - Save any page with a single tap from the navigation bar; the bookmark icon updates live to reflect the saved state.
 - View, open, and delete bookmarks from a dedicated screen.
-- **New UI** — redesigned bookmark page matching the history page layout.
 - **Sorting options** — sort by Title, Last Visit, or Date Added (ascending or descending).
 - All bookmarks are stored locally on your device using SQLite — never synced or uploaded.
 
@@ -99,7 +109,6 @@ Manage website permissions in one place:
 - Delete individual or all history entries
 - Sort history by Title or Last Visit (ascending or descending)
 - Saved locally using SQLite
-- **History shortcut** added in both menus for quicker access
 
 ### 🔍 Search Bar
 - **Material Design Search Bar** — modern look and feel with improved interaction
@@ -110,14 +119,14 @@ Manage website permissions in one place:
 - **Tracker blocking** — 16+ known analytics and ad domains blocked at the network level.
 - **Third‑party cookie blocking** — prevents cross‑site tracking.
 - **Generic User‑Agent** — reduces browser fingerprinting.
-- **SSL enforcement** — invalid certificates are always rejected, no exceptions.
+- **HTTPS-Only Mode** — Redirect HTTP connections to HTTPS and block sites that don't support it.
 - **Incognito isolation** — separate cookie and cache context for each incognito tab.
 
 ### 🔍 Search Engines
 - DuckDuckGo (default)
 - Brave Search
 - Google *(with privacy warning)*
-- Change at any time from Settings → Search Engine
+- Change at any time from Settings
 
 ### ⬇️ Downloads
 - Custom download engine built on OkHttp — no reliance on the system DownloadManager.

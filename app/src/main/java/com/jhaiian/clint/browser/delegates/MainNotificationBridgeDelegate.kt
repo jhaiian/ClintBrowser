@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import android.view.LayoutInflater
+import android.view.View
 import android.webkit.WebView
 import android.widget.CheckBox
 import android.widget.TextView
@@ -34,32 +35,35 @@ internal fun MainActivity.createWebNotificationChannel() {
 internal fun MainActivity.showWebNotificationPermissionFromBridge(
     webView: WebView,
     callbackId: String,
-    rawOrigin: String
+    rawOrigin: String,
+    isIncognito: Boolean = false
 ) {
     val safeId = callbackId.replace("'", "")
 
-    val stored = SitePermissionManager.getState(this, rawOrigin, SitePermissionDatabase.TYPE_NOTIFICATION)
-    if (stored == SitePermissionDatabase.STATE_ALLOW) {
-        webView.evaluateJavascript("window._ClintResolvePermission('$safeId','granted')", null)
-        return
-    }
-    if (stored == SitePermissionDatabase.STATE_DENY) {
-        webView.evaluateJavascript("window._ClintResolvePermission('$safeId','denied')", null)
-        return
-    }
-
-    val globalDefault = PreferenceManager.getDefaultSharedPreferences(this)
-        .getString("site_perm_default_${SitePermissionDatabase.TYPE_NOTIFICATION}", SitePermissionActivity.PREF_VALUE_ASK) ?: SitePermissionActivity.PREF_VALUE_ASK
-    when (globalDefault) {
-        SitePermissionActivity.PREF_VALUE_ALLOW -> {
+    if (!isIncognito) {
+        val stored = SitePermissionManager.getState(this, rawOrigin, SitePermissionDatabase.TYPE_NOTIFICATION)
+        if (stored == SitePermissionDatabase.STATE_ALLOW) {
             webView.evaluateJavascript("window._ClintResolvePermission('$safeId','granted')", null)
             return
         }
-        SitePermissionActivity.PREF_VALUE_DENY -> {
+        if (stored == SitePermissionDatabase.STATE_DENY) {
             webView.evaluateJavascript("window._ClintResolvePermission('$safeId','denied')", null)
             return
         }
-        else -> {}
+
+        val globalDefault = PreferenceManager.getDefaultSharedPreferences(this)
+            .getString("site_perm_default_${SitePermissionDatabase.TYPE_NOTIFICATION}", SitePermissionActivity.PREF_VALUE_ASK) ?: SitePermissionActivity.PREF_VALUE_ASK
+        when (globalDefault) {
+            SitePermissionActivity.PREF_VALUE_ALLOW -> {
+                webView.evaluateJavascript("window._ClintResolvePermission('$safeId','granted')", null)
+                return
+            }
+            SitePermissionActivity.PREF_VALUE_DENY -> {
+                webView.evaluateJavascript("window._ClintResolvePermission('$safeId','denied')", null)
+                return
+            }
+            else -> {}
+        }
     }
 
     val displayOrigin = rawOrigin.ifEmpty { getString(R.string.notification_web_request_origin_unknown) }
@@ -67,15 +71,16 @@ internal fun MainActivity.showWebNotificationPermissionFromBridge(
     view.findViewById<TextView>(R.id.tvWebPermissionMessage).text =
         getString(R.string.notification_web_request_message, displayOrigin)
     val checkRemember = view.findViewById<CheckBox>(R.id.checkWebPermissionRemember)
+    if (isIncognito) checkRemember.visibility = View.GONE
     MaterialAlertDialogBuilder(this, getDialogTheme())
         .setTitle(getString(R.string.notification_web_request_title))
         .setView(view)
         .setNegativeButton(getString(R.string.action_deny)) { _, _ ->
-            if (checkRemember.isChecked) SitePermissionManager.setState(this, rawOrigin, SitePermissionDatabase.TYPE_NOTIFICATION, SitePermissionDatabase.STATE_DENY)
+            if (checkRemember.isChecked && !isIncognito) SitePermissionManager.setState(this, rawOrigin, SitePermissionDatabase.TYPE_NOTIFICATION, SitePermissionDatabase.STATE_DENY)
             webView.evaluateJavascript("window._ClintResolvePermission('$safeId','denied')", null)
         }
         .setPositiveButton(getString(R.string.action_allow)) { _, _ ->
-            if (checkRemember.isChecked) SitePermissionManager.setState(this, rawOrigin, SitePermissionDatabase.TYPE_NOTIFICATION, SitePermissionDatabase.STATE_ALLOW)
+            if (checkRemember.isChecked && !isIncognito) SitePermissionManager.setState(this, rawOrigin, SitePermissionDatabase.TYPE_NOTIFICATION, SitePermissionDatabase.STATE_ALLOW)
             webView.evaluateJavascript("window._ClintResolvePermission('$safeId','granted')", null)
         }
         .create().also { applyStatusBarFlagToDialog(it) }.show()

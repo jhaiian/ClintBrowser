@@ -432,7 +432,7 @@
     <string name="data_saver_cache_first_title">Cache First</string>
     <string name="data_saver_cache_first_summary">Show saved pages first, fetch from network only if missing</string>
     <string name="data_saver_disable_autoplay_title">Disable Autoplay</string>
-    <string name="data_saver_disable_autoplay_summary">Videos and media will not play automatically</string>
+    <string name="data_saver_disable_autoplay_summary">Videos and media will not play automatically. May not work on all websites</string>
     <string name="menu_data_saver">Data Saver</string>
     <string name="about_webview_label">WEBVIEW</string>
     <string name="about_webview_info">%1$s\n%2$s\nv%3$s</string>
@@ -474,7 +474,7 @@
     <string name="history_items_deleted">Removed from history</string>
 
     <string name="site_settings">Site Settings</string>
-    <string name="site_settings_summary">Camera, microphone, location, and notifications</string>
+    <string name="site_settings_summary">Camera, microphone, location, notifications, and desktop mode</string>
     <string name="site_settings_camera">Camera</string>
     <string name="site_settings_camera_summary">Control camera access for websites</string>
     <string name="site_settings_mic">Microphone</string>

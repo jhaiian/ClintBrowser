@@ -30,6 +30,15 @@
         app:singleLineTitle="false" />
 
     <Preference
+        app:key="pref_site_settings"
+        app:title="@string/site_settings"
+        app:summary="@string/site_settings_summary"
+        app:icon="@drawable/ic_web_asset_24"
+        app:iconTint="?attr/colorPrimary"
+        app:fragment="com.jhaiian.clint.settings.fragments.SiteSettingsFragment"
+        app:singleLineTitle="false" />
+
+    <Preference
         app:key="pref_data_saver"
         app:title="@string/data_saver_title"
         app:summary="@string/data_saver_settings_summary"

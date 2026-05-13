@@ -1,49 +1,65 @@
-Clint — Customizable Layered Internet Navigation Tool — is a free, open-source Android browser that puts privacy control in your hands and lets you tailor the entire look and feel to your taste.
+Clint is a free, open-source Android browser with no dedicated backend infrastructure, built with privacy in mind. It features a clean, customizable interface that lets users tailor the look and feel to their preference. It blocks known trackers and analytics, completely isolates incognito sessions, and ships with zero Google telemetry built in. Every feature is designed around the philosophy that your browsing data belongs to you and only you.
 
-It blocks trackers and analytics at the network level, isolates incognito sessions completely, and ships with zero Google telemetry baked in. Every feature is built with the philosophy that your browsing data belongs to you and only you.
+Privacy & Security
 
-BROWSER CORE
-- Multi-tab browsing with a bottom sheet tab switcher, with clear separation of normal and incognito tabs.
-- Incognito mode — fully isolated session: no cookies, cache, or history saved.
-- Pull-to-refresh with smart detection for nested scrollable content.
-- Reader Mode — strip away clutter for a clean, readable article view.
-- Data Saver — block images and disable auto-play video to save bandwidth.
-- Speech-to-text support — voice input in address bar for hands-free searching.
-- Search suggestions — real-time predictions powered by DuckDuckGo API.
-- Material Design search bar — modern look and feel.
-- Configurable search bar visibility with Nested Scroll control.
-- Desktop Mode toggle with JavaScript injection.
-- Full-screen video and media support.
-- Intent handling — links open installed apps (YouTube, Spotify, etc.) with a prompt to choose between external app or staying in-app.
-- Enhanced intent support — more actions and better third-party app integration.
+· Blocks 16+ trackers and analytics domains
+· Zero Google telemetry
+· Third-party cookie blocking
+· Generic user-agent to reduce fingerprinting
+· HTTPS-Only Mode
+· Incognito mode with fully isolated sessions
 
-PRIVACY & SECURITY
-- Tracker blocking — 16+ known analytics and ad domains blocked at the network level.
-- Third-party cookie blocking — prevents cross-site tracking.
-- Generic User-Agent — reduces browser fingerprinting.
-- Incognito isolation — separate cookie, cache, and DNS context for each incognito tab.
-- Favicon privacy — favicons use DuckDuckGo's service, not Google.
+Browsing Features
 
-LOOK & FEEL
-- Three themes: Default (deep purple), Dark, and Light.
-- Eight accent colors including Material You (dynamic wallpaper colors).
-- Three surface intensity modes: Soft Tint, Strong Tint, and Pure Mode.
-- Address bar position: Top, Bottom, or Split.
-- Menu style: Pop-up or Bottom Sheet.
-- Approximately 52 distinct theme combinations.
+· Multi-tab browsing with bottom sheet tab switcher
+· Reader mode for distraction-free reading
+· Data saver mode (blocks images, disables auto-play video)
+· Speech-to-text in address bar
+· Search suggestions
+. Browser History
+· Pull-to-refresh
+· Desktop mode
+· Popup protection
+· Full-screen video support
 
-DOWNLOADS
-- Custom download engine built on OkHttp
-- Real-time progress with percentage and file size.
-- Install APK files directly from the downloads screen.
-- Download images inside the WebView.
+Customization.
 
-BOOKMARKS & HISTORY
-- Tabs display the website's own favicon.
-- Save any page with a single tap; bookmark icon updates live.
-- Redesigned bookmark UI with sorting by Title, Last Visit, or Date Added.
-- Search history — view, delete, and sort by Title or Last Visit.
-- All data stored locally using SQLite — never synced or uploaded.
+· 3 themes: Default purple, Dark, Light
+· 7 accent colors including Material You
+· 3 surface intensity levels
+· 3 address bar positions: Top, Bottom, Split
+· 2 menu styles: Pop-up or Bottom Sheet
+· Nested scroll controls
+· Hide status bar option
 
-SEARCH ENGINES
-- DuckDuckGo (default), Brave Search, Google (with privacy warning).
+Bookmarks
+
+· Save pages with one tap
+· Sort by title, last visit, or date added
+· Stored locally in SQLite
+
+Downloads & Uploads
+
+· Custom OkHttp download engine
+· Upload images, videos, audio, and recordings
+· Long-press any image to download
+· Real-time progress with cancel support
+· Install APKs directly from downloads screen
+· Automatic duplicate filename handling
+
+Site Settings
+
+· Manage camera, microphone, location, notifications
+· Configurable defaults: Ask first, Always deny, Always allow
+· Site exceptions
+
+Additional Features
+
+· Local crash log viewer
+· Intent handling for external apps (YouTube, Spotify, etc.)
+· Favicons.
+
+Requirements
+
+· Android 8.0 (API 26) or higher
+· Android System WebView

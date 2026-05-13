@@ -1,0 +1,7 @@
+Added: Site Settings (camera/mic/location/notifications) with defaults & exceptions. Desktop Mode per-site. Popup Protection. Speech-to-text. Search suggestions. History. Reader Mode. Data Saver (disable images, cache first, disable autoplay). Image & link hold listeners.
+
+Changed: Bookmark system migrated to SQLite with new UI. Material search bar.
+
+Removed: DoH, General settings section.
+
+Fixed various bugs

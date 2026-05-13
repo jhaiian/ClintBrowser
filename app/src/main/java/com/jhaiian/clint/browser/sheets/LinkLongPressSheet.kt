@@ -7,12 +7,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.preference.PreferenceManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.jhaiian.clint.R
+import com.jhaiian.clint.ui.FaviconCache
 
 class LinkLongPressSheet : BottomSheetDialogFragment() {
 
@@ -64,6 +66,18 @@ class LinkLongPressSheet : BottomSheetDialogFragment() {
 
         val url = arguments?.getString(ARG_URL) ?: ""
         val linkText = arguments?.getString(ARG_LINK_TEXT) ?: ""
+
+        val faviconView = view.findViewById<ImageView>(R.id.link_favicon)
+        val faviconUrl = FaviconCache.faviconUrlFor(url)
+        FaviconCache.load(requireContext(), faviconUrl) { bmp ->
+            if (!isAdded) return@load
+            if (bmp != null) {
+                faviconView.setImageBitmap(bmp)
+                faviconView.imageTintList = null
+            } else {
+                faviconView.setImageResource(R.drawable.ic_link_24)
+            }
+        }
 
         view.findViewById<TextView>(R.id.link_url_label).text = url
 

@@ -4,6 +4,269 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.0.3
+
+> This is the entire changelog from version 1.0.2 to 1.0.3.
+
+## ✨ Added
+
+### 🔐 Site Settings
+Added a new **Site Settings** section in Settings. From here, you can manage site permissions for:
+
+- Camera  
+- Microphone  
+- Location  
+- Notifications  
+
+Yes, websites now ask for permission for these features, and everything is configurable in Site Settings.
+
+Each permission now has configurable default behavior:
+
+- **Ask first** — Show a prompt when a site requests access (Default)  
+- **Always deny** — Block all site requests without prompting  
+- **Always allow** — Grant all site requests without prompting  
+
+#### 🌐 Site Exceptions
+
+Added **Site Exceptions** inside each permission setting.
+
+Exceptions override the default behavior for specific websites.
+
+If you allow or deny a permission and check **"Don't ask again"**, that website will automatically be added to Site Exceptions, where you can remove it later.
+
+---
+
+### 🖥️ Desktop Mode Settings
+Added **Desktop Mode settings** inside Site Settings.
+
+You can choose how Desktop Mode behaves per website:
+
+- **Save State (Default)** — Remember Desktop Mode for this site and automatically apply it on future visits  
+- **Do Not Save State** — Works like the old system. Desktop Mode is only applied for the current session and will not be remembered  
+
+#### 💾 Save State Behavior
+
+When **Save State** is enabled:
+
+- Every time you activate Desktop Mode on a website, it is saved locally using SQLite  
+- The website is added to a saved Desktop Mode list  
+- You can remove it either by disabling Desktop Mode on that website or removing it directly from the list  
+- Every time you revisit that website, Desktop Mode is automatically applied  
+- When you leave the website, it returns to mobile mode until you visit a saved site again  
+
+---
+
+### 🛡️ Popup Protection
+
+Added Popup Protection system.
+
+Whenever a website tries to open a new window or popup, an alert will appear asking if you want to allow it or not. This helps prevent ads and unwanted websites from opening new tabs or windows automatically.
+
+Ad blocker support will come eventually, but it is not a priority right now.
+
+---
+
+### 🔍 Search Suggestions
+- Powered by DuckDuckGo API (`https://duckduckgo.com/ac/?q=`)
+- Real-time query predictions
+- Improved search UX with instant suggestions
+
+---
+
+### 🎤 Speech-to-Text Support
+- Voice input in address bar
+- Hands-free searching capability
+- Enhanced accessibility features
+
+---
+
+### 📜 Search History Management
+- Access via Settings → Browser → History
+- Delete individual or all history entries
+- Sort history by Title (ascending/descending)
+- Sort history by Last Visit (ascending/descending)
+- Search from the list
+- Saved locally using SQLite
+- Added a **History** shortcut in both menus for quicker access.
+
+---
+
+### 🔗 Intent Support
+- Added more intent actions for better app integration
+- Enhanced deep linking capabilities
+- Improved third-party app communication
+
+---
+
+### 📖 Reader Mode
+- Added Reader Mode, available via the menu.
+- Reader Mode opens in content preview.
+
+---
+
+### 🗂️ Browser Fragment (New in Settings)
+- Added a new Browser Fragment in Settings.
+- Moved JavaScript setting from Privacy & Security to Browser Fragment.
+
+#### 💾 Resource Caching Modes
+You can now choose from 4 caching modes:
+
+- **Smart Cache** – Uses network with cached data as a fallback when available
+- **Cache First** – Shows saved pages first, fetches from network only if missing
+- **Always Fresh** – Always fetches from the network, never uses locally saved pages
+- **Offline Only** – Only loads saved pages, never connects to the network
+
+This is essentially WebView cache behavior with renamed modes.
+
+Offline Only is an advanced option and may rarely be needed, but it is available.
+
+---
+
+### 📡 Data Saver Fragment (New)
+- **Data Saver** – Master switch available in both menu popup and bottom sheet
+- **Disable Images** – Prevents all images from loading
+- **Cache First** – Shows saved pages first, fetches from network only if missing (overrides Resource Caching)
+- **Disable Autoplay** – Prevents videos and media from playing automatically
+
+---
+
+### 🖼️ Image Hold Listener in WebView
+
+Added an image hold listener in WebView. Basically, when you long-press an image on a webpage, a bottom sheet will appear with these options:
+
+- Open image in new tab  
+- Open image in incognito  
+- Preview image  
+- Copy image  
+- Download image  
+- Share image  
+
+#### 🔍 Preview Image Feature
+
+“Preview image” opens a bottom sheet WebView that shows a preview of the image or the webpage content.
+
+This image listener is also available inside the preview WebView. However, instead of **Preview image**, it is replaced with:
+
+- Open image in current tab  
+
+Everything else is self-explanatory.
+
+---
+
+### 🔗 Hold Link Listener
+
+Added a hold link listener, similar to the image hold feature but for links. When long-pressing a link, the following options appear:
+
+- Open in new tab  
+- Open in incognito  
+- Preview page  
+- Copy link address  
+- Copy link text  
+- Share link  
+
+#### 🌐 Preview Page Behavior
+
+Just like the image feature, in the preview WebView the **Preview page** option replaces **Open in current tab**.
+
+---
+
+### 📦 Updated About Page
+
+Updated the About page.
+
+- Added remaining libraries used in the About page  
+- Documented their usage across the app for better transparency
+
+---
+
+### ℹ️ WebView Version Information
+
+- WebView version information added to the About page
+- WebView version information included in crash handler reports
+- WebView version information added to the GitHub issue template
+
+All of this information is based on the WebView version installed on your device that helps run this app. This will help with bug identification, debugging, and general diagnostics.
+
+---
+
+## 🔄 Changed
+
+### 📚 Bookmark System
+- Complete overhaul of bookmark save system
+- Migrated to SQLite
+- Better performance and faster loading
+- Cleaner bookmark organization
+
+### 🎨 Bookmark UI
+- Complete UI redesign matching the new history page layout
+- New sorting options: Title, Last Visit, and Date Added
+- Ascending and descending order for all sort types
+- Search from the list
+- Consistent look and feel with history section
+
+### 🔍 Search Bar Component
+- Replaced standard EditText with Material Search Bar
+- Modern Material Design look and feel
+- Improved user interaction and visual feedback
+
+---
+
+## 🗑️ Removed
+
+### ❌ DNS over HTTPS (DoH)
+
+Completely removed DNS over HTTPS (DoH). It never really worked as intended and only intercepted requests made through OkHttp, but it didn’t actually affect web requests across the app.
+
+I originally planned to route it through a VPN-based implementation, but I changed my mind and decided to remove it completely. I don’t want any ghost features in this app.
+
+---
+
+### ⚙️ General Section from Settings
+
+- Removed **General** section from Settings  
+  - All settings previously inside General were redistributed into more relevant sections  
+  - General section was removed because it no longer had a clear purpose in the app  
+  - No future use case was defined, and it was contributing to unnecessary clutter  
+
+---
+
+## 🛠️ Fixes
+
+- Fixed a download error when handling `blob:` URLs  
+  - Error: `Failed: Expected URL scheme 'http' or 'https' but was 'blob'`
+
+- Fixed tab switcher floating issue
+
+- Fixed download issue caused by incorrect file extension detection  
+  - Now using the **SimpleMagic by j256** library to properly detect file MIME types from content bytes
+  
+- Fixed the intent receiver not clearing properly, causing it to retrigger every time the activity is recreated
+
+---
+
+## 🎨 UI Improvements
+
+- Hawkanized all directional arrow icons across the app  
+
+---
+
+## 📄 Legal Updates
+
+- Updated **Terms of Service**  
+- Updated **Privacy Policy**
+
+---
+
+## 🏗️ Project Structure Rework
+
+Completely reorganized the project structure.
+
+Moved all `.kt` files into their own proper folders and subfolders based on their purpose, responsibility, and feature area.
+
+This makes the codebase much cleaner, easier to navigate, and more maintainable for future development.
+
+---
+
 # v1.0.3-beta-4
 
 ## 🗑️ Removed DNS over HTTPS (DoH)

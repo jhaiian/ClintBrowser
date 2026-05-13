@@ -3,6 +3,7 @@ import com.jhaiian.clint.browser.MainActivity
 
 import android.Manifest
 import android.view.LayoutInflater
+import android.view.View
 import android.webkit.GeolocationPermissions
 import android.webkit.PermissionRequest
 import android.widget.CheckBox
@@ -30,12 +31,14 @@ internal fun MainActivity.isSystemPermissionGranted(permission: String): Boolean
 private fun MainActivity.showWebPermissionDialog(
     title: String,
     message: String,
+    isIncognito: Boolean,
     onAllow: (remember: Boolean) -> Unit,
     onDeny: (remember: Boolean) -> Unit
 ) {
     val view = LayoutInflater.from(this).inflate(R.layout.dialog_web_permission, null)
     view.findViewById<TextView>(R.id.tvWebPermissionMessage).text = message
     val checkRemember = view.findViewById<CheckBox>(R.id.checkWebPermissionRemember)
+    if (isIncognito) checkRemember.visibility = View.GONE
     MaterialAlertDialogBuilder(this, getDialogTheme())
         .setTitle(title)
         .setView(view)
@@ -58,31 +61,37 @@ internal fun MainActivity.onWebPermissionRequest(request: PermissionRequest) {
         return
     }
 
+    val isIncognito = tabManager.activeTab?.isIncognito == true
     val origin = originFromRequest(request)
 
     if (wantsCamera && !wantsMic) {
-        val stored = SitePermissionManager.getState(this, origin, SitePermissionDatabase.TYPE_CAMERA)
-        if (stored == SitePermissionDatabase.STATE_ALLOW) {
-            if (isSystemPermissionGranted(Manifest.permission.CAMERA)) {
-                request.grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))
-            } else {
-                pendingWebPermissionRequest = request
-                webCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        if (!isIncognito) {
+            val stored = SitePermissionManager.getState(this, origin, SitePermissionDatabase.TYPE_CAMERA)
+            if (stored == SitePermissionDatabase.STATE_ALLOW) {
+                if (isSystemPermissionGranted(Manifest.permission.CAMERA)) {
+                    request.grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))
+                } else {
+                    pendingWebPermissionRequest = request
+                    webCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                }
+                return
             }
-            return
-        }
-        if (stored == SitePermissionDatabase.STATE_DENY) {
-            request.deny()
-            return
+            if (stored == SitePermissionDatabase.STATE_DENY) {
+                request.deny()
+                return
+            }
         }
         if (isSystemPermissionGranted(Manifest.permission.CAMERA)) {
-            val globalDefault = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString("site_perm_default_${SitePermissionDatabase.TYPE_CAMERA}", SitePermissionActivity.PREF_VALUE_ASK) ?: SitePermissionActivity.PREF_VALUE_ASK
-            when (globalDefault) {
-                SitePermissionActivity.PREF_VALUE_ALLOW -> request.grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))
-                SitePermissionActivity.PREF_VALUE_DENY -> request.deny()
-                else -> showWebCameraDialog(request)
+            if (!isIncognito) {
+                val globalDefault = PreferenceManager.getDefaultSharedPreferences(this)
+                    .getString("site_perm_default_${SitePermissionDatabase.TYPE_CAMERA}", SitePermissionActivity.PREF_VALUE_ASK) ?: SitePermissionActivity.PREF_VALUE_ASK
+                when (globalDefault) {
+                    SitePermissionActivity.PREF_VALUE_ALLOW -> { request.grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE)); return }
+                    SitePermissionActivity.PREF_VALUE_DENY -> { request.deny(); return }
+                    else -> {}
+                }
             }
+            showWebCameraDialog(request)
         } else {
             pendingWebPermissionRequest = request
             val needsRationale = shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)
@@ -106,28 +115,33 @@ internal fun MainActivity.onWebPermissionRequest(request: PermissionRequest) {
     }
 
     if (wantsMic && !wantsCamera) {
-        val stored = SitePermissionManager.getState(this, origin, SitePermissionDatabase.TYPE_MIC)
-        if (stored == SitePermissionDatabase.STATE_ALLOW) {
-            if (isSystemPermissionGranted(Manifest.permission.RECORD_AUDIO)) {
-                request.grant(arrayOf(PermissionRequest.RESOURCE_AUDIO_CAPTURE))
-            } else {
-                pendingWebMicPermissionRequest = request
-                webMicrophonePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        if (!isIncognito) {
+            val stored = SitePermissionManager.getState(this, origin, SitePermissionDatabase.TYPE_MIC)
+            if (stored == SitePermissionDatabase.STATE_ALLOW) {
+                if (isSystemPermissionGranted(Manifest.permission.RECORD_AUDIO)) {
+                    request.grant(arrayOf(PermissionRequest.RESOURCE_AUDIO_CAPTURE))
+                } else {
+                    pendingWebMicPermissionRequest = request
+                    webMicrophonePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                }
+                return
             }
-            return
-        }
-        if (stored == SitePermissionDatabase.STATE_DENY) {
-            request.deny()
-            return
+            if (stored == SitePermissionDatabase.STATE_DENY) {
+                request.deny()
+                return
+            }
         }
         if (isSystemPermissionGranted(Manifest.permission.RECORD_AUDIO)) {
-            val globalDefault = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString("site_perm_default_${SitePermissionDatabase.TYPE_MIC}", SitePermissionActivity.PREF_VALUE_ASK) ?: SitePermissionActivity.PREF_VALUE_ASK
-            when (globalDefault) {
-                SitePermissionActivity.PREF_VALUE_ALLOW -> request.grant(arrayOf(PermissionRequest.RESOURCE_AUDIO_CAPTURE))
-                SitePermissionActivity.PREF_VALUE_DENY -> request.deny()
-                else -> showWebMicDialog(request)
+            if (!isIncognito) {
+                val globalDefault = PreferenceManager.getDefaultSharedPreferences(this)
+                    .getString("site_perm_default_${SitePermissionDatabase.TYPE_MIC}", SitePermissionActivity.PREF_VALUE_ASK) ?: SitePermissionActivity.PREF_VALUE_ASK
+                when (globalDefault) {
+                    SitePermissionActivity.PREF_VALUE_ALLOW -> { request.grant(arrayOf(PermissionRequest.RESOURCE_AUDIO_CAPTURE)); return }
+                    SitePermissionActivity.PREF_VALUE_DENY -> { request.deny(); return }
+                    else -> {}
+                }
             }
+            showWebMicDialog(request)
         } else {
             pendingWebMicPermissionRequest = request
             val needsRationale = shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO)
@@ -150,16 +164,18 @@ internal fun MainActivity.onWebPermissionRequest(request: PermissionRequest) {
         return
     }
 
-    val cameraStored = SitePermissionManager.getState(this, origin, SitePermissionDatabase.TYPE_CAMERA)
-    val micStored = SitePermissionManager.getState(this, origin, SitePermissionDatabase.TYPE_MIC)
-    if (cameraStored != null && micStored != null) {
-        val toGrant = mutableListOf<String>()
-        if (cameraStored == SitePermissionDatabase.STATE_ALLOW && isSystemPermissionGranted(Manifest.permission.CAMERA))
-            toGrant.add(PermissionRequest.RESOURCE_VIDEO_CAPTURE)
-        if (micStored == SitePermissionDatabase.STATE_ALLOW && isSystemPermissionGranted(Manifest.permission.RECORD_AUDIO))
-            toGrant.add(PermissionRequest.RESOURCE_AUDIO_CAPTURE)
-        if (toGrant.isEmpty()) request.deny() else request.grant(toGrant.toTypedArray())
-        return
+    if (!isIncognito) {
+        val cameraStored = SitePermissionManager.getState(this, origin, SitePermissionDatabase.TYPE_CAMERA)
+        val micStored = SitePermissionManager.getState(this, origin, SitePermissionDatabase.TYPE_MIC)
+        if (cameraStored != null && micStored != null) {
+            val toGrant = mutableListOf<String>()
+            if (cameraStored == SitePermissionDatabase.STATE_ALLOW && isSystemPermissionGranted(Manifest.permission.CAMERA))
+                toGrant.add(PermissionRequest.RESOURCE_VIDEO_CAPTURE)
+            if (micStored == SitePermissionDatabase.STATE_ALLOW && isSystemPermissionGranted(Manifest.permission.RECORD_AUDIO))
+                toGrant.add(PermissionRequest.RESOURCE_AUDIO_CAPTURE)
+            if (toGrant.isEmpty()) request.deny() else request.grant(toGrant.toTypedArray())
+            return
+        }
     }
 
     val cameraOk = isSystemPermissionGranted(Manifest.permission.CAMERA)
@@ -172,53 +188,59 @@ internal fun MainActivity.onWebPermissionRequest(request: PermissionRequest) {
 }
 
 internal fun MainActivity.showWebCameraDialog(request: PermissionRequest) {
+    val isIncognito = tabManager.activeTab?.isIncognito == true
     val rawOrigin = originFromRequest(request)
     val origin = rawOrigin.ifEmpty { getString(R.string.camera_web_request_origin_unknown) }
     showWebPermissionDialog(
         title = getString(R.string.camera_web_request_title),
         message = getString(R.string.camera_web_request_message, origin),
+        isIncognito = isIncognito,
         onAllow = { remember ->
-            if (remember) SitePermissionManager.setState(this, rawOrigin, SitePermissionDatabase.TYPE_CAMERA, SitePermissionDatabase.STATE_ALLOW)
+            if (remember && !isIncognito) SitePermissionManager.setState(this, rawOrigin, SitePermissionDatabase.TYPE_CAMERA, SitePermissionDatabase.STATE_ALLOW)
             request.grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE))
         },
         onDeny = { remember ->
-            if (remember) SitePermissionManager.setState(this, rawOrigin, SitePermissionDatabase.TYPE_CAMERA, SitePermissionDatabase.STATE_DENY)
+            if (remember && !isIncognito) SitePermissionManager.setState(this, rawOrigin, SitePermissionDatabase.TYPE_CAMERA, SitePermissionDatabase.STATE_DENY)
             request.deny()
         }
     )
 }
 
 internal fun MainActivity.showWebMicDialog(request: PermissionRequest) {
+    val isIncognito = tabManager.activeTab?.isIncognito == true
     val rawOrigin = originFromRequest(request)
     val origin = rawOrigin.ifEmpty { getString(R.string.mic_web_request_origin_unknown) }
     showWebPermissionDialog(
         title = getString(R.string.mic_web_request_title),
         message = getString(R.string.mic_web_request_message, origin),
+        isIncognito = isIncognito,
         onAllow = { remember ->
-            if (remember) SitePermissionManager.setState(this, rawOrigin, SitePermissionDatabase.TYPE_MIC, SitePermissionDatabase.STATE_ALLOW)
+            if (remember && !isIncognito) SitePermissionManager.setState(this, rawOrigin, SitePermissionDatabase.TYPE_MIC, SitePermissionDatabase.STATE_ALLOW)
             request.grant(arrayOf(PermissionRequest.RESOURCE_AUDIO_CAPTURE))
         },
         onDeny = { remember ->
-            if (remember) SitePermissionManager.setState(this, rawOrigin, SitePermissionDatabase.TYPE_MIC, SitePermissionDatabase.STATE_DENY)
+            if (remember && !isIncognito) SitePermissionManager.setState(this, rawOrigin, SitePermissionDatabase.TYPE_MIC, SitePermissionDatabase.STATE_DENY)
             request.deny()
         }
     )
 }
 
 private fun MainActivity.showWebCameraAndMicDialog(request: PermissionRequest, rawOrigin: String) {
+    val isIncognito = tabManager.activeTab?.isIncognito == true
     val origin = rawOrigin.ifEmpty { getString(R.string.camera_web_request_origin_unknown) }
     showWebPermissionDialog(
         title = getString(R.string.camera_web_request_title),
         message = getString(R.string.camera_web_request_message, origin),
+        isIncognito = isIncognito,
         onAllow = { remember ->
-            if (remember) {
+            if (remember && !isIncognito) {
                 SitePermissionManager.setState(this, rawOrigin, SitePermissionDatabase.TYPE_CAMERA, SitePermissionDatabase.STATE_ALLOW)
                 SitePermissionManager.setState(this, rawOrigin, SitePermissionDatabase.TYPE_MIC, SitePermissionDatabase.STATE_ALLOW)
             }
             request.grant(arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE, PermissionRequest.RESOURCE_AUDIO_CAPTURE))
         },
         onDeny = { remember ->
-            if (remember) {
+            if (remember && !isIncognito) {
                 SitePermissionManager.setState(this, rawOrigin, SitePermissionDatabase.TYPE_CAMERA, SitePermissionDatabase.STATE_DENY)
                 SitePermissionManager.setState(this, rawOrigin, SitePermissionDatabase.TYPE_MIC, SitePermissionDatabase.STATE_DENY)
             }
@@ -228,34 +250,42 @@ private fun MainActivity.showWebCameraAndMicDialog(request: PermissionRequest, r
 }
 
 internal fun MainActivity.onWebGeolocationRequest(origin: String, callback: GeolocationPermissions.Callback) {
+    val isIncognito = tabManager.activeTab?.isIncognito == true
     val rawOrigin = originFromString(origin)
-    val stored = SitePermissionManager.getState(this, rawOrigin, SitePermissionDatabase.TYPE_LOCATION)
-    if (stored == SitePermissionDatabase.STATE_ALLOW) {
-        if (isSystemPermissionGranted(Manifest.permission.ACCESS_FINE_LOCATION) ||
-            isSystemPermissionGranted(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-            callback.invoke(origin, true, false)
-        } else {
-            pendingWebGeoOrigin = origin
-            pendingWebGeoCallback = callback
-            webLocationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+
+    if (!isIncognito) {
+        val stored = SitePermissionManager.getState(this, rawOrigin, SitePermissionDatabase.TYPE_LOCATION)
+        if (stored == SitePermissionDatabase.STATE_ALLOW) {
+            if (isSystemPermissionGranted(Manifest.permission.ACCESS_FINE_LOCATION) ||
+                isSystemPermissionGranted(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                callback.invoke(origin, true, false)
+            } else {
+                pendingWebGeoOrigin = origin
+                pendingWebGeoCallback = callback
+                webLocationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
+            return
         }
-        return
+        if (stored == SitePermissionDatabase.STATE_DENY) {
+            callback.invoke(origin, false, false)
+            return
+        }
     }
-    if (stored == SitePermissionDatabase.STATE_DENY) {
-        callback.invoke(origin, false, false)
-        return
-    }
+
     val locationGranted = isSystemPermissionGranted(Manifest.permission.ACCESS_FINE_LOCATION) ||
         isSystemPermissionGranted(Manifest.permission.ACCESS_COARSE_LOCATION)
     if (locationGranted) {
+        if (!isIncognito) {
             val globalDefault = PreferenceManager.getDefaultSharedPreferences(this)
                 .getString("site_perm_default_${SitePermissionDatabase.TYPE_LOCATION}", SitePermissionActivity.PREF_VALUE_ASK) ?: SitePermissionActivity.PREF_VALUE_ASK
             when (globalDefault) {
-                SitePermissionActivity.PREF_VALUE_ALLOW -> callback.invoke(origin, true, false)
-                SitePermissionActivity.PREF_VALUE_DENY -> callback.invoke(origin, false, false)
-                else -> showWebLocationDialog(origin, callback)
+                SitePermissionActivity.PREF_VALUE_ALLOW -> { callback.invoke(origin, true, false); return }
+                SitePermissionActivity.PREF_VALUE_DENY -> { callback.invoke(origin, false, false); return }
+                else -> {}
             }
-        } else {
+        }
+        showWebLocationDialog(origin, callback)
+    } else {
         pendingWebGeoOrigin = origin
         pendingWebGeoCallback = callback
         val needsRationale = shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -279,17 +309,19 @@ internal fun MainActivity.onWebGeolocationRequest(origin: String, callback: Geol
 }
 
 internal fun MainActivity.showWebLocationDialog(origin: String, callback: GeolocationPermissions.Callback) {
+    val isIncognito = tabManager.activeTab?.isIncognito == true
     val rawOrigin = originFromString(origin)
     val displayOrigin = rawOrigin.ifEmpty { getString(R.string.location_web_request_origin_unknown) }
     showWebPermissionDialog(
         title = getString(R.string.location_web_request_title),
         message = getString(R.string.location_web_request_message, displayOrigin),
+        isIncognito = isIncognito,
         onAllow = { remember ->
-            if (remember) SitePermissionManager.setState(this, rawOrigin, SitePermissionDatabase.TYPE_LOCATION, SitePermissionDatabase.STATE_ALLOW)
+            if (remember && !isIncognito) SitePermissionManager.setState(this, rawOrigin, SitePermissionDatabase.TYPE_LOCATION, SitePermissionDatabase.STATE_ALLOW)
             callback.invoke(origin, true, false)
         },
         onDeny = { remember ->
-            if (remember) SitePermissionManager.setState(this, rawOrigin, SitePermissionDatabase.TYPE_LOCATION, SitePermissionDatabase.STATE_DENY)
+            if (remember && !isIncognito) SitePermissionManager.setState(this, rawOrigin, SitePermissionDatabase.TYPE_LOCATION, SitePermissionDatabase.STATE_DENY)
             callback.invoke(origin, false, false)
         }
     )
