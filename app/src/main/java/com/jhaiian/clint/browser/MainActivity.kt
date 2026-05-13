@@ -489,6 +489,26 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
 
         desktopModeHost = if (isDesktopMode) host else null
 
+        if (host != null && tabManager.activeTab?.isIncognito != true) {
+            val shouldSave = prefs.getString(
+                com.jhaiian.clint.settings.desktopmode.DesktopModeActivity.PREF_DESKTOP_MODE_SAVE_STATE,
+                com.jhaiian.clint.settings.desktopmode.DesktopModeActivity.VALUE_SAVE_STATE
+            ) == com.jhaiian.clint.settings.desktopmode.DesktopModeActivity.VALUE_SAVE_STATE
+
+            if (isDesktopMode && shouldSave) {
+                com.jhaiian.clint.settings.sitepermissions.SitePermissionManager.setState(
+                    this, host,
+                    com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.TYPE_DESKTOP_MODE,
+                    com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.STATE_ALLOW
+                )
+            } else if (!isDesktopMode && shouldSave) {
+                com.jhaiian.clint.settings.sitepermissions.SitePermissionManager.deleteEntry(
+                    this, host,
+                    com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.TYPE_DESKTOP_MODE
+                )
+            }
+        }
+
         tabManager.tabs.forEach { tab ->
             tab.webView.settings.userAgentString = buildUserAgent()
             applyUserAgentMetadata(tab.webView)

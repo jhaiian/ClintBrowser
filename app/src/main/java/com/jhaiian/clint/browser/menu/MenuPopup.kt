@@ -203,47 +203,9 @@ private fun MainActivity.showPopupMenu(anchor: View) {
         onMenuReaderMode()
     }
     popupView.findViewById<View>(R.id.menu_desktop_mode).setOnClickListener {
-        isDesktopMode = !isDesktopMode
-        desktopCheck.alpha = if (isDesktopMode) 1f else 0f
-
-        val wv = tabManager.activeTab?.webView
-        val currentWebUrl = wv?.url
-        val host = currentWebUrl?.let { android.net.Uri.parse(it).host }
-
-        desktopModeHost = if (isDesktopMode) host else null
-
-        if (host != null && tabManager.activeTab?.isIncognito != true) {
-            val shouldSave = prefs.getString(
-                com.jhaiian.clint.settings.desktopmode.DesktopModeActivity.PREF_DESKTOP_MODE_SAVE_STATE,
-                com.jhaiian.clint.settings.desktopmode.DesktopModeActivity.VALUE_SAVE_STATE
-            ) == com.jhaiian.clint.settings.desktopmode.DesktopModeActivity.VALUE_SAVE_STATE
-
-            if (isDesktopMode && shouldSave) {
-                com.jhaiian.clint.settings.sitepermissions.SitePermissionManager.setState(
-                    this, host,
-                    com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.TYPE_DESKTOP_MODE,
-                    com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.STATE_ALLOW
-                )
-            } else if (!isDesktopMode && shouldSave) {
-                com.jhaiian.clint.settings.sitepermissions.SitePermissionManager.deleteEntry(
-                    this, host,
-                    com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.TYPE_DESKTOP_MODE
-                )
-            }
-        }
-
-        tabManager.tabs.forEach { tab ->
-            tab.webView.settings.userAgentString = buildUserAgent()
-            applyUserAgentMetadata(tab.webView)
-            if (isDesktopMode) addDesktopScript(tab) else removeDesktopScript(tab)
-        }
-        if (wv != null && !currentWebUrl.isNullOrEmpty()) {
-            val headers = buildDesktopHeaders()
-            if (headers != null) wv.loadUrl(currentWebUrl, headers) else wv.reload()
-        } else {
-            wv?.reload()
-        }
         popup.dismiss()
+        onMenuDesktopMode()
+        desktopCheck.alpha = if (isDesktopMode) 1f else 0f
     }
 
     val dataSaverCheck = popupView.findViewById<ImageView>(R.id.data_saver_check)
