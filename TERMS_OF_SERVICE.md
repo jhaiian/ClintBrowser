@@ -1,50 +1,92 @@
 # Terms of Service for Clint Browser
 
-*Last updated: May 11, 2026*
+*Last updated: May 16, 2026*
 
-## Acceptance of Terms
+## 1. What These Terms Cover
 
-By downloading, installing, or using Clint Browser, you agree to these Terms of Service. If you do not agree, please uninstall the app and discontinue use.
+These Terms of Service ("Terms") describe the legal relationship between you and the developer of Clint Browser ("we", "us", or "the developer"). By using Clint Browser, you agree to these Terms.
 
-## Description of Service
+If you do not agree, simply uninstall the app.
 
-Clint is a free, open-source Android browser with no dedicated backend infrastructure, built with privacy in mind. It features a clean, customizable interface that lets users tailor the look and feel to their preference. It blocks known trackers and analytics, completely isolates incognito sessions, and ships with zero Google telemetry built in. Every feature is designed around the philosophy that your browsing data belongs to you and only you.
+## 2. What Clint Browser Is
 
-## Acceptable Use
+Clint Browser is a **free, open‑source Android browser** built around privacy. Key facts:
 
-You agree to use Clint Browser only for lawful purposes. You may not use the app to:
+- No backend servers – everything runs on your device.
+- Blocks trackers and analytics by default.
+- Incognito sessions are completely isolated.
+- Zero Google telemetry, zero data collection.
+- You can view, modify, or share the source code under the GPL‑v3 license.
 
-- Access, distribute, or facilitate illegal content
-- Engage in unauthorized access to systems or networks
-- Distribute malware or harmful software
-- Violate the rights of others including intellectual property rights
+Your browsing data belongs to you. The developer never sees it.
 
-## Intellectual Property: Open Source License and Trademarks
+## 3. Open Source License (GPL‑v3)
 
-**Open Source License**
+The source code of Clint Browser is licensed under the **GNU General Public License version 3**. You are free to:
 
-Clint Browser is licensed under the [GNU General Public License v3.0 (GPL-3.0)](https://github.com/jhaiian/ClintBrowser/blob/main/LICENSE). You are free to view, modify, and distribute the source code in accordance with that license. The full license text is also available at [gnu.org/licenses/gpl-3.0.html](https://www.gnu.org/licenses/gpl-3.0.html) and within the app itself.
+- Use the app for any purpose.
+- Study how it works.
+- Modify the code.
+- Share copies with anyone.
+- Distribute your modified versions (as long as you also share your changes under GPL‑v3).
 
-**Trademarks and Branding Assets**
+A copy of the license is available at [gnu.org/licenses/gpl-3.0.html](https://www.gnu.org/licenses/gpl-3.0.html) and inside the app's repository.
 
-The names "Clint" and "Clint Browser," the logo, screenshots, and all related branding assets are **trademarks** or **proprietary assets** of the author and are **not licensed under the GPL**. Use of these assets requires explicit written permission from the author. You may not modify, redistribute, or use these assets in derivative works without permission.
+## 4. Trademarks and Branding (Not Open Source)
 
-## No Warranty
+The name **"Clint Browser"**, the word "Clint", the logo, icons, screenshots, and all related branding assets are **trademarks and proprietary assets** of the developer. They are **not** covered by the GPL.
 
-Clint Browser is provided "as is" without warranty of any kind, express or implied. The developer makes no guarantees regarding availability, reliability, accuracy, or fitness for a particular purpose. Your use of the app is entirely at your own risk.
+You may **not** use, copy, modify, or redistribute these assets without explicit written permission. For example, you cannot create a modified version of Clint Browser and still call it "Clint Browser" or use the original logo. Contact `jhaiianbetter@duck.com` for permission.
 
-## Limitation of Liability
+## 5. Privacy – No Data Collection
 
-To the maximum extent permitted by law, the developer of Clint Browser shall not be liable for any direct, indirect, incidental, or consequential damages arising from your use of the app, including but not limited to data loss, security breaches originating from websites you visit, or issues caused by third-party services such as your chosen search engine or DoH provider.
+Clint Browser does **not** collect any personal information, browsing history, usage statistics, crash reports, or telemetry of any kind. The app has no analytics, no tracking pixels, no backend servers.
 
-## Third-Party Content
+However, websites you visit may set cookies or collect data according to their own privacy policies. Those websites are not under our control.
 
-Clint Browser is a browser — it renders content from websites and services that are entirely outside the developer's control. The developer is not responsible for the content, accuracy, legality, or privacy practices of any website accessed through the app.
+## 6. No Warranty
 
-## Changes to These Terms
+Clint Browser is provided **"as is"** and **"as available"**. To the maximum extent permitted by law, the developer disclaims all warranties, express or implied, including:
 
-These terms may be updated from time to time. Any changes will be reflected in this document on the GitHub repository. The app always links to the latest version.
+- Merchantability
+- Fitness for a particular purpose
+- Non‑infringement
+- Uninterrupted or error‑free operation
 
-## Contact
+You use the app entirely at your own risk.
 
-For questions regarding these Terms of Service, contact the developer at `jhaiianbetter@duck.com` or through the community Discord at [discord.gg/4kUe4yPQ32](https://discord.gg/4kUe4yPQ32).
+## 7. Limitation of Liability
+
+In no event shall the developer be liable for any damages arising from your use of Clint Browser, including but not limited to:
+
+- Data loss or corruption
+- Device damage
+- Security breaches caused by websites you visit
+- Issues with third‑party services (such as search engines)
+- Any indirect, incidental, or consequential damages
+
+Some jurisdictions do not allow certain liability exclusions. In those cases, this limitation applies to the fullest extent permitted by law.
+
+## 8. Third‑Party Content
+
+Clint Browser is a **browser** – it renders content from websites, search engines, and online services that are completely outside the developer's control. We do not:
+
+- Endorse or guarantee the accuracy, legality, or safety of any website you visit
+- Take responsibility for what you find on the internet
+
+You are responsible for your own browsing choices.
+
+## 9. Changes to These Terms
+
+These Terms may be updated occasionally. Changes will be posted on the GitHub repository. The app will always link to the latest version. If you continue using Clint Browser after an update, you accept the new Terms.
+
+## 10. Governing Law
+
+These Terms are governed by the laws of the Philippines. If you live elsewhere, your local consumer rights may also apply.
+
+## 11. Contact
+
+For questions or permission requests:
+
+- Email: `jhaiianbetter@duck.com`
+- Discord: [discord.gg/4kUe4yPQ32](https://discord.gg/4kUe4yPQ32)
