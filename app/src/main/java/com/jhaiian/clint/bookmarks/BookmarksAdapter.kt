@@ -29,6 +29,7 @@ class BookmarksAdapter(
 
     private val allItems = mutableListOf<Bookmark>()
     private var filterQuery = ""
+    private val selectedKeys = mutableSetOf<String>()
     private val selectedPositions = mutableSetOf<Int>()
 
     init {
@@ -38,7 +39,7 @@ class BookmarksAdapter(
     var isInSelectionMode = false
         private set
 
-    val selectedCount get() = selectedPositions.size
+    val selectedCount get() = selectedKeys.size
 
     override fun getSectionLetter(position: Int): String {
         if (position !in items.indices) return "#"
@@ -114,11 +115,13 @@ class BookmarksAdapter(
             val pos = holder.bindingAdapterPosition
             if (pos == RecyclerView.NO_ID.toInt()) return@setOnLongClickListener true
             if (!isInSelectionMode) isInSelectionMode = true
-            if (!selectedPositions.contains(pos)) {
+            val key = items[pos].url
+            if (key !in selectedKeys) {
+                selectedKeys.add(key)
                 selectedPositions.add(pos)
                 notifyItemChanged(pos)
             }
-            onSelectionChanged(selectedPositions.size)
+            onSelectionChanged(selectedKeys.size)
             true
         }
     }
@@ -154,7 +157,7 @@ class BookmarksAdapter(
         val density = holder.itemView.context.resources.displayMetrics.density
         val cornerRadius = 14f * density
         val cardColor = MaterialColors.getColor(holder.itemView, R.attr.clintCardBackground)
-        val primaryColor = MaterialColors.getColor(holder.itemView, com.google.android.material.R.attr.colorPrimary)
+        val primaryColor = MaterialColors.getColor(holder.itemView, androidx.appcompat.R.attr.colorPrimary)
         val rippleColor = ColorUtils.setAlphaComponent(primaryColor, 52)
         val bgColor = if (isSelected) ColorUtils.blendARGB(cardColor, primaryColor, 0.22f) else cardColor
         val bgDrawable = GradientDrawable().apply {
@@ -171,28 +174,39 @@ class BookmarksAdapter(
     }
 
     private fun toggleSelection(position: Int) {
-        if (selectedPositions.contains(position)) selectedPositions.remove(position)
-        else selectedPositions.add(position)
+        val key = items[position].url
+        if (key in selectedKeys) {
+            selectedKeys.remove(key)
+            selectedPositions.remove(position)
+        } else {
+            selectedKeys.add(key)
+            selectedPositions.add(position)
+        }
         notifyItemChanged(position)
-        onSelectionChanged(selectedPositions.size)
+        onSelectionChanged(selectedKeys.size)
     }
 
     fun selectAll() {
+        items.forEach { selectedKeys.add(it.url) }
         selectedPositions.clear()
-        for (i in items.indices) selectedPositions.add(i)
+        items.indices.forEach { selectedPositions.add(it) }
         notifyItemRangeChanged(0, items.size)
-        onSelectionChanged(selectedPositions.size)
+        onSelectionChanged(selectedKeys.size)
     }
 
     fun invertSelection() {
-        val newSel = (items.indices).filter { it !in selectedPositions }.toMutableSet()
+        val toAdd = items.indices.filter { items[it].url !in selectedKeys }
+        val toRemove = items.indices.filter { items[it].url in selectedKeys }
+        toRemove.forEach { selectedKeys.remove(items[it].url) }
+        toAdd.forEach { selectedKeys.add(items[it].url) }
         selectedPositions.clear()
-        selectedPositions.addAll(newSel)
+        items.forEachIndexed { i, item -> if (item.url in selectedKeys) selectedPositions.add(i) }
         notifyItemRangeChanged(0, items.size)
-        onSelectionChanged(selectedPositions.size)
+        onSelectionChanged(selectedKeys.size)
     }
 
     fun deselectAll() {
+        selectedKeys.clear()
         selectedPositions.clear()
         notifyItemRangeChanged(0, items.size)
         onSelectionChanged(0)
@@ -200,28 +214,29 @@ class BookmarksAdapter(
 
     fun exitSelectionMode() {
         isInSelectionMode = false
+        selectedKeys.clear()
         selectedPositions.clear()
         notifyItemRangeChanged(0, items.size)
         onSelectionChanged(0)
     }
 
     fun getSelectedItems(): List<Bookmark> {
-        return selectedPositions.sorted().map { items[it] }
+        return allItems.filter { it.url in selectedKeys }
     }
 
     fun removeSelectedItems() {
-        val toRemoveUrls = selectedPositions.sorted().map { items[it].url }.toSet()
-        items.removeAll { it.url in toRemoveUrls }
-        allItems.removeAll { it.url in toRemoveUrls }
+        allItems.removeAll { it.url in selectedKeys }
+        selectedKeys.clear()
         selectedPositions.clear()
         isInSelectionMode = false
-        notifyDataSetChanged()
+        applyFilter()
         onSelectionChanged(0)
     }
 
     fun updateItems(newItems: MutableList<Bookmark>) {
         allItems.clear()
         allItems.addAll(newItems)
+        selectedKeys.clear()
         selectedPositions.clear()
         isInSelectionMode = false
         applyFilter()
@@ -229,8 +244,6 @@ class BookmarksAdapter(
 
     fun setFilter(query: String) {
         filterQuery = query
-        selectedPositions.clear()
-        isInSelectionMode = false
         applyFilter()
     }
 
@@ -244,6 +257,8 @@ class BookmarksAdapter(
                 it.title.lowercase().contains(q) || it.url.lowercase().contains(q)
             }
         }
+        selectedPositions.clear()
+        items.forEachIndexed { i, item -> if (item.url in selectedKeys) selectedPositions.add(i) }
         notifyDataSetChanged()
     }
 }

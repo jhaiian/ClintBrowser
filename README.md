@@ -208,19 +208,6 @@ Download the latest APK from the [Releases](https://github.com/jhaiian/ClintBrow
 
 1 download = 1 petition for Hawkeye Season 2
 
-Choose the APK that matches your device architecture:
-
-| APK | Devices |
-|---|---|
-| `arm64‑v8a` | Most modern Android phones (recommended) |
-| `armeabi‑v7a` | Older 32‑bit ARM devices |
-| `x86_64` | x86 64‑bit devices and emulators |
-| `x86` | x86 32‑bit devices and emulators |
-| `universal` | All architectures (larger file size) |
-
-Not sure which one to use? Grab the **Universal** APK.  
-*(At the moment there's no native library, so all APKs are functionally identical — the workflow is already in place for future updates.)*
-
 ---
 
 ## Contributing

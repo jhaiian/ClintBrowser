@@ -173,8 +173,6 @@ class SitePermissionActivity : ClintActivity() {
     }
 
     private fun prefKeyForType(type: String) = "site_perm_default_$type"
-    private fun prefSortKey() = "site_perm_sort_key_$permissionType"
-    private fun prefSortOrder() = "site_perm_sort_order_$permissionType"
 
     private fun setupCardSelection() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
@@ -212,15 +210,10 @@ class SitePermissionActivity : ClintActivity() {
     private fun setupRecycler() {
         adapter = SitePermissionAdapter(onSelectionChanged = { count -> updateSelectionUi(count) })
 
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val savedSortKey = prefs.getString(prefSortKey(), SitePermissionAdapter.SortKey.DATE_ADDED.name)
-        val savedSortOrder = prefs.getString(prefSortOrder(), SitePermissionAdapter.SortOrder.DESCENDING.name)
-        adapter.sortKey = SitePermissionAdapter.SortKey.valueOf(savedSortKey ?: SitePermissionAdapter.SortKey.DATE_ADDED.name)
-        adapter.sortOrder = SitePermissionAdapter.SortOrder.valueOf(savedSortOrder ?: SitePermissionAdapter.SortOrder.DESCENDING.name)
-
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.adapter = adapter
         fastScroller.attach(recycler, adapter)
+        fastScroller.isInteractive = adapter.sortKey == SitePermissionAdapter.SortKey.TITLE
         refreshList()
     }
 
@@ -256,10 +249,17 @@ class SitePermissionActivity : ClintActivity() {
         if (inSelectionMode) {
             toolbarTitle.text = getString(R.string.history_selected_count, selectedCount)
             btnBack.setImageResource(R.drawable.ic_close_24)
+            btnSearch.visibility = if (isSearchMode) View.GONE else View.VISIBLE
         } else {
             toolbarTitle.text = titleForType(permissionType)
             btnBack.setImageResource(R.drawable.ic_arrow_back_24)
-            if (!isSearchMode) fab.visibility = View.VISIBLE
+            if (!isSearchMode) {
+                fab.visibility = View.VISIBLE
+                if (::adapter.isInitialized) {
+                    fastScroller.isInteractive = adapter.sortKey == SitePermissionAdapter.SortKey.TITLE
+                    fastScroller.attach(recycler, adapter)
+                }
+            }
         }
 
         updateEmptyState()
@@ -277,6 +277,7 @@ class SitePermissionActivity : ClintActivity() {
         btnSort.visibility = View.GONE
         searchEditText.visibility = View.VISIBLE
         btnSearchClose.visibility = View.VISIBLE
+        fastScroller.isInteractive = false
         searchEditText.requestFocus()
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(searchEditText, InputMethodManager.SHOW_IMPLICIT)
@@ -288,7 +289,11 @@ class SitePermissionActivity : ClintActivity() {
         searchEditText.visibility = View.GONE
         btnSearchClose.visibility = View.GONE
         toolbarTitle.visibility = View.VISIBLE
-        if (::adapter.isInitialized && !adapter.isInSelectionMode) {
+        val inSelectionMode = ::adapter.isInitialized && adapter.isInSelectionMode
+        if (inSelectionMode) {
+            toolbarTitle.text = getString(R.string.history_selected_count, adapter.selectedCount)
+            btnSearch.visibility = View.VISIBLE
+        } else {
             btnSearch.visibility = View.VISIBLE
             btnSort.visibility = View.VISIBLE
         }
@@ -296,8 +301,9 @@ class SitePermissionActivity : ClintActivity() {
         imm.hideSoftInputFromWindow(searchEditText.windowToken, 0)
         if (::adapter.isInitialized) {
             adapter.setFilter("")
-            updateEmptyState()
+            fastScroller.isInteractive = adapter.sortKey == SitePermissionAdapter.SortKey.TITLE
             fastScroller.notifyDataChanged()
+            updateEmptyState()
         }
     }
 
@@ -360,8 +366,9 @@ class SitePermissionActivity : ClintActivity() {
             popup.dismiss()
             if (::adapter.isInitialized) {
                 adapter.sortKey = SitePermissionAdapter.SortKey.TITLE
+                adapter.sortOrder = SitePermissionAdapter.SortOrder.ASCENDING
                 adapter.applySortAndRefresh()
-                saveSortPrefs()
+                fastScroller.isInteractive = true
                 updateEmptyState()
                 fastScroller.notifyDataChanged()
             }
@@ -370,8 +377,9 @@ class SitePermissionActivity : ClintActivity() {
             popup.dismiss()
             if (::adapter.isInitialized) {
                 adapter.sortKey = SitePermissionAdapter.SortKey.DATE_ADDED
+                adapter.sortOrder = SitePermissionAdapter.SortOrder.DESCENDING
                 adapter.applySortAndRefresh()
-                saveSortPrefs()
+                fastScroller.isInteractive = false
                 updateEmptyState()
                 fastScroller.notifyDataChanged()
             }
@@ -381,7 +389,7 @@ class SitePermissionActivity : ClintActivity() {
             if (::adapter.isInitialized) {
                 adapter.sortOrder = SitePermissionAdapter.SortOrder.ASCENDING
                 adapter.applySortAndRefresh()
-                saveSortPrefs()
+                fastScroller.isInteractive = adapter.sortKey == SitePermissionAdapter.SortKey.TITLE
                 updateEmptyState()
                 fastScroller.notifyDataChanged()
             }
@@ -391,7 +399,7 @@ class SitePermissionActivity : ClintActivity() {
             if (::adapter.isInitialized) {
                 adapter.sortOrder = SitePermissionAdapter.SortOrder.DESCENDING
                 adapter.applySortAndRefresh()
-                saveSortPrefs()
+                fastScroller.isInteractive = adapter.sortKey == SitePermissionAdapter.SortKey.TITLE
                 updateEmptyState()
                 fastScroller.notifyDataChanged()
             }
@@ -403,14 +411,6 @@ class SitePermissionActivity : ClintActivity() {
         )
         val xOff = -popupView.measuredWidth + anchor.width
         popup.showAsDropDown(anchor, xOff, 0, Gravity.TOP or Gravity.END)
-    }
-
-    private fun saveSortPrefs() {
-        if (!::adapter.isInitialized) return
-        PreferenceManager.getDefaultSharedPreferences(this).edit()
-            .putString(prefSortKey(), adapter.sortKey.name)
-            .putString(prefSortOrder(), adapter.sortOrder.name)
-            .apply()
     }
 
     private fun showDeleteConfirmDialog() {
@@ -461,7 +461,8 @@ class SitePermissionActivity : ClintActivity() {
     private fun normalizeOrigin(input: String): String {
         if (input.isEmpty()) return ""
         val withScheme = if (!input.contains("://")) "https://$input" else input
-        return Uri.parse(withScheme).host?.takeIf { it.isNotEmpty() } ?: input
+        val host = Uri.parse(withScheme).host?.takeIf { it.isNotEmpty() } ?: return input
+        return com.jhaiian.clint.util.registeredDomain(host)
     }
 
     companion object {

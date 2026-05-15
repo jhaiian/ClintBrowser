@@ -50,7 +50,7 @@ object DocumentViewer {
             val alpha = ((colorOnSurface ushr 24) * 0.8).toInt()
             (colorOnSurface and 0x00FFFFFF) or (alpha shl 24)
         }
-        val colorPrimary = resolveColor(context, com.google.android.material.R.attr.colorPrimary)
+        val colorPrimary = resolveColor(context, androidx.appcompat.R.attr.colorPrimary)
         val dividerColor = resolveColor(context, R.attr.clintDividerColor)
 
         val spinner = ProgressBar(context).apply {

@@ -43,6 +43,9 @@
     <string name="next">Next \u2192</string>
     <string name="get_started">Get Started</string>
     <string name="setup_subtitle">Private browsing, your way.\nNo telemetry. No tracking.</string>
+    <string name="js_warning_title">Disable JavaScript?</string>
+    <string name="js_warning_message">Many app features rely on JavaScript, including web notifications, desktop mode, and reader mode. Websites may also break or display incorrectly.\n\nAre you sure you want to turn it off?</string>
+    <string name="action_turn_off_anyway">Turn off anyway</string>
     <string name="google_warning_title">Privacy notice</string>
     <string name="google_warning_message">Google will collect your search data and associate it with your account or IP address. Clint cannot prevent this.\n\nFor better privacy, consider DuckDuckGo or Brave instead.</string>
     <string name="use_google_anyway">Use Google anyway</string>

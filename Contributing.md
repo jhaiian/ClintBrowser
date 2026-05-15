@@ -54,135 +54,130 @@ APKs will be output to `app/build/outputs/apk/release/`.
 
 ```
 ClintBrowser/
-├── app/src/main/res/
-│   ├── drawable/                     # Vector icons and shape drawables
-│   ├── layout/
-│   │   ├── activity_*.xml            # Activity root layouts
-│   │   ├── bottom_sheet_*.xml        # Bottom sheet layouts
-│   │   ├── dialog_*.xml              # Dialog layouts
-│   │   ├── fragment_*.xml            # Fragment layouts
-│   │   ├── item_*.xml                # RecyclerView item layouts
-│   │   └── popup_menu.xml            # Overflow popup menu layout
-│   ├── menu/
-│   │   └── main_menu.xml             # Options menu
-│   ├── mipmap-*/                     # Launcher icons (hdpi → xxxhdpi + anydpi-v26)
-│   ├── values/
-│   │   ├── arrays.xml                # String arrays (search engines, DNS providers)
-│   │   ├── attrs.xml                 # Custom theme attributes
-│   │   ├── colors.xml                # Color palette
-│   │   ├── strings.xml               # All user-facing strings
-│   │   └── themes.xml                # App themes and style definitions
-│   └── xml/
-│       ├── file_paths.xml            # FileProvider paths for downloads and camera
-│       ├── *_preferences.xml         # Preference screen definitions
-│       └── preferences.xml           # Root preference hierarchy
-├── app/src/main/assets/
-│   └── JavaScript/
-│       ├── bottom_nav_detector.js    # Detects bottom navigation bars for scroll behavior
-│       ├── dark_mode.js              # Injects dark mode styles into pages
-│       ├── desktop_mode.js           # Overrides user-agent and viewport for desktop
-│       ├── disable_autoplay.js       # Prevents media from autoplaying on page load
-│       ├── image_alt_text.js         # Reads alt text of a long-pressed image
-│       ├── link_text.js              # Reads the text content of a long-pressed link
-│       ├── link_touch_tracker.js     # Tracks the last touched link for long-press context menus
-│       ├── reader_mode.js            # Extracts and reformats page content for reader view
-│       ├── scroll_tracker.js         # Tracks scroll position for hide-bars behavior
-│       └── video_dimensions.js       # Detects video dimensions for fullscreen sizing
-├── app/src/main/java/com/jhaiian/clint/
-│   ├── app/
-│   │   └── ClintApplication.kt       # Application class
-│   ├── base/
-│   │   └── ClintActivity.kt          # Base activity (theming, dialogs)
-│   ├── bookmarks/
-│   │   ├── Bookmark.kt               # Bookmark data model
-│   │   ├── BookmarkDatabase.kt       # Room database for bookmarks
-│   │   ├── BookmarkManager.kt        # Local bookmark storage
-│   │   ├── BookmarksActivity.kt      # Bookmarks screen
-│   │   └── BookmarksAdapter.kt       # Bookmarks list adapter
-│   ├── browser/
-│   │   ├── delegates/
-│   │   │   ├── MainDownloadPermissionDelegate.kt # Runtime storage permission handling for downloads
-│   │   │   ├── MainFileChooserDelegate.kt        # File chooser and camera capture logic
-│   │   │   ├── MainFullscreenDelegate.kt         # Video fullscreen enter/exit logic
-│   │   │   ├── MainImageDelegate.kt              # Image long-press action handlers
-│   │   │   ├── MainLinkDelegate.kt               # Link long-press action handlers
-│   │   │   ├── MainNotificationBridgeDelegate.kt # Web notification permission bridge
-│   │   │   ├── MainPermissionDelegate.kt         # Runtime permission request handling
-│   │   │   ├── MainPopupAlertDelegate.kt         # JS alert/confirm/prompt dialog handling
-│   │   │   ├── MainScrollDelegate.kt             # Scroll-hide bars and swipe refresh setup
-│   │   │   ├── MainTabDelegate.kt                # Tab open, close, restore, and switching
-│   │   │   ├── MainUiDelegate.kt                 # WebView setup, address bar, UI state updates
-│   │   │   └── MainWebViewDelegate.kt            # WebView configuration and settings apply
-│   │   ├── menu/
-│   │   │   ├── MenuBottomSheet.kt    # Browser action menu bottom sheet
-│   │   │   └── MenuPopup.kt          # Overflow popup menu
-│   │   ├── sheets/
-│   │   │   ├── ContentPreviewSheet.kt       # Bottom sheet for previewing a page or image URL
-│   │   │   ├── ImageLongPressSheet.kt       # Bottom sheet shown on image long-press
-│   │   │   ├── LinkLongPressSheet.kt        # Bottom sheet shown on link long-press
-│   │   │   └── PreviewLinkLongPressSheet.kt # Bottom sheet shown on link long-press inside a content preview
-│   │   ├── suggestions/
-│   │   │   ├── SearchSuggestionsAdapter.kt  # Adapter for the search suggestion dropdown
-│   │   │   └── SuggestionFetcher.kt         # Fetches search suggestions from the engine
-│   │   ├── webview/
-│   │   │   ├── ClintSwipeRefreshLayout.kt   # Custom swipe refresh with scroll callbacks
-│   │   │   ├── ClintWebChromeClient.kt      # Progress, title, fullscreen updates
-│   │   │   ├── ClintWebViewClient.kt        # Request interception, tracker blocking
-│   │   │   ├── JsAssetLoader.kt             # JavaScript asset loading
-│   │   │   └── WebViewCookieJar.kt          # OkHttp cookie integration
-│   │   └── MainActivity.kt           # Browser activity, state, and lifecycle
-│   ├── crash/
-│   │   ├── CrashHandler.kt           # Local crash reporting
-│   │   └── CrashReportFragment.kt    # Crash log viewer UI
-│   ├── downloads/
-│   │   ├── ClintDownloadManager.kt   # Custom download engine
-│   │   ├── DownloadActionReceiver.kt # Notification action receiver
-│   │   ├── DownloadsActivity.kt      # Downloads screen
-│   │   └── DownloadsAdapter.kt       # Downloads list adapter
-│   ├── history/
-│   │   ├── HistoryActivity.kt        # Browsing history screen
-│   │   ├── HistoryAdapter.kt         # History list adapter
-│   │   ├── HistoryFastScroller.kt    # Fast scroll handle for the history list
-│   │   ├── HistoryItem.kt            # History entry data model
-│   │   ├── SearchHistoryDatabase.kt  # Room database for search history
-│   │   └── SearchHistoryManager.kt   # Local search history storage
-│   ├── settings/
-│   │   ├── desktopmode/
-│   │   │   └── DesktopModeActivity.kt       # Desktop mode site rules screen
-│   │   ├── fragments/
-│   │   │   ├── AboutFragment.kt             # About screen
-│   │   │   ├── BrowserSettingsFragment.kt   # WebView/browser engine settings
-│   │   │   ├── DataSaverFragment.kt         # Data saver settings screen
-│   │   │   ├── LookAndFeelFragment.kt       # Appearance & theme settings
-│   │   │   ├── MainSettingsFragment.kt      # Settings root screen
-│   │   │   ├── MiscFragment.kt              # Miscellaneous settings screen
-│   │   │   ├── PrivacySettingsFragment.kt   # Privacy & security settings
-│   │   │   ├── SiteSettingsFragment.kt      # Site settings preferences screen
-│   │   │   └── UpdateSettingsFragment.kt    # Update channel settings
-│   │   ├── sitepermissions/
-│   │   │   ├── SitePermissionActivity.kt    # Per-site permissions screen
-│   │   │   ├── SitePermissionAdapter.kt     # Site permissions list adapter
-│   │   │   ├── SitePermissionDatabase.kt    # Room database for site permissions
-│   │   │   ├── SitePermissionFastScroller.kt# Fast scroll handle for the site permissions list
-│   │   │   └── SitePermissionManager.kt     # Per-site permission storage
-│   │   └── SettingsActivity.kt       # Settings host activity
-│   ├── setup/
-│   │   └── SetupActivity.kt          # First-launch wizard
-│   ├── tabs/
-│   │   ├── BrowserTab.kt             # Tab data model
-│   │   ├── TabAdapter.kt             # Tab switcher adapter
-│   │   ├── TabManager.kt             # Multi-tab state
-│   │   ├── TabPreview.kt             # Tab thumbnail model
-│   │   └── TabSwitcherSheet.kt       # Bottom sheet tab switcher
-│   ├── ui/
-│   │   ├── ClintToast.kt             # Custom themed toast
-│   │   ├── DocumentViewer.kt         # In-app document viewer
-│   │   ├── FaviconCache.kt           # Favicon download and memory/disk cache
-│   │   ├── ThemeRevealHolder.kt      # Shared bitmap for theme-change animation
-│   │   ├── ThemeRevealOverlay.kt     # Circular reveal overlay for theme changes
-│   │   └── ThemeSwatchUtils.kt       # Builds theme swatch drawables for the theme picker
-│   └── update/
-│       └── UpdateChecker.kt          # In-app update checker
+├── .github/
+│   ├── FUNDING.yml
+│   └── workflows/
+│       ├── build.yml
+│       └── release.yml
+├── app/src/main/
+│   ├── assets/JavaScript/
+│   │   ├── bottom_nav_detector.js    # Detects bottom navigation bars for scroll behavior
+│   │   ├── dark_mode.js              # Injects dark mode styles into pages
+│   │   ├── desktop_mode.js           # Overrides user-agent and viewport for desktop
+│   │   ├── disable_autoplay.js       # Prevents media from autoplaying on page load
+│   │   ├── image_alt_text.js         # Reads alt text of a long-pressed image
+│   │   ├── link_text.js              # Reads the text content of a long-pressed link
+│   │   ├── link_touch_tracker.js     # Tracks the last touched link for long-press context menus
+│   │   ├── reader_mode.js            # Extracts and reformats page content for reader view
+│   │   ├── scroll_tracker.js         # Tracks scroll position for hide-bars behavior
+│   │   ├── video_dimensions.js       # Detects video dimensions for fullscreen sizing
+│   │   └── web_notification_bridge.js# Bridges web notification permission requests to native
+│   ├── res/
+│   │   ├── drawable/                 # Vector icons and shape drawables
+│   │   ├── layout/                   # Activity, fragment, bottom sheet, dialog, item, and popup layouts
+│   │   ├── menu/                     # Options and context menu definitions
+│   │   ├── mipmap-*/                 # Launcher icons (hdpi → xxxhdpi + anydpi-v26)
+│   │   ├── values/                   # strings.xml, themes.xml, colors.xml, attrs.xml, arrays.xml
+│   │   └── xml/                      # Preference screens and FileProvider paths
+│   └── java/com/jhaiian/clint/
+│       ├── app/
+│       │   └── ClintApplication.kt       # Application class
+│       ├── base/
+│       │   └── ClintActivity.kt          # Base activity (theming, dialogs)
+│       ├── bookmarks/
+│       │   ├── Bookmark.kt               # Bookmark data model
+│       │   ├── BookmarkDatabase.kt       # Room database for bookmarks
+│       │   ├── BookmarkManager.kt        # Local bookmark storage
+│       │   ├── BookmarksActivity.kt      # Bookmarks screen
+│       │   └── BookmarksAdapter.kt       # Bookmarks list adapter
+│       ├── browser/
+│       │   ├── delegates/
+│       │   │   ├── MainDownloadPermissionDelegate.kt # Runtime storage permission handling for downloads
+│       │   │   ├── MainFileChooserDelegate.kt        # File chooser and camera capture logic
+│       │   │   ├── MainFullscreenDelegate.kt         # Video fullscreen enter/exit logic
+│       │   │   ├── MainImageDelegate.kt              # Image long-press action handlers
+│       │   │   ├── MainLinkDelegate.kt               # Link long-press action handlers
+│       │   │   ├── MainNotificationBridgeDelegate.kt # Web notification permission bridge
+│       │   │   ├── MainPermissionDelegate.kt         # Runtime permission request handling
+│       │   │   ├── MainPopupAlertDelegate.kt         # JS alert/confirm/prompt dialog handling
+│       │   │   ├── MainScrollDelegate.kt             # Scroll-hide bars and swipe refresh setup
+│       │   │   ├── MainTabDelegate.kt                # Tab open, close, restore, and switching
+│       │   │   ├── MainUiDelegate.kt                 # WebView setup, address bar, UI state updates
+│       │   │   └── MainWebViewDelegate.kt            # WebView configuration and settings apply
+│       │   ├── menu/
+│       │   │   ├── MenuBottomSheet.kt    # Browser action menu bottom sheet
+│       │   │   └── MenuPopup.kt          # Overflow popup menu
+│       │   ├── sheets/
+│       │   │   ├── ContentPreviewSheet.kt       # Bottom sheet for previewing a page or image URL
+│       │   │   ├── ImageLongPressSheet.kt       # Bottom sheet shown on image long-press
+│       │   │   ├── LinkLongPressSheet.kt        # Bottom sheet shown on link long-press
+│       │   │   └── PreviewLinkLongPressSheet.kt # Bottom sheet shown on link long-press inside a content preview
+│       │   ├── suggestions/
+│       │   │   ├── SearchSuggestionsAdapter.kt  # Adapter for the search suggestion dropdown
+│       │   │   └── SuggestionFetcher.kt         # Fetches search suggestions from the engine
+│       │   ├── webview/
+│       │   │   ├── ClintSwipeRefreshLayout.kt   # Custom swipe refresh with scroll callbacks
+│       │   │   ├── ClintWebChromeClient.kt      # Progress, title, fullscreen updates
+│       │   │   ├── ClintWebViewClient.kt        # Request interception, tracker blocking
+│       │   │   ├── JsAssetLoader.kt             # JavaScript asset loading
+│       │   │   └── WebViewCookieJar.kt          # OkHttp cookie integration
+│       │   └── MainActivity.kt           # Browser activity, state, and lifecycle
+│       ├── crash/
+│       │   ├── CrashHandler.kt           # Local crash reporting
+│       │   └── CrashReportFragment.kt    # Crash log viewer UI
+│       ├── downloads/
+│       │   ├── ClintDownloadManager.kt   # Custom download engine
+│       │   ├── DownloadActionReceiver.kt # Notification action receiver
+│       │   ├── DownloadsActivity.kt      # Downloads screen
+│       │   └── DownloadsAdapter.kt       # Downloads list adapter
+│       ├── history/
+│       │   ├── HistoryActivity.kt        # Browsing history screen
+│       │   ├── HistoryAdapter.kt         # History list adapter
+│       │   ├── HistoryFastScroller.kt    # Fast scroll handle for the history list
+│       │   ├── HistoryItem.kt            # History entry data model
+│       │   ├── SearchHistoryDatabase.kt  # Room database for search history
+│       │   └── SearchHistoryManager.kt   # Local search history storage
+│       ├── settings/
+│       │   ├── desktopmode/
+│       │   │   └── DesktopModeActivity.kt       # Desktop mode site rules screen
+│       │   ├── fragments/
+│       │   │   ├── AboutFragment.kt             # About screen
+│       │   │   ├── BrowserSettingsFragment.kt   # WebView/browser engine settings
+│       │   │   ├── DataSaverFragment.kt         # Data saver settings screen
+│       │   │   ├── LookAndFeelFragment.kt       # Appearance & theme settings
+│       │   │   ├── MainSettingsFragment.kt      # Settings root screen
+│       │   │   ├── MiscFragment.kt              # Miscellaneous settings screen
+│       │   │   ├── PrivacySettingsFragment.kt   # Privacy & security settings
+│       │   │   ├── SiteSettingsFragment.kt      # Site settings preferences screen
+│       │   │   └── UpdateSettingsFragment.kt    # Update channel settings
+│       │   ├── sitepermissions/
+│       │   │   ├── SitePermissionActivity.kt    # Per-site permissions screen
+│       │   │   ├── SitePermissionAdapter.kt     # Site permissions list adapter
+│       │   │   ├── SitePermissionDatabase.kt    # Room database for site permissions
+│       │   │   ├── SitePermissionFastScroller.kt# Fast scroll handle for the site permissions list
+│       │   │   └── SitePermissionManager.kt     # Per-site permission storage
+│       │   └── SettingsActivity.kt       # Settings host activity
+│       ├── setup/
+│       │   └── SetupActivity.kt          # First-launch wizard
+│       ├── tabs/
+│       │   ├── BrowserTab.kt             # Tab data model
+│       │   ├── TabAdapter.kt             # Tab switcher adapter
+│       │   ├── TabDatabase.kt            # Room database for tab persistence
+│       │   ├── TabManager.kt             # Multi-tab state
+│       │   ├── TabPreview.kt             # Tab thumbnail model
+│       │   ├── TabSessionManager.kt      # Saves and restores tab sessions
+│       │   └── TabSwitcherSheet.kt       # Bottom sheet tab switcher
+│       ├── ui/
+│       │   ├── ClintToast.kt             # Custom themed toast
+│       │   ├── DocumentViewer.kt         # In-app document viewer
+│       │   ├── FaviconCache.kt           # Favicon download and memory/disk cache
+│       │   ├── ThemeRevealHolder.kt      # Shared bitmap for theme-change animation
+│       │   ├── ThemeRevealOverlay.kt     # Circular reveal overlay for theme changes
+│       │   └── ThemeSwatchUtils.kt       # Builds theme swatch drawables for the theme picker
+│       ├── update/
+│       │   └── UpdateChecker.kt          # In-app update checker
+│       └── util/
+│           └── OriginNormalizer.kt       # Normalizes URLs to their origin for site-level logic
 ├── Update/
 │   ├── Stable.json                   # Stable channel update manifest
 │   └── Beta.json                     # Beta channel update manifest
@@ -190,13 +185,13 @@ ClintBrowser/
 │   └── metadata/android/en-US/
 │       ├── changelogs/
 │       ├── images/
-│       │   ├── icon.png
+│       │   ├── icon.jpg
 │       │   └── phoneScreenshots/
 │       ├── full_description.txt
 │       ├── short_description.txt
 │       └── title.txt
 ├── docs/
-│   └── clint_logo_backgroud.jpg
+│   └── icon.png
 ├── CHANGELOG.md
 ├── Contributing.md
 ├── Contributors.md
@@ -224,8 +219,7 @@ base64 -w 0 your_keystore.jks
 signingConfig.storeFile=app/release_keystore.jks
 signingConfig.storePassword=your_password
 signingConfig.keyAlias=your_alias
-signingConfig.keyPa
-ssword=your_password
+signingConfig.keyPassword=your_password
 ```
 
 To make your `release.yml` workflow work, set up the following **secrets** in your repository:

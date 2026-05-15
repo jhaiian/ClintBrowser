@@ -346,7 +346,7 @@ class LookAndFeelFragment : PreferenceFragmentCompat() {
             isRed -> ThemeSwatchUtils.resolveRedSwatchColors(ctx, theme).accent
             isGreen -> ThemeSwatchUtils.resolveGreenSwatchColors(ctx, theme).accent
             isOrange -> ThemeSwatchUtils.resolveOrangeSwatchColors(ctx, theme).accent
-            else -> MaterialColors.getColor(ctx, com.google.android.material.R.attr.colorPrimary, 0xFFBB86FC.toInt())
+            else -> MaterialColors.getColor(ctx, androidx.appcompat.R.attr.colorPrimary, 0xFFBB86FC.toInt())
         }
 
         val (softBg, softSurface) = ThemeSwatchUtils.resolveSoftTintSwatchBgSurface(ctx, theme, accent)

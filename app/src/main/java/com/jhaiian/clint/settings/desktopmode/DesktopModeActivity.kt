@@ -43,6 +43,7 @@ class DesktopModeActivity : ClintActivity() {
     private lateinit var btnSearch: ImageView
     private lateinit var btnSearchClose: ImageView
     private lateinit var btnSelectionOptions: ImageView
+    private lateinit var btnSort: ImageView
     private lateinit var searchEditText: EditText
     private lateinit var fab: FloatingActionButton
     private lateinit var fabDelete: FloatingActionButton
@@ -93,6 +94,7 @@ class DesktopModeActivity : ClintActivity() {
         btnSearch = findViewById(R.id.btn_search)
         btnSearchClose = findViewById(R.id.btn_search_close)
         btnSelectionOptions = findViewById(R.id.btn_selection_options)
+        btnSort = findViewById(R.id.btn_sort)
         searchEditText = findViewById(R.id.search_edit_text)
 
         cardSaveState = findViewById(R.id.card_save_state)
@@ -111,6 +113,7 @@ class DesktopModeActivity : ClintActivity() {
         btnSearch.setOnClickListener { enterSearchMode() }
         btnSearchClose.setOnClickListener { exitSearchMode() }
         btnSelectionOptions.setOnClickListener { showMoreOptionsMenu(it) }
+        btnSort.setOnClickListener { showSortMenu(it) }
 
         searchEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -183,20 +186,15 @@ class DesktopModeActivity : ClintActivity() {
             stateToLabel = { _, context ->
                 val label = context.getString(R.string.desktop_mode_state_on)
                 val color = com.google.android.material.color.MaterialColors
-                    .getColor(context, com.google.android.material.R.attr.colorPrimary, 0)
+                    .getColor(context, androidx.appcompat.R.attr.colorPrimary, 0)
                 Pair(label, color)
             }
         )
 
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val savedSortKey = prefs.getString(PREF_SORT_KEY, SitePermissionAdapter.SortKey.DATE_ADDED.name)
-        val savedSortOrder = prefs.getString(PREF_SORT_ORDER, SitePermissionAdapter.SortOrder.DESCENDING.name)
-        adapter.sortKey = SitePermissionAdapter.SortKey.valueOf(savedSortKey ?: SitePermissionAdapter.SortKey.DATE_ADDED.name)
-        adapter.sortOrder = SitePermissionAdapter.SortOrder.valueOf(savedSortOrder ?: SitePermissionAdapter.SortOrder.DESCENDING.name)
-
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.adapter = adapter
         fastScroller.attach(recycler, adapter)
+        fastScroller.isInteractive = adapter.sortKey == SitePermissionAdapter.SortKey.TITLE
         refreshList()
     }
 
@@ -218,6 +216,7 @@ class DesktopModeActivity : ClintActivity() {
         val inSelectionMode = ::adapter.isInitialized && adapter.isInSelectionMode
 
         btnSelectionOptions.visibility = if (inSelectionMode) View.VISIBLE else View.GONE
+        btnSort.visibility = if (inSelectionMode || isSearchMode) View.GONE else View.VISIBLE
         btnSearch.visibility = if (inSelectionMode || isSearchMode) View.GONE else View.VISIBLE
 
         if (inSelectionMode && selectedCount > 0) {
@@ -231,10 +230,17 @@ class DesktopModeActivity : ClintActivity() {
         if (inSelectionMode) {
             toolbarTitle.text = getString(R.string.history_selected_count, selectedCount)
             btnBack.setImageResource(R.drawable.ic_close_24)
+            btnSearch.visibility = if (isSearchMode) View.GONE else View.VISIBLE
         } else {
             toolbarTitle.text = getString(R.string.site_settings_desktop_mode)
             btnBack.setImageResource(R.drawable.ic_arrow_back_24)
-            if (!isSearchMode) fab.visibility = View.VISIBLE
+            if (!isSearchMode) {
+                fab.visibility = View.VISIBLE
+                if (::adapter.isInitialized) {
+                    fastScroller.isInteractive = adapter.sortKey == SitePermissionAdapter.SortKey.TITLE
+                    fastScroller.attach(recycler, adapter)
+                }
+            }
         }
 
         updateEmptyState()
@@ -249,8 +255,10 @@ class DesktopModeActivity : ClintActivity() {
         isSearchMode = true
         toolbarTitle.visibility = View.GONE
         btnSearch.visibility = View.GONE
+        btnSort.visibility = View.GONE
         searchEditText.visibility = View.VISIBLE
         btnSearchClose.visibility = View.VISIBLE
+        fastScroller.isInteractive = false
         searchEditText.requestFocus()
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(searchEditText, InputMethodManager.SHOW_IMPLICIT)
@@ -262,15 +270,21 @@ class DesktopModeActivity : ClintActivity() {
         searchEditText.visibility = View.GONE
         btnSearchClose.visibility = View.GONE
         toolbarTitle.visibility = View.VISIBLE
-        if (::adapter.isInitialized && !adapter.isInSelectionMode) {
+        val inSelectionMode = ::adapter.isInitialized && adapter.isInSelectionMode
+        if (inSelectionMode) {
+            toolbarTitle.text = getString(R.string.history_selected_count, adapter.selectedCount)
             btnSearch.visibility = View.VISIBLE
+        } else {
+            btnSearch.visibility = View.VISIBLE
+            btnSort.visibility = View.VISIBLE
         }
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(searchEditText.windowToken, 0)
         if (::adapter.isInitialized) {
             adapter.setFilter("")
-            updateEmptyState()
+            fastScroller.isInteractive = adapter.sortKey == SitePermissionAdapter.SortKey.TITLE
             fastScroller.notifyDataChanged()
+            updateEmptyState()
         }
     }
 
@@ -296,6 +310,80 @@ class DesktopModeActivity : ClintActivity() {
         popupView.findViewById<View>(R.id.menu_deselect_all).setOnClickListener {
             popup.dismiss()
             if (::adapter.isInitialized) adapter.deselectAll()
+        }
+
+        popupView.measure(
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        )
+        val xOff = -popupView.measuredWidth + anchor.width
+        popup.showAsDropDown(anchor, xOff, 0, Gravity.TOP or Gravity.END)
+    }
+
+    private fun showSortMenu(anchor: View) {
+        val popupView = LayoutInflater.from(this).inflate(R.layout.popup_site_permission_sort, null)
+        val popup = android.widget.PopupWindow(
+            popupView,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+            true
+        )
+        popup.elevation = 12f
+        popup.isOutsideTouchable = true
+
+        val checkTitle = popupView.findViewById<ImageView>(R.id.check_sort_by_title)
+        val checkDateAdded = popupView.findViewById<ImageView>(R.id.check_sort_by_date_added)
+        val checkAscending = popupView.findViewById<ImageView>(R.id.check_sort_ascending)
+        val checkDescending = popupView.findViewById<ImageView>(R.id.check_sort_descending)
+
+        if (::adapter.isInitialized) {
+            checkTitle.visibility = if (adapter.sortKey == SitePermissionAdapter.SortKey.TITLE) View.VISIBLE else View.GONE
+            checkDateAdded.visibility = if (adapter.sortKey == SitePermissionAdapter.SortKey.DATE_ADDED) View.VISIBLE else View.GONE
+            checkAscending.visibility = if (adapter.sortOrder == SitePermissionAdapter.SortOrder.ASCENDING) View.VISIBLE else View.GONE
+            checkDescending.visibility = if (adapter.sortOrder == SitePermissionAdapter.SortOrder.DESCENDING) View.VISIBLE else View.GONE
+        }
+
+        popupView.findViewById<View>(R.id.menu_sort_by_title).setOnClickListener {
+            popup.dismiss()
+            if (::adapter.isInitialized) {
+                adapter.sortKey = SitePermissionAdapter.SortKey.TITLE
+                adapter.sortOrder = SitePermissionAdapter.SortOrder.ASCENDING
+                adapter.applySortAndRefresh()
+                fastScroller.isInteractive = true
+                updateEmptyState()
+                fastScroller.notifyDataChanged()
+            }
+        }
+        popupView.findViewById<View>(R.id.menu_sort_by_date_added).setOnClickListener {
+            popup.dismiss()
+            if (::adapter.isInitialized) {
+                adapter.sortKey = SitePermissionAdapter.SortKey.DATE_ADDED
+                adapter.sortOrder = SitePermissionAdapter.SortOrder.DESCENDING
+                adapter.applySortAndRefresh()
+                fastScroller.isInteractive = false
+                updateEmptyState()
+                fastScroller.notifyDataChanged()
+            }
+        }
+        popupView.findViewById<View>(R.id.menu_sort_ascending).setOnClickListener {
+            popup.dismiss()
+            if (::adapter.isInitialized) {
+                adapter.sortOrder = SitePermissionAdapter.SortOrder.ASCENDING
+                adapter.applySortAndRefresh()
+                fastScroller.isInteractive = adapter.sortKey == SitePermissionAdapter.SortKey.TITLE
+                updateEmptyState()
+                fastScroller.notifyDataChanged()
+            }
+        }
+        popupView.findViewById<View>(R.id.menu_sort_descending).setOnClickListener {
+            popup.dismiss()
+            if (::adapter.isInitialized) {
+                adapter.sortOrder = SitePermissionAdapter.SortOrder.DESCENDING
+                adapter.applySortAndRefresh()
+                fastScroller.isInteractive = adapter.sortKey == SitePermissionAdapter.SortKey.TITLE
+                updateEmptyState()
+                fastScroller.notifyDataChanged()
+            }
         }
 
         popupView.measure(
@@ -354,14 +442,13 @@ class DesktopModeActivity : ClintActivity() {
     private fun normalizeOrigin(input: String): String {
         if (input.isEmpty()) return ""
         val withScheme = if (!input.contains("://")) "https://$input" else input
-        return Uri.parse(withScheme).host?.takeIf { it.isNotEmpty() } ?: input
+        val host = Uri.parse(withScheme).host?.takeIf { it.isNotEmpty() } ?: return input
+        return com.jhaiian.clint.util.registeredDomain(host)
     }
 
     companion object {
         const val PREF_DESKTOP_MODE_SAVE_STATE = "desktop_mode_save_state"
         const val VALUE_SAVE_STATE   = "save"
         const val VALUE_DO_NOT_SAVE  = "do_not_save"
-        private const val PREF_SORT_KEY   = "desktop_mode_sort_key"
-        private const val PREF_SORT_ORDER = "desktop_mode_sort_order"
     }
 }

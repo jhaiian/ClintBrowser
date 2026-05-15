@@ -105,31 +105,46 @@ jobs:
         run: |
           ./gradlew assembleRelease
 
-      - name: Rename APKs to ClintBrowser-VERSION-ARCH format
+      - name: Detect ABI split mode
+        id: mode
+        run: |
+          if ls app/build/outputs/apk/release/app-arm64-v8a-release.apk 2>/dev/null; then
+            echo "split=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "split=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Rename APKs
         id: apks
         run: |
           VERSION="${{ steps.info.outputs.version }}"
           SRC_DIR="app/build/outputs/apk/release"
           OUT_DIR="app/build/outputs/apk/renamed"
           mkdir -p "$OUT_DIR"
-          for apk in "$SRC_DIR"/*.apk; do
-            fname=$(basename "$apk")
-            if [[ "$fname" == *"arm64-v8a"* ]]; then
-              ARCH="arm64-v8a"
-            elif [[ "$fname" == *"armeabi-v7a"* ]]; then
-              ARCH="armeabi-v7a"
-            elif [[ "$fname" == *"x86_64"* ]]; then
-              ARCH="x86_64"
-            elif [[ "$fname" == *"x86"* ]]; then
-              ARCH="x86"
-            elif [[ "$fname" == *"universal"* ]]; then
-              ARCH="universal"
-            else
-              ARCH="unknown"
-            fi
-            NEW_NAME="ClintBrowser-${VERSION}-${ARCH}.apk"
-            cp "$apk" "$OUT_DIR/$NEW_NAME"
-          done
+
+          if [[ "${{ steps.mode.outputs.split }}" == "true" ]]; then
+            for apk in "$SRC_DIR"/*.apk; do
+              fname=$(basename "$apk")
+              if [[ "$fname" == *"arm64-v8a"* ]]; then
+                ARCH="arm64-v8a"
+              elif [[ "$fname" == *"armeabi-v7a"* ]]; then
+                ARCH="armeabi-v7a"
+              elif [[ "$fname" == *"x86_64"* ]]; then
+                ARCH="x86_64"
+              elif [[ "$fname" == *"x86"* ]]; then
+                ARCH="x86"
+              elif [[ "$fname" == *"universal"* ]]; then
+                ARCH="universal"
+              else
+                ARCH="unknown"
+              fi
+              NEW_NAME="ClintBrowser-${VERSION}-${ARCH}.apk"
+              cp "$apk" "$OUT_DIR/$NEW_NAME"
+            done
+          else
+            cp "$SRC_DIR/app-release.apk" "$OUT_DIR/ClintBrowser-${VERSION}.apk"
+          fi
+
           echo "apk_dir=$OUT_DIR" >> "$GITHUB_OUTPUT"
 
       - name: Update manifest with version, versionCode, changelog, and download URLs
@@ -138,6 +153,7 @@ jobs:
           CB_TAG: ${{ steps.info.outputs.tag }}
           CB_MANIFEST: ${{ steps.info.outputs.manifest }}
           CB_BASE_URL: "https://github.com/${{ github.repository }}/releases/download/${{ steps.info.outputs.tag }}"
+          CB_SPLIT: ${{ steps.mode.outputs.split }}
           VERSION_CODE: ${{ steps.update_gradle.outputs.version_code }}
         run: |
           python3 - <<'PYEOF'
@@ -148,6 +164,7 @@ jobs:
           tag = os.environ["CB_TAG"]
           manifest = os.environ["CB_MANIFEST"]
           base_url = os.environ["CB_BASE_URL"]
+          is_split = os.environ["CB_SPLIT"] == "true"
 
           with open("CHANGELOG.md", "r", encoding="utf-8") as fh:
               changelog_raw = fh.read()
@@ -169,13 +186,21 @@ jobs:
           data["changelog"] = changelog_text
 
           archs = ["arm64-v8a", "armeabi-v7a", "x86", "x86_64", "universal"]
-          for arch in archs:
-              apk_name = f"ClintBrowser-{version}-{arch}.apk"
-              data["downloads"][arch] = f"{base_url}/{apk_name}"
+          if is_split:
+              for arch in archs:
+                  apk_name = f"ClintBrowser-{version}-{arch}.apk"
+                  data["downloads"][arch] = f"{base_url}/{apk_name}"
+          else:
+              url = f"{base_url}/ClintBrowser-{version}.apk"
+              for arch in archs:
+                  data["downloads"][arch] = url
 
           with open(manifest, "w", encoding="utf-8") as fh:
               json.dump(data, fh, indent=2, ensure_ascii=False)
               fh.write("\n")
+
+          with open("release_notes.md", "w", encoding="utf-8") as fh:
+              fh.write(changelog_text)
           PYEOF
 
       - name: Commit and push updated manifest
@@ -207,6 +232,7 @@ jobs:
           tag_name: ${{ steps.info.outputs.tag }}
           name: "ClintBrowser ${{ steps.info.outputs.version }} (${{ steps.info.outputs.release_label }})"
           prerelease: ${{ steps.info.outputs.is_prerelease }}
+          body_path: release_notes.md
           files: ${{ steps.apks.outputs.apk_dir }}/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -24,6 +24,7 @@ class HistoryAdapter(
     private val onOpen: (HistoryItem) -> Unit,
     private val onSelectionChanged: (selectedCount: Int) -> Unit
 ) : RecyclerView.Adapter<HistoryAdapter.ViewHolder>(), HistoryFastScroller.SectionIndexer {
+
     override fun getSectionLetter(position: Int): String {
         if (position !in items.indices) return "#"
         val item = items[position]
@@ -36,6 +37,7 @@ class HistoryAdapter(
 
     private val allItems = mutableListOf<HistoryItem>()
     private var filterQuery = ""
+    private val selectedKeys = mutableSetOf<String>()
     private val selectedPositions = mutableSetOf<Int>()
 
     init {
@@ -45,7 +47,7 @@ class HistoryAdapter(
     var isInSelectionMode = false
         private set
 
-    val selectedCount get() = selectedPositions.size
+    val selectedCount get() = selectedKeys.size
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val iconContainer: FrameLayout = view.findViewById(R.id.history_icon_container)
@@ -106,24 +108,20 @@ class HistoryAdapter(
         holder.itemView.setOnClickListener {
             val pos = holder.bindingAdapterPosition
             if (pos == RecyclerView.NO_ID.toInt()) return@setOnClickListener
-            if (isInSelectionMode) {
-                toggleSelection(pos)
-            } else {
-                onOpen(item)
-            }
+            if (isInSelectionMode) toggleSelection(pos) else onOpen(item)
         }
 
         holder.itemView.setOnLongClickListener {
             val pos = holder.bindingAdapterPosition
             if (pos == RecyclerView.NO_ID.toInt()) return@setOnLongClickListener true
-            if (!isInSelectionMode) {
-                isInSelectionMode = true
-            }
-            if (!selectedPositions.contains(pos)) {
+            if (!isInSelectionMode) isInSelectionMode = true
+            val key = items[pos].query
+            if (key !in selectedKeys) {
+                selectedKeys.add(key)
                 selectedPositions.add(pos)
                 notifyItemChanged(pos)
             }
-            onSelectionChanged(selectedPositions.size)
+            onSelectionChanged(selectedKeys.size)
             true
         }
     }
@@ -165,7 +163,7 @@ class HistoryAdapter(
         val cornerRadius = 14f * density
 
         val cardColor = MaterialColors.getColor(holder.itemView, R.attr.clintCardBackground)
-        val primaryColor = MaterialColors.getColor(holder.itemView, com.google.android.material.R.attr.colorPrimary)
+        val primaryColor = MaterialColors.getColor(holder.itemView, androidx.appcompat.R.attr.colorPrimary)
         val rippleColor = ColorUtils.setAlphaComponent(primaryColor, 52)
 
         val bgColor = if (isSelected) {
@@ -193,34 +191,39 @@ class HistoryAdapter(
     }
 
     private fun toggleSelection(position: Int) {
-        if (selectedPositions.contains(position)) {
+        val key = items[position].query
+        if (key in selectedKeys) {
+            selectedKeys.remove(key)
             selectedPositions.remove(position)
         } else {
+            selectedKeys.add(key)
             selectedPositions.add(position)
         }
         notifyItemChanged(position)
-        onSelectionChanged(selectedPositions.size)
+        onSelectionChanged(selectedKeys.size)
     }
 
     fun selectAll() {
+        items.forEach { selectedKeys.add(it.query) }
         selectedPositions.clear()
-        for (i in items.indices) selectedPositions.add(i)
+        items.indices.forEach { selectedPositions.add(it) }
         notifyItemRangeChanged(0, items.size)
-        onSelectionChanged(selectedPositions.size)
+        onSelectionChanged(selectedKeys.size)
     }
 
     fun invertSelection() {
-        val newSelection = mutableSetOf<Int>()
-        for (i in items.indices) {
-            if (!selectedPositions.contains(i)) newSelection.add(i)
-        }
+        val toAdd = items.indices.filter { items[it].query !in selectedKeys }
+        val toRemove = items.indices.filter { items[it].query in selectedKeys }
+        toRemove.forEach { selectedKeys.remove(items[it].query) }
+        toAdd.forEach { selectedKeys.add(items[it].query) }
         selectedPositions.clear()
-        selectedPositions.addAll(newSelection)
+        items.forEachIndexed { i, item -> if (item.query in selectedKeys) selectedPositions.add(i) }
         notifyItemRangeChanged(0, items.size)
-        onSelectionChanged(selectedPositions.size)
+        onSelectionChanged(selectedKeys.size)
     }
 
     fun deselectAll() {
+        selectedKeys.clear()
         selectedPositions.clear()
         notifyItemRangeChanged(0, items.size)
         onSelectionChanged(0)
@@ -228,29 +231,29 @@ class HistoryAdapter(
 
     fun exitSelectionMode() {
         isInSelectionMode = false
+        selectedKeys.clear()
         selectedPositions.clear()
         notifyItemRangeChanged(0, items.size)
         onSelectionChanged(0)
     }
 
     fun getSelectedItems(): List<HistoryItem> {
-        return selectedPositions.sorted().map { items[it] }
+        return allItems.filter { it.query in selectedKeys }
     }
 
     fun removeSelectedItems() {
-        val sortedDesc = selectedPositions.sortedDescending()
-        for (pos in sortedDesc) {
-            items.removeAt(pos)
-        }
+        allItems.removeAll { it.query in selectedKeys }
+        selectedKeys.clear()
         selectedPositions.clear()
         isInSelectionMode = false
-        notifyDataSetChanged()
+        applyFilter()
         onSelectionChanged(0)
     }
 
     fun updateItems(newItems: MutableList<HistoryItem>) {
         allItems.clear()
         allItems.addAll(newItems)
+        selectedKeys.clear()
         selectedPositions.clear()
         isInSelectionMode = false
         applyFilter()
@@ -258,8 +261,6 @@ class HistoryAdapter(
 
     fun setFilter(query: String) {
         filterQuery = query
-        selectedPositions.clear()
-        isInSelectionMode = false
         applyFilter()
     }
 
@@ -273,17 +274,24 @@ class HistoryAdapter(
                 it.title.lowercase().contains(q) || it.query.lowercase().contains(q)
             }
         }
+        selectedPositions.clear()
+        items.forEachIndexed { i, item -> if (item.query in selectedKeys) selectedPositions.add(i) }
         notifyDataSetChanged()
     }
 
     fun removeAt(position: Int) {
+        val key = items[position].query
         items.removeAt(position)
+        selectedKeys.remove(key)
+        selectedPositions.remove(position)
         notifyItemRemoved(position)
     }
 
     fun clear() {
         val size = items.size
         items.clear()
+        allItems.clear()
+        selectedKeys.clear()
         selectedPositions.clear()
         isInSelectionMode = false
         notifyItemRangeRemoved(0, size)

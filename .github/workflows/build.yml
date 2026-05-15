@@ -44,7 +44,25 @@ jobs:
       - name: List generated APKs
         run: find app/build/outputs/apk/release -name "*.apk" | sort
 
+      - name: Detect ABI split mode
+        id: mode
+        run: |
+          if ls app/build/outputs/apk/release/app-arm64-v8a-release.apk 2>/dev/null; then
+            echo "split=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "split=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload Universal APK (single build)
+        if: steps.mode.outputs.split == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Clint-Universal
+          path: app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+
       - name: Upload Universal APK
+        if: steps.mode.outputs.split == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: Clint-Universal
@@ -52,6 +70,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload arm64-v8a APK
+        if: steps.mode.outputs.split == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: Clint-arm64-v8a
@@ -59,6 +78,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Upload armeabi-v7a APK
+        if: steps.mode.outputs.split == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: Clint-armeabi-v7a
@@ -66,6 +86,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Upload x86 APK
+        if: steps.mode.outputs.split == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: Clint-x86
@@ -73,6 +94,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Upload x86_64 APK
+        if: steps.mode.outputs.split == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: Clint-x86_64

@@ -17,6 +17,7 @@ import android.webkit.WebViewClient
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jhaiian.clint.R
 import com.jhaiian.clint.base.ClintActivity
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 class ClintWebViewClient(
     private val prefs: SharedPreferences,
@@ -43,10 +44,8 @@ class ClintWebViewClient(
         "pagead2.googlesyndication.com"
     )
 
-    private fun registeredDomain(host: String): String {
-        val parts = host.split(".")
-        return if (parts.size >= 2) parts.takeLast(2).joinToString(".") else host
-    }
+    private fun registeredDomain(host: String): String =
+        "https://$host".toHttpUrlOrNull()?.topPrivateDomain() ?: host
 
     private fun isInCooldown(host: String): Boolean {
         val domain = registeredDomain(host)

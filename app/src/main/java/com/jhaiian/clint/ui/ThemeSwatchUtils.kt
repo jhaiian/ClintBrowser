@@ -76,7 +76,7 @@ internal object ThemeSwatchUtils {
             return SwatchColors(
                 MaterialColors.getColor(dynCtx, android.R.attr.colorBackground, fallbackBg),
                 MaterialColors.getColor(dynCtx, com.google.android.material.R.attr.colorSurfaceContainerHigh, fallbackSurface),
-                MaterialColors.getColor(dynCtx, com.google.android.material.R.attr.colorPrimary, 0xFFBB86FC.toInt())
+                MaterialColors.getColor(dynCtx, androidx.appcompat.R.attr.colorPrimary, 0xFFBB86FC.toInt())
             )
         }
         return SwatchColors(fallbackBg, fallbackSurface, 0xFFBB86FC.toInt())

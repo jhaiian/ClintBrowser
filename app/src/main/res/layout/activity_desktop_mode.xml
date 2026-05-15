@@ -73,6 +73,16 @@
                 android:visibility="gone" />
 
             <ImageView
+                android:id="@+id/btn_sort"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_sort_24"
+                android:padding="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="?attr/clintIconTint"
+                android:contentDescription="@string/history_sort" />
+
+            <ImageView
                 android:id="@+id/btn_selection_options"
                 android:layout_width="48dp"
                 android:layout_height="48dp"

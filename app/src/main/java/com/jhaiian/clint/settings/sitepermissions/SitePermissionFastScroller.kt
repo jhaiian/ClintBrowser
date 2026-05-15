@@ -61,7 +61,7 @@ class SitePermissionFastScroller @JvmOverloads constructor(
 
     private fun ensureColors() {
         if (colorsInitialized) return
-        val primary = MaterialColors.getColor(this, com.google.android.material.R.attr.colorPrimary, 0xFF6200EE.toInt())
+        val primary = MaterialColors.getColor(this, androidx.appcompat.R.attr.colorPrimary, 0xFF6200EE.toInt())
         val onPrimary = MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnPrimary, 0xFFFFFFFF.toInt())
         thumbPaint.color = primary
         bubblePaint.color = primary

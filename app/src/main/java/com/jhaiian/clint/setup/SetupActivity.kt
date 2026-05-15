@@ -1156,7 +1156,7 @@ val accentColor = when {
 
             isOrange -> ThemeSwatchUtils.resolveOrangeSwatchColors(this, selectedTheme).accent
 
-            else -> MaterialColors.getColor(this, com.google.android.material.R.attr.colorPrimary, 0xFFBB86FC.toInt())
+            else -> MaterialColors.getColor(this, androidx.appcompat.R.attr.colorPrimary, 0xFFBB86FC.toInt())
 
         }
 

@@ -3,38 +3,61 @@ import com.jhaiian.clint.browser.MainActivity
 
 import android.annotation.SuppressLint
 import com.jhaiian.clint.tabs.BrowserTab
+import com.jhaiian.clint.tabs.SavedTab
+import com.jhaiian.clint.tabs.TabSessionManager
 import com.jhaiian.clint.tabs.TabSwitcherSheet
 import com.jhaiian.clint.browser.webview.ClintWebChromeClient
 import com.jhaiian.clint.browser.webview.ClintWebViewClient
 
 internal fun MainActivity.saveTabs() {
-    val urls = tabManager.tabs
+    val savedTabs = tabManager.tabs
         .filter { !it.isIncognito }
-        .mapNotNull { tab ->
-            val url = tab.webView.url ?: tab.url
-            url.takeIf { it.isNotEmpty() && it != "about:blank" }
+        .mapIndexedNotNull { index, tab ->
+            val url = tab.webView.url?.takeIf { it.isNotEmpty() && it != "about:blank" }
+                ?: tab.url.takeIf { it.isNotEmpty() && it != "about:blank" }
+                ?: return@mapIndexedNotNull null
+            SavedTab(
+                position = index,
+                url = url,
+                title = tab.title,
+                isActive = tab == tabManager.activeTab
+            )
         }
-    val activeNonIncognito = tabManager.tabs
-        .filter { !it.isIncognito }
-        .indexOf(tabManager.activeTab)
-        .coerceAtLeast(0)
-    prefs.edit()
-        .putString("saved_tab_urls", urls.joinToString("\n"))
-        .putInt("saved_tab_active", activeNonIncognito)
-        .apply()
+    Thread { TabSessionManager.save(this, savedTabs) }.start()
 }
 
 internal fun MainActivity.restoreTabs(): Boolean {
+    migrateTabsFromPrefsIfNeeded()
+    val savedTabs = TabSessionManager.load(this)
+    if (savedTabs.isEmpty()) return false
+    val activeIndex = savedTabs.indexOfFirst { it.isActive }.coerceAtLeast(0)
+    savedTabs.forEach { openNewTabSilent(it.url) }
+    tabManager.switchTo(activeIndex)
+    attachActiveWebView()
+    return true
+}
+
+private fun MainActivity.migrateTabsFromPrefsIfNeeded() {
+    if (!TabSessionManager.isEmpty(this)) return
     val savedUrls = prefs.getString("saved_tab_urls", null)
         ?.split("\n")
         ?.filter { it.isNotEmpty() }
-        ?: return false
-    if (savedUrls.isEmpty()) return false
+        ?: return
+    if (savedUrls.isEmpty()) return
     val activeIdx = prefs.getInt("saved_tab_active", 0).coerceIn(0, savedUrls.lastIndex)
-    savedUrls.forEach { url -> openNewTabSilent(url) }
-    tabManager.switchTo(activeIdx)
-    attachActiveWebView()
-    return true
+    val migratedTabs = savedUrls.mapIndexed { index, url ->
+        SavedTab(
+            position = index,
+            url = url,
+            title = "",
+            isActive = index == activeIdx
+        )
+    }
+    TabSessionManager.save(this, migratedTabs)
+    prefs.edit()
+        .remove("saved_tab_urls")
+        .remove("saved_tab_active")
+        .apply()
 }
 
 @SuppressLint("SetJavaScriptEnabled")

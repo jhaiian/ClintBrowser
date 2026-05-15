@@ -237,8 +237,13 @@ class HistoryActivity : ClintActivity() {
         searchEditText.visibility = View.GONE
         btnSearchClose.visibility = View.GONE
         toolbarTitle.visibility = View.VISIBLE
-        btnSearch.visibility = View.VISIBLE
-        if (::adapter.isInitialized && !adapter.isInSelectionMode) {
+        val inSelectionMode = ::adapter.isInitialized && adapter.isInSelectionMode
+        if (inSelectionMode) {
+            toolbarTitle.text = getString(R.string.history_selected_count, adapter.selectedCount)
+            btnSearch.visibility = View.VISIBLE
+        } else {
+            toolbarTitle.text = getString(R.string.history_title)
+            btnSearch.visibility = View.VISIBLE
             btnSort.visibility = View.VISIBLE
         }
         if (::adapter.isInitialized) {
@@ -337,9 +342,7 @@ class HistoryActivity : ClintActivity() {
         if (inSelectionMode) {
             toolbarTitle.text = getString(R.string.history_selected_count, selectedCount)
             btnBack.setImageResource(R.drawable.ic_close_24)
-            fastScroller.visibility = View.GONE
-            fastScroller.detach()
-            btnSearch.visibility = View.GONE
+            btnSearch.visibility = if (isSearchMode) View.GONE else View.VISIBLE
         } else {
             toolbarTitle.text = getString(R.string.history_title)
             btnBack.setImageResource(R.drawable.ic_arrow_back_24)

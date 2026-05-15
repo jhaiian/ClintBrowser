@@ -3,6 +3,7 @@ package com.jhaiian.clint.settings.sitepermissions
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import com.jhaiian.clint.util.registeredDomain
 
 object SitePermissionManager {
 
@@ -14,20 +15,24 @@ object SitePermissionManager {
         }
     }
 
+    private fun normalizeOrigin(origin: String): String = registeredDomain(origin)
+
     fun getState(context: Context, origin: String, type: String): String? {
+        val key = normalizeOrigin(origin)
         val cursor = db(context).readableDatabase.query(
             SitePermissionDatabase.TABLE,
             arrayOf(SitePermissionDatabase.COL_STATE),
             "${SitePermissionDatabase.COL_ORIGIN} = ? AND ${SitePermissionDatabase.COL_TYPE} = ?",
-            arrayOf(origin, type),
+            arrayOf(key, type),
             null, null, null
         )
         return cursor.use { if (it.moveToFirst()) it.getString(0) else null }
     }
 
     fun setState(context: Context, origin: String, type: String, state: String) {
+        val key = normalizeOrigin(origin)
         val values = ContentValues().apply {
-            put(SitePermissionDatabase.COL_ORIGIN, origin)
+            put(SitePermissionDatabase.COL_ORIGIN, key)
             put(SitePermissionDatabase.COL_TYPE, type)
             put(SitePermissionDatabase.COL_STATE, state)
         }
@@ -58,10 +63,11 @@ object SitePermissionManager {
     }
 
     fun deleteEntry(context: Context, origin: String, type: String) {
+        val key = normalizeOrigin(origin)
         db(context).writableDatabase.delete(
             SitePermissionDatabase.TABLE,
             "${SitePermissionDatabase.COL_ORIGIN} = ? AND ${SitePermissionDatabase.COL_TYPE} = ?",
-            arrayOf(origin, type)
+            arrayOf(key, type)
         )
     }
 }

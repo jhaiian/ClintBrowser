@@ -129,8 +129,8 @@ class CrashReportFragment : Fragment() {
         val ta = ctx.obtainStyledAttributes(
             intArrayOf(
                 com.google.android.material.R.attr.colorOnSurface,
-                com.google.android.material.R.attr.colorPrimary,
-                com.google.android.material.R.attr.colorError,
+                androidx.appcompat.R.attr.colorPrimary,
+                androidx.appcompat.R.attr.colorError,
                 R.attr.clintSecondaryTextColor,
                 R.attr.clintDividerColor
             )

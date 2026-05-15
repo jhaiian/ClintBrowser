@@ -8,6 +8,7 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
+import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -27,6 +28,15 @@ class BrowserSettingsFragment : PreferenceFragmentCompat() {
         findPreference<Preference>("cache_mode")?.setOnPreferenceClickListener {
             showCacheModeDialog()
             true
+        }
+
+        findPreference<SwitchPreferenceCompat>("javascript_enabled")?.setOnPreferenceChangeListener { pref, newValue ->
+            if (newValue == false) {
+                showJavaScriptWarning(pref as SwitchPreferenceCompat)
+                false
+            } else {
+                true
+            }
         }
     }
 
@@ -68,6 +78,19 @@ class BrowserSettingsFragment : PreferenceFragmentCompat() {
             else                 -> getString(R.string.cache_mode_summary_smart)
         }
         findPreference<Preference>("cache_mode")?.summary = summary
+    }
+
+    private fun showJavaScriptWarning(pref: SwitchPreferenceCompat) {
+        MaterialAlertDialogBuilder(requireContext(), (requireActivity() as ClintActivity).getDialogTheme())
+            .setTitle(getString(R.string.js_warning_title))
+            .setMessage(getString(R.string.js_warning_message))
+            .setNegativeButton(getString(R.string.action_cancel), null)
+            .setPositiveButton(getString(R.string.action_turn_off_anyway)) { _, _ ->
+                pref.isChecked = false
+                PreferenceManager.getDefaultSharedPreferences(requireContext())
+                    .edit().putBoolean("javascript_enabled", false).apply()
+            }
+            .create().also { (requireActivity() as ClintActivity).applyStatusBarFlagToDialog(it) }.show()
     }
 
     private fun showEngineDialog() {

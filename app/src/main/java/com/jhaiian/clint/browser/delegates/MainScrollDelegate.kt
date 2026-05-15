@@ -20,7 +20,7 @@ internal fun MainActivity.setupSwipeRefresh() {
         }
     }
     binding.swipeRefresh.apply {
-        setColorSchemeColors(getThemeColor(com.google.android.material.R.attr.colorPrimary))
+        setColorSchemeColors(getThemeColor(androidx.appcompat.R.attr.colorPrimary))
         setProgressBackgroundColorSchemeColor(getThemeColor(com.google.android.material.R.attr.colorSurface))
         setOnRefreshListener {
             nestedScrollActive = false

@@ -107,7 +107,7 @@ class TabAdapter(
         holder.itemView.setOnClickListener { onTabClick(item.tabIndex) }
         holder.closeBtn.setOnClickListener { onTabClose(item.tabIndex) }
 
-        val primaryColor = MaterialColors.getColor(holder.icon, com.google.android.material.R.attr.colorPrimary)
+        val primaryColor = MaterialColors.getColor(holder.icon, androidx.appcompat.R.attr.colorPrimary)
 
         if (tab.isIncognito) {
             holder.icon.setImageResource(R.drawable.ic_incognito_24)

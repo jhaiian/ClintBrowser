@@ -492,7 +492,7 @@ internal fun MainActivity.updateSwipeRefreshColors(isIncognito: Boolean) {
     if (isIncognito) {
         binding.swipeRefresh.setColorSchemeColors(ContextCompat.getColor(this, R.color.incognito_accent))
     } else {
-        binding.swipeRefresh.setColorSchemeColors(getThemeColor(com.google.android.material.R.attr.colorPrimary))
+        binding.swipeRefresh.setColorSchemeColors(getThemeColor(androidx.appcompat.R.attr.colorPrimary))
     }
 }
 
@@ -527,10 +527,8 @@ internal fun MainActivity.handleVoiceSearchTap(searchView: com.google.android.ma
     }
 }
 
-private fun registeredDomain(host: String): String {
-    val parts = host.split(".")
-    return if (parts.size >= 2) parts.takeLast(2).joinToString(".") else host
-}
+private fun registeredDomain(host: String): String =
+    com.jhaiian.clint.util.registeredDomain(host)
 
 internal fun MainActivity.launchVoiceSearch() {
     val intent = android.content.Intent(android.speech.RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {

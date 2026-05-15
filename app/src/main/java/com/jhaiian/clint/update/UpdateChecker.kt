@@ -134,7 +134,7 @@ object UpdateChecker {
             val alpha = ((colorOnSurface ushr 24) * 0.6).toInt()
             (colorOnSurface and 0x00FFFFFF) or (alpha shl 24)
         }
-        val colorPrimary = resolveColor(activity, com.google.android.material.R.attr.colorPrimary)
+        val colorPrimary = resolveColor(activity, androidx.appcompat.R.attr.colorPrimary)
         val dividerColor = resolveColor(activity, R.attr.clintDividerColor)
 
         val changelogTv = TextView(activity).apply {
@@ -246,7 +246,7 @@ object UpdateChecker {
             val alpha = ((colorOnSurface ushr 24) * 0.6).toInt()
             (colorOnSurface and 0x00FFFFFF) or (alpha shl 24)
         }
-        val colorPrimary = resolveColor(activity, com.google.android.material.R.attr.colorPrimary)
+        val colorPrimary = resolveColor(activity, androidx.appcompat.R.attr.colorPrimary)
 
         val statusText = TextView(activity).apply {
             text = activity.getString(R.string.update_download_preparing)

@@ -1,0 +1,3 @@
+· Fixes: Site permissions & Desktop Mode now handle subdomains correctly; fixed UI/functionality inconsistencies in Site Settings.
+· Improvements: Tab storage moved to SQLite, JS disable warning.
+· Update dependencies

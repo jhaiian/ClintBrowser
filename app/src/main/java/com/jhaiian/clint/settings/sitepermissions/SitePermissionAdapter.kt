@@ -14,7 +14,6 @@ import androidx.core.widget.ImageViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import com.jhaiian.clint.R
-import com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase
 import com.jhaiian.clint.ui.FaviconCache
 
 class SitePermissionAdapter(
@@ -27,6 +26,7 @@ class SitePermissionAdapter(
 
     private val allItems: MutableList<Triple<String, String, Long>> = mutableListOf()
     private val displayedItems: MutableList<Triple<String, String, Long>> = mutableListOf()
+    private val selectedKeys = mutableSetOf<String>()
     private val selectedPositions = mutableSetOf<Int>()
     private var filterQuery = ""
 
@@ -36,7 +36,7 @@ class SitePermissionAdapter(
     var isInSelectionMode = false
         private set
 
-    val selectedCount get() = selectedPositions.size
+    val selectedCount get() = selectedKeys.size
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val iconContainer: FrameLayout = view.findViewById(R.id.icon_container)
@@ -80,11 +80,11 @@ class SitePermissionAdapter(
             holder.tvState.setTextColor(color)
         } else if (state == SitePermissionDatabase.STATE_ALLOW) {
             holder.tvState.text = context.getString(R.string.site_permission_state_allowed)
-            val color = MaterialColors.getColor(context, com.google.android.material.R.attr.colorPrimary, 0)
+            val color = MaterialColors.getColor(context, androidx.appcompat.R.attr.colorPrimary, 0)
             holder.tvState.setTextColor(color)
         } else {
             holder.tvState.text = context.getString(R.string.site_permission_state_denied)
-            val color = MaterialColors.getColor(context, com.google.android.material.R.attr.colorError, 0)
+            val color = MaterialColors.getColor(context, androidx.appcompat.R.attr.colorError, 0)
             holder.tvState.setTextColor(color)
         }
 
@@ -101,11 +101,13 @@ class SitePermissionAdapter(
             val pos = holder.bindingAdapterPosition
             if (pos == RecyclerView.NO_ID.toInt()) return@setOnLongClickListener true
             if (!isInSelectionMode) isInSelectionMode = true
-            if (!selectedPositions.contains(pos)) {
+            val key = displayedItems[pos].first
+            if (key !in selectedKeys) {
+                selectedKeys.add(key)
                 selectedPositions.add(pos)
                 notifyItemChanged(pos)
             }
-            onSelectionChanged(selectedPositions.size)
+            onSelectionChanged(selectedKeys.size)
             true
         }
     }
@@ -126,6 +128,7 @@ class SitePermissionAdapter(
     fun updateItems(newItems: List<Triple<String, String, Long>>) {
         allItems.clear()
         allItems.addAll(newItems)
+        selectedKeys.clear()
         selectedPositions.clear()
         isInSelectionMode = false
         applyFilterAndSort()
@@ -133,14 +136,10 @@ class SitePermissionAdapter(
 
     fun setFilter(query: String) {
         filterQuery = query
-        selectedPositions.clear()
-        isInSelectionMode = false
         applyFilterAndSort()
     }
 
     fun applySortAndRefresh() {
-        selectedPositions.clear()
-        isInSelectionMode = false
         applyFilterAndSort()
     }
 
@@ -165,38 +164,45 @@ class SitePermissionAdapter(
 
         displayedItems.clear()
         displayedItems.addAll(sorted)
+        selectedPositions.clear()
+        displayedItems.forEachIndexed { i, item -> if (item.first in selectedKeys) selectedPositions.add(i) }
         notifyDataSetChanged()
     }
 
     private fun toggleSelection(position: Int) {
-        if (selectedPositions.contains(position)) {
+        val key = displayedItems[position].first
+        if (key in selectedKeys) {
+            selectedKeys.remove(key)
             selectedPositions.remove(position)
         } else {
+            selectedKeys.add(key)
             selectedPositions.add(position)
         }
         notifyItemChanged(position)
-        onSelectionChanged(selectedPositions.size)
+        onSelectionChanged(selectedKeys.size)
     }
 
     fun selectAll() {
+        displayedItems.forEach { selectedKeys.add(it.first) }
         selectedPositions.clear()
-        for (i in displayedItems.indices) selectedPositions.add(i)
+        displayedItems.indices.forEach { selectedPositions.add(it) }
         notifyItemRangeChanged(0, displayedItems.size)
-        onSelectionChanged(selectedPositions.size)
+        onSelectionChanged(selectedKeys.size)
     }
 
     fun invertSelection() {
-        val newSelection = mutableSetOf<Int>()
-        for (i in displayedItems.indices) {
-            if (!selectedPositions.contains(i)) newSelection.add(i)
-        }
+        val toAdd = displayedItems.indices.filter { displayedItems[it].first !in selectedKeys }
+        val toRemove = displayedItems.indices.filter { displayedItems[it].first in selectedKeys }
+        toRemove.forEach { selectedKeys.remove(displayedItems[it].first) }
+        toAdd.forEach { selectedKeys.add(displayedItems[it].first) }
         selectedPositions.clear()
-        selectedPositions.addAll(newSelection)
+        displayedItems.forEachIndexed { i, item -> if (item.first in selectedKeys) selectedPositions.add(i) }
         notifyItemRangeChanged(0, displayedItems.size)
-        onSelectionChanged(selectedPositions.size)
+        onSelectionChanged(selectedKeys.size)
     }
 
     fun deselectAll() {
+        selectedKeys.clear()
         selectedPositions.clear()
         notifyItemRangeChanged(0, displayedItems.size)
         onSelectionChanged(0)
@@ -204,18 +210,17 @@ class SitePermissionAdapter(
 
     fun exitSelectionMode() {
         isInSelectionMode = false
+        selectedKeys.clear()
         selectedPositions.clear()
         notifyItemRangeChanged(0, displayedItems.size)
         onSelectionChanged(0)
     }
 
-    fun getSelectedOrigins(): List<String> {
-        return selectedPositions.sorted().map { displayedItems[it].first }
-    }
+    fun getSelectedOrigins(): List<String> = selectedKeys.toList()
 
     fun removeSelectedItems() {
-        val origins = getSelectedOrigins().toSet()
-        allItems.removeAll { it.first in origins }
+        allItems.removeAll { it.first in selectedKeys }
+        selectedKeys.clear()
         selectedPositions.clear()
         isInSelectionMode = false
         applyFilterAndSort()
@@ -235,7 +240,7 @@ class SitePermissionAdapter(
         val density = holder.itemView.context.resources.displayMetrics.density
         val cornerRadius = 14f * density
         val cardColor = MaterialColors.getColor(holder.itemView, R.attr.clintCardBackground)
-        val primaryColor = MaterialColors.getColor(holder.itemView, com.google.android.material.R.attr.colorPrimary)
+        val primaryColor = MaterialColors.getColor(holder.itemView, androidx.appcompat.R.attr.colorPrimary)
         val rippleColor = ColorUtils.setAlphaComponent(primaryColor, 52)
 
         val bgColor = if (isSelected) {

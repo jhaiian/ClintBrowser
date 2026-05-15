@@ -4,6 +4,64 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.0.3-r2
+
+## 🛠 Fixes
+
+- Fixed Site Permissions not recognizing that some URLs belong to the same website.
+
+  For example:
+  - `en.wikipedia.org`
+  - `www.wikipedia.org`
+
+  These are part of the same website, but they were previously treated as different URLs, causing duplicate site settings.
+
+- Fixed an issue that heavily affected **Desktop Mode**.
+
+  This was especially noticeable on Facebook, where enabling Desktop Mode would sometimes switch back to mobile mode. This happened because subdomains like:
+
+  - `m.facebook.com`
+  - `web.facebook.com`
+
+  were treated as separate websites, creating an infinite loop.
+
+- Fixed by using `okhttp3.HttpUrl.Companion.toHttpUrlOrNull()` to properly detect the original domain name.
+
+- Fixed multiple UI and functionality inconsistencies across **Site Settings**.
+
+  Behavior should now be consistent with the History page/system.
+
+## ✨ Improvements
+
+- Migrated tabs storage from **SharedPreferences** to **SQLite**.
+
+  Your existing tab data should not be lost, as the app will automatically migrate everything after the update.
+
+- Added a **JavaScript warning message** when disabling JavaScript.
+
+  Users will now be informed that some app features relying on JavaScript may stop working when it is turned off.
+
+- Reworked `app/build.gradle`, `build.yml`, and `release.yml`.
+
+  The build system will now automatically detect whether the project actually requires **ABI splitting**.
+
+  From now on, releases will generate only **one APK** by default 📦
+
+  If native **C/C++ libraries** are added in the future, ABI splitting will automatically be enabled and separate APKs will be generated
+
+## 📦 Dependency Updates
+
+- Material Components:
+  - `com.google.android.material:material` **1.12.0 → 1.13.0**
+
+- RecyclerView:
+  - `androidx.recyclerview:recyclerview` **1.3.2 → 1.4.0**
+
+- OkHttp:
+  - `com.squareup.okhttp3:okhttp` **4.12.0 → 5.3.2**
+  
+---
+
 # v1.0.3
 
 > This is the entire changelog from version 1.0.2 to 1.0.3.
