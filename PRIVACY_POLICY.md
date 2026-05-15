@@ -101,14 +101,14 @@ You can manage or remove these exceptions anytime from Site Settings.
 
 ---
 
-## Permissions
+## App Permissions
 
 Clint Browser requests the following permissions:
 
 - **Internet** — required to browse the web  
 - **Network State** — used to check connectivity  
-- **Write External Storage** (Android 9 and below) — required to save downloaded files  
-- **Post Notifications** (Android 13 and above) — used for download progress and website notifications  
+- **Write External Storage** — used to save downloaded files (on older Android versions) or manage downloads  
+- **Post Notifications** (Android 13+) — used for download progress and website notifications  
 - **Request Install Packages** — used for installing updates or APKs only when explicitly confirmed by the user  
 - **Camera** — used only when uploading or capturing content initiated by the user and with website permission  
 - **Record Audio** — used for voice search via the system speech service; all processing happens locally on the device  
@@ -120,11 +120,29 @@ No permission is used for tracking or data collection.
 
 ---
 
+## Data Retention and Deletion
+
+Since no personal data is collected by the developer, there is nothing to delete on our servers. All local data (history, bookmarks, downloads, etc.) is stored on your device. You can delete any or all of it at any time through the app’s settings or by clearing the app’s storage in your device settings.
+
+---
+
+## Children's Privacy
+
+Clint Browser does not knowingly collect any personal information from anyone, including children under the age of 13. The app has no accounts, no sign‑ins, and no data transmission to the developer. If you are a parent or guardian and believe your child has used the app in a way that concerns you, you may contact us, but note that no data has been collected by us.
+
+---
+
 ## Third-Party Services
 
 Clint Browser does not include analytics, advertising, or tracking SDKs.
 
-However, the search engine or services you choose (such as DuckDuckGo, Brave Search, or Google) may collect data according to their own privacy policies. Clint Browser has no control over those services.
+However, the search engine or services you choose (such as DuckDuckGo, Brave Search, or Google) may collect data according to their own privacy policies. Clint Browser has no control over those services. Additionally, the search suggestion and favicon fallback features use DuckDuckGo’s public APIs as described above.
+
+---
+
+## Changes to This Policy
+
+Any updates to this privacy policy will be reflected in this document on the GitHub repository. The app always links to the latest version. Your continued use of the app after changes means you accept the updated policy.
 
 ---
 
@@ -132,12 +150,6 @@ However, the search engine or services you choose (such as DuckDuckGo, Brave Sea
 
 Clint Browser is fully open source. You can review the source code to verify how the app works at:
 https://github.com/jhaiian/ClintBrowser
-
----
-
-## Changes to This Policy
-
-Any updates to this privacy policy will be reflected in this document on the GitHub repository. The app always links to the latest version.
 
 ---
 
