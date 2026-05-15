@@ -10,8 +10,8 @@ A customizable Android browser built on Android WebView that respects your priva
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blueviolet.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B-blueviolet.svg)](https://developer.android.com)
-[![Stable](https://img.shields.io/badge/Stable-1.0.3-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.3)
-[![Beta](https://img.shields.io/badge/Beta-1.0.3-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.3)
+[![Stable](https://img.shields.io/badge/Stable-1.0.3--r2-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.3-r2)
+[![Beta](https://img.shields.io/badge/Beta-1.0.3--r2-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.3-r2)
 [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser)
 
 </div>
