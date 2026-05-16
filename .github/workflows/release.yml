@@ -42,6 +42,12 @@ jobs:
           echo "manifest=$MANIFEST" >> "$GITHUB_OUTPUT"
           echo "release_label=$RELEASE_LABEL" >> "$GITHUB_OUTPUT"
 
+      - name: Read versionCode from build.gradle
+        id: read_version
+        run: |
+          VERSION_CODE=$(grep -oP '(?<=versionCode )\d+' app/build.gradle | head -1)
+          echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
+
       - name: Set up JDK 17
         uses: actions/setup-java@v5
         with:
@@ -60,39 +66,6 @@ jobs:
       - name: Grant Gradle wrapper execute permission
         run: |
           chmod +x gradlew
-
-      - name: Update versionName and versionCode in build.gradle
-        id: update_gradle
-        run: |
-          VERSION="${{ steps.info.outputs.version }}"
-
-          CURRENT_CODE=$(grep -oP '(?<=versionCode )\d+' app/build.gradle | head -1)
-
-          if ! [[ "$CURRENT_CODE" =~ ^[0-9]+$ ]]; then
-            echo "ERROR: could not parse a numeric versionCode from build.gradle."
-            echo "       Got: '$CURRENT_CODE'"
-            echo "       Resolve any merge conflicts in app/build.gradle first."
-            exit 1
-          fi
-
-          VERSION_CODE=$(( CURRENT_CODE + 1 ))
-
-          sed -i "0,/versionCode [0-9]*/s/versionCode [0-9]*/versionCode ${VERSION_CODE}/" app/build.gradle
-          sed -i "s/versionName \"[^\"]*\"/versionName \"${VERSION}\"/" app/build.gradle
-
-          echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
-
-      - name: Commit and push updated build.gradle
-        run: |
-          git config user.name "${{ secrets.GIT_USERNAME }}"
-          git config user.email "${{ secrets.GIT_EMAIL }}"
-          git add app/build.gradle
-          if git diff --cached --quiet; then
-            echo "No changes to commit — skipping."
-          else
-            git commit -m "bump version to ${{ steps.info.outputs.version }} [skip ci]"
-            git push https://x-access-token:${{ secrets.PERSONAL_GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
-          fi
 
       - name: Download Gradle wrapper JAR if missing
         run: |
@@ -154,7 +127,7 @@ jobs:
           CB_MANIFEST: ${{ steps.info.outputs.manifest }}
           CB_BASE_URL: "https://github.com/${{ github.repository }}/releases/download/${{ steps.info.outputs.tag }}"
           CB_SPLIT: ${{ steps.mode.outputs.split }}
-          VERSION_CODE: ${{ steps.update_gradle.outputs.version_code }}
+          VERSION_CODE: ${{ steps.read_version.outputs.version_code }}
         run: |
           python3 - <<'PYEOF'
           import json, os, re
