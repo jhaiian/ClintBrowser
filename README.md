@@ -198,7 +198,7 @@ All these options combine to give you **~52 distinct theme combinations**, and t
 ## Requirements
 
 - Android 8.0 (API 26) or higher
-- Android WebView (Bromite) (Android System WebView) Etc.
+- Android WebView 
 
 ---
 
