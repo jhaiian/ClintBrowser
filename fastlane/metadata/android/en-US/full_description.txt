@@ -1,4 +1,4 @@
-Clint is a free, open-source Android browser with no dedicated backend infrastructure, built with privacy in mind. It features a clean, customizable interface that lets users tailor the look and feel to their preference. It blocks known trackers and analytics, completely isolates incognito sessions, and ships with zero Google telemetry built in. Every feature is designed around the philosophy that your browsing data belongs to you and only you.
+Clint is a free, open-source Android browser with no dedicated backend infrastructure, built with privacy in mind. It features a clean, customizable interface that lets users tailor the look and feel to their preference. It blocks known trackers and analytics, and completely isolates incognito sessions. Every feature is designed around the philosophy that your browsing data belongs to you and only you.
 
 Privacy & Security
 
