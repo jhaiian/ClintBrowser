@@ -62,4 +62,4 @@ Additional Features
 Requirements
 
 · Android 8.0 (API 26) or higher
-· Android System WebView
+· Android WebView (Bromite) (Android System WebView) Etc.
