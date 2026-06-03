@@ -83,13 +83,13 @@ Manage website permissions in one place:
 - The favicon system uses direct website icons first, with DuckDuckGo as a privacy‑friendly fallback — **no Google services involved**.
 
 ### 📎 Uploads & Downloads
-- Upload images, videos, audio, and recordings directly from the browser.
-- **Download any image** from the web — long‑press an image and tap "Download Image".
-- Custom download engine built on OkHttp — no reliance on the system DownloadManager.
-- Real‑time progress with percentage and file size.
-- Cancel downloads in‑app or from the notification.
-- Open completed files directly from the downloads screen.
-- Automatic duplicate filename handling.
+- Upload images, videos, audio, and recordings
+- Advanced download manager using OkHttp (1DM inspired)
+- Custom download location
+- Split download parts
+- Multi-threading
+- Pause and resume support
+- Long-press any image to download
 
 ### 🔖 Bookmarks
 - Save any page with a single tap from the navigation bar; the bookmark icon updates live to reflect the saved state.
@@ -191,7 +191,7 @@ All these options combine to give you **~52 distinct theme combinations**, and t
 ## Requirements
 
 - Android 8.0 (API 26) or higher
-- Android System WebView (pre‑installed on all Android devices)
+- WebView Implementation 
 
 ---
 

@@ -22,7 +22,7 @@ My goal is to create the first true all-in-one browser for Android that combines
 
 Downloads now support pause and resume functionality.
 
-- Resume support depends on whether the server supports resumable downloads.
+- Resume support depends on whether the server supports resumable downloads (Thank you for @snashyturner for suggesting this).
 - The app now clearly indicates whether a download can be resumed.
 - Migrate the download page to SQLite
 
