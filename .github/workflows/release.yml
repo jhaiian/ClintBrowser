@@ -74,14 +74,14 @@ jobs:
             curl -sL "https://raw.githubusercontent.com/gradle/gradle/v8.6.0/gradle/wrapper/gradle-wrapper.jar" -o "$JAR"
           fi
 
-      - name: Build all release APKs
+      - name: Build GitHub release APKs
         run: |
-          ./gradlew assembleRelease
+          ./gradlew assembleGithubRelease
 
       - name: Detect ABI split mode
         id: mode
         run: |
-          if ls app/build/outputs/apk/release/app-arm64-v8a-release.apk 2>/dev/null; then
+          if ls app/build/outputs/apk/github/release/app-github-arm64-v8a-release.apk 2>/dev/null; then
             echo "split=true" >> "$GITHUB_OUTPUT"
           else
             echo "split=false" >> "$GITHUB_OUTPUT"
@@ -91,7 +91,7 @@ jobs:
         id: apks
         run: |
           VERSION="${{ steps.info.outputs.version }}"
-          SRC_DIR="app/build/outputs/apk/release"
+          SRC_DIR="app/build/outputs/apk/github/release"
           OUT_DIR="app/build/outputs/apk/renamed"
           mkdir -p "$OUT_DIR"
 
@@ -115,7 +115,7 @@ jobs:
               cp "$apk" "$OUT_DIR/$NEW_NAME"
             done
           else
-            cp "$SRC_DIR/app-release.apk" "$OUT_DIR/ClintBrowser-${VERSION}.apk"
+            cp "$SRC_DIR/app-github-release.apk" "$OUT_DIR/ClintBrowser-${VERSION}.apk"
           fi
 
           echo "apk_dir=$OUT_DIR" >> "$GITHUB_OUTPUT"

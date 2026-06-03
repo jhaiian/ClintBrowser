@@ -316,7 +316,7 @@ class ContentPreviewSheet : BottomSheetDialogFragment() {
     @Suppress("DEPRECATION")
     private fun applyPreviewDarkMode(webView: WebView) {
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val theme = prefs.getString("app_theme", "default") ?: "default"
+        val theme = prefs.getString("app_theme", "dark") ?: "dark"
         val enabled = when (theme) {
             "dark" -> true
             "light" -> false

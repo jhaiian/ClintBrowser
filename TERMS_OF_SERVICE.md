@@ -1,6 +1,6 @@
 # Terms of Service for Clint Browser
 
-*Last updated: May 19, 2026*
+*Last updated: June 4, 2026*
 
 ## 1. What These Terms Cover
 
@@ -12,10 +12,9 @@ If you do not agree, simply uninstall the app.
 
 Clint Browser is a **free, open‑source Android browser** built around privacy. Key facts:
 
-- No backend servers – everything runs on your device.
+- No backend servers  everything runs on your device.
 - Blocks trackers and analytics by default.
-- Incognito sessions are completely isolated.
-- Zero data collection.
+- Incognito sessions are completely isolated..
 - You can view, modify, or share the source code under the GPL‑v3 license.
 
 Your browsing data belongs to you. The developer never sees it.

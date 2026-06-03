@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:scrollbars="none"
+    android:overScrollMode="never"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/popup_menu_background"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp">
+
+
+    <LinearLayout
+        android:id="@+id/menu_sort_by_name"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@drawable/popup_item_ripple">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_abc_24"
+            android:tint="?attr/colorPrimary"
+            android:alpha="0.85" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="14dp"
+            android:text="@string/downloads_sort_by_name"
+            android:textColor="?attr/clintPopupTextColor"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/check_sort_by_name"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_check_24"
+            android:tint="?attr/colorPrimary"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/menu_sort_by_date"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@drawable/popup_item_ripple">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_date_range_24"
+            android:tint="?attr/colorPrimary"
+            android:alpha="0.85" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="14dp"
+            android:text="@string/downloads_sort_by_date"
+            android:textColor="?attr/clintPopupTextColor"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/check_sort_by_date"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_check_24"
+            android:tint="?attr/colorPrimary"
+            android:visibility="visible" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/menu_sort_by_size"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@drawable/popup_item_ripple">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_format_size_24"
+            android:tint="?attr/colorPrimary"
+            android:alpha="0.85" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="14dp"
+            android:text="@string/downloads_sort_by_size"
+            android:textColor="?attr/clintPopupTextColor"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/check_sort_by_size"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_check_24"
+            android:tint="?attr/colorPrimary"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/menu_sort_by_status"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@drawable/popup_item_ripple">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_swap_vert_24"
+            android:tint="?attr/colorPrimary"
+            android:alpha="0.85" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="14dp"
+            android:text="@string/downloads_sort_by_status"
+            android:textColor="?attr/clintPopupTextColor"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/check_sort_by_status"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_check_24"
+            android:tint="?attr/colorPrimary"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:background="@drawable/popup_divider" />
+
+    <LinearLayout
+        android:id="@+id/menu_sort_ascending"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@drawable/popup_item_ripple">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_arrow_up_24"
+            android:tint="?attr/colorPrimary"
+            android:alpha="0.85" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="14dp"
+            android:text="@string/history_sort_ascending"
+            android:textColor="?attr/clintPopupTextColor"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/check_sort_ascending"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_check_24"
+            android:tint="?attr/colorPrimary"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/menu_sort_descending"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@drawable/popup_item_ripple">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_arrow_down_24"
+            android:tint="?attr/colorPrimary"
+            android:alpha="0.85" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="14dp"
+            android:text="@string/history_sort_descending"
+            android:textColor="?attr/clintPopupTextColor"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/check_sort_descending"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_check_24"
+            android:tint="?attr/colorPrimary"
+            android:visibility="visible" />
+
+    </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

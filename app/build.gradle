@@ -16,8 +16,8 @@ android {
         applicationId "com.jhaiian.clint"
         minSdk 26
         targetSdk 36
-        versionCode 15
-        versionName "1.0.3-r2"
+        versionCode 16
+        versionName "1.0.4"
     }
 
     def hasSigningConfig = localProperties.getProperty('signingConfig.storePassword') != null
@@ -30,6 +30,19 @@ android {
                 keyAlias localProperties.getProperty('signingConfig.keyAlias')
                 keyPassword localProperties.getProperty('signingConfig.keyPassword')
             }
+        }
+    }
+
+    flavorDimensions "distribution"
+
+    productFlavors {
+        github {
+            dimension "distribution"
+            buildConfigField 'boolean', 'IS_FDROID', 'false'
+        }
+        fdroid {
+            dimension "distribution"
+            buildConfigField 'boolean', 'IS_FDROID', 'true'
         }
     }
 
@@ -69,6 +82,7 @@ android {
 
     buildFeatures {
         viewBinding true
+        buildConfig true
     }
 
     packaging {
@@ -80,8 +94,9 @@ android {
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.18.0'
+    implementation 'androidx.documentfile:documentfile:1.0.1'
     implementation 'androidx.appcompat:appcompat:1.7.1'
-    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'com.google.android.material:material:1.14.0'
     implementation 'androidx.webkit:webkit:1.16.0'
     implementation 'androidx.preference:preference-ktx:1.2.1'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
@@ -89,4 +104,6 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:5.3.2'
     implementation 'io.noties.markwon:core:4.6.2'
     implementation 'com.j256.simplemagic:simplemagic:1.17'
+    implementation 'androidx.viewpager2:viewpager2:1.1.0'
+    implementation 'com.caverock:androidsvg-aar:1.4'
 }

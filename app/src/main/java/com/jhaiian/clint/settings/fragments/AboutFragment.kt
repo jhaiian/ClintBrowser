@@ -85,6 +85,11 @@ class AboutFragment : Fragment() {
         makeClickable(binding.tvOkHttpLicenseLink, "https://www.apache.org/licenses/LICENSE-2.0.txt")
         makeClickable(binding.tvSimpleMagicLink, "https://github.com/j256/simplemagic")
         makeClickable(binding.tvSimpleMagicLicenseLink, "https://opensource.org/licenses/ISC")
+        makeClickable(binding.tvAndroidSvgLink, "https://github.com/BigBadaboom/androidsvg")
+        makeClickable(binding.tvAndroidSvgLicenseLink, "https://www.apache.org/licenses/LICENSE-2.0.txt")
+        binding.tvAttributionLink.setOnClickListener {
+            com.jhaiian.clint.ui.DocumentViewer.show(requireContext(), getString(R.string.document_viewer_attribution_title), com.jhaiian.clint.ui.DocumentViewer.ATTRIBUTION_URL)
+        }
     }
 
     private fun makeClickable(view: TextView, url: String) {

@@ -69,13 +69,17 @@ internal fun MainActivity.handleLinkPreviewPage(url: String) {
 internal fun MainActivity.handleLinkCopyAddress(url: String) {
     val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.link_copy_address), url))
-    ClintToast.show(this, getString(R.string.link_address_copied), R.drawable.ic_copy_24)
+    if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU) {
+        ClintToast.show(this, getString(R.string.link_address_copied), R.drawable.ic_copy_24)
+    }
 }
 
 internal fun MainActivity.handleLinkCopyText(text: String) {
     val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.link_copy_text), text))
-    ClintToast.show(this, getString(R.string.link_text_copied), R.drawable.ic_copy_24)
+    if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU) {
+        ClintToast.show(this, getString(R.string.link_text_copied), R.drawable.ic_copy_24)
+    }
 }
 
 internal fun MainActivity.handleLinkShare(url: String) {

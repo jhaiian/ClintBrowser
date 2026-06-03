@@ -14,7 +14,7 @@
     android:paddingBottom="8dp">
 
     <LinearLayout
-        android:id="@+id/option_accent_default"
+        android:id="@+id/option_accent_purple"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -28,7 +28,7 @@
         android:focusable="true">
 
         <View
-            android:id="@+id/swatch_default"
+            android:id="@+id/swatch_purple"
             android:layout_width="44dp"
             android:layout_height="44dp" />
 
@@ -43,7 +43,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/accent_default"
+                android:text="@string/accent_purple"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:textColor="?attr/colorOnSurface" />
@@ -51,7 +51,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/accent_default_desc"
+                android:text="@string/accent_purple_desc"
                 android:textSize="13sp"
                 android:textColor="?attr/colorOnSurface"
                 android:alpha="0.65"
@@ -59,7 +59,7 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/check_accent_default"
+            android:id="@+id/check_accent_purple"
             android:layout_width="22dp"
             android:layout_height="22dp"
             android:src="@drawable/ic_check_24"
@@ -136,7 +136,7 @@
         android:alpha="0.08" />
 
     <LinearLayout
-        android:id="@+id/option_accent_purple"
+        android:id="@+id/option_accent_default"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -150,7 +150,7 @@
         android:focusable="true">
 
         <View
-            android:id="@+id/swatch_purple"
+            android:id="@+id/swatch_default"
             android:layout_width="44dp"
             android:layout_height="44dp" />
 
@@ -165,7 +165,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/accent_purple"
+                android:text="@string/accent_default"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:textColor="?attr/colorOnSurface" />
@@ -173,7 +173,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/accent_purple_desc"
+                android:text="@string/accent_default_desc"
                 android:textSize="13sp"
                 android:textColor="?attr/colorOnSurface"
                 android:alpha="0.65"
@@ -181,7 +181,7 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/check_accent_purple"
+            android:id="@+id/check_accent_default"
             android:layout_width="22dp"
             android:layout_height="22dp"
             android:src="@drawable/ic_check_24"

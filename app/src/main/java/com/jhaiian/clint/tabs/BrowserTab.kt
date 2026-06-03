@@ -8,5 +8,6 @@ data class BrowserTab(
     var title: String = "New Tab",
     var url: String = "",
     val isIncognito: Boolean = false,
+    val isRefreshLinkTab: Boolean = false,
     val webView: WebView
 )

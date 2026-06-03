@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -15,11 +16,11 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="?attr/actionBarSize"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingStart="4dp"
-            android:paddingEnd="16dp">
+            android:paddingEnd="4dp">
 
             <ImageView
                 android:id="@+id/btn_back"
@@ -28,9 +29,10 @@
                 android:src="@drawable/ic_arrow_back_24"
                 android:padding="12dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Back" />
+                android:contentDescription="@string/back" />
 
             <TextView
+                android:id="@+id/toolbar_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -40,40 +42,140 @@
                 android:textSize="19sp"
                 android:fontFamily="sans-serif-medium" />
 
-            <TextView
-                android:id="@+id/btn_clear_downloads"
-                android:layout_width="wrap_content"
+            <EditText
+                android:id="@+id/search_edit_text"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:paddingStart="12dp"
-                android:paddingEnd="4dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:text="@string/downloads_clear_done"
-                android:textColor="?attr/colorPrimary"
-                android:textSize="14sp"
-                android:background="?attr/selectableItemBackgroundBorderless" />
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                android:hint="@string/downloads_search_hint"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/clintSecondaryTextColor"
+                android:textSize="16sp"
+                android:background="@null"
+                android:inputType="text"
+                android:imeOptions="actionSearch"
+                android:singleLine="true"
+                android:maxLines="1"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/btn_search_close"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_close_24"
+                android:padding="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="?attr/clintIconTint"
+                android:contentDescription="@string/downloads_search"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/btn_search"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_search_24"
+                android:padding="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="?attr/clintIconTint"
+                android:contentDescription="@string/downloads_search" />
+
+            <ImageView
+                android:id="@+id/btn_download_settings"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_settings_24"
+                android:padding="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="?attr/clintIconTint"
+                android:contentDescription="@string/download_settings_title" />
+
+            <ImageView
+                android:id="@+id/btn_sort"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_sort_24"
+                android:padding="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="?attr/colorPrimary"
+                android:alpha="0.85"
+                android:contentDescription="@string/downloads_sort" />
+
+            <ImageView
+                android:id="@+id/btn_selection_options"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_checklist_24"
+                android:padding="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="?attr/colorPrimary"
+                android:alpha="0.85"
+                android:contentDescription="@string/downloads_more_options"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/btn_multi_item_options"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_more_horiz_24"
+                android:padding="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="?attr/colorPrimary"
+                android:alpha="0.85"
+                android:contentDescription="@string/download_multi_options_desc"
+                android:visibility="gone" />
 
         </LinearLayout>
 
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/downloads_tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            app:tabMode="auto"
+            app:tabGravity="fill"
+            app:tabIndicatorFullWidth="false" />
+
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/downloads_empty"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="@string/downloads_empty"
-        android:textColor="?attr/clintSecondaryTextColor"
-        android:textSize="15sp"
-        android:visibility="gone" />
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/downloads_recycler"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingTop="8dp"
-        android:paddingBottom="24dp"
-        android:clipToPadding="false"
-        android:visibility="gone" />
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/downloads_view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_add_download"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="24dp"
+            android:src="@drawable/ic_add_24"
+            android:contentDescription="@string/download_manual_fab_desc"
+            app:backgroundTint="?attr/clintButtonBackground"
+            app:tint="?attr/clintButtonIconTint"
+            app:fabSize="normal" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="24dp"
+            android:src="@drawable/ic_delete_24"
+            android:contentDescription="@string/downloads_delete_selected_desc"
+            app:backgroundTint="?attr/clintButtonBackground"
+            app:tint="?attr/clintButtonIconTint"
+            app:fabSize="normal"
+            android:visibility="gone" />
+
+    </FrameLayout>
 
 </LinearLayout>

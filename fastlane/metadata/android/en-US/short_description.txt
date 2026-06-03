@@ -1,1 +1,1 @@
-A customizable Android WebView browser focused on privacy
+Material Design Android Browser

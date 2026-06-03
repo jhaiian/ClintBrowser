@@ -71,11 +71,11 @@ private lateinit var binding: ActivitySetupBinding
 
     private var selectedEngine = "duckduckgo"
 
-    private var selectedTheme = "default"
+    private var selectedTheme = "dark"
 
-    private var selectedAccent = "default"
+    private var selectedAccent = "purple"
 
-    private var selectedIntensity = "soft_tint"
+    private var selectedIntensity = "strong_tint"
 
 private var selectedAddressBarPosition = "top"
 
@@ -155,11 +155,11 @@ override fun onCreate(savedInstanceState: Bundle?) {
 
         }
 
-selectedTheme = prefs.getString("app_theme", "default") ?: "default"
+selectedTheme = prefs.getString("app_theme", "dark") ?: "dark"
 
-        selectedAccent = prefs.getString("accent_color", "default") ?: "default"
+        selectedAccent = prefs.getString("accent_color", "purple") ?: "purple"
 
-        selectedIntensity = prefs.getString("surface_intensity", "soft_tint") ?: "soft_tint"
+        selectedIntensity = prefs.getString("surface_intensity", "strong_tint") ?: "strong_tint"
 
         selectedAddressBarPosition = prefs.getString("address_bar_position", "top") ?: "top"
 

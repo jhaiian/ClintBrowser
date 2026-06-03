@@ -1,9 +1,8 @@
-Clint is a free, open-source Android browser with no dedicated backend infrastructure, built with privacy in mind. It features a clean, customizable interface that lets users tailor the look and feel to their preference. It blocks known trackers and analytics, and completely isolates incognito sessions. Every feature is designed around the philosophy that your browsing data belongs to you and only you.
+Clint is a free and open-source Android browser with no dedicated backend infrastructure, which means it does not collect any of your data. It features a clean, customizable interface that allows users to tailor the look and feel to their preferences. With an advanced built-in download manager, Clint provides a powerful browsing experience while maintaining user privacy. Every feature is designed around the philosophy that your browsing data belongs to you and only you.
 
 Privacy & Security
 
 · Blocks 16+ trackers and analytics domains
-· Zero Google telemetry
 · Third-party cookie blocking
 · Generic user-agent to reduce fingerprinting
 · HTTPS-Only Mode
@@ -16,19 +15,19 @@ Browsing Features
 · Data saver mode (blocks images, disables auto-play video)
 · Speech-to-text in address bar
 · Search suggestions
-. Browser History
+· Browser history
 · Pull-to-refresh
 · Desktop mode
-· Popup protection
+· Pop-up protection
 · Full-screen video support
 
-Customization.
+Customization
 
-· 3 themes: Default purple, Dark, Light
+· 3 themes: Dark, Light, Legacy
 · 7 accent colors including Material You
 · 3 surface intensity levels
 · 3 address bar positions: Top, Bottom, Split
-· 2 menu styles: Pop-up or Bottom Sheet
+· 2 menu styles: Pop-up or bottom sheet
 · Nested scroll controls
 · Hide status bar option
 
@@ -40,26 +39,77 @@ Bookmarks
 
 Downloads & Uploads
 
-· Custom OkHttp download engine
 · Upload images, videos, audio, and recordings
+· Advanced download manager using OkHttp (1DM inspired)
+· Custom download location
+· Split download parts
+· Multi-threading
+· Pause and resume support
 · Long-press any image to download
-· Real-time progress with cancel support
-· Install APKs directly from downloads screen
-· Automatic duplicate filename handling
 
 Site Settings
 
 · Manage camera, microphone, location, notifications
-· Configurable defaults: Ask first, Always deny, Always allow
+· Configurable defaults: Ask first, always deny, always allow
 · Site exceptions
 
 Additional Features
 
 · Local crash log viewer
 · Intent handling for external apps (YouTube, Spotify, etc.)
-· Favicons.
+· Favicons
 
 Requirements
 
 · Android 8.0 (API 26) or higher
-· Android WebView (Bromite) (Android System WebView) Etc.
+· Android System WebView
+
+App permissions
+
+INTERNET
+Lets the app load websites and download files.
+
+ACCESS_NETWORK_STATE
+Lets the app check if you're connected to the internet and whether you're on Wi-Fi or mobile data, so downloads can pause when you go offline and resume when you reconnect.
+
+WRITE_EXTERNAL_STORAGE
+Lets the app save downloaded files to your Downloads folder. Only applies on Android 9 and below.
+
+POST_NOTIFICATIONS
+Lets the app show download progress, completion, and failure alerts in your notification bar.
+
+REQUEST_INSTALL_PACKAGES
+Lets the app install APK files you download directly from the download screen.
+
+CAMERA
+Used when a website asks you to upload a photo and you choose to take one with your camera, and when a website requests camera access for video calls.
+
+RECORD_AUDIO
+Used for the voice search button in the browser, and when a website requests microphone access for voice or video calls.
+
+MODIFY_AUDIO_SETTINGS
+Required for WebRTC voice and video calls on websites to work properly. The WebView needs this to manage audio routing during a call.
+
+ACCESS_FINE_LOCATION
+Used when a website asks for your location, for example to show nearby places or get directions.
+
+ACCESS_COARSE_LOCATION
+Same as ACCESS_FINE_LOCATION but used as a fallback when only approximate location is available on your device.
+
+QUERY_ALL_PACKAGES
+Lets the app detect which apps on your device can handle special links, like opening a phone number in your dialer or a store link in the Play Store.
+
+FOREGROUND_SERVICE
+Lets the app keep downloading files even when you switch to another app.
+
+FOREGROUND_SERVICE_DATA_SYNC
+Works together with FOREGROUND_SERVICE to tell Android that the background activity is a file download.
+
+REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+Prevents Android from pausing downloads when the device is in battery saver or Doze mode.
+
+WAKE_LOCK
+Prevents your device from sleeping while a download is in progress so files don't get stuck halfway.
+
+RECEIVE_BOOT_COMPLETED
+Lets the app check for unfinished downloads after your device restarts and resume them automatically.

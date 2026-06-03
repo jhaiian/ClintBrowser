@@ -15,8 +15,11 @@ import android.os.Handler
 import android.os.Looper
 import android.webkit.WebChromeClient
 import android.webkit.WebView
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import androidx.activity.result.contract.ActivityResultContracts
+import kotlin.math.abs
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -25,6 +28,7 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jhaiian.clint.base.ClintActivity
 import com.jhaiian.clint.R
+import com.jhaiian.clint.BuildConfig
 import com.jhaiian.clint.crash.CrashHandler
 import com.jhaiian.clint.databinding.ActivityMainBinding
 import com.jhaiian.clint.downloads.ClintDownloadManager
@@ -35,6 +39,24 @@ import com.jhaiian.clint.ui.ClintToast
 import androidx.webkit.ScriptHandler
 
 class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet.Listener, ImageLongPressSheet.Listener, LinkLongPressSheet.Listener, ContentPreviewSheet.Listener, PreviewLinkLongPressSheet.Listener {
+
+    companion object {
+        const val EXTRA_REFRESH_LINK_MODE = "extra_refresh_link_mode"
+        const val EXTRA_REFRESH_LINK_DOWNLOAD_ID = "extra_refresh_link_download_id"
+        const val EXTRA_REFRESH_LINK_FILENAME = "extra_refresh_link_filename"
+        const val EXTRA_REFRESH_LINK_ORIGINAL_URL = "extra_refresh_link_original_url"
+        const val EXTRA_REFRESH_LINK_ORIGINAL_REFERER = "extra_refresh_link_original_referer"
+    }
+
+    data class RefreshLinkSession(
+        val downloadId: Int,
+        val filename: String,
+        val originalUrl: String,
+        val originalReferer: String,
+        val previousTabIndex: Int
+    )
+
+    internal var refreshLinkSession: RefreshLinkSession? = null
 
     internal lateinit var binding: ActivityMainBinding
     internal lateinit var prefs: SharedPreferences
@@ -55,12 +77,17 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
     internal var bottomBarFraction: Float = 0f
     internal var hasWebBottomNav: Boolean = false
     internal var nestedScrollActive = false
+    internal var canvasTouchActive = false
+    internal var swipeGuardBlocked = false
+    private var swipeGuardInitX = 0f
+    private var swipeGuardInitY = 0f
 
     internal var fullscreenView: View? = null
     internal var fullscreenCallback: WebChromeClient.CustomViewCallback? = null
 
     internal var suggestionFetcherTop: SuggestionFetcher? = null
     internal var suggestionFetcherBottom: SuggestionFetcher? = null
+    internal var suggestionsBgThread: android.os.HandlerThread? = null
 
     private var backPressedOnce = false
     private val backPressHandler = Handler(Looper.getMainLooper())
@@ -80,6 +107,7 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
     )
 
     internal var pendingDownload: PendingDownload? = null
+    internal var downloadDialogFolderPickerCallback: ((android.net.Uri) -> Unit)? = null
     internal var pendingVoiceSearchEditText: android.widget.EditText? = null
     internal var pendingWebPermissionRequest: android.webkit.PermissionRequest? = null
     internal var pendingWebMicPermissionRequest: android.webkit.PermissionRequest? = null
@@ -218,6 +246,16 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
         cameraVideoUri = null
     }
 
+    internal val downloadDialogFolderPickerLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            val uri = result.data?.data ?: return@registerForActivityResult
+            downloadDialogFolderPickerCallback?.invoke(uri)
+        }
+        downloadDialogFolderPickerCallback = null
+    }
+
     private val prefsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         when (key) {
             "javascript_enabled" -> applyJavaScript()
@@ -306,7 +344,7 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
         ) {
             notifPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
         }
-        if (prefs.getBoolean("check_update_on_launch", true)) {
+        if (!BuildConfig.IS_FDROID && prefs.getBoolean("check_update_on_launch", true)) {
             val skipOnMetered = prefs.getBoolean("skip_update_on_metered", true)
             val isBeta = prefs.getBoolean("beta_channel", false)
             if (!skipOnMetered || !isNetworkMetered()) {
@@ -318,18 +356,47 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
         setupAddressBar()
         setupNavigationButtons()
         applyAddressBarPosition()
-        val intentUrl = getUrlFromIntent(intent)
-        setIntent(android.content.Intent())
-        if (!intentUrl.isNullOrEmpty()) {
-            restoreTabs()
-            openNewTab(isIncognito = false, url = intentUrl)
-        } else if (!restoreTabs()) {
-            openNewTab(isIncognito = false, url = getSearchEngineHomeUrl())
+        val isRefreshLinkMode = intent.getBooleanExtra(EXTRA_REFRESH_LINK_MODE, false)
+        if (isRefreshLinkMode) {
+            val downloadId = intent.getIntExtra(EXTRA_REFRESH_LINK_DOWNLOAD_ID, -1)
+            val filename = intent.getStringExtra(EXTRA_REFRESH_LINK_FILENAME) ?: ""
+            val originalUrl = intent.getStringExtra(EXTRA_REFRESH_LINK_ORIGINAL_URL) ?: ""
+            val originalReferer = intent.getStringExtra(EXTRA_REFRESH_LINK_ORIGINAL_REFERER) ?: ""
+            setIntent(android.content.Intent())
+            if (downloadId != -1) {
+                restoreTabs()
+                refreshLinkSession = RefreshLinkSession(downloadId, filename, originalUrl, originalReferer, tabManager.activeIndex)
+                openRefreshLinkTab(originalReferer.ifEmpty { originalUrl.ifEmpty { getSearchEngineHomeUrl() } })
+            } else if (!restoreTabs()) {
+                openNewTab(isIncognito = false, url = getSearchEngineHomeUrl())
+            }
+        } else {
+            val intentUrl = getUrlFromIntent(intent)
+            setIntent(android.content.Intent())
+            if (!intentUrl.isNullOrEmpty()) {
+                restoreTabs()
+                openNewTab(isIncognito = false, url = intentUrl)
+            } else if (!restoreTabs()) {
+                openNewTab(isIncognito = false, url = getSearchEngineHomeUrl())
+            }
         }
     }
 
     override fun onNewIntent(intent: android.content.Intent) {
         super.onNewIntent(intent)
+        val isRefreshLinkMode = intent.getBooleanExtra(EXTRA_REFRESH_LINK_MODE, false)
+        if (isRefreshLinkMode) {
+            val downloadId = intent.getIntExtra(EXTRA_REFRESH_LINK_DOWNLOAD_ID, -1)
+            val filename = intent.getStringExtra(EXTRA_REFRESH_LINK_FILENAME) ?: ""
+            val originalUrl = intent.getStringExtra(EXTRA_REFRESH_LINK_ORIGINAL_URL) ?: ""
+            val originalReferer = intent.getStringExtra(EXTRA_REFRESH_LINK_ORIGINAL_REFERER) ?: ""
+            setIntent(android.content.Intent())
+            if (downloadId != -1) {
+                refreshLinkSession = RefreshLinkSession(downloadId, filename, originalUrl, originalReferer, tabManager.activeIndex)
+                openRefreshLinkTab(originalReferer.ifEmpty { originalUrl.ifEmpty { getSearchEngineHomeUrl() } })
+            }
+            return
+        }
         val url = getUrlFromIntent(intent)
         setIntent(android.content.Intent())
         if (!url.isNullOrEmpty()) {
@@ -344,6 +411,7 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
         bottomBarFraction = 0f
         topBarFraction = 0f
         nestedScrollActive = false
+        canvasTouchActive = false
         hasWebBottomNav = false
         binding.bottomBar.translationY = 0f
         binding.toolbarTop.translationY = 0f
@@ -365,14 +433,56 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
     override fun onStop() {
         super.onStop()
         saveTabs()
+        if (refreshLinkSession != null) {
+            cleanupRefreshLinkTabs()
+            refreshLinkSession = null
+        }
     }
 
     override fun onDestroy() {
         prefs.unregisterOnSharedPreferenceChangeListener(prefsListener)
+        if (refreshLinkSession != null) {
+            cleanupRefreshLinkTabs()
+            refreshLinkSession = null
+        }
         tabManager.destroyAll()
         suggestionFetcherTop?.cancel()
         suggestionFetcherBottom?.cancel()
+        suggestionsBgThread?.quitSafely()
         super.onDestroy()
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        val slop = ViewConfiguration.get(this).scaledTouchSlop
+        when (ev.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                swipeGuardInitX = ev.x
+                swipeGuardInitY = ev.y
+                swipeGuardBlocked = false
+            }
+            MotionEvent.ACTION_POINTER_DOWN -> {
+                if (!swipeGuardBlocked) {
+                    swipeGuardBlocked = true
+                    binding.swipeRefresh.isEnabled = false
+                }
+            }
+            MotionEvent.ACTION_MOVE -> {
+                if (!swipeGuardBlocked) {
+                    val dx = abs(ev.x - swipeGuardInitX)
+                    val dy = abs(ev.y - swipeGuardInitY)
+                    if (dx > slop && dx >= dy) {
+                        swipeGuardBlocked = true
+                    }
+                }
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                if (swipeGuardBlocked) {
+                    swipeGuardBlocked = false
+                    updateMainContentInsets()
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev)
     }
 
     override fun onKeyDown(keyCode: Int, event: android.view.KeyEvent?): Boolean {
@@ -529,6 +639,10 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
         startActivity(android.content.Intent(this, com.jhaiian.clint.settings.SettingsActivity::class.java)
             .putExtra(com.jhaiian.clint.settings.SettingsActivity.EXTRA_OPEN_FRAGMENT, "data_saver"))
     }
+    override fun onMenuOpenDownloadSettings() {
+        startActivity(android.content.Intent(this, com.jhaiian.clint.settings.SettingsActivity::class.java)
+            .putExtra(com.jhaiian.clint.settings.SettingsActivity.EXTRA_OPEN_FRAGMENT, "download_settings"))
+    }
     override fun onMenuReaderMode() {
         val wv = tabManager.activeTab?.webView ?: return
         val pageUrl = wv.url ?: return
@@ -547,7 +661,7 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
             val title = json.optString("title", "")
             val content = json.optString("content", "")
             val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this)
-            val theme = prefs.getString("app_theme", "default") ?: "default"
+            val theme = prefs.getString("app_theme", "dark") ?: "dark"
             val isDark = when (theme) {
                 "dark" -> true
                 "light" -> false
@@ -588,6 +702,13 @@ td,th{border:1px solid $secondaryColor;padding:6px 8px;}
         @android.webkit.JavascriptInterface
         fun onNestedScroll(active: Boolean) {
             runOnUiThread { nestedScrollActive = active }
+        }
+    }
+
+    inner class CanvasTouchBridge {
+        @android.webkit.JavascriptInterface
+        fun onCanvasTouch(active: Boolean) {
+            runOnUiThread { canvasTouchActive = active }
         }
     }
 
@@ -698,7 +819,9 @@ td,th{border:1px solid $secondaryColor;padding:6px 8px;}
     inner class BlobDownloadBridge {
         @android.webkit.JavascriptInterface
         fun receiveBlob(base64: String, filename: String, mimeType: String) {
-            com.jhaiian.clint.downloads.ClintDownloadManager.enqueueBlob(this@MainActivity, base64, filename, mimeType)
+            com.jhaiian.clint.downloads.ClintDownloadManager.mainHandler.post {
+                showDownloadDialogForBlob(base64, filename, mimeType)
+            }
         }
 
         @android.webkit.JavascriptInterface

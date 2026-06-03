@@ -36,6 +36,7 @@ class MenuBottomSheet : BottomSheetDialogFragment() {
         fun onMenuReaderMode()
         fun onMenuDataSaver()
         fun onMenuOpenDataSaverSettings()
+        fun onMenuOpenDownloadSettings()
     }
 
     var showNavRow: Boolean = false
@@ -72,6 +73,16 @@ class MenuBottomSheet : BottomSheetDialogFragment() {
             sheet?.let {
                 val behavior = BottomSheetBehavior.from(it)
                 behavior.skipCollapsed = true
+                val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+                if (isLandscape) {
+                    val screenHeight = resources.displayMetrics.heightPixels
+                    it.layoutParams?.height = screenHeight
+                    behavior.isFitToContents = false
+                    behavior.peekHeight = 0
+                    behavior.maxHeight = screenHeight
+                } else {
+                    behavior.isFitToContents = true
+                }
                 behavior.state = BottomSheetBehavior.STATE_EXPANDED
             }
         }
@@ -138,6 +149,11 @@ class MenuBottomSheet : BottomSheetDialogFragment() {
         view.findViewById<View>(R.id.sheet_menu_incognito).setOnClickListener { dismiss(); listener?.onMenuIncognito() }
         view.findViewById<View>(R.id.sheet_menu_share).setOnClickListener { dismiss(); listener?.onMenuShare() }
         view.findViewById<View>(R.id.sheet_menu_downloads).setOnClickListener { dismiss(); listener?.onMenuDownloads() }
+        view.findViewById<View>(R.id.sheet_menu_downloads).setOnLongClickListener {
+            dismiss()
+            listener?.onMenuOpenDownloadSettings()
+            true
+        }
         view.findViewById<View>(R.id.sheet_menu_bookmarks).setOnClickListener { dismiss(); listener?.onMenuBookmarks() }
         view.findViewById<View>(R.id.sheet_menu_history).setOnClickListener { dismiss(); listener?.onMenuHistory() }
         view.findViewById<View>(R.id.sheet_menu_desktop_mode).setOnClickListener {

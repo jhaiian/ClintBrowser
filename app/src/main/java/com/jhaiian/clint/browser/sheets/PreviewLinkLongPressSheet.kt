@@ -49,6 +49,16 @@ class PreviewLinkLongPressSheet : BottomSheetDialogFragment() {
             sheet?.let {
                 val behavior = BottomSheetBehavior.from(it)
                 behavior.skipCollapsed = true
+                val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+                if (isLandscape) {
+                    val screenHeight = resources.displayMetrics.heightPixels
+                    it.layoutParams?.height = screenHeight
+                    behavior.isFitToContents = false
+                    behavior.peekHeight = 0
+                    behavior.maxHeight = screenHeight
+                } else {
+                    behavior.isFitToContents = true
+                }
                 behavior.state = BottomSheetBehavior.STATE_EXPANDED
             }
         }

@@ -1,92 +1,105 @@
 package com.jhaiian.clint.settings.fragments
 
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.RadioButton
-import androidx.core.graphics.drawable.DrawableCompat
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
+import android.widget.Switch
+import android.widget.TextView
+import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
-import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jhaiian.clint.R
 import com.jhaiian.clint.base.ClintActivity
 
-class BrowserSettingsFragment : PreferenceFragmentCompat() {
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        setPreferencesFromResource(R.xml.browser_preferences, rootKey)
-        applyIconTints()
+class BrowserSettingsFragment : Fragment() {
 
-        findPreference<Preference>("search_engine")?.setOnPreferenceClickListener {
-            showEngineDialog()
-            true
-        }
+    private lateinit var rowSearchEngine: LinearLayout
+    private lateinit var textSearchEngineSummary: TextView
+    private lateinit var rowJavascriptEnabled: LinearLayout
+    private lateinit var switchJavascriptEnabled: Switch
+    private lateinit var rowCacheMode: LinearLayout
+    private lateinit var textCacheModeSummary: TextView
 
-        findPreference<Preference>("cache_mode")?.setOnPreferenceClickListener {
-            showCacheModeDialog()
-            true
-        }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return inflater.inflate(R.layout.fragment_browser_settings, container, false)
+    }
 
-        findPreference<SwitchPreferenceCompat>("javascript_enabled")?.setOnPreferenceChangeListener { pref, newValue ->
-            if (newValue == false) {
-                showJavaScriptWarning(pref as SwitchPreferenceCompat)
-                false
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        rowSearchEngine = view.findViewById(R.id.row_search_engine)
+        textSearchEngineSummary = view.findViewById(R.id.text_search_engine_summary)
+        rowJavascriptEnabled = view.findViewById(R.id.row_javascript_enabled)
+        switchJavascriptEnabled = view.findViewById(R.id.switch_javascript_enabled)
+        rowCacheMode = view.findViewById(R.id.row_cache_mode)
+        textCacheModeSummary = view.findViewById(R.id.text_cache_mode_summary)
+
+        rowSearchEngine.setOnClickListener { showEngineDialog() }
+        rowJavascriptEnabled.setOnClickListener {
+            val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+            val current = prefs.getBoolean("javascript_enabled", true)
+            if (current) {
+                showJavaScriptWarning()
             } else {
-                true
+                switchJavascriptEnabled.isChecked = true
+                prefs.edit().putBoolean("javascript_enabled", true).apply()
             }
         }
+        rowCacheMode.setOnClickListener { showCacheModeDialog() }
+
+        updateAll()
     }
 
     override fun onResume() {
         super.onResume()
-        updateEngineSummary()
-        updateCacheModeSummary()
+        updateAll()
     }
 
-    private fun applyIconTints() {
-        val color = MaterialColors.getColor(requireContext(), R.attr.clintIconTint, 0)
-        val tint = ColorStateList.valueOf(color)
-        listOf("search_engine", "javascript_enabled", "cache_mode").forEach { key ->
-            findPreference<Preference>(key)?.let { pref ->
-                pref.icon?.mutate()?.let { icon ->
-                    DrawableCompat.setTintList(DrawableCompat.wrap(icon), tint)
-                    pref.icon = icon
-                }
-            }
-        }
+    private fun updateAll() {
+        updateEngineSummary()
+        updateCacheModeSummary()
+        updateJavascriptSwitch()
     }
 
     private fun updateEngineSummary() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val label = when (prefs.getString("search_engine", "duckduckgo")) {
-            "brave"  -> getString(R.string.engine_brave)
+        textSearchEngineSummary.text = when (prefs.getString("search_engine", "duckduckgo")) {
+            "brave" -> getString(R.string.engine_brave)
             "google" -> getString(R.string.engine_google)
-            else     -> getString(R.string.engine_duckduckgo)
+            else -> getString(R.string.engine_duckduckgo)
         }
-        findPreference<Preference>("search_engine")?.summary = label
     }
 
     private fun updateCacheModeSummary() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val summary = when (prefs.getString("cache_mode", "default")) {
+        textCacheModeSummary.text = when (prefs.getString("cache_mode", "default")) {
             "cache_else_network" -> getString(R.string.cache_mode_summary_cache_first)
-            "no_cache"           -> getString(R.string.cache_mode_summary_always_fresh)
-            "cache_only"         -> getString(R.string.cache_mode_summary_offline)
-            else                 -> getString(R.string.cache_mode_summary_smart)
+            "no_cache" -> getString(R.string.cache_mode_summary_always_fresh)
+            "cache_only" -> getString(R.string.cache_mode_summary_offline)
+            else -> getString(R.string.cache_mode_summary_smart)
         }
-        findPreference<Preference>("cache_mode")?.summary = summary
     }
 
-    private fun showJavaScriptWarning(pref: SwitchPreferenceCompat) {
+    private fun updateJavascriptSwitch() {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        switchJavascriptEnabled.isChecked = prefs.getBoolean("javascript_enabled", true)
+    }
+
+    private fun showJavaScriptWarning() {
         MaterialAlertDialogBuilder(requireContext(), (requireActivity() as ClintActivity).getDialogTheme())
             .setTitle(getString(R.string.js_warning_title))
             .setMessage(getString(R.string.js_warning_message))
             .setNegativeButton(getString(R.string.action_cancel), null)
             .setPositiveButton(getString(R.string.action_turn_off_anyway)) { _, _ ->
-                pref.isChecked = false
+                switchJavascriptEnabled.isChecked = false
                 PreferenceManager.getDefaultSharedPreferences(requireContext())
                     .edit().putBoolean("javascript_enabled", false).apply()
             }
@@ -100,23 +113,23 @@ class BrowserSettingsFragment : PreferenceFragmentCompat() {
         val dialogView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_search_engine, null)
 
-        val cardDuck   = dialogView.findViewById<MaterialCardView>(R.id.cardDialogDuck)
-        val cardBrave  = dialogView.findViewById<MaterialCardView>(R.id.cardDialogBrave)
+        val cardDuck = dialogView.findViewById<MaterialCardView>(R.id.cardDialogDuck)
+        val cardBrave = dialogView.findViewById<MaterialCardView>(R.id.cardDialogBrave)
         val cardGoogle = dialogView.findViewById<MaterialCardView>(R.id.cardDialogGoogle)
 
-        val radioDuck   = dialogView.findViewById<RadioButton>(R.id.radioDuckDialog)
-        val radioBrave  = dialogView.findViewById<RadioButton>(R.id.radioBraveDialog)
+        val radioDuck = dialogView.findViewById<RadioButton>(R.id.radioDuckDialog)
+        val radioBrave = dialogView.findViewById<RadioButton>(R.id.radioBraveDialog)
         val radioGoogle = dialogView.findViewById<RadioButton>(R.id.radioGoogleDialog)
 
         val cardMap = mapOf(
             "duckduckgo" to cardDuck,
-            "brave"      to cardBrave,
-            "google"     to cardGoogle
+            "brave" to cardBrave,
+            "google" to cardGoogle
         )
         val radioMap = mapOf(
             "duckduckgo" to radioDuck,
-            "brave"      to radioBrave,
-            "google"     to radioGoogle
+            "brave" to radioBrave,
+            "google" to radioGoogle
         )
 
         var selected = current
@@ -134,8 +147,8 @@ class BrowserSettingsFragment : PreferenceFragmentCompat() {
 
         selectEngine(current)
 
-        cardDuck.setOnClickListener   { selectEngine("duckduckgo") }
-        cardBrave.setOnClickListener  { selectEngine("brave") }
+        cardDuck.setOnClickListener { selectEngine("duckduckgo") }
+        cardBrave.setOnClickListener { selectEngine("brave") }
         cardGoogle.setOnClickListener { selectEngine("google") }
 
         MaterialAlertDialogBuilder(requireContext(), (requireActivity() as ClintActivity).getDialogTheme())
@@ -153,8 +166,8 @@ class BrowserSettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun confirmEngine(engine: String) {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        prefs.edit().putString("search_engine", engine).apply()
+        PreferenceManager.getDefaultSharedPreferences(requireContext())
+            .edit().putString("search_engine", engine).apply()
         updateEngineSummary()
     }
 
@@ -174,27 +187,27 @@ class BrowserSettingsFragment : PreferenceFragmentCompat() {
         val dialogView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_cache_mode, null)
 
-        val cardSmart       = dialogView.findViewById<MaterialCardView>(R.id.cardCacheSmart)
-        val cardCacheFirst  = dialogView.findViewById<MaterialCardView>(R.id.cardCacheFirst)
+        val cardSmart = dialogView.findViewById<MaterialCardView>(R.id.cardCacheSmart)
+        val cardCacheFirst = dialogView.findViewById<MaterialCardView>(R.id.cardCacheFirst)
         val cardAlwaysFresh = dialogView.findViewById<MaterialCardView>(R.id.cardCacheAlwaysFresh)
-        val cardOffline     = dialogView.findViewById<MaterialCardView>(R.id.cardCacheOffline)
+        val cardOffline = dialogView.findViewById<MaterialCardView>(R.id.cardCacheOffline)
 
-        val radioSmart       = dialogView.findViewById<RadioButton>(R.id.radioCacheSmart)
-        val radioCacheFirst  = dialogView.findViewById<RadioButton>(R.id.radioCacheFirst)
+        val radioSmart = dialogView.findViewById<RadioButton>(R.id.radioCacheSmart)
+        val radioCacheFirst = dialogView.findViewById<RadioButton>(R.id.radioCacheFirst)
         val radioAlwaysFresh = dialogView.findViewById<RadioButton>(R.id.radioCacheAlwaysFresh)
-        val radioOffline     = dialogView.findViewById<RadioButton>(R.id.radioCacheOffline)
+        val radioOffline = dialogView.findViewById<RadioButton>(R.id.radioCacheOffline)
 
         val cardMap = mapOf(
-            "default"            to cardSmart,
+            "default" to cardSmart,
             "cache_else_network" to cardCacheFirst,
-            "no_cache"           to cardAlwaysFresh,
-            "cache_only"         to cardOffline
+            "no_cache" to cardAlwaysFresh,
+            "cache_only" to cardOffline
         )
         val radioMap = mapOf(
-            "default"            to radioSmart,
+            "default" to radioSmart,
             "cache_else_network" to radioCacheFirst,
-            "no_cache"           to radioAlwaysFresh,
-            "cache_only"         to radioOffline
+            "no_cache" to radioAlwaysFresh,
+            "cache_only" to radioOffline
         )
 
         var selected = current
@@ -212,10 +225,10 @@ class BrowserSettingsFragment : PreferenceFragmentCompat() {
 
         selectOption(current)
 
-        cardSmart.setOnClickListener       { selectOption("default") }
-        cardCacheFirst.setOnClickListener  { selectOption("cache_else_network") }
+        cardSmart.setOnClickListener { selectOption("default") }
+        cardCacheFirst.setOnClickListener { selectOption("cache_else_network") }
         cardAlwaysFresh.setOnClickListener { selectOption("no_cache") }
-        cardOffline.setOnClickListener     { selectOption("cache_only") }
+        cardOffline.setOnClickListener { selectOption("cache_only") }
 
         MaterialAlertDialogBuilder(requireContext(), (requireActivity() as ClintActivity).getDialogTheme())
             .setTitle(getString(R.string.cache_mode_dialog_title))

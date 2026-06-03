@@ -34,7 +34,7 @@ class ClintApplication : Application() {
 
     fun applyNightMode() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val theme = prefs.getString("app_theme", "default") ?: "default"
+        val theme = prefs.getString("app_theme", "dark") ?: "dark"
         AppCompatDelegate.setDefaultNightMode(
             when (theme) {
                 "dark" -> AppCompatDelegate.MODE_NIGHT_YES

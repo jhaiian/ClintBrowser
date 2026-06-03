@@ -30,6 +30,8 @@ object DocumentViewer {
         "https://raw.githubusercontent.com/jhaiian/ClintBrowser/main/TERMS_OF_SERVICE.md"
     const val CHANGELOG_URL =
         "https://raw.githubusercontent.com/jhaiian/ClintBrowser/main/CHANGELOG.md"
+    const val ATTRIBUTION_URL =
+        "https://raw.githubusercontent.com/jhaiian/ClintBrowser/main/Attribution.md"
 
     private fun getDialogTheme(context: Context): Int {
         return if (context is ClintActivity) context.getDialogTheme()

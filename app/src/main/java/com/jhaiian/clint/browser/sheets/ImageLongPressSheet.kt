@@ -3,6 +3,9 @@ package com.jhaiian.clint.browser.sheets
 import android.app.Dialog
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
+import android.graphics.drawable.AnimatedImageDrawable
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -12,6 +15,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
+import java.nio.ByteBuffer
 import androidx.preference.PreferenceManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -20,6 +24,7 @@ import com.jhaiian.clint.R
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.util.concurrent.TimeUnit
+import com.caverock.androidsvg.SVG
 
 class ImageLongPressSheet : BottomSheetDialogFragment() {
 
@@ -59,6 +64,16 @@ class ImageLongPressSheet : BottomSheetDialogFragment() {
             sheet?.let {
                 val behavior = BottomSheetBehavior.from(it)
                 behavior.skipCollapsed = true
+                val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+                if (isLandscape) {
+                    val screenHeight = resources.displayMetrics.heightPixels
+                    it.layoutParams?.height = screenHeight
+                    behavior.isFitToContents = false
+                    behavior.peekHeight = 0
+                    behavior.maxHeight = screenHeight
+                } else {
+                    behavior.isFitToContents = true
+                }
                 behavior.state = BottomSheetBehavior.STATE_EXPANDED
             }
         }
@@ -78,21 +93,26 @@ class ImageLongPressSheet : BottomSheetDialogFragment() {
         val isPreviewContext = arguments?.getBoolean(ARG_IS_PREVIEW_CONTEXT) ?: false
         val referer = arguments?.getString(ARG_REFERER) ?: ""
 
-        val urlFilename = imageUrl.substringAfterLast("/").substringBefore("?")
-            .takeIf { it.length > 4 && it.contains(".") }
-            ?: run {
-                try {
-                    val uri = android.net.Uri.parse(imageUrl)
-                    listOf("u", "url", "src", "img", "imgurl").firstNotNullOfOrNull { key ->
-                        uri.getQueryParameter(key)?.let { param ->
-                            java.net.URLDecoder.decode(param, "UTF-8")
-                                .substringAfterLast("/").substringBefore("?")
-                                .takeIf { it.contains(".") }
+        val isDataUri = imageUrl.startsWith("data:")
+        val urlFilename = if (!isDataUri) {
+            imageUrl.substringAfterLast("/").substringBefore("?")
+                .takeIf { it.length > 4 && it.contains(".") }
+                ?: run {
+                    try {
+                        val uri = android.net.Uri.parse(imageUrl)
+                        listOf("u", "url", "src", "img", "imgurl").firstNotNullOfOrNull { key ->
+                            uri.getQueryParameter(key)?.let { param ->
+                                java.net.URLDecoder.decode(param, "UTF-8")
+                                    .substringAfterLast("/").substringBefore("?")
+                                    .takeIf { it.contains(".") }
+                            }
                         }
-                    }
-                } catch (_: Exception) { null }
-            }
-        val displayTitle = pageTitle.ifEmpty { urlFilename ?: imageUrl }
+                    } catch (_: Exception) { null }
+                }
+        } else null
+        val displayTitle = pageTitle.ifEmpty {
+            if (isDataUri) getString(R.string.image_embedded_title) else urlFilename ?: imageUrl
+        }
 
         view.findViewById<TextView>(R.id.image_title).text = displayTitle
 
@@ -133,6 +153,27 @@ class ImageLongPressSheet : BottomSheetDialogFragment() {
     private fun loadThumbnail(imageView: ImageView, url: String, referer: String, userAgent: String) {
         if (url.isEmpty()) return
         val handler = Handler(Looper.getMainLooper())
+        if (url.startsWith("data:")) {
+            val commaIdx = url.indexOf(",")
+            if (commaIdx < 0) return
+            val header = url.substring(0, commaIdx)
+            val content = url.substring(commaIdx + 1)
+            val t = Thread {
+                try {
+                    val bytes = if (header.contains(";base64")) {
+                        android.util.Base64.decode(content, android.util.Base64.DEFAULT)
+                    } else {
+                        try {
+                            java.net.URLDecoder.decode(content, "UTF-8").toByteArray(Charsets.UTF_8)
+                        } catch (_: Exception) { content.toByteArray(Charsets.UTF_8) }
+                    }
+                    renderBytesToImageView(handler, imageView, bytes)
+                } catch (_: Exception) {}
+            }
+            thumbnailThread = t
+            t.start()
+            return
+        }
         thumbnailClient = OkHttpClient.Builder()
             .connectTimeout(8, TimeUnit.SECONDS)
             .readTimeout(8, TimeUnit.SECONDS)
@@ -146,7 +187,31 @@ class ImageLongPressSheet : BottomSheetDialogFragment() {
                     .build()
                 val response = thumbnailClient?.newCall(request)?.execute() ?: return@Thread
                 val bytes = response.body?.bytes() ?: return@Thread
-                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return@Thread
+                renderBytesToImageView(handler, imageView, bytes)
+            } catch (_: Exception) {}
+        }
+        thumbnailThread = t
+        t.start()
+    }
+
+    private fun renderBytesToImageView(handler: Handler, imageView: ImageView, bytes: ByteArray) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            try {
+                val source = ImageDecoder.createSource(ByteBuffer.wrap(bytes))
+                val drawable = ImageDecoder.decodeDrawable(source)
+                handler.post {
+                    if (isAdded) {
+                        imageView.setPadding(0, 0, 0, 0)
+                        imageView.imageTintList = null
+                        imageView.setImageDrawable(drawable)
+                        (drawable as? AnimatedImageDrawable)?.start()
+                    }
+                }
+                return
+            } catch (_: Exception) {}
+        } else {
+            val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            if (bitmap != null) {
                 handler.post {
                     if (isAdded) {
                         imageView.setPadding(0, 0, 0, 0)
@@ -154,10 +219,34 @@ class ImageLongPressSheet : BottomSheetDialogFragment() {
                         imageView.setImageBitmap(bitmap)
                     }
                 }
-            } catch (_: Exception) {}
+                return
+            }
         }
-        thumbnailThread = t
-        t.start()
+        renderSvgToImageView(handler, imageView, bytes)
+    }
+
+    private fun renderSvgToImageView(handler: Handler, imageView: ImageView, bytes: ByteArray) {
+        try {
+            val svg = SVG.getFromString(bytes.toString(Charsets.UTF_8))
+            val vb = svg.documentViewBox
+            val rawW = vb?.width()?.toInt()?.takeIf { it > 0 }
+                ?: svg.documentWidth.toInt().takeIf { it > 0 } ?: 512
+            val rawH = vb?.height()?.toInt()?.takeIf { it > 0 }
+                ?: svg.documentHeight.toInt().takeIf { it > 0 } ?: 512
+            val scale = 512f / maxOf(rawW, rawH).toFloat()
+            val bw = (rawW * scale).toInt().coerceAtLeast(1)
+            val bh = (rawH * scale).toInt().coerceAtLeast(1)
+            val bitmap = android.graphics.Bitmap.createBitmap(bw, bh, android.graphics.Bitmap.Config.ARGB_8888)
+            val canvas = android.graphics.Canvas(bitmap)
+            svg.renderToCanvas(canvas)
+            handler.post {
+                if (isAdded) {
+                    imageView.setPadding(0, 0, 0, 0)
+                    imageView.imageTintList = null
+                    imageView.setImageBitmap(bitmap)
+                }
+            }
+        } catch (_: Exception) {}
     }
 
     override fun onDestroyView() {

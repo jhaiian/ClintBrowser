@@ -11,7 +11,7 @@ import com.jhaiian.clint.browser.webview.ClintWebViewClient
 
 internal fun MainActivity.saveTabs() {
     val savedTabs = tabManager.tabs
-        .filter { !it.isIncognito }
+        .filter { !it.isIncognito && !it.isRefreshLinkTab }
         .mapIndexedNotNull { index, tab ->
             val url = tab.webView.url?.takeIf { it.isNotEmpty() && it != "about:blank" }
                 ?: tab.url.takeIf { it.isNotEmpty() && it != "about:blank" }
@@ -151,6 +151,7 @@ internal fun MainActivity.attachActiveWebView() {
         cookieManager.setAcceptThirdPartyCookies(tab.webView, !prefs.getBoolean("block_third_party_cookies", true))
     }
     nestedScrollActive = false
+    canvasTouchActive = false
     hasWebBottomNav = false
     animateBottomBarTo(0f, animated = false)
     attachScrollListener(tab.webView)
@@ -165,4 +166,58 @@ internal fun MainActivity.showTabSwitcher() {
     sheet.tabs = tabManager.previews().toMutableList()
     sheet.activeIndex = tabManager.activeIndex
     sheet.show(supportFragmentManager, "tab_switcher")
+}
+
+@SuppressLint("SetJavaScriptEnabled")
+internal fun MainActivity.openRefreshLinkTab(url: String) {
+    val webView = createWebView(false)
+    val tab = BrowserTab(url = url, isRefreshLinkTab = true, webView = webView)
+    val index = tabManager.add(tab)
+    if (isDesktopMode) addDesktopScript(tab)
+    webView.webViewClient = ClintWebViewClient(
+        prefs = prefs,
+        isActive = { tabManager.activeTab?.id == tab.id },
+        onPageStartedCallback = { u -> if (tabManager.activeTab?.id == tab.id) onPageStarted(u) },
+        onPageFinishedCallback = { u -> if (tabManager.activeTab?.id == tab.id) onPageFinished(u) },
+        onTabUrlUpdatedCallback = { wv, u -> onTabUrlUpdated(wv, u) },
+        getDesktopHeaders = { buildDesktopHeaders() }
+    )
+    webView.webChromeClient = ClintWebChromeClient(
+        isActive = { tabManager.activeTab?.id == tab.id },
+        onTitleChanged = { title ->
+            tab.title = title
+            if (tabManager.activeTab?.id == tab.id) updateTabCount()
+        },
+        onProgressChanged = { progress -> if (tabManager.activeTab?.id == tab.id) onProgressChanged(progress) },
+        onUrlChanged = { u -> if (tabManager.activeTab?.id == tab.id) updateAddressBar(u) },
+        onFullscreenShow = { view, cb -> onShowCustomView(view, cb) },
+        onFullscreenHide = { exitFullscreen() },
+        onFileChooser = { callback, params -> onShowFileChooser(callback, params) },
+        onWebPermissionRequest = { request -> onWebPermissionRequest(request) },
+        onGeolocationRequest = { origin, callback -> onWebGeolocationRequest(origin, callback) },
+        onNewWindowRequest = { newUrl ->
+            showPopupAlertDialog(newUrl, false)
+        }
+    )
+    tabManager.switchTo(index)
+    attachActiveWebView()
+    loadUrl(url)
+}
+
+internal fun MainActivity.cleanupRefreshLinkTabs() {
+    val previousIndex = refreshLinkSession?.previousTabIndex ?: -1
+    val indices = tabManager.tabs.indices.filter { tabManager.tabs[it].isRefreshLinkTab }.reversed()
+    for (i in indices) {
+        tabManager.closeTab(i)
+    }
+    if (tabManager.tabs.isEmpty()) {
+        openNewTab(isIncognito = false, url = getSearchEngineHomeUrl())
+        return
+    }
+    val targetIndex = when {
+        previousIndex in tabManager.tabs.indices -> previousIndex
+        else -> (tabManager.tabs.size - 1).coerceAtLeast(0)
+    }
+    tabManager.switchTo(targetIndex)
+    attachActiveWebView()
 }

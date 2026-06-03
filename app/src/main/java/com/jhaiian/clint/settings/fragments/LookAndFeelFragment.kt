@@ -7,132 +7,146 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.RadioButton
+import android.widget.Switch
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
-import android.content.res.ColorStateList
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceManager
-import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceManager
 import com.jhaiian.clint.R
 import com.jhaiian.clint.base.ClintActivity
 import com.jhaiian.clint.ui.ThemeSwatchUtils
 
-class LookAndFeelFragment : PreferenceFragmentCompat() {
+class LookAndFeelFragment : Fragment() {
 
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        setPreferencesFromResource(R.xml.look_and_feel_preferences, rootKey)
-        applyIconTints()
+    private lateinit var rowAppTheme: LinearLayout
+    private lateinit var rowAccentColor: LinearLayout
+    private lateinit var textAccentColorSummary: TextView
+    private lateinit var rowSurfaceIntensity: LinearLayout
+    private lateinit var textSurfaceIntensitySummary: TextView
+    private lateinit var rowForceDarkWeb: LinearLayout
+    private lateinit var switchForceDarkWeb: Switch
+    private lateinit var rowNestedScroll: LinearLayout
+    private lateinit var textNestedScrollSummary: TextView
+    private lateinit var rowAddressBarPosition: LinearLayout
+    private lateinit var textAddressBarPositionSummary: TextView
+    private lateinit var rowMenuStyle: LinearLayout
+    private lateinit var textMenuStyleSummary: TextView
+    private lateinit var rowHideStatusBar: LinearLayout
+    private lateinit var switchHideStatusBar: Switch
+    private lateinit var rowExitConfirmation: LinearLayout
+    private lateinit var textExitConfirmationSummary: TextView
 
-        findPreference<Preference>("app_theme")
-            ?.setOnPreferenceClickListener {
-                showThemeDialog()
-                true
-            }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return inflater.inflate(R.layout.fragment_look_and_feel, container, false)
+    }
 
-        findPreference<Preference>("accent_color")
-            ?.setOnPreferenceClickListener {
-                showAccentColorDialog()
-                true
-            }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        findPreference<Preference>("surface_intensity")
-            ?.setOnPreferenceClickListener {
-                showSurfaceIntensityDialog()
-                true
-            }
+        rowAppTheme = view.findViewById(R.id.row_app_theme)
+        rowAccentColor = view.findViewById(R.id.row_accent_color)
+        textAccentColorSummary = view.findViewById(R.id.text_accent_color_summary)
+        rowSurfaceIntensity = view.findViewById(R.id.row_surface_intensity)
+        textSurfaceIntensitySummary = view.findViewById(R.id.text_surface_intensity_summary)
+        rowForceDarkWeb = view.findViewById(R.id.row_force_dark_web)
+        switchForceDarkWeb = view.findViewById(R.id.switch_force_dark_web)
+        rowNestedScroll = view.findViewById(R.id.row_nested_scroll)
+        textNestedScrollSummary = view.findViewById(R.id.text_nested_scroll_summary)
+        rowAddressBarPosition = view.findViewById(R.id.row_address_bar_position)
+        textAddressBarPositionSummary = view.findViewById(R.id.text_address_bar_position_summary)
+        rowMenuStyle = view.findViewById(R.id.row_menu_style)
+        textMenuStyleSummary = view.findViewById(R.id.text_menu_style_summary)
+        rowHideStatusBar = view.findViewById(R.id.row_hide_status_bar)
+        switchHideStatusBar = view.findViewById(R.id.switch_hide_status_bar)
+        rowExitConfirmation = view.findViewById(R.id.row_exit_confirmation)
+        textExitConfirmationSummary = view.findViewById(R.id.text_exit_confirmation_summary)
 
-        findPreference<Preference>("scroll_hide_mode")
-            ?.setOnPreferenceClickListener {
-                showScrollHideModeDialog()
-                true
-            }
-
-        findPreference<Preference>("address_bar_position")
-            ?.setOnPreferenceClickListener {
-                showAddressBarPositionDialog()
-                true
-            }
-
-        findPreference<Preference>("menu_style")
-            ?.setOnPreferenceClickListener {
-                showMenuStyleDialog()
-                true
-            }
-
-        findPreference<SwitchPreferenceCompat>("hide_status_bar")
-            ?.setOnPreferenceChangeListener { _, newValue ->
-                showRestartDialog(newValue as Boolean)
-                false
-            }
-
-        findPreference<Preference>("exit_confirmation")?.setOnPreferenceClickListener {
-            showExitConfirmationDialog()
-            true
+        rowAppTheme.setOnClickListener { showThemeDialog() }
+        rowAccentColor.setOnClickListener { showAccentColorDialog() }
+        rowSurfaceIntensity.setOnClickListener {
+            val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+            val theme = prefs.getString("app_theme", "dark") ?: "dark"
+            val accent = prefs.getString("accent_color", "purple") ?: "purple"
+            if (isSurfaceIntensityEnabled(theme, accent)) showSurfaceIntensityDialog()
         }
+        rowForceDarkWeb.setOnClickListener {
+            val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+            val theme = prefs.getString("app_theme", "dark") ?: "dark"
+            if (theme != "dark" && theme != "light") {
+                val newValue = !switchForceDarkWeb.isChecked
+                switchForceDarkWeb.isChecked = newValue
+                prefs.edit().putBoolean("force_dark_web", newValue).apply()
+            }
+        }
+        rowNestedScroll.setOnClickListener { showScrollHideModeDialog() }
+        rowAddressBarPosition.setOnClickListener { showAddressBarPositionDialog() }
+        rowMenuStyle.setOnClickListener { showMenuStyleDialog() }
+        rowHideStatusBar.setOnClickListener {
+            val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+            val current = prefs.getBoolean("hide_status_bar", false)
+            showRestartDialog(!current)
+        }
+        rowExitConfirmation.setOnClickListener { showExitConfirmationDialog() }
+
+        updateAll()
     }
 
     override fun onResume() {
         super.onResume()
-        updateDarkWebSwitchState()
-        updateAccentColorPrefState()
-        updateSurfaceIntensityState()
-        updateScrollHideModeSummary()
+        updateAll()
+    }
+
+    private fun updateAll() {
+        updateDarkWebState()
+        updateAccentColorSummary()
+        updateSurfaceIntensitySummary()
+        updateNestedScrollSummary()
         updateAddressBarPositionSummary()
         updateMenuStyleSummary()
         updateExitConfirmationSummary()
+        updateHideStatusBarSwitch()
     }
 
-    private fun applyIconTints() {
-        val color = MaterialColors.getColor(requireContext(), R.attr.clintIconTint, 0)
-        val tint = ColorStateList.valueOf(color)
-        listOf("app_theme", "accent_color", "surface_intensity", "force_dark_web", "scroll_hide_mode", "hide_status_bar", "address_bar_position", "menu_style", "exit_confirmation").forEach { key ->
-            findPreference<Preference>(key)?.let { pref ->
-                pref.icon?.mutate()?.let { icon ->
-                    DrawableCompat.setTintList(DrawableCompat.wrap(icon), tint)
-                    pref.icon = icon
-                }
-            }
-        }
-    }
-
-    private fun updateDarkWebSwitchState() {
+    private fun updateDarkWebState() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val theme = prefs.getString("app_theme", "default") ?: "default"
-        val pref = findPreference<SwitchPreferenceCompat>("force_dark_web") ?: return
+        val theme = prefs.getString("app_theme", "dark") ?: "dark"
         val savedValue = prefs.getBoolean("force_dark_web", false)
         when (theme) {
             "dark" -> {
-                pref.isEnabled = false
-                pref.isChecked = true
-                prefs.edit().putBoolean("force_dark_web", savedValue).apply()
+                switchForceDarkWeb.isChecked = true
+                rowForceDarkWeb.alpha = 0.45f
+                rowForceDarkWeb.isEnabled = false
             }
             "light" -> {
-                pref.isEnabled = false
-                pref.isChecked = false
-                prefs.edit().putBoolean("force_dark_web", savedValue).apply()
+                switchForceDarkWeb.isChecked = false
+                rowForceDarkWeb.alpha = 0.45f
+                rowForceDarkWeb.isEnabled = false
             }
             else -> {
-                pref.isEnabled = true
-                pref.isChecked = savedValue
+                switchForceDarkWeb.isChecked = savedValue
+                rowForceDarkWeb.alpha = 1f
+                rowForceDarkWeb.isEnabled = true
             }
         }
     }
 
-    private fun updateAccentColorPrefState() {
+    private fun updateAccentColorSummary() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val accent = prefs.getString("accent_color", "default") ?: "default"
-        val pref = findPreference<Preference>("accent_color") ?: return
-        pref.isEnabled = true
-        pref.summary = when (accent) {
+        val accent = prefs.getString("accent_color", "purple") ?: "purple"
+        textAccentColorSummary.text = when (accent) {
             "material_you" -> getString(R.string.accent_material_you)
             "purple" -> getString(R.string.accent_purple)
             "blue" -> getString(R.string.accent_blue)
@@ -144,18 +158,17 @@ class LookAndFeelFragment : PreferenceFragmentCompat() {
         }
     }
 
-    private fun updateSurfaceIntensityState() {
+    private fun updateSurfaceIntensitySummary() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val theme = prefs.getString("app_theme", "default") ?: "default"
-        val accent = prefs.getString("accent_color", "default") ?: "default"
-        val intensity = prefs.getString("surface_intensity", "soft_tint") ?: "soft_tint"
-        val pref = findPreference<Preference>("surface_intensity") ?: return
+        val theme = prefs.getString("app_theme", "dark") ?: "dark"
+        val accent = prefs.getString("accent_color", "purple") ?: "purple"
+        val intensity = prefs.getString("surface_intensity", "strong_tint") ?: "strong_tint"
         val enabled = isSurfaceIntensityEnabled(theme, accent)
-        pref.isEnabled = enabled
-        if (!enabled) {
-            pref.summary = getString(R.string.pref_surface_intensity_disabled_summary)
+        rowSurfaceIntensity.alpha = if (enabled) 1f else 0.45f
+        textSurfaceIntensitySummary.text = if (!enabled) {
+            getString(R.string.pref_surface_intensity_disabled_summary)
         } else {
-            pref.summary = when (intensity) {
+            when (intensity) {
                 "strong_tint" -> getString(R.string.surface_intensity_strong)
                 "pure_mode" -> getString(R.string.surface_intensity_pure)
                 else -> getString(R.string.surface_intensity_soft)
@@ -166,27 +179,49 @@ class LookAndFeelFragment : PreferenceFragmentCompat() {
     private fun isSurfaceIntensityEnabled(theme: String, accent: String): Boolean =
         ThemeSwatchUtils.isSurfaceIntensityEnabled(theme, accent)
 
+    private fun updateNestedScrollSummary() {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val mode = prefs.getString("scroll_hide_mode", "off") ?: "off"
+        textNestedScrollSummary.text = when (mode) {
+            "off" -> getString(R.string.nested_scroll_off)
+            "navigation_bar" -> getString(R.string.nested_scroll_nav_bar)
+            "both" -> getString(R.string.nested_scroll_both)
+            else -> getString(R.string.nested_scroll_search_bar)
+        }
+    }
+
     private fun updateAddressBarPositionSummary() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val position = prefs.getString("address_bar_position", "top") ?: "top"
-        val pref = findPreference<Preference>("address_bar_position") ?: return
-        pref.summary = when (position) {
+        textAddressBarPositionSummary.text = when (position) {
             "top" -> getString(R.string.address_bar_position_top)
             "bottom" -> getString(R.string.address_bar_position_bottom)
             else -> getString(R.string.address_bar_position_split)
         }
     }
 
-    private fun updateScrollHideModeSummary() {
+    private fun updateMenuStyleSummary() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val mode = prefs.getString("scroll_hide_mode", "off") ?: "off"
-        val pref = findPreference<Preference>("scroll_hide_mode") ?: return
-        pref.summary = when (mode) {
-            "off" -> getString(R.string.nested_scroll_off)
-            "navigation_bar" -> getString(R.string.nested_scroll_nav_bar)
-            "both" -> getString(R.string.nested_scroll_both)
-            else -> getString(R.string.nested_scroll_search_bar)
+        val style = prefs.getString("menu_style", "popup") ?: "popup"
+        textMenuStyleSummary.text = when (style) {
+            "bottom_sheet" -> getString(R.string.menu_style_bottom_sheet)
+            else -> getString(R.string.menu_style_popup)
         }
+    }
+
+    private fun updateExitConfirmationSummary() {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val value = prefs.getString("exit_confirmation", "toast") ?: "toast"
+        textExitConfirmationSummary.text = when (value) {
+            "off" -> getString(R.string.exit_confirmation_off)
+            "dialog" -> getString(R.string.exit_confirmation_dialog)
+            else -> getString(R.string.exit_confirmation_toast)
+        }
+    }
+
+    private fun updateHideStatusBarSwitch() {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        switchHideStatusBar.isChecked = prefs.getBoolean("hide_status_bar", false)
     }
 
     private fun applyTheme(newTheme: String) {
@@ -204,10 +239,13 @@ class LookAndFeelFragment : PreferenceFragmentCompat() {
         activity.captureAndApplySurfaceIntensity(newIntensity)
     }
 
+    private fun buildSwatchDrawable(bgColor: Int, surfaceColor: Int, accentColor: Int) =
+        ThemeSwatchUtils.buildSwatchDrawable(requireContext(), bgColor, surfaceColor, accentColor)
+
     private fun showThemeDialog() {
         val activity = requireActivity() as? ClintActivity ?: return
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val current = prefs.getString("app_theme", "default") ?: "default"
+        val current = prefs.getString("app_theme", "dark") ?: "dark"
 
         val dialogView = layoutInflater.inflate(R.layout.dialog_theme_selector, null)
         val optionDefault = dialogView.findViewById<View>(R.id.option_default)
@@ -235,29 +273,19 @@ class LookAndFeelFragment : PreferenceFragmentCompat() {
         dialog.show()
     }
 
-    private fun buildSwatchDrawable(bgColor: Int, surfaceColor: Int, accentColor: Int) =
-        ThemeSwatchUtils.buildSwatchDrawable(requireContext(), bgColor, surfaceColor, accentColor)
-
     private fun showAccentColorDialog() {
         val activity = requireActivity() as? ClintActivity ?: return
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val current = prefs.getString("accent_color", "default") ?: "default"
-        val theme = prefs.getString("app_theme", "default") ?: "default"
+        val current = prefs.getString("accent_color", "purple") ?: "purple"
+        val theme = prefs.getString("app_theme", "dark") ?: "dark"
 
         val (defaultBg, defaultSurface, defaultAccent) = ThemeSwatchUtils.resolveDefaultSwatchColors(requireContext(), theme)
-
         val (matYouBg, matYouSurface, matYouAccent) = ThemeSwatchUtils.resolveMaterialYouSwatchColors(requireContext(), theme)
-
         val (purpleBg, purpleSurface, purpleAccent) = ThemeSwatchUtils.resolvePurpleSwatchColors(requireContext(), theme)
-
         val (blueBg, blueSurface, blueAccent) = ThemeSwatchUtils.resolveBlueSwatchColors(requireContext(), theme)
-
         val (yellowBg, yellowSurface, yellowAccent) = ThemeSwatchUtils.resolveYellowSwatchColors(requireContext(), theme)
-
         val (redBg, redSurface, redAccent) = ThemeSwatchUtils.resolveRedSwatchColors(requireContext(), theme)
-
         val (greenBg, greenSurface, greenAccent) = ThemeSwatchUtils.resolveGreenSwatchColors(requireContext(), theme)
-
         val (orangeBg, orangeSurface, orangeAccent) = ThemeSwatchUtils.resolveOrangeSwatchColors(requireContext(), theme)
 
         val dialogView = layoutInflater.inflate(R.layout.dialog_accent_color_selector, null)
@@ -326,9 +354,9 @@ class LookAndFeelFragment : PreferenceFragmentCompat() {
     private fun showSurfaceIntensityDialog() {
         val activity = requireActivity() as? ClintActivity ?: return
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val current = prefs.getString("surface_intensity", "soft_tint") ?: "soft_tint"
-        val theme = prefs.getString("app_theme", "default") ?: "default"
-        val accent = prefs.getString("accent_color", "default") ?: "default"
+        val current = prefs.getString("surface_intensity", "strong_tint") ?: "strong_tint"
+        val theme = prefs.getString("app_theme", "dark") ?: "dark"
+        val accent = prefs.getString("accent_color", "purple") ?: "purple"
 
         val isPurple = accent == "purple"
         val isBlue = accent == "blue"
@@ -428,8 +456,8 @@ class LookAndFeelFragment : PreferenceFragmentCompat() {
         val settingsActivity = requireActivity() as? SettingsActivity ?: return
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val current = prefs.getString("address_bar_position", "top") ?: "top"
-        val theme = prefs.getString("app_theme", "default") ?: "default"
-        val accent = prefs.getString("accent_color", "default") ?: "default"
+        val theme = prefs.getString("app_theme", "dark") ?: "dark"
+        val accent = prefs.getString("accent_color", "purple") ?: "purple"
 
         val ctx = requireContext()
         val (bgColor, surfaceColor, _) = when (accent) {
@@ -505,7 +533,7 @@ class LookAndFeelFragment : PreferenceFragmentCompat() {
                 .putString("scroll_hide_mode", validModeForNew)
                 .apply()
             updateAddressBarPositionSummary()
-            updateScrollHideModeSummary()
+            updateNestedScrollSummary()
             selectionDialog.dismiss()
             MaterialAlertDialogBuilder(activity, activity.getDialogTheme())
                 .setTitle(getString(R.string.restart_required_title))
@@ -517,7 +545,7 @@ class LookAndFeelFragment : PreferenceFragmentCompat() {
                         .putString("scroll_hide_mode", currentMode)
                         .apply()
                     updateAddressBarPositionSummary()
-                    updateScrollHideModeSummary()
+                    updateNestedScrollSummary()
                     settingsActivity.pendingRestart = false
                 }
                 .setNeutralButton(getString(R.string.restart_required_confirm)) { _, _ ->
@@ -541,8 +569,8 @@ class LookAndFeelFragment : PreferenceFragmentCompat() {
         val activity = requireActivity() as? ClintActivity ?: return
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val current = prefs.getString("scroll_hide_mode", "off") ?: "off"
-        val theme = prefs.getString("app_theme", "default") ?: "default"
-        val accent = prefs.getString("accent_color", "default") ?: "default"
+        val theme = prefs.getString("app_theme", "dark") ?: "dark"
+        val accent = prefs.getString("accent_color", "purple") ?: "purple"
 
         val ctx = requireContext()
         val (bgColor, surfaceColor, accentColor) = when (accent) {
@@ -721,7 +749,7 @@ class LookAndFeelFragment : PreferenceFragmentCompat() {
                 .putString("scroll_hide_mode", mode)
                 .putString("scroll_hide_mode_$position", mode)
                 .apply()
-            updateScrollHideModeSummary()
+            updateNestedScrollSummary()
         }
 
         val dialog = MaterialAlertDialogBuilder(activity, activity.getDialogTheme())
@@ -760,22 +788,12 @@ class LookAndFeelFragment : PreferenceFragmentCompat() {
         dialog.show()
     }
 
-    private fun updateMenuStyleSummary() {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val style = prefs.getString("menu_style", "popup") ?: "popup"
-        val pref = findPreference<Preference>("menu_style") ?: return
-        pref.summary = when (style) {
-            "bottom_sheet" -> getString(R.string.menu_style_bottom_sheet)
-            else -> getString(R.string.menu_style_popup)
-        }
-    }
-
     private fun showMenuStyleDialog() {
         val activity = requireActivity() as? ClintActivity ?: return
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val current = prefs.getString("menu_style", "popup") ?: "popup"
-        val theme = prefs.getString("app_theme", "default") ?: "default"
-        val accent = prefs.getString("accent_color", "default") ?: "default"
+        val theme = prefs.getString("app_theme", "dark") ?: "dark"
+        val accent = prefs.getString("accent_color", "purple") ?: "purple"
         val position = prefs.getString("address_bar_position", "top") ?: "top"
 
         val ctx = requireContext()
@@ -916,7 +934,6 @@ class LookAndFeelFragment : PreferenceFragmentCompat() {
 
     private fun showRestartDialog(newValue: Boolean) {
         val activity = requireActivity() as? SettingsActivity ?: return
-        val pref = findPreference<SwitchPreferenceCompat>("hide_status_bar") ?: return
         MaterialAlertDialogBuilder(activity, activity.getDialogTheme())
             .setTitle(getString(R.string.restart_required_title))
             .setMessage(getString(R.string.restart_required_message))
@@ -925,30 +942,20 @@ class LookAndFeelFragment : PreferenceFragmentCompat() {
                 activity.pendingRestart = false
             }
             .setNeutralButton(getString(R.string.restart_required_confirm)) { _, _ ->
-                pref.isPersistent = false
-                pref.isChecked = newValue
-                pref.isPersistent = true
+                val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+                prefs.edit().putBoolean("hide_status_bar", newValue).apply()
+                switchHideStatusBar.isChecked = newValue
                 activity.pendingHideStatusBar = newValue
                 activity.restartApp()
             }
             .setPositiveButton(getString(R.string.action_later)) { _, _ ->
-                pref.isPersistent = false
-                pref.isChecked = newValue
-                pref.isPersistent = true
+                val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+                prefs.edit().putBoolean("hide_status_bar", newValue).apply()
+                switchHideStatusBar.isChecked = newValue
                 activity.pendingHideStatusBar = newValue
                 activity.scheduleRestartIfChanged()
             }
             .create().also { activity.applyStatusBarFlagToDialog(it) }.show()
-    }
-
-    private fun updateExitConfirmationSummary() {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val value = prefs.getString("exit_confirmation", "toast") ?: "toast"
-        findPreference<Preference>("exit_confirmation")?.summary = when (value) {
-            "off"    -> getString(R.string.exit_confirmation_off)
-            "dialog" -> getString(R.string.exit_confirmation_dialog)
-            else     -> getString(R.string.exit_confirmation_toast)
-        }
     }
 
     private fun showExitConfirmationDialog() {
@@ -958,22 +965,22 @@ class LookAndFeelFragment : PreferenceFragmentCompat() {
         val dialogView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_exit_confirmation, null)
 
-        val cardOff    = dialogView.findViewById<MaterialCardView>(R.id.cardExitOff)
-        val cardToast  = dialogView.findViewById<MaterialCardView>(R.id.cardExitToast)
+        val cardOff = dialogView.findViewById<MaterialCardView>(R.id.cardExitOff)
+        val cardToast = dialogView.findViewById<MaterialCardView>(R.id.cardExitToast)
         val cardDialog = dialogView.findViewById<MaterialCardView>(R.id.cardExitDialog)
 
-        val radioOff    = dialogView.findViewById<RadioButton>(R.id.radioExitOff)
-        val radioToast  = dialogView.findViewById<RadioButton>(R.id.radioExitToast)
+        val radioOff = dialogView.findViewById<RadioButton>(R.id.radioExitOff)
+        val radioToast = dialogView.findViewById<RadioButton>(R.id.radioExitToast)
         val radioDialog = dialogView.findViewById<RadioButton>(R.id.radioExitDialog)
 
         val cardMap = mapOf(
-            "off"    to cardOff,
-            "toast"  to cardToast,
+            "off" to cardOff,
+            "toast" to cardToast,
             "dialog" to cardDialog
         )
         val radioMap = mapOf(
-            "off"    to radioOff,
-            "toast"  to radioToast,
+            "off" to radioOff,
+            "toast" to radioToast,
             "dialog" to radioDialog
         )
 
@@ -992,8 +999,8 @@ class LookAndFeelFragment : PreferenceFragmentCompat() {
 
         selectOption(current)
 
-        cardOff.setOnClickListener    { selectOption("off") }
-        cardToast.setOnClickListener  { selectOption("toast") }
+        cardOff.setOnClickListener { selectOption("off") }
+        cardToast.setOnClickListener { selectOption("toast") }
         cardDialog.setOnClickListener { selectOption("dialog") }
 
         MaterialAlertDialogBuilder(requireContext(), (requireActivity() as ClintActivity).getDialogTheme())

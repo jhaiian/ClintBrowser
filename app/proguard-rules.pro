@@ -6,3 +6,4 @@
 -dontwarn javax.annotation.**
 -keep class okhttp3.** { *; }
 -keep class okio.** { *; }
+-keep public class com.caverock.androidsvg.** { *; }

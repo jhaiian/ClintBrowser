@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
@@ -83,19 +82,16 @@ class TabAdapter(
 
     private fun bindHeader(holder: HeaderViewHolder, item: Item.Header) {
         val ctx = holder.itemView.context
+        val tint = MaterialColors.getColor(holder.icon, R.attr.clintSecondaryTextColor)
         if (item.isIncognito) {
             holder.label.text = ctx.getString(R.string.tabs_section_incognito)
             holder.icon.setImageResource(R.drawable.ic_incognito_24)
-            val tint = ContextCompat.getColor(ctx, R.color.incognito_accent)
-            ImageViewCompat.setImageTintList(holder.icon, ColorStateList.valueOf(tint))
-            holder.label.setTextColor(tint)
         } else {
             holder.label.text = ctx.getString(R.string.tabs_section_normal)
             holder.icon.setImageResource(R.drawable.ic_tab_24)
-            val tint = MaterialColors.getColor(holder.icon, R.attr.clintSecondaryTextColor)
-            ImageViewCompat.setImageTintList(holder.icon, ColorStateList.valueOf(tint))
-            holder.label.setTextColor(tint)
         }
+        ImageViewCompat.setImageTintList(holder.icon, ColorStateList.valueOf(tint))
+        holder.label.setTextColor(tint)
     }
 
     private fun bindTab(holder: TabViewHolder, item: Item.Tab, position: Int) {

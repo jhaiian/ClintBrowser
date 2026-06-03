@@ -29,19 +29,20 @@ abstract class ClintActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        appliedTheme = prefs.getString("app_theme", "default") ?: "default"
-        appliedAccent = prefs.getString("accent_color", "default") ?: "default"
-        appliedIntensity = prefs.getString("surface_intensity", "soft_tint") ?: "soft_tint"
+        appliedTheme = prefs.getString("app_theme", "dark") ?: "dark"
+        appliedAccent = prefs.getString("accent_color", "purple") ?: "purple"
+        appliedIntensity = prefs.getString("surface_intensity", "strong_tint") ?: "strong_tint"
         applyThemeResource()
         super.onCreate(savedInstanceState)
     }
 
     override fun onResume() {
         super.onResume()
+        openDialogCount = 0
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val currentTheme = prefs.getString("app_theme", "default") ?: "default"
-        val currentAccent = prefs.getString("accent_color", "default") ?: "default"
-        val currentIntensity = prefs.getString("surface_intensity", "soft_tint") ?: "soft_tint"
+        val currentTheme = prefs.getString("app_theme", "dark") ?: "dark"
+        val currentAccent = prefs.getString("accent_color", "purple") ?: "purple"
+        val currentIntensity = prefs.getString("surface_intensity", "strong_tint") ?: "strong_tint"
         if (currentTheme != appliedTheme || currentAccent != appliedAccent || currentIntensity != appliedIntensity) {
             window.setWindowAnimations(0)
             recreate()
@@ -314,7 +315,7 @@ abstract class ClintActivity : AppCompatActivity() {
 
     fun captureAndRecreate(newTheme: String) {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val current = prefs.getString("app_theme", "default") ?: "default"
+        val current = prefs.getString("app_theme", "dark") ?: "dark"
         if (current == newTheme) return
         if (newTheme == "default") {
             prefs.edit().putString("surface_intensity", "soft_tint").apply()
@@ -327,9 +328,9 @@ abstract class ClintActivity : AppCompatActivity() {
 
     fun captureAndApplyAccentColor(newAccent: String) {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val current = prefs.getString("accent_color", "default") ?: "default"
+        val current = prefs.getString("accent_color", "purple") ?: "purple"
         if (current == newAccent) return
-        val currentIntensity = prefs.getString("surface_intensity", "soft_tint") ?: "soft_tint"
+        val currentIntensity = prefs.getString("surface_intensity", "strong_tint") ?: "strong_tint"
         if (currentIntensity == "strong_tint" && newAccent != "purple" && newAccent != "blue" && newAccent != "yellow" && newAccent != "red" && newAccent != "green" && newAccent != "orange") {
             prefs.edit().putString("surface_intensity", "soft_tint").apply()
         }
@@ -341,7 +342,7 @@ abstract class ClintActivity : AppCompatActivity() {
 
     fun captureAndApplySurfaceIntensity(newIntensity: String) {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val current = prefs.getString("surface_intensity", "soft_tint") ?: "soft_tint"
+        val current = prefs.getString("surface_intensity", "strong_tint") ?: "strong_tint"
         if (current == newIntensity) return
         captureScreenBitmap()
         prefs.edit().putString("surface_intensity", newIntensity).commit()
@@ -403,9 +404,14 @@ abstract class ClintActivity : AppCompatActivity() {
         }
     }
 
+    private var openDialogCount = 0
+
+    fun trackDialogShown() { openDialogCount++ }
+    fun trackDialogDismissed() { if (openDialogCount > 0) openDialogCount-- }
+
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) applyStatusBarVisibility()
+        if (hasFocus && openDialogCount == 0) applyStatusBarVisibility()
     }
 
     fun applyStatusBarFlagToDialog(dialog: android.app.Dialog) {
@@ -414,6 +420,8 @@ abstract class ClintActivity : AppCompatActivity() {
         if (hide) {
             dialog.window?.addFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN)
         }
+        trackDialogShown()
+        dialog.setOnDismissListener { trackDialogDismissed() }
     }
 
     private fun applyStatusBarVisibility() {

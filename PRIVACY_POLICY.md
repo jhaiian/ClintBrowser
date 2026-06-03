@@ -1,6 +1,6 @@
 # Privacy Policy for Clint Browser
 
-*Last updated: May 16, 2026*
+*Last updated: June 4, 2026*
 
 ## Overview
 
@@ -105,16 +105,33 @@ You can manage or remove these exceptions anytime from Site Settings.
 
 Clint Browser requests the following permissions:
 
-- **Internet** — required to browse the web  
-- **Network State** — used to check connectivity  
-- **Write External Storage** — used to save downloaded files (on older Android versions) or manage downloads  
-- **Post Notifications** (Android 13+) — used for download progress and website notifications  
-- **Request Install Packages** — used for installing updates or APKs only when explicitly confirmed by the user  
-- **Camera** — used only when uploading or capturing content initiated by the user and with website permission  
-- **Record Audio** — used for voice search via the system speech service; all processing happens locally on the device  
-- **MODIFY_AUDIO_SETTINGS** — used for microphone-related website permissions  
-- **ACCESS_COARSE_LOCATION & ACCESS_FINE_LOCATION** — used for website location permissions  
-- **Query All Packages** — used only to detect installed apps locally when opening supported links  
+## Internet & Network
+- **INTERNET** – Lets the app load websites and download files.
+- **ACCESS_NETWORK_STATE** – Checks if you're connected to the internet (Wi‑Fi or mobile data) so downloads can pause when offline and resume when reconnected.
+
+## Storage & Downloads
+- **WRITE_EXTERNAL_STORAGE** – Saves downloaded files to your Downloads folder. *(Android 9 and below only)*
+- **POST_NOTIFICATIONS** – Shows download progress, completion, and failure alerts in your notification bar.
+- **REQUEST_INSTALL_PACKAGES** – Installs APK files downloaded from the download screen and installing updates from GitHub.
+
+## Camera & Audio
+- **CAMERA** – Used when a website asks you to upload a photo and you choose to take one with your camera, or when a website requests camera access for video calls.
+- **RECORD_AUDIO** – Used for the voice search button in the browser, and when a website requests microphone access for voice or video calls.
+- **MODIFY_AUDIO_SETTINGS** – Required for WebRTC voice/video calls on websites. The WebView needs this to manage audio routing during a call.
+
+## Location
+- **ACCESS_FINE_LOCATION** – Used when a website asks for your precise location, e.g., to show nearby places or get directions.
+- **ACCESS_COARSE_LOCATION** – Same as above, but used as a fallback when only approximate location is available.
+
+## App & System Integration
+- **QUERY_ALL_PACKAGES** – Detects which apps on your device can handle special links, like opening a phone number in your dialer or a store link in the Play Store.
+- **FOREGROUND_SERVICE** – Keeps downloading files even when you switch to another app.
+- **FOREGROUND_SERVICE_DATA_SYNC** – Works with `FOREGROUND_SERVICE` to tell Android the background activity is a file download.
+
+## Power & Background
+- **REQUEST_IGNORE_BATTERY_OPTIMIZATIONS** – Prevents Android from pausing downloads when the device is in battery saver or Doze mode.
+- **WAKE_LOCK** – Prevents your device from sleeping while a download is in progress so files don't get stuck halfway.
+- **RECEIVE_BOOT_COMPLETED** – Checks for unfinished downloads after your device restarts and resumes them automatically.
 
 No permission is used for tracking or data collection.
 

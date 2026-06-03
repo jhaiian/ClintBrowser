@@ -48,6 +48,15 @@
         app:singleLineTitle="false" />
 
     <Preference
+        app:key="pref_downloads"
+        app:title="@string/download_settings_title"
+        app:summary="@string/download_settings_summary"
+        app:icon="@drawable/ic_download_24"
+        app:iconTint="?attr/colorPrimary"
+        app:fragment="com.jhaiian.clint.settings.fragments.DownloadSettingsFragment"
+        app:singleLineTitle="false" />
+
+    <Preference
         app:key="pref_updates"
         app:title="@string/pref_updates_title"
         app:summary="@string/pref_updates_summary"

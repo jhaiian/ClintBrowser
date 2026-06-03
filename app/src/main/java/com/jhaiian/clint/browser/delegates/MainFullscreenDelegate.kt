@@ -45,6 +45,7 @@ internal fun MainActivity.exitFullscreen() {
     topBarFraction = 0f
     bottomBarFraction = 0f
     nestedScrollActive = false
+    canvasTouchActive = false
     hasWebBottomNav = false
     binding.toolbarTop.translationY = 0f
     binding.bottomBar.translationY = 0f

@@ -10,8 +10,8 @@ A customizable Android browser built on Android WebView that respects your priva
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blueviolet.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B-blueviolet.svg)](https://developer.android.com)
-[![Stable](https://img.shields.io/badge/Stable-1.0.3--r2-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.3-r2)
-[![Beta](https://img.shields.io/badge/Beta-1.0.3--r2-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.3-r2)
+[![Stable](https://img.shields.io/badge/Stable-1.0.4-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.4)
+[![Beta](https://img.shields.io/badge/Beta-1.0.4-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.4)
 [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser)
 
 </div>
@@ -20,7 +20,7 @@ A customizable Android browser built on Android WebView that respects your priva
 
 ## What is Clint?
 
-Clint is a free, open-source Android browser with no dedicated backend infrastructure, built with privacy in mind. It features a clean, customizable interface that lets users tailor the look and feel to their preference. It blocks known trackers and analytics, and completely isolates incognito sessions. Every feature is designed around the philosophy that your browsing data belongs to you and only you.
+Clint is a free and open-source Android browser with no dedicated backend infrastructure, meaning it does not collect any of your data. It features a clean, customizable Material Design interface that allows users to tailor the look and feel to their preferences. With an advanced built-in download manager, Clint delivers a powerful browsing experience while maintaining user privacy. Every feature is designed around the philosophy that your browsing data belongs to you and only you.
 
 Built and maintained by **[@jhaiian](https://github.com/jhaiian)** — a solo developer from the Philippines 🇵🇭
 
@@ -33,17 +33,10 @@ Built and maintained by **[@jhaiian](https://github.com/jhaiian)** — a solo de
   <tr>
     <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="180" /></td>
     <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="180" /></td>
+  </tr>
+  <tr>
     <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg" width="180" /></td>
-  </tr>
-  <tr>
     <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg" width="180" /></td>
-    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg" width="180" /></td>
-    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.jpg" width="180" /></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7.jpg" width="180" /></td>
-    <td></td>
-    <td></td>
   </tr>
 </table>
 </div>
@@ -141,15 +134,15 @@ Manage website permissions in one place:
 The dedicated **Look & Feel** section in Settings gives you full control over the interface:
 
 #### Theme
-- 🟣 **Default** – Deep purple, signature Clint style
-- 🌙 **Dark** – Dark background with white accents
-- ⚪ **Light** – Clean white background with dark accents
+- 🌙 **Dark** – Dark background
+- ⚪ **Light** – Clean white background 
+- 🟣 **Legacy** – Deep purple, signature Clint styles
 
 #### Accent Color
 Choose an accent that tints backgrounds and UI elements (in Dark/Light themes) or icons & dialogs (in Default theme).
-- **Default** – standard theme colors
+- **Purple (Default)** – Cool violet tones across the UI
 - **Material You** – dynamic colors from your wallpaper
-- **Purple**, **Blue**, **Yellow**, **Red**, **Green**, **Orange** – each with its own vibe
+- **Monochrome**, **Blue**, **Yellow**, **Red**, **Green**, **Orange** – each with its own vibe
 
 #### Surface Intensity
 Controls how strong the background tone appears:
@@ -198,7 +191,7 @@ All these options combine to give you **~52 distinct theme combinations**, and t
 ## Requirements
 
 - Android 8.0 (API 26) or higher
-- Android WebView 
+- Android System WebView (pre‑installed on all Android devices)
 
 ---
 

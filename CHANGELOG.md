@@ -4,6 +4,211 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.0.4
+
+*Sorry, everyone. This update took a very long time.*
+
+## Overview
+
+The download system has been completely rewritten and is heavily inspired by 1DM on Android. However, this does not mean I copied their code. I simply observed how their download manager works and implemented my own version from scratch.
+
+The performance may not be on the same level as 1DM yet, but I will continue improving it based on your feedback. So please help me make this app better by sharing bugs, suggestions, and feature requests.
+
+My goal is to create the first true all-in-one browser for Android that combines browsing, downloading, and productivity features in a single app.
+
+---
+
+## New Download System
+
+Downloads now support pause and resume functionality.
+
+- Resume support depends on whether the server supports resumable downloads.
+- The app now clearly indicates whether a download can be resumed.
+- Migrate the download page to SQLite
+
+### Added
+
+**Custom Download Location (SAF)**  
+This allows you to save downloads to a custom location using the Storage Access Framework (SAF).
+
+Because SAF provides limited write access, files are first downloaded to a temporary folder inside the app's data directory, then copied to the selected destination and deleted from the temporary folder. If your destination is on emulated storage, this process will temporarily require roughly twice the file size in storage space.
+
+**Unmetered Only**  
+Downloads will only run on Wi-Fi or other unmetered connections. Active downloads will automatically pause when mobile data is being used.
+
+**Concurrent Downloads**  
+Controls how many downloads can run at the same time. Additional downloads are queued and will automatically start when a slot becomes available.
+
+- Maximum: 24 downloads
+
+**Split Download Parts**  
+Controls the maximum number of parts a file can be divided into. For smaller files, the actual number of parts may be lower to avoid unnecessary overhead.
+
+- Maximum: 32 parts
+
+**Max Simultaneous Parts**  
+Controls how many download parts can run simultaneously. The download engine automatically adjusts the number of active parts based on download speed, up to the configured limit.
+
+- Maximum: 8 parts
+
+**Retry Settings**  
+- Always retry downloads, even if the server error appears unrecoverable
+- Retry count (0 = unlimited)
+- Retry interval (seconds)
+
+**Push Notifications**  
+Get alerted when a download completes, fails, or starts retrying.
+
+**Ignore Battery Optimizations Permission**  
+Added support for requesting the Ignore Battery Optimizations permission to improve download reliability.
+
+> All of these options can be found in the new **Download Settings** screen, accessible from both Settings and Downloads.
+
+---
+
+## Progress System Improvements
+
+The traditional progress bar has been removed. Instead, download progress is now displayed directly in the background of each download card for a cleaner appearance.
+
+Each download card now shows:
+
+- Download percentage
+- Current downloaded size
+- Target download size (if known)
+- Total file size
+- Estimated time remaining
+- Elapsed time
+
+If the file size is unknown, the progress display automatically switches to an indeterminate state.
+
+---
+
+## New Download UI
+
+### Added
+- Fast scroller
+- Search bar
+
+### ViewPager Tabs
+- All
+- Downloading
+- Finished
+- Error
+
+### Sorting Options
+- Name
+- Date
+- Size
+- Status
+- Ascending order
+- Descending order
+
+---
+
+## Download Actions
+
+### Completed Downloads
+When a download is finished, the Pause and Resume buttons are replaced with a menu containing:
+- Open
+- Share
+- Open Folder
+- Redownload
+- Redownload with Additional Options
+- Remove
+- Copy Download Link
+- Copy File Name
+- Copy File Path
+- Properties
+
+When removing a download, a confirmation dialog will ask whether you also want to delete the downloaded file.
+
+### Active Downloads
+While a download is in progress, you can long-press it to select it. An overflow menu will appear with the following actions:
+- Open
+- Share
+- Open Folder
+- Redownload
+- Redownload with Additional Options
+- Update Download Link
+- Update Download Link in Browser
+- Remove
+- Copy Download Link
+- Copy File Name
+- Copy File Path
+- Properties
+
+### Multiple Selection Actions
+- Redownload
+- Remove
+- Copy Download Link
+- Copy File Name
+- Copy File Path
+
+---
+
+## New Download Dialog
+
+When a downloadable file is detected, the download will no longer start automatically. Instead, a new download dialog will appear where you can:
+
+- View the download link
+- Copy the download link
+- Rename the file and its extension
+- Configure download settings before starting
+
+**Metered Network Detection**  
+If you try to download a file while **Unmetered Only** is enabled, a dialog will appear:
+
+> *Metered Network Detected*  
+> Unmetered Only is enabled, but you're connected to a metered network. Do you want to use a metered network to download this file?  
+> [Cancel] [No] [Yes]
+
+**File Already Exists**  
+If the file you're trying to download already exists in the final destination, a dialog will appear:
+
+> *File Already Exists*  
+> Add Duplicate  
+> Overwrite Existing File
+
+**Manual Download**  
+A new Floating Action Button (FAB) has also been added to the Downloads page. Tapping it allows you to create a new download manually. It opens the same dialog used by the download detection flow, but the download URL is fully editable.
+
+---
+
+## Enhancements
+
+- Pure Mode color intensity now uses black bottom sheets and popups across all themes.
+- The entire Settings UI and all settings fragments have been redesigned. The old basic list layout has been replaced with a modern, custom card-style interface.
+- The custom toast shown when copying text from the app will no longer appear on Android 13 and above. This is to prevent two toasts from being displayed at the same time (one from the system and one from the app itself).
+- The popup dialog will now show the URL that the website is trying to open.
+
+---
+
+## Bug Fixes
+
+- Fixed an issue where the Hold Image Listener failed to display GIF images.
+- Fixed an issue where the Hold Image Listener failed to display Base64 images.
+- Fixed an issue where the Hold Image Listener failed to display SVG images..
+- Fixed the SwipeRefreshLayout being triggered on map websites such as Bing Maps and Google Maps. The app should now detect when the user is interacting with a canvas element (used by most map websites) and prevent SwipeRefreshLayout from being triggered while the canvas is being touched
+- Fixed download not working in the background
+
+---
+
+## Extra Changes
+
+- The default theme before was renamed to **Legacy** and put last on the theme list. The new default theme is **Dark**.
+- Renamed the default accent color to **Monochrome** and moved it to the third position after Material You. **Purple** was moved to the first position because it is now the default accent color with a strong tint color intensity.
+- Removed the custom color on incognito tabs – now incognito tabs will follow the theme instead of having a custom green.
+- Created an **F-Droid flavor**. In the F-Droid flavor, all update-related code has been completely removed.
+- Limited search suggestions history to 20 and bookmarks to 10 to prevent the app from trying to load too many lists, improving performance on low-end devices.
+- Updated About page
+- Updated TOS
+- Updated Privacy Policy
+- Update dependency `com.google.android.material:material` from 1.13 to 1.14.
+
+---
+
+*Thank you everyone for the 8 stars – highly appreciate it. And to anyone who was waiting for this update, I hope I don't disappoint you. If you don't like anything, please share your feedback.*
+
 # v1.0.3-r2
 
 ## 🛠 Fixes

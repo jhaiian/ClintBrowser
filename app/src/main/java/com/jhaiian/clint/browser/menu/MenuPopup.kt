@@ -192,6 +192,11 @@ private fun MainActivity.showPopupMenu(anchor: View) {
     popupView.findViewById<View>(R.id.menu_downloads).setOnClickListener {
         popup.dismiss(); startActivity(Intent(this, DownloadsActivity::class.java))
     }
+    popupView.findViewById<View>(R.id.menu_downloads).setOnLongClickListener {
+        popup.dismiss()
+        onMenuOpenDownloadSettings()
+        true
+    }
     popupView.findViewById<View>(R.id.menu_bookmarks).setOnClickListener {
         popup.dismiss(); startActivity(Intent(this, BookmarksActivity::class.java))
     }
@@ -227,6 +232,10 @@ private fun MainActivity.showPopupMenu(anchor: View) {
         View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
         View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
     )
+    val maxPopupH = (resources.displayMetrics.heightPixels * 0.90).toInt()
+    if (popupView.measuredHeight > maxPopupH) {
+        popup.height = maxPopupH
+    }
 
     val xOff = -popupView.measuredWidth + anchor.width
     val yOff = if (position == "bottom") -(popupView.measuredHeight + anchor.height) else 0

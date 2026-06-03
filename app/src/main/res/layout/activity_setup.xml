@@ -222,7 +222,7 @@
                     android:lineSpacingMultiplier="1.5" />
 
                 <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardSetupThemeDefault"
+                    android:id="@+id/cardSetupThemeDark"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
@@ -230,58 +230,6 @@
                     app:cardCornerRadius="14dp"
                     app:strokeColor="?attr/colorPrimary"
                     app:strokeWidth="3dp">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:padding="16dp"
-                        android:gravity="center_vertical">
-                        <View
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
-                            android:background="@drawable/theme_swatch_default" />
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:layout_marginStart="16dp"
-                            android:layout_marginEnd="8dp">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/theme_default"
-                                android:textColor="?attr/colorOnSurface"
-                                android:textSize="15sp"
-                                android:fontFamily="sans-serif-medium"
-                                android:textStyle="bold" />
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/theme_default_desc"
-                                android:textColor="?attr/clintSecondaryTextColor"
-                                android:textSize="13sp"
-                                android:layout_marginTop="2dp" />
-                        </LinearLayout>
-                        <ImageView
-                            android:id="@+id/checkSetupThemeDefault"
-                            android:layout_width="22dp"
-                            android:layout_height="22dp"
-                            android:src="@drawable/ic_check_24"
-                            android:tint="?attr/colorPrimary" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardSetupThemeDark"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:alpha="0.45"
-                    app:cardBackgroundColor="?attr/clintCardBackground"
-                    app:cardCornerRadius="14dp"
-                    app:strokeColor="?attr/colorPrimary"
-                    app:strokeWidth="0dp">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -321,7 +269,7 @@
                             android:layout_height="22dp"
                             android:src="@drawable/ic_check_24"
                             android:tint="?attr/colorPrimary"
-                            android:visibility="invisible" />
+                            android:visibility="visible" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -378,6 +326,58 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSetupThemeDefault"
+                    android:alpha="0.45"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeColor="?attr/colorPrimary"
+                    app:strokeWidth="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+                        <View
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:background="@drawable/theme_swatch_default" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/theme_default"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/theme_default_desc"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="13sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:id="@+id/checkSetupThemeDefault"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_check_24"
+                            android:tint="?attr/colorPrimary" android:visibility="invisible" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
                 <TextView
                     android:id="@+id/tvSetupAccentLabel"
                     android:layout_width="match_parent"
@@ -392,7 +392,7 @@
                     android:visibility="gone" />
 
                 <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardSetupAccentDefault"
+                    android:id="@+id/cardSetupAccentPurple"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
@@ -409,7 +409,7 @@
                         android:padding="16dp"
                         android:gravity="center_vertical">
                         <View
-                            android:id="@+id/swatchSetupAccentDefault"
+                            android:id="@+id/swatchSetupAccentPurple"
                             android:layout_width="44dp"
                             android:layout_height="44dp" />
                         <LinearLayout
@@ -422,7 +422,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="@string/accent_default"
+                                android:text="@string/accent_purple"
                                 android:textColor="?attr/colorOnSurface"
                                 android:textSize="15sp"
                                 android:fontFamily="sans-serif-medium"
@@ -430,13 +430,13 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="@string/accent_default_desc"
+                                android:text="@string/accent_purple_desc"
                                 android:textColor="?attr/clintSecondaryTextColor"
                                 android:textSize="13sp"
                                 android:layout_marginTop="2dp" />
                         </LinearLayout>
                         <ImageView
-                            android:id="@+id/checkSetupAccentDefault"
+                            android:id="@+id/checkSetupAccentPurple"
                             android:layout_width="22dp"
                             android:layout_height="22dp"
                             android:src="@drawable/ic_check_24"
@@ -500,7 +500,7 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardSetupAccentPurple"
+                    android:id="@+id/cardSetupAccentDefault"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
@@ -517,7 +517,7 @@
                         android:padding="16dp"
                         android:gravity="center_vertical">
                         <View
-                            android:id="@+id/swatchSetupAccentPurple"
+                            android:id="@+id/swatchSetupAccentDefault"
                             android:layout_width="44dp"
                             android:layout_height="44dp" />
                         <LinearLayout
@@ -530,7 +530,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="@string/accent_purple"
+                                android:text="@string/accent_default"
                                 android:textColor="?attr/colorOnSurface"
                                 android:textSize="15sp"
                                 android:fontFamily="sans-serif-medium"
@@ -538,13 +538,13 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="@string/accent_purple_desc"
+                                android:text="@string/accent_default_desc"
                                 android:textColor="?attr/clintSecondaryTextColor"
                                 android:textSize="13sp"
                                 android:layout_marginTop="2dp" />
                         </LinearLayout>
                         <ImageView
-                            android:id="@+id/checkSetupAccentPurple"
+                            android:id="@+id/checkSetupAccentDefault"
                             android:layout_width="22dp"
                             android:layout_height="22dp"
                             android:src="@drawable/ic_check_24"

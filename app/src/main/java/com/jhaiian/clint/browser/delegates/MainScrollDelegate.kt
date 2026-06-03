@@ -12,7 +12,7 @@ import android.view.animation.DecelerateInterpolator
 
 internal fun MainActivity.setupSwipeRefresh() {
     binding.swipeRefresh.canChildScrollUpCallback = {
-        isYouTubeShorts() || run {
+        swipeGuardBlocked || isYouTubeShorts() || canvasTouchActive || run {
             val wv = tabManager.activeTab?.webView
             val mode = prefs.getString("scroll_hide_mode", "off") ?: "off"
             val barsHiddenByScrolling = !hasWebBottomNav && mode != "off" && topBarFraction >= 1f
@@ -24,6 +24,7 @@ internal fun MainActivity.setupSwipeRefresh() {
         setProgressBackgroundColorSchemeColor(getThemeColor(com.google.android.material.R.attr.colorSurface))
         setOnRefreshListener {
             nestedScrollActive = false
+            canvasTouchActive = false
             tabManager.activeTab?.webView?.reload() ?: run { isRefreshing = false }
         }
     }
@@ -264,6 +265,10 @@ internal fun MainActivity.injectScrollTracker(webView: WebView) {
 
 internal fun MainActivity.injectBottomNavDetector(webView: WebView) {
     webView.evaluateJavascript(loadJsAsset("bottom_nav_detector.js"), null)
+}
+
+internal fun MainActivity.injectCanvasTouchDetector(webView: WebView) {
+    webView.evaluateJavascript(loadJsAsset("canvas_touch_detector.js"), null)
 }
 
 internal fun MainActivity.isYouTubeShorts(): Boolean {

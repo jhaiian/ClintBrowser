@@ -58,10 +58,12 @@ ClintBrowser/
 │   ├── FUNDING.yml
 │   └── workflows/
 │       ├── build.yml
+│       ├── build_fdroid.yml
 │       └── release.yml
 ├── app/src/main/
 │   ├── assets/JavaScript/
 │   │   ├── bottom_nav_detector.js    # Detects bottom navigation bars for scroll behavior
+│   │   ├── canvas_touch_detector.js  # Reports canvas touch events to native for swipe-refresh suppression
 │   │   ├── dark_mode.js              # Injects dark mode styles into pages
 │   │   ├── desktop_mode.js           # Overrides user-agent and viewport for desktop
 │   │   ├── disable_autoplay.js       # Prevents media from autoplaying on page load
@@ -92,6 +94,7 @@ ClintBrowser/
 │       │   └── BookmarksAdapter.kt       # Bookmarks list adapter
 │       ├── browser/
 │       │   ├── delegates/
+│       │   │   ├── MainDownloadDialogDelegate.kt     # Download request dialog UI and interaction
 │       │   │   ├── MainDownloadPermissionDelegate.kt # Runtime storage permission handling for downloads
 │       │   │   ├── MainFileChooserDelegate.kt        # File chooser and camera capture logic
 │       │   │   ├── MainFullscreenDelegate.kt         # Video fullscreen enter/exit logic
@@ -103,7 +106,8 @@ ClintBrowser/
 │       │   │   ├── MainScrollDelegate.kt             # Scroll-hide bars and swipe refresh setup
 │       │   │   ├── MainTabDelegate.kt                # Tab open, close, restore, and switching
 │       │   │   ├── MainUiDelegate.kt                 # WebView setup, address bar, UI state updates
-│       │   │   └── MainWebViewDelegate.kt            # WebView configuration and settings apply
+│       │   │   ├── MainWebViewDelegate.kt            # WebView configuration and settings apply
+│       │   │   └── RefreshLinkDialogDelegate.kt      # Dialog for re-downloading with a refreshed link
 │       │   ├── menu/
 │       │   │   ├── MenuBottomSheet.kt    # Browser action menu bottom sheet
 │       │   │   └── MenuPopup.kt          # Overflow popup menu
@@ -126,10 +130,27 @@ ClintBrowser/
 │       │   ├── CrashHandler.kt           # Local crash reporting
 │       │   └── CrashReportFragment.kt    # Crash log viewer UI
 │       ├── downloads/
-│       │   ├── ClintDownloadManager.kt   # Custom download engine
-│       │   ├── DownloadActionReceiver.kt # Notification action receiver
-│       │   ├── DownloadsActivity.kt      # Downloads screen
-│       │   └── DownloadsAdapter.kt       # Downloads list adapter
+│       │   ├── ClintDownloadManager.kt       # Custom download engine
+│       │   ├── DownloadActionReceiver.kt     # Notification action receiver
+│       │   ├── DownloadBootReceiver.kt       # Resumes active downloads after device reboot
+│       │   ├── DownloadDatabase.kt           # Room database for downloads
+│       │   ├── DownloadFileHelper.kt         # File path and naming utilities
+│       │   ├── DownloadForegroundService.kt  # Foreground service for active downloads
+│       │   ├── DownloadModels.kt             # Download data models
+│       │   ├── DownloadNetworkMonitor.kt     # Monitors network state for download resumption
+│       │   ├── DownloadNotificationHelper.kt # Download progress and status notifications
+│       │   ├── DownloadPersistence.kt        # Download state persistence helpers
+│       │   ├── DownloadProgressCardView.kt   # Inline progress card for active downloads
+│       │   ├── DownloadSizeUtils.kt          # File size formatting utilities
+│       │   ├── DownloadWorker.kt             # WorkManager worker for download execution
+│       │   ├── DownloadsActivity.kt          # Downloads screen
+│       │   ├── DownloadsAdapter.kt           # Downloads list adapter
+│       │   ├── DownloadsPagerAdapter.kt      # Pager adapter for downloads tabs
+│       │   ├── DownloadsRedownloadHelper.kt  # Re-download logic for existing entries
+│       │   ├── DownloadsTabFragment.kt       # Fragment for each downloads tab
+│       │   ├── DownloadsTabType.kt           # Enum for download tab categories
+│       │   ├── ManualDownloadDialogHelper.kt # Manual download entry dialog
+│       │   └── SharedSelectionState.kt       # Shared multi-selection state across tabs
 │       ├── history/
 │       │   ├── HistoryActivity.kt        # Browsing history screen
 │       │   ├── HistoryAdapter.kt         # History list adapter
@@ -144,6 +165,7 @@ ClintBrowser/
 │       │   │   ├── AboutFragment.kt             # About screen
 │       │   │   ├── BrowserSettingsFragment.kt   # WebView/browser engine settings
 │       │   │   ├── DataSaverFragment.kt         # Data saver settings screen
+│       │   │   ├── DownloadSettingsFragment.kt  # Download settings screen
 │       │   │   ├── LookAndFeelFragment.kt       # Appearance & theme settings
 │       │   │   ├── MainSettingsFragment.kt      # Settings root screen
 │       │   │   ├── MiscFragment.kt              # Miscellaneous settings screen

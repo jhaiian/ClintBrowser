@@ -174,6 +174,10 @@ class BookmarksActivity : ClintActivity() {
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         )
+        val maxPopupH = (resources.displayMetrics.heightPixels * 0.90).toInt()
+        if (popupView.measuredHeight > maxPopupH) {
+            popup.height = maxPopupH
+        }
         popup.showAsDropDown(anchor, -popupView.measuredWidth + anchor.width, 0, Gravity.TOP or Gravity.END)
     }
 
@@ -197,6 +201,10 @@ class BookmarksActivity : ClintActivity() {
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         )
+        val maxPopupH = (resources.displayMetrics.heightPixels * 0.90).toInt()
+        if (popupView.measuredHeight > maxPopupH) {
+            popup.height = maxPopupH
+        }
         popup.showAsDropDown(anchor, -popupView.measuredWidth + anchor.width, 0, Gravity.TOP or Gravity.END)
     }
 

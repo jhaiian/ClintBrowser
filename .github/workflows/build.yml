@@ -38,16 +38,16 @@ jobs:
       - name: Create local.properties
         run: printf '%s\n' "${{ secrets.LOCAL_PROPERTIES }}" > local.properties
 
-      - name: Build Release APKs
-        run: ./gradlew assembleRelease
+      - name: Build GitHub Release APKs
+        run: ./gradlew assembleGithubRelease
 
       - name: List generated APKs
-        run: find app/build/outputs/apk/release -name "*.apk" | sort
+        run: find app/build/outputs/apk/github/release -name "*.apk" | sort
 
       - name: Detect ABI split mode
         id: mode
         run: |
-          if ls app/build/outputs/apk/release/app-arm64-v8a-release.apk 2>/dev/null; then
+          if ls app/build/outputs/apk/github/release/app-github-arm64-v8a-release.apk 2>/dev/null; then
             echo "split=true" >> "$GITHUB_OUTPUT"
           else
             echo "split=false" >> "$GITHUB_OUTPUT"
@@ -58,7 +58,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Clint-Universal
-          path: app/build/outputs/apk/release/app-release.apk
+          path: app/build/outputs/apk/github/release/app-github-release.apk
           if-no-files-found: error
 
       - name: Upload Universal APK
@@ -66,7 +66,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Clint-Universal
-          path: app/build/outputs/apk/release/app-universal-release.apk
+          path: app/build/outputs/apk/github/release/app-github-universal-release.apk
           if-no-files-found: error
 
       - name: Upload arm64-v8a APK
@@ -74,7 +74,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Clint-arm64-v8a
-          path: app/build/outputs/apk/release/app-arm64-v8a-release.apk
+          path: app/build/outputs/apk/github/release/app-github-arm64-v8a-release.apk
           if-no-files-found: warn
 
       - name: Upload armeabi-v7a APK
@@ -82,7 +82,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Clint-armeabi-v7a
-          path: app/build/outputs/apk/release/app-armeabi-v7a-release.apk
+          path: app/build/outputs/apk/github/release/app-github-armeabi-v7a-release.apk
           if-no-files-found: warn
 
       - name: Upload x86 APK
@@ -90,7 +90,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Clint-x86
-          path: app/build/outputs/apk/release/app-x86-release.apk
+          path: app/build/outputs/apk/github/release/app-github-x86-release.apk
           if-no-files-found: warn
 
       - name: Upload x86_64 APK
@@ -98,5 +98,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Clint-x86_64
-          path: app/build/outputs/apk/release/app-x86_64-release.apk
+          path: app/build/outputs/apk/github/release/app-github-x86_64-release.apk
           if-no-files-found: warn
+

@@ -1,4 +1,5 @@
 package com.jhaiian.clint.settings
+import com.jhaiian.clint.settings.fragments.DownloadSettingsFragment
 import com.jhaiian.clint.settings.fragments.MainSettingsFragment
 import com.jhaiian.clint.settings.fragments.DataSaverFragment
 
@@ -6,8 +7,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
+import androidx.fragment.app.Fragment
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -15,8 +15,7 @@ import com.jhaiian.clint.R
 import com.jhaiian.clint.base.ClintActivity
 import com.jhaiian.clint.databinding.ActivitySettingsBinding
 
-class SettingsActivity : ClintActivity(),
-    PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
+class SettingsActivity : ClintActivity() {
 
     var pendingRestart = false
     var pendingHideStatusBar: Boolean? = null
@@ -67,15 +66,15 @@ class SettingsActivity : ClintActivity(),
         if (savedInstanceState == null) {
             val openFragment = intent.getStringExtra(EXTRA_OPEN_FRAGMENT)
             if (openFragment == "data_saver") {
-                val dataSaverFragment = DataSaverFragment()
                 supportFragmentManager.beginTransaction()
-                    .replace(R.id.settings_container, MainSettingsFragment())
-                    .commit()
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.settings_container, dataSaverFragment)
-                    .addToBackStack(null)
+                    .replace(R.id.settings_container, DataSaverFragment())
                     .commit()
                 toolbarTitle.text = getString(R.string.data_saver_title)
+            } else if (openFragment == "download_settings") {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.settings_container, DownloadSettingsFragment())
+                    .commit()
+                toolbarTitle.text = getString(R.string.download_settings_title)
             } else {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.settings_container, MainSettingsFragment())
@@ -89,24 +88,17 @@ class SettingsActivity : ClintActivity(),
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putCharSequence(KEY_TOOLBAR_TITLE, toolbarTitle.text)
-    }
-
-    override fun onPreferenceStartFragment(
-        caller: PreferenceFragmentCompat,
-        pref: Preference
-    ): Boolean {
-        val fragment = supportFragmentManager.fragmentFactory
-            .instantiate(classLoader, pref.fragment!!)
-        fragment.arguments = pref.extras
+    fun navigateTo(fragment: Fragment, title: String) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.settings_container, fragment)
             .addToBackStack(null)
             .commit()
-        toolbarTitle.text = pref.title
-        return true
+        toolbarTitle.text = title
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putCharSequence(KEY_TOOLBAR_TITLE, toolbarTitle.text)
     }
 
     override fun onStop() {

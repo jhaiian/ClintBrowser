@@ -182,6 +182,10 @@ class HistoryActivity : ClintActivity() {
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         )
+        val maxPopupH = (resources.displayMetrics.heightPixels * 0.90).toInt()
+        if (popupView.measuredHeight > maxPopupH) {
+            popup.height = maxPopupH
+        }
         val xOff = -popupView.measuredWidth + anchor.width
         popup.showAsDropDown(anchor, xOff, 0, Gravity.TOP or Gravity.END)
     }
@@ -214,6 +218,10 @@ class HistoryActivity : ClintActivity() {
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         )
+        val maxPopupH = (resources.displayMetrics.heightPixels * 0.90).toInt()
+        if (popupView.measuredHeight > maxPopupH) {
+            popup.height = maxPopupH
+        }
         val xOff = -popupView.measuredWidth + anchor.width
         popup.showAsDropDown(anchor, xOff, 0, Gravity.TOP or Gravity.END)
     }

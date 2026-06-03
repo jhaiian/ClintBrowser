@@ -14,6 +14,8 @@ import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 import com.jhaiian.clint.downloads.ClintDownloadManager
 import com.jhaiian.clint.tabs.BrowserTab
+import com.jhaiian.clint.util.registeredDomain
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 @SuppressLint("SetJavaScriptEnabled")
 internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
@@ -45,10 +47,12 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
     }
     webView.setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null)
     webView.addJavascriptInterface(NestedScrollBridge(), "NestedScrollBridge")
+    webView.addJavascriptInterface(CanvasTouchBridge(), "CanvasTouchBridge")
     webView.addJavascriptInterface(BottomNavBridge(), "BottomNavBridge")
     webView.addJavascriptInterface(NotificationBridge(webView), "ClintNotificationBridge")
     webView.addJavascriptInterface(BlobDownloadBridge(), "BlobDownloadBridge")
     webView.setDownloadListener { url, userAgent, contentDisposition, mimetype, _ ->
+        if (tabManager.activeTab?.webView !== webView) return@setDownloadListener
         if (url.startsWith("blob:")) {
             val filename = URLUtil.guessFileName(url, contentDisposition, mimetype)
             val safeUrl = url.replace("\\", "\\\\").replace("'", "\\'")
@@ -81,7 +85,12 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
         }
         val referer = webView.url ?: ""
         val cookies = CookieManager.getInstance().getCookie(url) ?: ""
-        handleDownloadRequest(url, filename, userAgent, referer, cookies)
+        val session = refreshLinkSession
+        if (session != null && tabManager.activeTab?.isRefreshLinkTab == true && isRelatedToSession(url, referer, session)) {
+            showRefreshLinkDownloadDialog(url, filename, userAgent, referer, cookies, session)
+        } else {
+            showDownloadDialog(url, filename, userAgent, referer, cookies)
+        }
     }
     applyWebDarkMode(webView)
     setupImageLongPress(webView)
@@ -125,7 +134,7 @@ internal fun MainActivity.buildUserAgent(): String {
 
 @Suppress("DEPRECATION")
 internal fun MainActivity.applyWebDarkMode(webView: WebView) {
-    val theme = prefs.getString("app_theme", "default") ?: "default"
+    val theme = prefs.getString("app_theme", "dark") ?: "dark"
     val enabled = when (theme) {
         "dark" -> true
         "light" -> false
@@ -284,4 +293,25 @@ internal fun MainActivity.getSearchQueryUrl(query: String): String {
         "google" -> "https://www.google.com/search?q=$encoded"
         else -> "https://duckduckgo.com/?q=$encoded"
     }
+}
+
+private fun isRelatedToSession(
+    downloadUrl: String,
+    pageUrl: String,
+    session: MainActivity.RefreshLinkSession
+): Boolean {
+    val originalDownloadDomain = session.originalUrl.toHttpUrlOrNull()?.host
+        ?.let { registeredDomain(it) }
+    val originalRefererDomain = session.originalReferer.toHttpUrlOrNull()?.host
+        ?.let { registeredDomain(it) }
+
+    if (originalDownloadDomain == null && originalRefererDomain == null) return true
+
+    val newDownloadDomain = downloadUrl.toHttpUrlOrNull()?.host
+        ?.let { registeredDomain(it) }
+    val newPageDomain = pageUrl.toHttpUrlOrNull()?.host
+        ?.let { registeredDomain(it) }
+
+    val originalDomains = setOfNotNull(originalDownloadDomain, originalRefererDomain)
+    return newDownloadDomain in originalDomains || newPageDomain in originalDomains
 }

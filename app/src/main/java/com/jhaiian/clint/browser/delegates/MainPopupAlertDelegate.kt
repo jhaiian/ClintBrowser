@@ -16,6 +16,7 @@ internal fun MainActivity.showPopupAlertDialog(newUrl: String, isIncognito: Bool
     val view = LayoutInflater.from(this).inflate(R.layout.dialog_popup_alert, null)
     view.findViewById<TextView>(R.id.tvPopupAlertMessage).text =
         Html.fromHtml(getString(R.string.popup_alert_message, sourceHost), Html.FROM_HTML_MODE_COMPACT)
+    view.findViewById<TextView>(R.id.tvPopupAlertUrl).text = newUrl
 
     MaterialAlertDialogBuilder(this, getDialogTheme())
         .setTitle(getString(R.string.popup_alert_title))

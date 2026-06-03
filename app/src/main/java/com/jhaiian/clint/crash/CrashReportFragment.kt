@@ -227,8 +227,10 @@ class CrashReportFragment : Fragment() {
         val truncated = content.length > MAX_CLIP_CHARS
         val clipped = if (truncated) content.take(MAX_CLIP_CHARS) + "\n${getString(R.string.crash_log_truncated)}" else content
         cm.setPrimaryClip(ClipData.newPlainText("Clint Crash Report", clipped))
-        val msg = if (truncated) getString(R.string.crash_copied_truncated) else getString(R.string.crash_copied)
-        ClintToast.show(requireContext(), msg, R.drawable.ic_check_24)
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU) {
+            val msg = if (truncated) getString(R.string.crash_copied_truncated) else getString(R.string.crash_copied)
+            ClintToast.show(requireContext(), msg, R.drawable.ic_check_24)
+        }
     }
 
     private fun setupSteps() {
@@ -277,7 +279,9 @@ class CrashReportFragment : Fragment() {
         binding.btnCopyTemplate.setOnClickListener {
             val cm = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             cm.setPrimaryClip(ClipData.newPlainText("Bug Report Template", template))
-            ClintToast.show(requireContext(), getString(R.string.crash_template_copied), R.drawable.ic_check_24)
+            if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU) {
+                ClintToast.show(requireContext(), getString(R.string.crash_template_copied), R.drawable.ic_check_24)
+            }
         }
     }
 

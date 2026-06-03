@@ -20,6 +20,9 @@ import com.jhaiian.clint.bookmarks.Bookmark
 import com.jhaiian.clint.bookmarks.BookmarkManager
 import com.jhaiian.clint.history.SearchHistoryManager
 
+private const val SUGGESTION_HISTORY_LIMIT = 20
+private const val SUGGESTION_BOOKMARK_LIMIT = 10
+
 internal fun MainActivity.applyAddressBarPosition() {
     val position = prefs.getString("address_bar_position", "top") ?: "top"
     when (position) {
@@ -74,7 +77,10 @@ internal fun MainActivity.setupAddressBar() {
     suggestionFetcherTop = SuggestionFetcher()
     suggestionFetcherBottom = SuggestionFetcher()
 
-    val bgHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    val bgThread = android.os.HandlerThread("ClintSuggestions").also { it.start() }
+    suggestionsBgThread = bgThread
+    val bgHandler = android.os.Handler(bgThread.looper)
+    val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
 
     val buildAdapter = { searchBar: com.google.android.material.search.SearchBar,
                          searchView: com.google.android.material.search.SearchView,
@@ -96,13 +102,13 @@ internal fun MainActivity.setupAddressBar() {
                 searchView.editText.setSelection(item.length)
             },
             onHistoryDelete = { item ->
-                Thread {
+                bgHandler.post {
                     SearchHistoryManager.delete(this, item)
                     val query = searchView.editText.text?.toString() ?: ""
-                    val history = SearchHistoryManager.search(this, query)
-                    val bookmarks = BookmarkManager.search(this, query)
-                    bgHandler.post { adapterRef?.submitCombined(bookmarks, history, emptyList()) }
-                }.start()
+                    val history = SearchHistoryManager.search(this, query).take(SUGGESTION_HISTORY_LIMIT)
+                    val bookmarks = BookmarkManager.search(this, query).take(SUGGESTION_BOOKMARK_LIMIT)
+                    mainHandler.post { adapterRef?.submitCombined(bookmarks, history, emptyList()) }
+                }
             }
         )
         adapterRef = adapter
@@ -141,11 +147,6 @@ internal fun MainActivity.setupAddressBar() {
                 val current = tabManager.activeTab?.webView?.url ?: ""
                 searchView.editText.setText(current)
                 searchView.editText.selectAll()
-                Thread {
-                    val history = SearchHistoryManager.getAll(this)
-                    val bookmarks = BookmarkManager.getAll(this)
-                    bgHandler.post { adapter.submitCombined(bookmarks, history, emptyList()) }
-                }.start()
             } else if (newState == com.google.android.material.search.SearchView.TransitionState.HIDING) {
                 relevantToolbar.visibility = savedToolbarVisibility
             } else if (newState == com.google.android.material.search.SearchView.TransitionState.HIDDEN) {
@@ -162,20 +163,24 @@ internal fun MainActivity.setupAddressBar() {
             override fun afterTextChanged(s: android.text.Editable?) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val query = s?.toString() ?: ""
-                Thread {
-                    val history = SearchHistoryManager.search(this@setupAddressBar, query)
-                    val bookmarks = BookmarkManager.search(this@setupAddressBar, query)
-                    bgHandler.post {
-                        if (query.isBlank()) {
-                            fetcher.cancel()
-                            adapter.submitCombined(bookmarks, history, emptyList())
-                        } else {
-                            fetcher.fetch(query) { suggestions ->
-                                adapter.submitCombined(bookmarks, history, suggestions)
-                            }
+                bgHandler.removeCallbacksAndMessages(null)
+                bgHandler.post {
+                    if (query.isBlank()) {
+                        fetcher.cancel()
+                        val history = SearchHistoryManager.getAll(this@setupAddressBar).take(SUGGESTION_HISTORY_LIMIT)
+                        val bookmarks = BookmarkManager.getAll(this@setupAddressBar).take(SUGGESTION_BOOKMARK_LIMIT)
+                        mainHandler.post { adapter.submitCombined(bookmarks, history, emptyList()) }
+                        return@post
+                    }
+                    val history = SearchHistoryManager.search(this@setupAddressBar, query).take(SUGGESTION_HISTORY_LIMIT)
+                    val bookmarks = BookmarkManager.search(this@setupAddressBar, query).take(SUGGESTION_BOOKMARK_LIMIT)
+                    mainHandler.post {
+                        adapter.submitCombined(bookmarks, history, emptyList())
+                        fetcher.fetch(query) { suggestions ->
+                            adapter.submitCombined(bookmarks, history, suggestions)
                         }
                     }
-                }.start()
+                }
             }
         })
 
@@ -417,8 +422,9 @@ internal fun MainActivity.onPageFinished(url: String) {
     tabManager.activeTab?.webView?.let { wv ->
         injectScrollTracker(wv)
         injectBottomNavDetector(wv)
+        injectCanvasTouchDetector(wv)
         wv.evaluateJavascript(loadJsAsset("link_touch_tracker.js"), null)
-        val theme = prefs.getString("app_theme", "default") ?: "default"
+        val theme = prefs.getString("app_theme", "dark") ?: "dark"
         val darkWeb = when (theme) { "dark" -> true; "light" -> false; else -> prefs.getBoolean("force_dark_web", false) }
         if (darkWeb
             && !WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)
@@ -428,6 +434,7 @@ internal fun MainActivity.onPageFinished(url: String) {
         }
     }
     nestedScrollActive = false
+    canvasTouchActive = false
     updateBookmarkIcon()
 
     if (url.startsWith("http") && !SearchHistoryManager.isSearchEngineUrl(url)) {
@@ -473,11 +480,7 @@ internal fun MainActivity.updateTabCount() {
 internal fun MainActivity.updateIncognitoState(isIncognito: Boolean) {
     binding.incognitoIcon.visibility = if (isIncognito) View.VISIBLE else View.GONE
     binding.incognitoIconBottom.visibility = if (isIncognito) View.VISIBLE else View.GONE
-    val color = if (isIncognito) {
-        ContextCompat.getColor(this, R.color.incognito_toolbar_color)
-    } else {
-        getThemeColor(com.google.android.material.R.attr.colorSurface)
-    }
+    val color = getThemeColor(com.google.android.material.R.attr.colorSurface)
     binding.toolbarTop.setBackgroundColor(color)
     binding.toolbarBottom.setBackgroundColor(color)
     binding.bottomBar.setBackgroundColor(color)
@@ -486,14 +489,9 @@ internal fun MainActivity.updateIncognitoState(isIncognito: Boolean) {
 
 internal fun MainActivity.updateSwipeRefreshColors(isIncognito: Boolean) {
     binding.swipeRefresh.setProgressBackgroundColorSchemeColor(
-        if (isIncognito) ContextCompat.getColor(this, R.color.incognito_toolbar_color)
-        else getThemeColor(com.google.android.material.R.attr.colorSurface)
+        getThemeColor(com.google.android.material.R.attr.colorSurface)
     )
-    if (isIncognito) {
-        binding.swipeRefresh.setColorSchemeColors(ContextCompat.getColor(this, R.color.incognito_accent))
-    } else {
-        binding.swipeRefresh.setColorSchemeColors(getThemeColor(androidx.appcompat.R.attr.colorPrimary))
-    }
+    binding.swipeRefresh.setColorSchemeColors(getThemeColor(androidx.appcompat.R.attr.colorPrimary))
 }
 
 internal fun MainActivity.hideKeyboard() {

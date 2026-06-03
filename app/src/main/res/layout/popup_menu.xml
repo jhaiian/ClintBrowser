@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="220dp"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:background="@drawable/popup_menu_background"
-    android:paddingTop="6dp"
-    android:paddingBottom="6dp">
+    android:scrollbars="none"
+    android:overScrollMode="never"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/popup_menu_background"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp">
 
     <LinearLayout
         android:id="@+id/nav_icons_row"
@@ -206,6 +213,7 @@
         android:gravity="center_vertical"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
+        android:longClickable="true"
         android:background="@drawable/popup_item_ripple">
 
         <ImageView
@@ -433,4 +441,6 @@
 
     </LinearLayout>
 
-</LinearLayout>
+    </LinearLayout>
+
+</ScrollView>
