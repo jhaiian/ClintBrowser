@@ -62,7 +62,7 @@ Additional Features
 Requirements
 
 · Android 8.0 (API 26) or higher
-· Android System WebView
+· WebView Implementation
 
 App permissions
 
@@ -76,7 +76,7 @@ WRITE_EXTERNAL_STORAGE
 Lets the app save downloaded files to your Downloads folder. Only applies on Android 9 and below.
 
 POST_NOTIFICATIONS
-Lets the app show download progress, completion, and failure alerts in your notification bar.
+Lets the app show download progress, completion, and failure alerts in your notification bar and site permission.
 
 REQUEST_INSTALL_PACKAGES
 Lets the app install APK files you download directly from the download screen.
