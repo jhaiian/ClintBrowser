@@ -209,6 +209,8 @@ A new Floating Action Button (FAB) has also been added to the Downloads page. Ta
 
 *Thank you everyone for the 8 stars – highly appreciate it. And to anyone who was waiting for this update, I hope I don't disappoint you. If you don't like anything, please share your feedback.*
 
+---
+
 # v1.0.3-r2
 
 ## 🛠 Fixes
