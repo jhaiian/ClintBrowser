@@ -6,7 +6,7 @@
 
 **Customizable Layered Internet Navigation Tool**
 
-A customizable Android browser built on Android WebView that respects your privacy.
+Material Design Android Browser With ADM
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blueviolet.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B-blueviolet.svg)](https://developer.android.com)
