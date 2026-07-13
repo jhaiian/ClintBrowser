@@ -45,7 +45,11 @@ jobs:
       - name: Read versionCode from build.gradle
         id: read_version
         run: |
-          VERSION_CODE=$(grep -oP '(?<=versionCode )\d+' app/build.gradle | head -1)
+          VERSION_CODE=$(grep -oP '(?<=versionCode)\s*=?\s*\K\d+' app/build.gradle.kts | head -1)
+          if [ -z "$VERSION_CODE" ]; then
+            echo "::error::Could not find versionCode in app/build.gradle.kts"
+            exit 1
+          fi
           echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
 
       - name: Set up JDK 17

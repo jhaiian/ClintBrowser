@@ -88,6 +88,7 @@ I changed all the back buttons back to normal because [**@snashyturner**](https:
 - Update dependencies.
 - Changed all notification small icons to the app icon.
 - Updated privacy policy.
+- Rework 'UpdateChecker.kt'
 
 I also started adding comments to new files. I will gradually add comments to existing files as well. Right now, I'm starting to do this because, yeah, it was a rookie mistake. I sometimes forget how my own code works and have to reread everything again.
 
