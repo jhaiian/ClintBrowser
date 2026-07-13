@@ -6,62 +6,95 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import androidx.preference.PreferenceManager
 import com.jhaiian.clint.settings.fragments.DownloadSettingsFragment
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * Tracks device connectivity for the download system. [ConnectivityManager]'s callback API is
+ * bridged into a cold [Flow] via [callbackFlow], so every reaction to a connectivity change goes
+ * through one sequential collector instead of running directly inside callback methods that the
+ * platform can invoke from arbitrary threads.
+ */
 internal object DownloadNetworkMonitor {
 
     internal val unmeteredPausedIds: MutableSet<Int> = ConcurrentHashMap.newKeySet()
     internal val networkWaitingIds: MutableSet<Int> = ConcurrentHashMap.newKeySet()
-    private var networkCallbackRegistered = false
+    private var monitoringStarted = false
 
-    private val networkCallback = object : ConnectivityManager.NetworkCallback() {
-        override fun onAvailable(network: Network) {
-            val ctx = ClintDownloadManager.appContext ?: return
-            val toResume = networkWaitingIds.toList()
-            networkWaitingIds.clear()
-            toResume.forEach { id ->
-                val item = synchronized(ClintDownloadManager.downloads) {
-                    ClintDownloadManager.downloads.find { it.id == id }
-                } ?: return@forEach
-                if (item.status == DownloadStatus.PAUSED && item.waitingForNetwork) {
-                    item.waitingForNetwork = false
-                    ClintDownloadManager.resume(ctx, id)
-                }
+    private sealed class NetworkEvent {
+        object Available : NetworkEvent()
+        data class CapabilitiesChanged(val unmetered: Boolean) : NetworkEvent()
+        object Lost : NetworkEvent()
+    }
+
+    private fun networkEvents(context: Context): Flow<NetworkEvent> = callbackFlow {
+        val cm = context.getSystemService(ConnectivityManager::class.java)
+        val callback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                trySend(NetworkEvent.Available)
             }
-            ClintDownloadManager.tryDequeueNext(ctx)
-        }
 
-        override fun onCapabilitiesChanged(network: Network, caps: NetworkCapabilities) {
-            val ctx = ClintDownloadManager.appContext ?: return
-            if (caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)) {
-                val toResume = unmeteredPausedIds.toList()
-                unmeteredPausedIds.clear()
-                toResume.forEach { id ->
-                    val item = synchronized(ClintDownloadManager.downloads) {
-                        ClintDownloadManager.downloads.find { it.id == id }
-                    } ?: return@forEach
-                    if (item.status == DownloadStatus.PAUSED) {
-                        item.waitingForUnmetered = false
-                        ClintDownloadManager.resume(ctx, id)
-                    }
-                }
-                ClintDownloadManager.tryDequeueNext(ctx)
-            } else {
-                pauseActiveForMetered(ctx)
+            override fun onCapabilitiesChanged(network: Network, caps: NetworkCapabilities) {
+                trySend(NetworkEvent.CapabilitiesChanged(caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)))
+            }
+
+            override fun onLost(network: Network) {
+                trySend(NetworkEvent.Lost)
             }
         }
+        cm.registerDefaultNetworkCallback(callback)
+        awaitClose { cm.unregisterNetworkCallback(callback) }
+    }
 
-        override fun onLost(network: Network) {
-            val ctx = ClintDownloadManager.appContext ?: return
-            pauseActiveForMetered(ctx)
+    /**
+     * Starts reacting to connectivity changes for the lifetime of the process. Idempotent, since
+     * [ClintDownloadManager.init] may call this more than once (app start, boot receiver).
+     */
+    fun register(context: Context) {
+        if (monitoringStarted) return
+        monitoringStarted = true
+        val appContext = context.applicationContext
+        ClintDownloadManager.applicationScope.launch {
+            networkEvents(appContext).collect { event ->
+                when (event) {
+                    is NetworkEvent.Available -> handleAvailable(appContext)
+                    is NetworkEvent.CapabilitiesChanged -> handleCapabilitiesChanged(appContext, event.unmetered)
+                    is NetworkEvent.Lost -> pauseActiveForMetered(appContext)
+                }
+            }
         }
     }
 
-    fun register(context: Context) {
-        if (!networkCallbackRegistered) {
-            val cm = context.getSystemService(ConnectivityManager::class.java)
-            cm.registerDefaultNetworkCallback(networkCallback)
-            networkCallbackRegistered = true
+    private fun handleAvailable(context: Context) {
+        val toResume = networkWaitingIds.toList()
+        networkWaitingIds.clear()
+        val current = ClintDownloadManager.downloadsFlow.value
+        toResume.forEach { id ->
+            val item = current.find { it.id == id } ?: return@forEach
+            if (item.status == DownloadStatus.PAUSED && item.waitingForNetwork) {
+                ClintDownloadManager.resume(context, id)
+            }
+        }
+        ClintDownloadManager.tryDequeueNext(context)
+    }
+
+    private fun handleCapabilitiesChanged(context: Context, unmetered: Boolean) {
+        if (unmetered) {
+            val toResume = unmeteredPausedIds.toList()
+            unmeteredPausedIds.clear()
+            val current = ClintDownloadManager.downloadsFlow.value
+            toResume.forEach { id ->
+                val item = current.find { it.id == id } ?: return@forEach
+                if (item.status == DownloadStatus.PAUSED) {
+                    ClintDownloadManager.resume(context, id)
+                }
+            }
+            ClintDownloadManager.tryDequeueNext(context)
+        } else {
+            pauseActiveForMetered(context)
         }
     }
 
@@ -87,17 +120,15 @@ internal object DownloadNetworkMonitor {
     }
 
     fun pauseActiveForMetered(context: Context) {
-        val active = synchronized(ClintDownloadManager.downloads) {
-            ClintDownloadManager.downloads.filter {
-                it.unmeteredOnly && (
-                    it.status == DownloadStatus.DOWNLOADING ||
-                    it.status == DownloadStatus.CONNECTING ||
-                    it.status == DownloadStatus.ALLOCATING
-                )
-            }
+        val active = ClintDownloadManager.downloadsFlow.value.filter {
+            it.unmeteredOnly && (
+                it.status == DownloadStatus.DOWNLOADING ||
+                it.status == DownloadStatus.CONNECTING ||
+                it.status == DownloadStatus.ALLOCATING
+            )
         }
         active.forEach { item ->
-            item.waitingForUnmetered = true
+            ClintDownloadManager.updateItem(item.id) { it.copy(waitingForUnmetered = true) }
             unmeteredPausedIds.add(item.id)
             ClintDownloadManager.pause(context, item.id)
         }
@@ -108,12 +139,10 @@ internal object DownloadNetworkMonitor {
         if (!enabled) {
             val toResume = unmeteredPausedIds.toList()
             unmeteredPausedIds.clear()
+            val current = ClintDownloadManager.downloadsFlow.value
             toResume.forEach { id ->
-                val item = synchronized(ClintDownloadManager.downloads) {
-                    ClintDownloadManager.downloads.find { it.id == id }
-                } ?: return@forEach
+                val item = current.find { it.id == id } ?: return@forEach
                 if (item.status == DownloadStatus.PAUSED) {
-                    item.waitingForUnmetered = false
                     ClintDownloadManager.resume(ctx, id)
                 }
             }

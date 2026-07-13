@@ -30,20 +30,19 @@ object FaviconCache {
         }
         val key = keyFor(faviconUrl)
         memoryCache[key]?.let { onResult(it); return }
-        val file = diskFile(context.applicationContext, key)
-        if (file.exists()) {
-            val bmp = BitmapFactory.decodeFile(file.absolutePath)
-            if (bmp != null) {
-                memoryCache[key] = bmp
-                onResult(bmp)
-                return
-            }
-        }
-        if (cacheOnly) {
-            onResult(null)
-            return
-        }
+        val appContext = context.applicationContext
         executor.execute {
+            val file = diskFile(appContext, key)
+            val cached = if (file.exists()) BitmapFactory.decodeFile(file.absolutePath) else null
+            if (cached != null) {
+                memoryCache[key] = cached
+                mainHandler.post { onResult(cached) }
+                return@execute
+            }
+            if (cacheOnly) {
+                mainHandler.post { onResult(null) }
+                return@execute
+            }
             val bmp = tryFetch(faviconUrl) ?: tryFetch(fallbackUrlFor(faviconUrl))
             if (bmp != null) {
                 memoryCache[key] = bmp

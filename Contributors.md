@@ -2,13 +2,14 @@
 
 ## Developers
 
-| Name | Role |
-|------|------|
-| [Jhaiian](https://linktr.ee/jhaiian) | Main Developer (Owner) |
-| [Vonjoo](https://github.com/Vonjoo) | Improved Release.yml |
+- [@jhaiian](https://github.com/jhaiian)
+- [@vonjooo](https://github.com/vonjooo)
 
 ## Testers
 
-| Name |
-|------|
-| Snashy Turner |
+- [@snashyturner](https://github.com/snashyturner)
+
+## Issue  
+> people who open issue to report a bug and suggestions
+- [@manhd89](https://github.com/manhd89)
+- [@brnwlshubh](https://github.com/brnwlshubh)

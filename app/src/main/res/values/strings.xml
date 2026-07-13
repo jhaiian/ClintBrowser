@@ -66,7 +66,7 @@
     <string name="about_section_repository">SOURCE CODE</string>
     <string name="about_section_donate">SUPPORT DEVELOPMENT</string>
     <string name="about_created_by">Created by</string>
-    <string name="about_description">Clint is a free and open-source Android browser with no dedicated backend infrastructure, which means it does not collect any of your data. It features a clean, customizable interface that allows users to tailor the look and feel to their preferences. With an advanced built-in download manager, Clint provides a powerful browsing experience while maintaining user privacy. Every feature is designed around the philosophy that your browsing data belongs to you and only you.</string>
+    <string name="about_description">Clint is a free and open-source Android browser with no dedicated backend infrastructure, meaning it does not collect any of your data. It features a clean, customizable Material Design interface, the built-in **Quiver Guard** content blocker for ads and trackers, and an advanced download manager. Every feature is designed around the philosophy that your browsing data belongs to you and only you.</string>
     <string name="about_version_info">Version: %1$s (build %2$d)\nDevice architecture: %3$s</string>
     <string name="about_license_text">The source code of this project is licensed under the GNU General Public License v3.0 (GPLv3).\n\nThe names \"Clint\" and \"Clint Browser,\" the logo, screenshots, and all related branding assets are trademarks or proprietary assets of the author and are not licensed under the GPL. Use of these assets requires explicit permission from the author.</string>
     <string name="about_license_link_label">View GPL v3.0 license \u2197</string>
@@ -202,6 +202,12 @@
     <string name="about_library_androidsvg_label">AndroidSVG by BigBadaboom</string>
     <string name="about_library_androidsvg_license">Apache License 2.0 \u2197</string>
     <string name="about_library_androidsvg_usage">Renders SVG images throughout the app.</string>
+    <string name="about_library_coroutines_label">Kotlin Coroutines by JetBrains</string>
+    <string name="about_library_coroutines_license">Apache License 2.0 \u2197</string>
+    <string name="about_library_coroutines_usage">Powers asynchronous and background work throughout the app, such as filter list compiling and downloads.</string>
+    <string name="about_library_adblockrust_label">adblock-rust by Brave</string>
+    <string name="about_library_adblockrust_license">Mozilla Public License 2.0 \u2197</string>
+    <string name="about_library_adblockrust_usage">Native Rust engine bundled via JNI that powers Quiver Guard\'s filter-list compiling and ad/tracker blocking.</string>
     <string name="about_linktree_url">jhaiian \u2197</string>
     <string name="open_in_app_dialog_title">Open in app?</string>
     <string name="open_in_app_dialog_message">%1$s wants to open %2$s.</string>
@@ -382,6 +388,8 @@
     <string name="update_download_dialog_title">Downloading Update</string>
     <string name="update_download_preparing">Preparing\u2026</string>
     <string name="update_download_in_progress">Downloading update\u2026</string>
+    <string name="update_download_progress_size_known">%1$s / %2$s (%3$d%%)</string>
+    <string name="update_download_progress_size_unknown">%1$s downloaded</string>
     <string name="update_up_to_date_title">You\'re up to date</string>
     <string name="update_up_to_date_message">Clint Browser is running the latest version.</string>
     <string name="update_check_failed_title">Update check failed</string>
@@ -647,6 +655,7 @@
     <string name="data_saver_disable_autoplay_title">Disable Autoplay</string>
     <string name="data_saver_disable_autoplay_summary">Videos and media will not play automatically. May not work on all websites</string>
     <string name="menu_data_saver">Data Saver</string>
+    <string name="menu_quiver_guard">Quiver Guard</string>
     <string name="about_webview_label">WEBVIEW</string>
     <string name="about_webview_info">%1$s\n%2$s\nv%3$s</string>
     <string name="about_webview_unavailable">Unavailable</string>
@@ -710,6 +719,19 @@
     <string name="desktop_mode_add_site">Add site</string>
     <string name="desktop_mode_search_hint">Search saved sites…</string>
     <string name="desktop_mode_state_on">Desktop Mode On</string>
+
+    <string name="site_settings_quiver_guard">Quiver Guard</string>
+    <string name="site_settings_quiver_guard_summary">Saved sites</string>
+    <string name="quiver_guard_exception_saved_sites">Saved sites</string>
+    <string name="quiver_guard_exception_no_saved_sites">No sites saved</string>
+    <string name="quiver_guard_exception_search_hint">Search saved sites…</string>
+    <string name="quiver_guard_exception_add_site">Add site</string>
+    <string name="quiver_guard_exception_state_label">Quiver Guard Disabled</string>
+    <string name="quiver_guard_exception_delete_title">Remove saved sites</string>
+    <string name="quiver_guard_exception_delete_message">Remove %d saved site(s)?</string>
+    <string name="quiver_guard_exception_items_deleted">Saved sites removed</string>
+    <string name="menu_disable_quiver_guard_for_site">Disable Quiver Guard for this site</string>
+
     <string name="site_permission_default_behavior">Default behavior</string>
     <string name="site_permission_ask_first">Ask first</string>
     <string name="site_permission_always_deny">Always deny</string>
@@ -762,6 +784,7 @@
 
     <string name="site_section_permissions">PERMISSIONS</string>
     <string name="site_section_desktop_mode">DESKTOP MODE</string>
+    <string name="site_section_quiver_guard">QUIVER GUARD</string>
 
     <string name="data_saver_section">DATA SAVER</string>
 
@@ -771,8 +794,169 @@
     <string name="misc_section_app">APP</string>
     <string name="misc_section_setup">SETUP</string>
 
+    <string name="quiver_guard">Quiver Guard</string>
+    <string name="quiver_guard_summary">Protection and security features</string>
+
     <string name="about_section_attribution">ATTRIBUTION</string>
     <string name="about_attribution_text">View the full list of third-party libraries, icons, and acknowledgments used in this app.</string>
     <string name="document_viewer_attribution_title">Attribution</string>
+
+    <string name="quiver_guard_master_switch_title">Enable Quiver Guard</string>
+    <string name="quiver_guard_master_switch_summary">Block ads, trackers, and annoyances using filter lists</string>
+    <string name="quiver_guard_section_general">QUIVER GUARD</string>
+    <string name="quiver_guard_section_filter_lists">FILTER LISTS</string>
+    <string name="filter_list_status_not_downloaded">Not Downloaded</string>
+    <string name="filter_list_status_downloading">Downloading…</string>
+    <string name="filter_list_status_downloaded">%1$s • %2$s</string>
+    <string name="filter_list_status_downloaded_with_rules">%1$s rules • %2$s • %3$s</string>
+    <string name="quiver_guard_download_dialog_title">Downloading %1$s</string>
+    <string name="quiver_guard_download_progress_starting">Connecting…</string>
+    <string name="quiver_guard_download_progress_known">%1$s of %2$s (%3$d%%)</string>
+    <string name="quiver_guard_download_progress_unknown">%1$s downloaded</string>
+    <string name="quiver_guard_download_success_toast">%1$s downloaded</string>
+    <string name="quiver_guard_download_error_toast">Failed to download %1$s</string>
+    <string name="quiver_guard_download_cancelled_toast">Download cancelled</string>
+    <string name="quiver_guard_download_error_http">Server returned an error (code %1$d)</string>
+    <string name="quiver_guard_download_error_empty">The server returned an empty response</string>
+    <string name="quiver_guard_download_error_network">Could not reach the URL. Check your connection and try again.</string>
+
+    <string name="filter_list_add_fab_desc">Add custom filter list</string>
+    <string name="filter_list_add_dialog_title">Add Filter List</string>
+    <string name="filter_list_add_url_hint">Download Link</string>
+    <string name="filter_list_add_title_hint">Title</string>
+    <string name="filter_list_add_action_fetch">Fetch</string>
+    <string name="filter_list_add_action_add">Add</string>
+    <string name="filter_list_add_error_invalid_url">Enter a valid URL</string>
+    <string name="filter_list_add_error_invalid_format">This doesn\'t look like a valid filter list</string>
+    <string name="filter_list_add_error_save">Couldn\'t save the filter list. Try again.</string>
+    <string name="filter_list_add_success_toast">%1$s added</string>
+    <string name="filter_list_search_hint">Search filter lists…</string>
+    <string name="filter_list_sort_by_date_downloaded">Date Downloaded</string>
+    <string name="filter_list_delete_confirm_title">Delete filter lists</string>
+    <string name="filter_list_delete_confirm_message">Remove %d filter list(s)?</string>
+    <string name="filter_list_items_deleted">Filter lists removed</string>
+    <string name="filter_list_update_check_title">Check for Updates</string>
+    <string name="filter_list_update_check_message">Check %1$d downloaded filter list(s) for available updates?</string>
+    <string name="filter_list_update_no_lists_message">No downloaded filter lists to update. Download a filter list first.</string>
+    <string name="filter_list_update_check_action">Check for Updates</string>
+    <string name="filter_list_update_progress_title">Checking for Updates</string>
+    <string name="filter_list_update_progress_counter">%1$d of %2$d</string>
+    <string name="filter_list_update_progress_checking">Checking\u2026</string>
+    <string name="filter_list_force_update_progress_preparing">Preparing to force update\u2026</string>
+    <string name="filter_list_update_progress_downloading_known">Downloading: %1$s of %2$s</string>
+    <string name="filter_list_update_progress_downloading_unknown">Downloading: %1$s</string>
+    <string name="filter_list_update_cancelled">Update check cancelled</string>
+    <string name="filter_list_update_error_generic">Update check failed. Check your connection.</string>
+    <string name="filter_list_update_all_up_to_date">All filter lists are up to date</string>
+    <string name="filter_list_update_success_recompiling">%1$d filter list(s) updated. Recompiling\u2026</string>
+    <string name="filter_list_update_result_title">Update Complete</string>
+    <string name="filter_list_update_all_failed">%1$d filter list(s) failed to update:\n\n%2$s</string>
+    <string name="filter_list_update_partial_result">%1$d filter list(s) updated.\n%2$d failed:\n\n%3$s\n\nCompile now to apply updates?</string>
+    <string name="filter_list_update_validation_failed">%1$s: downloaded file failed validation</string>
+
+    <string name="quiver_guard_compile_fab_desc">Compile filter lists</string>
+
+    <string name="quiver_guard_banner_no_database">No compiled filter database found.</string>
+    <string name="quiver_guard_banner_recompile_needed">Compilation required. Current changes are not active.</string>
+    <string name="quiver_guard_no_active_lists_title">No Active Filter Lists</string>
+    <string name="quiver_guard_no_active_lists_message">Quiver Guard needs at least one active filter list to work. To get started:\n\n1. Tap a filter list below to download it.\n2. Once downloaded, tap the save button to compile your filter lists.\n3. After compiling, enable Quiver Guard using the switch above.</string>
+
+    <string name="quiver_guard_experimental_title">Experimental Feature</string>
+    <string name="quiver_guard_experimental_message">Quiver Guard is still in experimental testing. With your help, we are improving this feature. If you find any broken sites or bugs related to this feature, please report them immediately on GitHub. Thank you.</string>
+    <string name="quiver_guard_experimental_ok_countdown">OK (%1$d)</string>
+
+    <string name="quiver_guard_back_dialog_title">Compilation Required</string>
+    <string name="quiver_guard_back_dialog_message">Your filter list configuration has changed but has not been compiled yet. These changes will not become active until you compile them.</string>
+    <string name="quiver_guard_back_dialog_compile">Compile</string>
+    <string name="quiver_guard_back_dialog_discard">Discard Changes</string>
+
+    <string name="quiver_guard_compile_progress_title">Compiling Filter Lists</string>
+    <string name="quiver_guard_compile_progress_list">%1$d of %2$d</string>
+    <string name="quiver_guard_compile_progress_stage_preparing">Preparing…</string>
+    <string name="quiver_guard_compile_progress_stage_reading">Reading: %1$s</string>
+    <string name="quiver_guard_compile_progress_stage_parsing">Parsing: %1$s</string>
+    <string name="quiver_guard_compile_progress_stage_finalizing">Finalizing…</string>
+    <string name="quiver_guard_compile_progress_rules">%1$s rules processed</string>
+    <string name="quiver_guard_compile_progress_elapsed">%1$s elapsed</string>
+
+    <string name="quiver_guard_compile_success_title">Compilation Complete</string>
+    <string name="quiver_guard_compile_result_label_lists">Filter lists compiled</string>
+    <string name="quiver_guard_compile_result_label_rules">Rules processed</string>
+    <string name="quiver_guard_compile_result_label_comments">Comments removed</string>
+    <string name="quiver_guard_compile_result_label_empty">Empty lines removed</string>
+    <string name="quiver_guard_compile_result_label_size">Database size</string>
+    <string name="quiver_guard_compile_result_label_duration">Duration</string>
+
+    <string name="quiver_guard_compile_failure_title">Compilation Failed</string>
+    <string name="quiver_guard_compile_failure_failed_list">Failed on: %1$s</string>
+    <string name="quiver_guard_compile_failure_details">Details: %1$s</string>
+    <string name="quiver_guard_compile_failure_previous_active">The previous compiled database remains active.</string>
+    <string name="quiver_guard_compile_action_retry">Retry</string>
+    <string name="quiver_guard_compile_action_dismiss">Dismiss</string>
+
+    <!-- Filter list actions overflow menu -->
+    <string name="filter_list_actions_menu_desc">Filter list actions</string>
+    <string name="filter_list_check_update_active">Check for updates (active list)</string>
+    <string name="filter_list_check_update_all">Check for updates (all lists)</string>
+    <string name="filter_list_force_update_active">Force update (active list)</string>
+    <string name="filter_list_force_update_all">Force update (all lists)</string>
+    <string name="filter_list_recompile">Recompile filter lists</string>
+
+    <!-- Active filter list feedback (active = currently enabled lists) -->
+    <string name="filter_list_no_active_selected">No enabled filter lists found. Enable at least one list first.</string>
+    <string name="filter_list_operation_in_progress">Another operation is already in progress. Please wait.</string>
+
+    <!-- Check for updates on active (enabled) lists confirmation -->
+    <string name="filter_list_check_update_active_message">%1$d enabled filter list(s) will be checked for updates.</string>
+
+    <!-- Force update confirmation dialogs -->
+    <string name="filter_list_force_update_active_confirm_title">Force Update Active Lists</string>
+    <string name="filter_list_force_update_active_confirm_message">%1$d enabled filter list(s) will be re-downloaded unconditionally. Proceed?</string>
+    <string name="filter_list_force_update_all_confirm_title">Force Update All Lists</string>
+    <string name="filter_list_force_update_all_confirm_message">%1$d downloaded filter list(s) will be re-downloaded unconditionally. Proceed?</string>
+    <string name="filter_list_force_update_action">Force Update</string>
+    <string name="filter_list_force_update_no_lists_message">No downloaded filter lists to force update. Download a filter list first.</string>
+
+    <!-- Force update progress dialogs -->
+    <string name="filter_list_force_update_progress_title">Force Updating Filter Lists</string>
+    <string name="filter_list_force_update_active_progress_title">Force Updating Active Lists</string>
+
+    <!-- Recompile confirmation dialog -->
+    <string name="filter_list_recompile_confirm_title">Recompile Filter Lists</string>
+    <string name="filter_list_recompile_confirm_message">Recompile all enabled filter lists now?</string>
+
+    <!-- Per-row overflow menu (ellipsis on each filter list item) -->
+    <string name="filter_list_item_options_desc">Filter list options</string>
+    <string name="filter_list_menu_check_update">Check for Updates</string>
+    <string name="filter_list_menu_force_update">Force Update</string>
+    <string name="filter_list_menu_remove">Remove</string>
+    <string name="filter_list_menu_copy_name">Copy Name</string>
+    <string name="filter_list_menu_copy_link">Copy Download Link</string>
+    <string name="filter_list_menu_share_link">Share Download Link</string>
+
+    <!-- Per-row check/force update confirmation and progress -->
+    <string name="filter_list_item_not_downloaded">%1$s hasn\'t been downloaded yet.</string>
+    <string name="filter_list_item_check_update_confirm_message">Check %1$s for an available update?</string>
+    <string name="filter_list_item_force_update_confirm_message">%1$s will be re-downloaded regardless of whether an update is available. Proceed?</string>
+    <string name="filter_list_item_check_update_progress_title">Checking %1$s</string>
+    <string name="filter_list_item_force_update_progress_title">Force Updating %1$s</string>
+
+    <!-- Per-row copy and share -->
+    <string name="filter_list_name_clip_label">Filter List Name</string>
+    <string name="filter_list_link_clip_label">Filter List Download URL</string>
+    <string name="filter_list_item_name_copied">Name copied</string>
+    <string name="filter_list_item_link_copied">Link copied</string>
+    <string name="filter_list_share_chooser_title">Share filter list link</string>
+
+    <!-- Selection (multi-item) overflow menu: shown in the toolbar once one or more
+         filter lists are selected, reusing the per-row item options layout but
+         scoped to every selected list instead of a single row. -->
+    <string name="filter_list_selection_options_menu_desc">More options for selected filter lists</string>
+    <string name="filter_list_check_update_selected_message">%1$d selected filter list(s) will be checked for updates.</string>
+    <string name="filter_list_force_update_selected_confirm_title">Force Update Selected Lists</string>
+    <string name="filter_list_force_update_selected_confirm_message">%1$d selected filter list(s) will be re-downloaded unconditionally. Proceed?</string>
+    <string name="filter_list_selection_not_downloaded">None of the selected filter lists have been downloaded yet.</string>
+    <string name="filter_list_selection_names_copied">Names copied</string>
+    <string name="filter_list_selection_links_copied">Links copied</string>
 
 </resources>

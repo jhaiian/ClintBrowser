@@ -3,7 +3,12 @@ package com.jhaiian.clint.downloads
 import java.io.File
 
 enum class DownloadStatus {
-    QUEUED, CONNECTING, ALLOCATING, DOWNLOADING, RETRYING, MOVING, PAUSED, FAILED, COMPLETE
+    QUEUED, CONNECTING, ALLOCATING, DOWNLOADING, RETRYING, MOVING, PAUSED, FAILED, COMPLETE;
+
+    companion object {
+        /** Statuses where a download is actively transferring or otherwise doing real I/O work. */
+        val ACTIVELY_WORKING: Set<DownloadStatus> = setOf(CONNECTING, DOWNLOADING, ALLOCATING, MOVING, RETRYING)
+    }
 }
 
 data class DownloadItem(

@@ -17,6 +17,9 @@ import android.webkit.WebViewClient
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jhaiian.clint.R
 import com.jhaiian.clint.base.ClintActivity
+import com.jhaiian.clint.quiver.engine.QuiverGuardWebIntegration
+import com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase
+import com.jhaiian.clint.settings.sitepermissions.SitePermissionManager
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 class ClintWebViewClient(
@@ -25,14 +28,45 @@ class ClintWebViewClient(
     private val onPageStartedCallback: (String) -> Unit = {},
     private val onPageFinishedCallback: (String) -> Unit = {},
     private val onTabUrlUpdatedCallback: (WebView, String) -> Unit = { _, _ -> },
-    private val getDesktopHeaders: () -> Map<String, String>? = { null }
+    private val getDesktopHeaders: () -> Map<String, String>? = { null },
+    private val getTabId: () -> String = { "" }
 ) : WebViewClient() {
+
+    @Volatile private var cachedPageUrl: String? = null
 
     private val cooldownDomains = mutableMapOf<String, Long>()
     private var pendingHeaderLoad: String? = null
 
+    // Caches the Quiver Guard site-exception lookup for the current page's host.
+    // shouldInterceptRequest() is invoked once per subresource - often dozens of
+    // times per page load thanks to images alone - and SitePermissionManager.getState()
+    // is a synchronous SQLite query plus a public-suffix domain computation, so
+    // repeating it per-request rather than per-navigation was adding a real,
+    // cumulative DB round-trip to every single image/script/style fetch on the
+    // page. The exception state can't change mid-navigation from anything the
+    // WebView itself does, so it's safe to compute once per host and reuse it
+    // for every subsequent request until the next page starts loading.
+    @Volatile private var exceptionCacheHost: String? = null
+    @Volatile private var exceptionCacheValid: Boolean = false
+    @Volatile private var exceptionCacheState: Boolean = false
+    private val exceptionCacheLock = Any()
+
     companion object {
         private const val COOLDOWN_MS = 4000L
+    }
+
+    private fun isQuiverGuardExcepted(context: android.content.Context, pageHost: String): Boolean {
+        if (exceptionCacheValid && exceptionCacheHost == pageHost) return exceptionCacheState
+        synchronized(exceptionCacheLock) {
+            if (exceptionCacheValid && exceptionCacheHost == pageHost) return exceptionCacheState
+            val state = SitePermissionManager.getState(
+                context, pageHost, SitePermissionDatabase.TYPE_QUIVER_GUARD_EXCEPTION
+            ) != null
+            exceptionCacheHost = pageHost
+            exceptionCacheState = state
+            exceptionCacheValid = true
+            return state
+        }
     }
 
     private val trackerHosts = setOf(
@@ -63,18 +97,26 @@ class ClintWebViewClient(
 
     override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
+        cachedPageUrl = url
         pendingHeaderLoad = null
+        // Invalidate the per-host exception cache on every navigation so a
+        // change made via the Quiver Guard exception toggle (which reloads the
+        // tab) is picked up on the very next request instead of serving a
+        // stale cached result for this host.
+        exceptionCacheValid = false
         if (isActive()) onPageStartedCallback(url)
     }
 
     override fun onPageFinished(view: WebView, url: String) {
         super.onPageFinished(view, url)
+        cachedPageUrl = url
         onTabUrlUpdatedCallback(view, url)
         if (isActive()) onPageFinishedCallback(url)
     }
 
     override fun doUpdateVisitedHistory(view: WebView, url: String, isReload: Boolean) {
         super.doUpdateVisitedHistory(view, url, isReload)
+        cachedPageUrl = url
         onTabUrlUpdatedCallback(view, url)
     }
 
@@ -387,6 +429,25 @@ class ClintWebViewClient(
         request: WebResourceRequest
     ): WebResourceResponse? {
         val host = request.url.host ?: return super.shouldInterceptRequest(view, request)
+
+        val quiverGuardEnabled = prefs.getBoolean("quiver_guard_enabled", false)
+        if (quiverGuardEnabled) {
+            val pageHost = cachedPageUrl?.let {
+                runCatching { android.net.Uri.parse(it).host }.getOrNull()
+            }
+            val isExcepted = pageHost != null && isQuiverGuardExcepted(view.context.applicationContext, pageHost)
+            if (!isExcepted) {
+                val blocked = QuiverGuardWebIntegration.shouldInterceptRequest(
+                    context = view.context.applicationContext,
+                    request = request,
+                    pageUrl = cachedPageUrl,
+                    tabId = getTabId(),
+                    isQuiverGuardEnabled = true
+                )
+                if (blocked != null) return blocked
+            }
+        }
+
         if (prefs.getBoolean("block_trackers", true)) {
             if (trackerHosts.any { host.contains(it) }) {
                 return WebResourceResponse("text/plain", "UTF-8", null)

@@ -33,7 +33,8 @@ internal class SitePermissionDatabase(context: Context) :
         const val TYPE_MIC           = "mic"
         const val TYPE_LOCATION      = "location"
         const val TYPE_NOTIFICATION  = "notification"
-        const val TYPE_DESKTOP_MODE  = "desktop_mode"
+        const val TYPE_DESKTOP_MODE            = "desktop_mode"
+        const val TYPE_QUIVER_GUARD_EXCEPTION  = "quiver_guard_exception"
         const val STATE_ALLOW        = "allow"
         const val STATE_DENY         = "deny"
     }

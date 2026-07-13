@@ -256,6 +256,104 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/sheet_menu_quiver_guard"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:longClickable="true">
+
+        <FrameLayout
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:clipChildren="false">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="bottom|start"
+                android:src="@drawable/ic_shield_24"
+                android:tint="?attr/colorPrimary" />
+
+            <TextView
+                android:id="@+id/sheet_quiver_guard_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="13dp"
+                android:minWidth="13dp"
+                android:layout_gravity="top|end"
+                android:paddingStart="3dp"
+                android:paddingEnd="3dp"
+                android:gravity="center"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="8sp"
+                android:fontFamily="sans-serif-medium"
+                android:background="@drawable/badge_background_themed"
+                android:visibility="gone" />
+
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:text="@string/menu_quiver_guard"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/sheet_quiver_guard_check"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_check_24"
+            android:alpha="0"
+            android:tint="?attr/colorPrimary" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/sheet_menu_disable_quiver_guard_for_site"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:src="@drawable/ic_shield_24"
+            android:tint="?attr/colorPrimary" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:text="@string/menu_disable_quiver_guard_for_site"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:id="@+id/sheet_quiver_guard_exception_check"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_check_24"
+            android:alpha="0"
+            android:tint="?attr/colorPrimary" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/sheet_menu_bookmarks"
         android:layout_width="match_parent"
         android:layout_height="56dp"

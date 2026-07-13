@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import com.jhaiian.clint.R
 import com.jhaiian.clint.settings.desktopmode.DesktopModeActivity
+import com.jhaiian.clint.settings.quiverguardexception.QuiverGuardExceptionActivity
 import com.jhaiian.clint.settings.sitepermissions.SitePermissionActivity
 import com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase
 
@@ -26,6 +27,8 @@ class SiteSettingsFragment : Fragment() {
     private lateinit var textNotificationsSummary: TextView
     private lateinit var rowDesktopMode: LinearLayout
     private lateinit var textDesktopModeSummary: TextView
+    private lateinit var rowQuiverGuard: LinearLayout
+    private lateinit var textQuiverGuardSummary: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,6 +51,8 @@ class SiteSettingsFragment : Fragment() {
         textNotificationsSummary = view.findViewById(R.id.text_notifications_summary)
         rowDesktopMode = view.findViewById(R.id.row_site_desktop_mode)
         textDesktopModeSummary = view.findViewById(R.id.text_desktop_mode_summary)
+        rowQuiverGuard = view.findViewById(R.id.row_site_quiver_guard)
+        textQuiverGuardSummary = view.findViewById(R.id.text_quiver_guard_summary)
 
         rowCamera.setOnClickListener {
             startActivity(
@@ -79,6 +84,10 @@ class SiteSettingsFragment : Fragment() {
 
         rowDesktopMode.setOnClickListener {
             startActivity(Intent(requireContext(), DesktopModeActivity::class.java))
+        }
+
+        rowQuiverGuard.setOnClickListener {
+            startActivity(Intent(requireContext(), QuiverGuardExceptionActivity::class.java))
         }
 
         updateSummaries()
@@ -116,5 +125,7 @@ class SiteSettingsFragment : Fragment() {
             DesktopModeActivity.VALUE_DO_NOT_SAVE -> getString(R.string.desktop_mode_do_not_save_state)
             else -> getString(R.string.desktop_mode_save_state)
         }
+
+        textQuiverGuardSummary.text = getString(R.string.site_settings_quiver_guard_summary)
     }
 }

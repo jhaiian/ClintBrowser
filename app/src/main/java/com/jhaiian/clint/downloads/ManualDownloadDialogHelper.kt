@@ -14,6 +14,7 @@ import android.widget.LinearLayout
 import android.widget.Switch
 import android.widget.TextView
 import androidx.documentfile.provider.DocumentFile
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
@@ -22,6 +23,8 @@ import com.google.android.material.textfield.TextInputLayout
 import com.jhaiian.clint.R
 import com.jhaiian.clint.settings.fragments.DownloadSettingsFragment
 import com.jhaiian.clint.ui.ClintToast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.Request
 import java.io.File
 
@@ -161,7 +164,7 @@ internal fun DownloadsActivity.showManualDownloadDialog() {
             tilUrl.error = null
             setFetching(true)
             val ua = android.webkit.WebSettings.getDefaultUserAgent(this)
-            ClintDownloadManager.executor.submit {
+            lifecycleScope.launch(Dispatchers.IO) {
                 try {
                     val headRequest = Request.Builder()
                         .url(url)
@@ -172,7 +175,7 @@ internal fun DownloadsActivity.showManualDownloadDialog() {
                     headResponse.use { resp ->
                         if (!resp.isSuccessful && resp.code != 405) {
                             onFetchError(getString(R.string.download_manual_error_network))
-                            return@submit
+                            return@launch
                         }
                         val contentDisposition = resp.header("Content-Disposition") ?: ""
                         val contentType = resp.header("Content-Type")?.substringBefore(";")?.trim() ?: ""
@@ -429,9 +432,7 @@ private fun DownloadsActivity.deleteExistingManual(
     locationMode: String,
     customLocationUri: String?
 ) {
-    val matchingIds = synchronized(ClintDownloadManager.downloads) {
-        ClintDownloadManager.downloads.filter { it.filename == filename }.map { it.id }
-    }
+    val matchingIds = ClintDownloadManager.downloadsFlow.value.filter { it.filename == filename }.map { it.id }
     matchingIds.forEach { ClintDownloadManager.remove(this, it, deleteFile = true) }
     val isSaf = locationMode == DownloadSettingsFragment.MODE_CUSTOM
     if (isSaf) {

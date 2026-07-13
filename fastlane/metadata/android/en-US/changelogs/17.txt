@@ -1,0 +1,4 @@
+Add Quiver Guard (Content Blocker)
+Fixed Some bugs
+Update dependency 
+Update the compile and target sdk to 37

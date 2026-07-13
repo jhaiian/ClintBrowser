@@ -7,6 +7,8 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import android.webkit.WebView
 import com.jhaiian.clint.R
 import com.jhaiian.clint.ui.ClintToast
@@ -15,8 +17,7 @@ internal fun MainActivity.setupLinkLongPress(webView: WebView) {
     webView.setOnLongClickListener {
         val result = webView.hitTestResult
         when (result.type) {
-            WebView.HitTestResult.IMAGE_TYPE,
-            WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE -> {
+            WebView.HitTestResult.IMAGE_TYPE -> {
                 val imageUrl = result.extra ?: return@setOnLongClickListener false
                 val currentPageUrl = webView.url ?: ""
                 val isStandalone = isStandaloneImagePage(currentPageUrl)
@@ -30,17 +31,35 @@ internal fun MainActivity.setupLinkLongPress(webView: WebView) {
             }
             WebView.HitTestResult.SRC_ANCHOR_TYPE -> {
                 val linkUrl = result.extra ?: return@setOnLongClickListener false
-                webView.evaluateJavascript(loadJsAsset("link_text.js")) { raw ->
-                    val linkText = raw?.removeSurrounding("\"")
-                        ?.replace("\\n", " ")
-                        ?.replace("\\t", " ")
-                        ?.trim() ?: ""
-                    showLinkLongPressSheet(linkUrl, linkText)
+                showTrackedLinkLongPressSheet(webView, linkUrl)
+                true
+            }
+            WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE -> {
+                // HitTestResult.extra returns the <img> src rather than the enclosing
+                // anchor's href for this hit type, so the href must be requested
+                // asynchronously via requestFocusNodeHref. This lets a linked icon,
+                // such as a search result favicon wrapped in an <a>, resolve to the
+                // link sheet instead of the image sheet.
+                val hrefHandler = Handler(Looper.getMainLooper()) { message ->
+                    val linkUrl = message.data.getString("url")
+                    if (!linkUrl.isNullOrEmpty()) showTrackedLinkLongPressSheet(webView, linkUrl)
+                    true
                 }
+                webView.requestFocusNodeHref(hrefHandler.obtainMessage())
                 true
             }
             else -> false
         }
+    }
+}
+
+private fun MainActivity.showTrackedLinkLongPressSheet(webView: WebView, linkUrl: String) {
+    webView.evaluateJavascript(loadJsAsset("link_text.js")) { raw ->
+        val linkText = raw?.removeSurrounding("\"")
+            ?.replace("\\n", " ")
+            ?.replace("\\t", " ")
+            ?.trim() ?: ""
+        showLinkLongPressSheet(linkUrl, linkText)
     }
 }
 

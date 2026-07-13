@@ -5,20 +5,21 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.webkit.WebChromeClient
-import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.content.res.ColorStateList
 import androidx.core.widget.ImageViewCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewCompat
@@ -28,7 +29,15 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.color.MaterialColors
 import com.jhaiian.clint.R
+import com.jhaiian.clint.browser.webview.ClintWebViewClient
+import com.jhaiian.clint.quiver.engine.BlockedRequestCounter
+import com.jhaiian.clint.quiver.engine.QuiverGuardWebIntegration
+import com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase
+import com.jhaiian.clint.settings.sitepermissions.SitePermissionManager
 import com.jhaiian.clint.ui.FaviconCache
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ContentPreviewSheet : BottomSheetDialogFragment() {
 
@@ -39,6 +48,10 @@ class ContentPreviewSheet : BottomSheetDialogFragment() {
     private var previewWebView: WebView? = null
     private var listener: Listener? = null
     private var sheetBehavior: BottomSheetBehavior<View>? = null
+
+    // Unique per-instance ID so Quiver Guard's blocked-request counter can
+    // track this preview's traffic without colliding with real browser tabs.
+    private val quiverGuardPreviewTabId = "preview-" + System.identityHashCode(this)
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -106,7 +119,7 @@ class ContentPreviewSheet : BottomSheetDialogFragment() {
         val dataSaverEnabled = prefs.getBoolean("data_saver_enabled", false)
         val disableImages = dataSaverEnabled && prefs.getBoolean("data_saver_disable_images", false)
         val disableAutoplay = dataSaverEnabled && prefs.getBoolean("data_saver_disable_autoplay", true)
-        val httpsOnly = prefs.getBoolean("https_only", true)
+        val quiverGuardEnabled = prefs.getBoolean("quiver_guard_enabled", false)
         val effectiveCacheMode = resolveEffectiveCacheMode(prefs)
 
         if (isReaderMode) {
@@ -179,35 +192,60 @@ class ContentPreviewSheet : BottomSheetDialogFragment() {
             WebViewCompat.addDocumentStartJavaScript(wv, autoplayJs, setOf("*"))
         }
 
+        // Quiver Guard: skip sites on the exception list, otherwise register the
+        // cosmetic/scriptlet document-start script before the load below reaches
+        // the network. The exception lookup and script build are real DB/CPU
+        // work, so they run on Dispatchers.IO; registering the script itself
+        // only touches the WebView and stays on the main dispatcher.
+        if (isPage && quiverGuardEnabled && WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                val isExcepted = withContext(Dispatchers.IO) {
+                    host.isNotEmpty() && SitePermissionManager.getState(
+                        requireContext(), host, SitePermissionDatabase.TYPE_QUIVER_GUARD_EXCEPTION
+                    ) != null
+                }
+                if (isExcepted || !isAdded) return@launch
+
+                val script = withContext(Dispatchers.IO) {
+                    QuiverGuardWebIntegration.buildDocumentStartScript(requireContext(), url, true)
+                }
+                if (script != null && isAdded) {
+                    WebViewCompat.addDocumentStartJavaScript(wv, script, setOf("*"))
+                }
+            }
+        }
+
         if (!isReaderMode) applyPreviewDarkMode(wv)
 
         wv.setOnScrollChangeListener { _, _, scrollY, _, _ ->
             sheetBehavior?.isDraggable = scrollY == 0
         }
 
-        wv.webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-                val uri = request.url
-                val scheme = uri.scheme?.lowercase() ?: return false
-                if (scheme == "http" && request.isForMainFrame && httpsOnly) {
-                    val host = uri.host ?: ""
-                    val isIp = host.matches(Regex("""^(\d{1,3}\.){3}\d{1,3}$"""))
-                    if (!isIp) {
-                        view.loadUrl(uri.buildUpon().scheme("https").build().toString())
-                        return true
-                    }
-                }
-                return false
-            }
-            override fun onPageFinished(view: WebView, pageUrl: String) {
-                if (isPage && isAdded) {
-                    val pageTitle = view.title
+        // ClintWebViewClient already implements the Quiver Guard network-blocking
+        // check (including the exception-list lookup) in shouldInterceptRequest,
+        // plus https-only upgrading, tracker-host blocking, and external-app intent
+        // handling - reusing it here keeps this preview WebView's behavior
+        // identical to a real tab instead of duplicating that logic.
+        wv.webViewClient = ClintWebViewClient(
+            prefs = prefs,
+            isActive = { isAdded },
+            onPageFinishedCallback = { pageUrl ->
+                if (isPage) {
+                    val pageTitle = wv.title
                     val pageHost = runCatching { java.net.URL(pageUrl).host }.getOrElse { "" }
                     if (!pageTitle.isNullOrEmpty()) titleView.text = pageTitle
                     if (pageHost.isNotEmpty()) urlView.text = pageHost
                 }
-            }
-        }
+                // Fallback cosmetic-filter injection for WebView versions that
+                // don't support the document-start API; the document-start path
+                // above already handles everything else.
+                if (isPage && quiverGuardEnabled && !WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
+                    applyQuiverGuardCosmeticFallback(wv, pageUrl)
+                }
+            },
+            getDesktopHeaders = { if (isDesktop && isPage) buildDesktopHeaders(wv) else null },
+            getTabId = { quiverGuardPreviewTabId }
+        )
 
         if (isPage) {
             wv.webChromeClient = object : WebChromeClient() {
@@ -239,8 +277,7 @@ class ContentPreviewSheet : BottomSheetDialogFragment() {
             wv.setOnLongClickListener {
                 val result = wv.hitTestResult
                 when (result.type) {
-                    WebView.HitTestResult.IMAGE_TYPE,
-                    WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE -> {
+                    WebView.HitTestResult.IMAGE_TYPE -> {
                         val hitUrl = result.extra ?: return@setOnLongClickListener false
                         val existing = parentFragmentManager.findFragmentByTag("image_long_press_preview")
                         if (existing == null && isAdded) {
@@ -251,20 +288,21 @@ class ContentPreviewSheet : BottomSheetDialogFragment() {
                     }
                     WebView.HitTestResult.SRC_ANCHOR_TYPE -> {
                         val linkUrl = result.extra ?: return@setOnLongClickListener false
-                        val linkTextJs = "(function() { return (window.__clintLastTouchedLinkText || ''); })()"
-                        wv.evaluateJavascript(linkTextJs) { raw ->
-                            val linkText = raw?.removeSurrounding("\"")
-                                ?.replace("\\n", " ")
-                                ?.replace("\\t", " ")
-                                ?.trim() ?: ""
-                            if (isAdded) {
-                                val existing = parentFragmentManager.findFragmentByTag("preview_link_long_press")
-                                if (existing == null) {
-                                    PreviewLinkLongPressSheet.newInstance(linkUrl, linkText)
-                                        .show(parentFragmentManager, "preview_link_long_press")
-                                }
-                            }
+                        showPreviewLinkLongPressSheet(wv, linkUrl)
+                        true
+                    }
+                    WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE -> {
+                        // HitTestResult.extra returns the <img> src rather than the
+                        // enclosing anchor's href for this hit type, so the href must
+                        // be requested asynchronously via requestFocusNodeHref. This
+                        // lets a linked icon inside the previewed page resolve to the
+                        // link sheet instead of the image sheet.
+                        val hrefHandler = Handler(Looper.getMainLooper()) { message ->
+                            val linkUrl = message.data.getString("url")
+                            if (!linkUrl.isNullOrEmpty()) showPreviewLinkLongPressSheet(wv, linkUrl)
+                            true
                         }
+                        wv.requestFocusNodeHref(hrefHandler.obtainMessage())
                         true
                     }
                     else -> false
@@ -291,6 +329,23 @@ class ContentPreviewSheet : BottomSheetDialogFragment() {
         }
     }
 
+    private fun showPreviewLinkLongPressSheet(webView: WebView, linkUrl: String) {
+        val linkTextJs = "(function() { return (window.__clintLastTouchedLinkText || ''); })()"
+        webView.evaluateJavascript(linkTextJs) { raw ->
+            val linkText = raw?.removeSurrounding("\"")
+                ?.replace("\\n", " ")
+                ?.replace("\\t", " ")
+                ?.trim() ?: ""
+            if (isAdded) {
+                val existing = parentFragmentManager.findFragmentByTag("preview_link_long_press")
+                if (existing == null) {
+                    PreviewLinkLongPressSheet.newInstance(linkUrl, linkText)
+                        .show(parentFragmentManager, "preview_link_long_press")
+                }
+            }
+        }
+    }
+
     private fun buildPreviewUserAgent(isDesktop: Boolean): String {
         val defaultUA = WebSettings.getDefaultUserAgent(requireContext())
         val chromeVersion = Regex("Chrome/([\\d.]+)").find(defaultUA)?.groupValues?.get(1) ?: "134.0.0.0"
@@ -311,6 +366,29 @@ class ContentPreviewSheet : BottomSheetDialogFragment() {
             "Sec-CH-UA-Mobile" to "?0",
             "Sec-CH-UA-Platform" to "\"Windows\""
         )
+    }
+
+    // Fallback for WebView versions without WebViewFeature.DOCUMENT_START_SCRIPT:
+    // injects cosmetic/scriptlet filters via evaluateJavascript once the page has
+    // finished loading. Less effective (filters apply after first paint) but the
+    // only option available on older devices. Exception lookup and script build
+    // run on Dispatchers.IO since both touch the DB/compiled filter database.
+    private fun applyQuiverGuardCosmeticFallback(webView: WebView, pageUrl: String) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val pageHost = runCatching { android.net.Uri.parse(pageUrl).host }.getOrNull()
+            val isExcepted = withContext(Dispatchers.IO) {
+                pageHost != null && SitePermissionManager.getState(
+                    requireContext(), pageHost, SitePermissionDatabase.TYPE_QUIVER_GUARD_EXCEPTION
+                ) != null
+            }
+            if (isExcepted || !isAdded) return@launch
+
+            val script = withContext(Dispatchers.IO) {
+                QuiverGuardWebIntegration.buildCosmeticFilterScript(requireContext(), pageUrl, true)
+            } ?: return@launch
+
+            if (isAdded) QuiverGuardWebIntegration.applyCosmeticFilterScript(webView, script)
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -337,6 +415,7 @@ class ContentPreviewSheet : BottomSheetDialogFragment() {
     override fun onDestroyView() {
         previewWebView?.destroy()
         previewWebView = null
+        BlockedRequestCounter.removeTab(quiverGuardPreviewTabId)
         super.onDestroyView()
     }
 

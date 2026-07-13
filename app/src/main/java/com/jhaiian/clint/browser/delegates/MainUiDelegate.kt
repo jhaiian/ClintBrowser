@@ -3,7 +3,6 @@ import com.jhaiian.clint.browser.suggestions.*
 import com.jhaiian.clint.browser.menu.showMenu
 import com.jhaiian.clint.browser.MainActivity
 import com.jhaiian.clint.browser.webview.loadJsAsset
-
 import android.content.Context
 import android.content.Intent
 import android.Manifest
@@ -354,6 +353,10 @@ internal fun MainActivity.onPageStarted(url: String) {
         animateBottomBarTo(0f, animated = true)
     }
 
+    tabManager.activeTab?.let { tab ->
+        onQuiverGuardPageStarted(tab, url)
+    }
+
     if (url.startsWith("http")) {
         if (url == autoDesktopPendingReload) {
             autoDesktopPendingReload = null
@@ -436,6 +439,10 @@ internal fun MainActivity.onPageFinished(url: String) {
     nestedScrollActive = false
     canvasTouchActive = false
     updateBookmarkIcon()
+
+    tabManager.activeTab?.let { tab ->
+        onQuiverGuardPageFinished(tab, url)
+    }
 
     if (url.startsWith("http") && !SearchHistoryManager.isSearchEngineUrl(url)) {
         val title = tabManager.activeTab?.webView?.title ?: ""

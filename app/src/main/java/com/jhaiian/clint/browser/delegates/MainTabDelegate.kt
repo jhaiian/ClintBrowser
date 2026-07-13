@@ -8,6 +8,9 @@ import com.jhaiian.clint.tabs.TabSessionManager
 import com.jhaiian.clint.tabs.TabSwitcherSheet
 import com.jhaiian.clint.browser.webview.ClintWebChromeClient
 import com.jhaiian.clint.browser.webview.ClintWebViewClient
+import com.jhaiian.clint.quiver.engine.BlockedRequestCounter
+import com.jhaiian.clint.quiver.engine.QuiverGuardWebIntegration
+import com.jhaiian.clint.quiver.engine.ScriptHandlerStore
 
 internal fun MainActivity.saveTabs() {
     val savedTabs = tabManager.tabs
@@ -72,7 +75,8 @@ internal fun MainActivity.openNewTabSilent(url: String) {
         onPageStartedCallback = { url -> if (tabManager.activeTab?.id == tab.id) onPageStarted(url) },
         onPageFinishedCallback = { url -> if (tabManager.activeTab?.id == tab.id) onPageFinished(url) },
         onTabUrlUpdatedCallback = { wv, url -> onTabUrlUpdated(wv, url) },
-        getDesktopHeaders = { buildDesktopHeaders() }
+        getDesktopHeaders = { buildDesktopHeaders() },
+        getTabId = { tab.id }
     )
     webView.webChromeClient = ClintWebChromeClient(
         isActive = { tabManager.activeTab?.id == tab.id },
@@ -105,7 +109,8 @@ internal fun MainActivity.openNewTab(isIncognito: Boolean, url: String = getSear
         onPageStartedCallback = { url -> if (tabManager.activeTab?.id == tab.id) onPageStarted(url) },
         onPageFinishedCallback = { url -> if (tabManager.activeTab?.id == tab.id) onPageFinished(url) },
         onTabUrlUpdatedCallback = { wv, url -> onTabUrlUpdated(wv, url) },
-        getDesktopHeaders = { buildDesktopHeaders() }
+        getDesktopHeaders = { buildDesktopHeaders() },
+        getTabId = { tab.id }
     )
     webView.webChromeClient = ClintWebChromeClient(
         isActive = { tabManager.activeTab?.id == tab.id },
@@ -143,6 +148,7 @@ internal fun MainActivity.attachActiveWebView() {
     updateAddressBar(tab.webView.url ?: "")
     updateNavigationState()
     updateBookmarkIcon()
+    BlockedRequestCounter.setActiveTab(tab.id)
     val cookieManager = android.webkit.CookieManager.getInstance()
     if (tab.isIncognito) {
         cookieManager.setAcceptCookie(false)
@@ -180,7 +186,8 @@ internal fun MainActivity.openRefreshLinkTab(url: String) {
         onPageStartedCallback = { u -> if (tabManager.activeTab?.id == tab.id) onPageStarted(u) },
         onPageFinishedCallback = { u -> if (tabManager.activeTab?.id == tab.id) onPageFinished(u) },
         onTabUrlUpdatedCallback = { wv, u -> onTabUrlUpdated(wv, u) },
-        getDesktopHeaders = { buildDesktopHeaders() }
+        getDesktopHeaders = { buildDesktopHeaders() },
+        getTabId = { tab.id }
     )
     webView.webChromeClient = ClintWebChromeClient(
         isActive = { tabManager.activeTab?.id == tab.id },

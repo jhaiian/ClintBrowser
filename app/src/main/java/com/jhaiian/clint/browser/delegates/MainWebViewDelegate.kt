@@ -13,6 +13,7 @@ import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 import com.jhaiian.clint.downloads.ClintDownloadManager
+import com.jhaiian.clint.quiver.engine.QuiverGuardWebIntegration
 import com.jhaiian.clint.tabs.BrowserTab
 import com.jhaiian.clint.util.registeredDomain
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -51,6 +52,14 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
     webView.addJavascriptInterface(BottomNavBridge(), "BottomNavBridge")
     webView.addJavascriptInterface(NotificationBridge(webView), "ClintNotificationBridge")
     webView.addJavascriptInterface(BlobDownloadBridge(), "BlobDownloadBridge")
+    // Registered here, not reactively per-navigation like the rest of Quiver Guard's
+    // integration - addJavascriptInterface/addDocumentStartJavaScript both only take
+    // effect starting with the navigation *after* they're called, so doing this in
+    // response to onPageStarted is always one navigation too late for a WebView's
+    // first-ever page load. See QuiverGuardWebIntegration.installEarly's kdoc.
+    if (prefs.getBoolean("quiver_guard_enabled", false)) {
+        QuiverGuardWebIntegration.installEarly(this, webView)
+    }
     webView.setDownloadListener { url, userAgent, contentDisposition, mimetype, _ ->
         if (tabManager.activeTab?.webView !== webView) return@setDownloadListener
         if (url.startsWith("blob:")) {
@@ -263,7 +272,8 @@ internal fun MainActivity.reattachWebClients() {
             onPageStartedCallback = { url -> if (tabManager.activeTab?.id == tab.id) onPageStarted(url) },
             onPageFinishedCallback = { url -> if (tabManager.activeTab?.id == tab.id) onPageFinished(url) },
             onTabUrlUpdatedCallback = { wv, url -> onTabUrlUpdated(wv, url) },
-            getDesktopHeaders = { buildDesktopHeaders() }
+            getDesktopHeaders = { buildDesktopHeaders() },
+            getTabId = { tab.id }
         )
     }
 }

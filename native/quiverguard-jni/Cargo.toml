@@ -1,0 +1,28 @@
+[package]
+name = "quiverguard-jni"
+version = "0.1.0"
+edition = "2021"
+description = "JNI bridge exposing the adblock-rust Engine to the ClintBrowser Quiver Guard feature"
+publish = false
+
+[lib]
+name = "adblockrust"
+# cdylib -> libadblockrust.so, loaded from Kotlin via System.loadLibrary("adblockrust").
+# The "lib" prefix isn't a naming choice - Android's packager only recognizes and
+# extracts jniLibs/<abi>/*.so files matching lib*.so, so it can't be dropped.
+crate-type = ["cdylib"]
+
+[dependencies]
+# Pinned to the exact version reviewed while writing this crate. Bump deliberately -
+# adblock-rust's resource/engine API has shifted across versions in the past.
+adblock = { version = "=0.13.0", default-features = false, features = ["embedded-domain-resolver", "full-regex-handling"] }
+jni = "0.21"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+lto = true
+opt-level = "s"
+codegen-units = 1
+panic = "unwind" # required: JNI entry points catch_unwind at the boundary instead of aborting
+strip = true

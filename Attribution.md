@@ -36,6 +36,27 @@ This document lists all third-party libraries, icons, assets, and acknowledgment
 - **License:** [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 - **URL:** https://github.com/BigBadaboom/androidsvg
 
+### Kotlin Coroutines
+- **Author:** JetBrains
+- **License:** [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+- **URL:** https://github.com/Kotlin/kotlinx.coroutines
+
+### adblock-rust
+- **Author:** Brave Software
+- **License:** [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/)
+- **URL:** https://github.com/brave/adblock-rust
+- Bundled as a native library via JNI (see `native/quiverguard-jni`) to power Quiver Guard's filter compiling and ad/tracker blocking.
+
+---
+
+## Bundled Resources & Derived Content
+
+### uBlock Origin
+- **Author:** Raymond Hill (gorhill)
+- **License:** [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html)
+- **URL:** https://github.com/gorhill/uBlock
+- Not a linked library — `native/quiverguard-jni/src/bundled_resources.rs` is generated directly from uBlock Origin's redirect resource and scriptlet registries (`src/js/redirect-resources.js`, `src/js/resources/scriptlets.js`), so Quiver Guard can serve the same redirects/scriptlets since `adblock-rust` does not ship them itself.
+
 ---
 
 ## Icons & Assets

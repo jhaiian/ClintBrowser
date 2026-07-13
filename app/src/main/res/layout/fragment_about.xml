@@ -996,6 +996,100 @@
                     android:paddingStart="4dp"
                     android:paddingEnd="4dp" />
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?attr/clintSurfaceVariant"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvCoroutinesLink"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/about_library_coroutines_label"
+                        android:textColor="?attr/colorPrimary"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvCoroutinesLicenseLink"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/about_library_coroutines_license"
+                        android:textColor="?attr/clintSecondaryTextColor"
+                        android:textSize="13sp"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="4dp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/about_library_coroutines_usage"
+                    android:textColor="?attr/clintSecondaryTextColor"
+                    android:textSize="12sp"
+                    android:layout_marginTop="4dp"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?attr/clintSurfaceVariant"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvAdblockRustLink"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/about_library_adblockrust_label"
+                        android:textColor="?attr/colorPrimary"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvAdblockRustLicenseLink"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/about_library_adblockrust_license"
+                        android:textColor="?attr/clintSecondaryTextColor"
+                        android:textSize="13sp"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="4dp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/about_library_adblockrust_usage"
+                    android:textColor="?attr/clintSecondaryTextColor"
+                    android:textSize="12sp"
+                    android:layout_marginTop="4dp"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

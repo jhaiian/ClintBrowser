@@ -234,6 +234,102 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/menu_quiver_guard"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@drawable/popup_item_ripple"
+        android:longClickable="true">
+
+        <FrameLayout
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:clipChildren="false">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="bottom|start"
+                android:src="@drawable/ic_shield_24"
+                android:tint="?attr/colorPrimary"
+                android:alpha="0.85" />
+
+            <TextView
+                android:id="@+id/quiver_guard_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="12dp"
+                android:minWidth="12dp"
+                android:layout_gravity="top|end"
+                android:paddingStart="2dp"
+                android:paddingEnd="2dp"
+                android:gravity="center"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="7sp"
+                android:fontFamily="sans-serif-medium"
+                android:background="@drawable/badge_background_themed"
+                android:visibility="gone" />
+
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:text="@string/menu_quiver_guard"
+            android:textColor="?attr/clintPopupTextColor"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/quiver_guard_check"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_check_24"
+            android:alpha="0"
+            android:tint="?attr/clintPopupCheckColor" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/menu_disable_quiver_guard_for_site"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@drawable/popup_item_ripple">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_shield_24"
+            android:tint="?attr/colorPrimary"
+            android:alpha="0.85" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:text="@string/menu_disable_quiver_guard_for_site"
+            android:textColor="?attr/clintPopupTextColor"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:id="@+id/quiver_guard_exception_check"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_check_24"
+            android:alpha="0"
+            android:tint="?attr/clintPopupCheckColor" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/menu_bookmarks"
         android:layout_width="match_parent"
         android:layout_height="48dp"

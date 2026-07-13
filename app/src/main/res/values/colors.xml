@@ -187,4 +187,5 @@
     <color name="dialog_card_yellow_light">#EFEDBC</color>
     <color name="dialog_card_yellow_dark_soft">#26250C</color>
     <color name="dialog_card_yellow_light_soft">#EFEEDC</color>
+    <color name="quiver_guard_badge">#CE93D8</color>
 </resources>

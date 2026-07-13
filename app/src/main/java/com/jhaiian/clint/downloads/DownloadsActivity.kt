@@ -23,6 +23,9 @@ import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -31,6 +34,11 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.jhaiian.clint.R
 import com.jhaiian.clint.base.ClintActivity
 import com.jhaiian.clint.ui.ClintToast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class DownloadsActivity : ClintActivity() {
 
@@ -220,6 +228,22 @@ class DownloadsActivity : ClintActivity() {
             }
         })
 
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                ClintDownloadManager.downloadsFlow.collect {
+                    val now = System.currentTimeMillis()
+                    val hasActiveDownload = ClintDownloadManager.downloadsFlow.value.any {
+                        it.status == DownloadStatus.DOWNLOADING || it.status == DownloadStatus.MOVING
+                    }
+                    if (!hasActiveDownload) lastRefreshMs = 0L
+                    if (now - lastRefreshMs >= minRefreshIntervalMs) {
+                        lastRefreshMs = now
+                        handler.post(refreshRunnable)
+                    }
+                }
+            }
+        }
+
         handleOpenIntent(intent)
     }
 
@@ -232,25 +256,11 @@ class DownloadsActivity : ClintActivity() {
     override fun onResume() {
         super.onResume()
         lastRefreshMs = 0L
-        ClintDownloadManager.onDownloadsChanged = {
-            val now = System.currentTimeMillis()
-            val hasActiveDownload = synchronized(ClintDownloadManager.downloads) {
-                ClintDownloadManager.downloads.any {
-                    it.status == DownloadStatus.DOWNLOADING || it.status == DownloadStatus.MOVING
-                }
-            }
-            if (!hasActiveDownload) lastRefreshMs = 0L
-            if (now - lastRefreshMs >= minRefreshIntervalMs) {
-                lastRefreshMs = now
-                handler.post(refreshRunnable)
-            }
-        }
         refresh()
     }
 
     override fun onPause() {
         super.onPause()
-        ClintDownloadManager.onDownloadsChanged = null
         handler.removeCallbacks(refreshRunnable)
     }
 
@@ -270,9 +280,7 @@ class DownloadsActivity : ClintActivity() {
     }
 
     private fun refresh() {
-        allItems = synchronized(ClintDownloadManager.downloads) {
-            ClintDownloadManager.downloads.map { it.copy() }
-        }.toMutableList()
+        allItems = ClintDownloadManager.downloadsFlow.value.map { it.copy() }.toMutableList()
 
         val allSorted = getSortedItems()
         val downloadingItems = allSorted.filter { it.status in DownloadsTabType.ACTIVE_STATUSES }
@@ -559,30 +567,28 @@ class DownloadsActivity : ClintActivity() {
             .also { applyStatusBarFlagToDialog(it) }
         progressDialog.show()
 
-        Thread {
-            toRemove.forEachIndexed { index, item ->
-                ClintDownloadManager.remove(this, item.id, deleteFromStorage)
-                val done = index + 1
-                runOnUiThread {
-                    progressBar.progress = done
-                    progressText.text = getString(R.string.downloads_deleting_progress, done, count)
+        lifecycleScope.launch {
+            withContext(Dispatchers.Default) {
+                toRemove.forEachIndexed { index, item ->
+                    ClintDownloadManager.remove(this@DownloadsActivity, item.id, deleteFromStorage)
+                    val done = index + 1
+                    withContext(Dispatchers.Main) {
+                        progressBar.progress = done
+                        progressText.text = getString(R.string.downloads_deleting_progress, done, count)
+                    }
                 }
             }
-            runOnUiThread {
-                progressDialog.dismiss()
-                exitSelectionMode()
-                refresh()
-                ClintToast.show(this, getString(R.string.downloads_items_removed), R.drawable.ic_delete_24)
-            }
-        }.start()
+            progressDialog.dismiss()
+            exitSelectionMode()
+            refresh()
+            ClintToast.show(this@DownloadsActivity, getString(R.string.downloads_items_removed), R.drawable.ic_delete_24)
+        }
     }
 
     private fun handleOpenIntent(intent: Intent?) {
         val id = intent?.getIntExtra(EXTRA_OPEN_ID, -1) ?: return
         if (id == -1) return
-        val item = synchronized(ClintDownloadManager.downloads) {
-            ClintDownloadManager.downloads.find { it.id == id }
-        } ?: return
+        val item = ClintDownloadManager.downloadsFlow.value.find { it.id == id } ?: return
         handleOpenItem(item)
     }
 
@@ -1106,7 +1112,6 @@ class DownloadsActivity : ClintActivity() {
         val btnSha256 = view.findViewById<android.widget.Button>(R.id.btn_compute_sha256)
         val rowMd5 = view.findViewById<android.view.View>(R.id.row_prop_md5)
         val rowSha256 = view.findViewById<android.view.View>(R.id.row_prop_sha256)
-        val uiHandler = android.os.Handler(android.os.Looper.getMainLooper())
 
         val canCompute = item.file != null && item.file!!.exists()
         if (!canCompute) {
@@ -1121,9 +1126,9 @@ class DownloadsActivity : ClintActivity() {
             if (!canCompute) return@setOnClickListener
             btnMd5.isEnabled = false
             btnMd5.text = getString(R.string.download_props_computing)
-            Thread {
+            lifecycleScope.launch(Dispatchers.Default) {
                 val hash = runCatching { propComputeHash(item.file!!, "MD5") }.getOrElse { null }
-                uiHandler.post {
+                withContext(Dispatchers.Main) {
                     if (hash != null) {
                         tvMd5.text = hash
                         btnMd5.visibility = android.view.View.GONE
@@ -1134,16 +1139,16 @@ class DownloadsActivity : ClintActivity() {
                         btnMd5.text = getString(R.string.download_props_compute)
                     }
                 }
-            }.start()
+            }
         }
 
         btnSha256.setOnClickListener {
             if (!canCompute) return@setOnClickListener
             btnSha256.isEnabled = false
             btnSha256.text = getString(R.string.download_props_computing)
-            Thread {
+            lifecycleScope.launch(Dispatchers.Default) {
                 val hash = runCatching { propComputeHash(item.file!!, "SHA-256") }.getOrElse { null }
-                uiHandler.post {
+                withContext(Dispatchers.Main) {
                     if (hash != null) {
                         tvSha256.text = hash
                         btnSha256.visibility = android.view.View.GONE
@@ -1154,7 +1159,7 @@ class DownloadsActivity : ClintActivity() {
                         btnSha256.text = getString(R.string.download_props_compute)
                     }
                 }
-            }.start()
+            }
         }
 
         val isComplete = item.status == DownloadStatus.COMPLETE
@@ -1195,13 +1200,13 @@ class DownloadsActivity : ClintActivity() {
             .setPositiveButton(getString(R.string.download_update_link_dialog_positive), null)
             .create()
             .also { applyStatusBarFlagToDialog(it) }
-        var fetchRunnable: Runnable? = null
+        var debounceJob: Job? = null
         var verifiedUrl: String? = null
         val textWatcher = object : android.text.TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: android.text.Editable?) {
-                fetchRunnable?.let { handler.removeCallbacks(it) }
+                debounceJob?.cancel()
                 verifiedUrl = null
                 dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)?.isEnabled = false
                 val typed = s?.toString()?.trim() ?: ""
@@ -1214,64 +1219,63 @@ class DownloadsActivity : ClintActivity() {
                 til.error = null
                 til.helperText = null
                 pb.visibility = android.view.View.VISIBLE
-                val r = Runnable {
-                    ClintDownloadManager.executor.submit {
+                debounceJob = lifecycleScope.launch {
+                    delay(600)
+                    val remoteSize = withContext(Dispatchers.IO) {
                         try {
-                            var remoteSize = -1L
+                            var size = -1L
                             val headRequest = okhttp3.Request.Builder().url(typed).head().build()
                             val headResponse = ClintDownloadManager.httpClient.newCall(headRequest).execute()
-                            remoteSize = headResponse.header("Content-Length")?.toLongOrNull() ?: -1L
+                            size = headResponse.header("Content-Length")?.toLongOrNull() ?: -1L
                             headResponse.close()
-                            if (remoteSize < 0) {
+                            if (size < 0) {
                                 val rangeRequest = okhttp3.Request.Builder().url(typed).get()
                                     .header("Range", "bytes=0-0").build()
                                 val rangeResponse = ClintDownloadManager.httpClient.newCall(rangeRequest).execute()
                                 val contentRange = rangeResponse.header("Content-Range")
                                 if (contentRange != null) {
-                                    remoteSize = contentRange.substringAfterLast("/").trim().toLongOrNull() ?: -1L
+                                    size = contentRange.substringAfterLast("/").trim().toLongOrNull() ?: -1L
                                 }
-                                if (remoteSize < 0) {
-                                    remoteSize = rangeResponse.header("Content-Length")?.toLongOrNull() ?: -1L
+                                if (size < 0) {
+                                    size = rangeResponse.header("Content-Length")?.toLongOrNull() ?: -1L
                                 }
                                 rangeResponse.body?.close()
                                 rangeResponse.close()
                             }
-                            handler.post {
-                                pb.visibility = android.view.View.GONE
-                                when {
-                                    remoteSize < 0 -> {
-                                        til.error = null
-                                        til.helperText = getString(R.string.download_update_link_dialog_size_unverifiable)
-                                        verifiedUrl = typed
-                                        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)?.isEnabled = true
-                                    }
-                                    item.totalBytes <= 0 || remoteSize == item.totalBytes -> {
-                                        til.error = null
-                                        til.helperText = null
-                                        verifiedUrl = typed
-                                        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)?.isEnabled = true
-                                    }
-                                    else -> {
-                                        til.helperText = null
-                                        til.error = getString(R.string.download_update_link_dialog_size_mismatch, remoteSize, item.totalBytes)
-                                        verifiedUrl = null
-                                        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)?.isEnabled = false
-                                    }
-                                }
-                            }
+                            size
                         } catch (e: Throwable) {
-                            handler.post {
-                                pb.visibility = android.view.View.GONE
+                            null
+                        }
+                    }
+                    pb.visibility = android.view.View.GONE
+                    if (remoteSize == null) {
+                        til.helperText = null
+                        til.error = getString(R.string.download_update_link_dialog_fetch_failed)
+                        verifiedUrl = null
+                        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)?.isEnabled = false
+                    } else {
+                        when {
+                            remoteSize < 0 -> {
+                                til.error = null
+                                til.helperText = getString(R.string.download_update_link_dialog_size_unverifiable)
+                                verifiedUrl = typed
+                                dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)?.isEnabled = true
+                            }
+                            item.totalBytes <= 0 || remoteSize == item.totalBytes -> {
+                                til.error = null
                                 til.helperText = null
-                                til.error = getString(R.string.download_update_link_dialog_fetch_failed)
+                                verifiedUrl = typed
+                                dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)?.isEnabled = true
+                            }
+                            else -> {
+                                til.helperText = null
+                                til.error = getString(R.string.download_update_link_dialog_size_mismatch, remoteSize, item.totalBytes)
                                 verifiedUrl = null
                                 dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)?.isEnabled = false
                             }
                         }
                     }
                 }
-                fetchRunnable = r
-                handler.postDelayed(r, 600)
             }
         }
         dialog.setOnShowListener {

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginTop="6dp"
+    android:layout_marginBottom="6dp"
+    app:cardBackgroundColor="@android:color/transparent"
+    app:cardCornerRadius="14dp"
+    app:strokeWidth="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp"
+        android:id="@+id/filter_list_row">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginEnd="12dp">
+
+            <TextView
+                android:id="@+id/filter_list_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="15sp"
+                android:fontFamily="sans-serif-medium" />
+
+            <TextView
+                android:id="@+id/filter_list_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="?attr/clintSecondaryTextColor"
+                android:textSize="13sp" />
+
+        </LinearLayout>
+
+        <Switch
+            android:id="@+id/filter_list_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false" />
+
+        <ImageView
+            android:id="@+id/filter_list_more"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="2dp"
+            android:src="@drawable/ic_more_vert_24"
+            android:padding="8dp"
+            android:alpha="0.7"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/filter_list_item_options_desc" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

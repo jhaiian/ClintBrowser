@@ -89,7 +89,7 @@ internal fun MainActivity.showWebNotificationPermissionFromBridge(
 internal fun MainActivity.postWebNotification(title: String, body: String, tag: String, origin: String) {
     val displayTitle = if (origin.isNotEmpty()) "$origin: $title" else title
     val builder = NotificationCompat.Builder(this, WEB_NOTIFICATION_CHANNEL_ID)
-        .setSmallIcon(R.drawable.ic_globe_24)
+        .setSmallIcon(R.drawable.ic_notification_24)
         .setContentTitle(displayTitle)
         .setAutoCancel(true)
     if (body.isNotEmpty()) builder.setContentText(body)

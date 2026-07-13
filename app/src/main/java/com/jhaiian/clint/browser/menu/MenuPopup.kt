@@ -19,6 +19,8 @@ import com.jhaiian.clint.browser.webview.ClintWebViewClient
 import com.jhaiian.clint.downloads.DownloadsActivity
 import com.jhaiian.clint.history.HistoryActivity
 import com.jhaiian.clint.settings.SettingsActivity
+import com.jhaiian.clint.quiver.QuiverGuardActivity
+import com.jhaiian.clint.quiver.engine.BlockedRequestCounter
 
 internal fun MainActivity.showMenu(anchor: View) {
     val style = prefs.getString("menu_style", "popup") ?: "popup"
@@ -59,6 +61,17 @@ private fun MainActivity.showBottomSheetMenu() {
         this.isLoading = isLoading
         this.isDesktopMode = this@showBottomSheetMenu.isDesktopMode
         this.isDataSaverEnabled = prefs.getBoolean("data_saver_enabled", false)
+        this.isQuiverGuardEnabled = prefs.getBoolean("quiver_guard_enabled", false)
+        this.quiverGuardBlockedCount = tabManager.activeTab?.id?.let { BlockedRequestCounter.getTabCount(it) } ?: 0L
+        this.isQuiverGuardExceptionForSite = run {
+            val url = wv?.url ?: return@run false
+            if (!url.startsWith("http://") && !url.startsWith("https://")) return@run false
+            val host = runCatching { android.net.Uri.parse(url).host }.getOrNull() ?: return@run false
+            com.jhaiian.clint.settings.sitepermissions.SitePermissionManager.getState(
+                this@showBottomSheetMenu, host,
+                com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.TYPE_QUIVER_GUARD_EXCEPTION
+            ) != null
+        }
         this.openInAppEnabled = openInAppEnabled
         this.openInAppLabel = openInAppLabel
     }
@@ -223,6 +236,48 @@ private fun MainActivity.showPopupMenu(anchor: View) {
         popup.dismiss()
         onMenuOpenDataSaverSettings()
         true
+    }
+
+    val quiverGuardBadge = popupView.findViewById<TextView>(R.id.quiver_guard_badge)
+    val quiverGuardCheck = popupView.findViewById<ImageView>(R.id.quiver_guard_check)
+    val qgExceptionCheck = popupView.findViewById<ImageView>(R.id.quiver_guard_exception_check)
+    val isQgEnabled = prefs.getBoolean("quiver_guard_enabled", false)
+    val qgCount = tabManager.activeTab?.id?.let { BlockedRequestCounter.getTabCount(it) } ?: 0L
+    val currentUrlForException = tabManager.activeTab?.webView?.url
+    val isQgExceptionActive = run {
+        if (currentUrlForException.isNullOrEmpty()) return@run false
+        if (!currentUrlForException.startsWith("http://") && !currentUrlForException.startsWith("https://")) return@run false
+        val host = runCatching { android.net.Uri.parse(currentUrlForException).host }.getOrNull() ?: return@run false
+        com.jhaiian.clint.settings.sitepermissions.SitePermissionManager.getState(
+            this, host,
+            com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.TYPE_QUIVER_GUARD_EXCEPTION
+        ) != null
+    }
+    quiverGuardCheck.alpha = if (isQgEnabled) 1f else 0f
+    // A leftover count from before the site was excepted (or before a reload has had a
+    // chance to clear it) must never display as if blocking is currently active here -
+    // that's exactly what's misleading about showing a badge next to a shield the user
+    // just turned off for this page.
+    if (isQgEnabled && !isQgExceptionActive && qgCount > 0L) {
+        quiverGuardBadge.text = BlockedRequestCounter.formatCount(qgCount)
+        quiverGuardBadge.visibility = View.VISIBLE
+    } else {
+        quiverGuardBadge.visibility = View.GONE
+    }
+    popupView.findViewById<View>(R.id.menu_quiver_guard).setOnClickListener {
+        popup.dismiss()
+        onMenuQuiverGuard()
+    }
+    popupView.findViewById<View>(R.id.menu_quiver_guard).setOnLongClickListener {
+        popup.dismiss()
+        onMenuOpenQuiverGuardSettings()
+        true
+    }
+
+    qgExceptionCheck.alpha = if (isQgExceptionActive) 1f else 0f
+    popupView.findViewById<View>(R.id.menu_disable_quiver_guard_for_site).setOnClickListener {
+        popup.dismiss()
+        onMenuDisableQuiverGuardForSite()
     }
     popupView.findViewById<View>(R.id.menu_settings).setOnClickListener {
         popup.dismiss(); startActivity(Intent(this, SettingsActivity::class.java))

@@ -4,6 +4,99 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.0.5
+
+*Finally guys, I'm done with the update. I'm really sorry, y'all. It took a while because I had to learn Rust.*
+
+## Overview
+
+First thing: the app logo got completely redesigned.
+
+The previous one was overcomplicated. It had too much detail, and overall, it was too flashy. Yeah, that's what I decided anyway. I hope y'all like it.
+
+Here we go: the biggest update I have ever released in my life.
+
+---
+
+## Quiver Guard
+
+Quiver Guard is an adblock engine that runs on Brave's adblock-rust.
+
+How it works is simple: you download a filter list, enable it, compile it, and that's it.
+
+For a more technical explanation: basically, we send the compiled list to adblock-rust through JNI, and once it's ready, we use it to block ads, cosmetic scripts, scriplets, and more.
+
+### Preset Filter Lists
+
+- AdGuard Annoyances
+- AdGuard Base Filter
+- AdGuard Mobile Ads
+- EasyList
+- EasyPrivacy
+- Fanboy Annoyances
+
+You need to download them because I don't want to embed them into the app. I don't want to increase the file size. Just download the filter lists, save them, and you should be good to go.
+
+You can also add filter lists that are not included in the preset list by adding a link. It will be downloaded and added to the list automatically.
+
+### Available Actions
+
+- Force update
+- Check for updates
+- Copy links
+- Copy names
+
+And just like all the other activities that use RecyclerView, you can:
+
+- Sort
+- Search
+- Select
+- Remove
+
+> *Yeah, it is still experimental. Improvements and fixes can still happen. It depends on whether I can fix the bugs that are found.*
+
+---
+
+## Acknowledgments
+
+Thankfully, this feature was requested by [**@manhd89**](https://github.com/manhd89) ([#5](https://github.com/jhaiian/ClintBrowser/issues/5)).
+
+And thanks to my friend **Von** for helping me extract the uBlock JS into Rust: [**@vonjooo**](https://github.com/vonjoo).
+
+---
+
+## Bug Fixes
+
+- Fixed navigation not working with gesture controls on some devices. Thank you for reporting this bug, [**@brnwlshubh**](https://github.com/brnwlshubh) ([#6](https://github.com/jhaiian/ClintBrowser/issues/6)).
+- Fixed the hold listener showing images even when you hold-click on a hyperlink or link.
+- *I think that's all, or I might have forgotten something. This version has been in development for months, so I'm sorry.*
+
+---
+
+## Improvements
+
+- The download engine now runs on Kotlin Coroutines.
+
+---
+
+## Extra Changes
+
+I changed all the back buttons back to normal because [**@snashyturner**](https://github.com/snashyturner) said they looked like a bonefish, which, not gonna lie, is true.
+
+- Change build gradle language from groovy to kotlin.
+- Bump compile SDK and target SDK from 36 (Android 16) to 37 (Android 17).
+- Update dependencies.
+- Changed all notification small icons to the app icon.
+- Updated privacy policy.
+
+I also started adding comments to new files. I will gradually add comments to existing files as well. Right now, I'm starting to do this because, yeah, it was a rookie mistake. I sometimes forget how my own code works and have to reread everything again.
+
+---
+
+*Also, I'm really sorry if this update took so long. I really needed to learn Rust in order to implement this feature, and yeah, it wasn't easy. Learning a new language while developing a big feature took a lot of time.*
+
+---
+
 # v1.0.4
 
 *Sorry, everyone. This update took a very long time.*

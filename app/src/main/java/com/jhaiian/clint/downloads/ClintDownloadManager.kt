@@ -3,23 +3,39 @@ package com.jhaiian.clint.downloads
 import android.app.NotificationManager
 import android.content.Context
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
 import androidx.documentfile.provider.DocumentFile
 import androidx.preference.PreferenceManager
 import com.jhaiian.clint.R
 import com.jhaiian.clint.settings.fragments.DownloadSettingsFragment
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executors
-import java.util.concurrent.Future
-import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.Executors as JavaExecutors
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
 
+/**
+ * Owns the download queue, its persisted state, and the lifetime of every in-flight transfer.
+ *
+ * All state lives in [downloadsFlow], a [StateFlow] that replaces the previous mutable list plus
+ * change-callback pair. Consumers collect it directly instead of registering a callback, and every
+ * mutation goes through [publish]/[updateItem]/[addNew] so the flow only ever sees new, immutable
+ * snapshots (an object already published to a [StateFlow] must never be mutated in place, or
+ * conflation will treat the change as a no-op).
+ *
+ * [pause]/[resume]/[remove]/[enqueue] and friends stay plain, non-suspend functions so existing
+ * callers (broadcast receivers, click listeners, other non-coroutine call sites) don't need to
+ * change; each one launches its work on [applicationScope] internally.
+ */
 object ClintDownloadManager {
 
     internal const val CHANNEL_ID = "clint_downloads"
@@ -31,25 +47,45 @@ object ClintDownloadManager {
         .connectionPool(ConnectionPool(10, 5, TimeUnit.MINUTES))
         .build()
 
-    internal val executor = Executors.newCachedThreadPool()
-    internal val scheduledExecutor: ScheduledExecutorService = JavaExecutors.newScheduledThreadPool(2)
+    /** Application-scoped: downloads must keep running independently of any single screen's lifecycle. */
+    internal val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     private val idCounter = AtomicInteger(1)
-    internal val futures = mutableMapOf<Int, Future<*>>()
+
+    /** Tracks the coroutine running each download so [pause]/[remove] can cancel it. */
+    internal val activeJobs: MutableMap<Int, Job> = ConcurrentHashMap()
+
+    /** Cooperative "please stop and preserve partial progress" signal, checked by [DownloadWorker]. */
     internal val pauseRequested: MutableSet<Int> = ConcurrentHashMap.newKeySet()
+
+    /** Marks a download as fully deleted, so any in-flight work knows not to persist further. */
     internal val removedIds: MutableSet<Int> = ConcurrentHashMap.newKeySet()
+
     internal var appContext: Context? = null
-    internal val mainHandler = Handler(Looper.getMainLooper())
     private var initialized = false
 
-    val downloads = mutableListOf<DownloadItem>()
-    var onDownloadsChanged: (() -> Unit)? = null
+    private val _downloads = MutableStateFlow<List<DownloadItem>>(emptyList())
+    val downloadsFlow: StateFlow<List<DownloadItem>> = _downloads.asStateFlow()
 
-    internal fun persistDownload(item: DownloadItem) {
+    private fun addNew(item: DownloadItem) {
+        _downloads.update { listOf(item) + it }
+    }
+
+    internal fun publish(item: DownloadItem) {
+        _downloads.update { list -> list.map { if (it.id == item.id) item else it } }
+    }
+
+    /** Applies [transform] to the current snapshot of [id], if present. Used by callers that don't already hold a working copy. */
+    internal fun updateItem(id: Int, transform: (DownloadItem) -> DownloadItem) {
+        _downloads.update { list -> list.map { if (it.id == id) transform(it) else it } }
+    }
+
+    internal suspend fun persistDownload(item: DownloadItem) {
         val ctx = appContext ?: return
         DownloadPersistence.persistDownload(ctx, item, removedIds)
     }
 
-    private fun deletePersistedDownload(id: Int) {
+    private suspend fun deletePersistedDownload(id: Int) {
         val ctx = appContext ?: return
         DownloadPersistence.deletePersistedDownload(ctx, id)
     }
@@ -58,27 +94,37 @@ object ClintDownloadManager {
         DownloadNotificationHelper.createNotificationChannel(context)
     }
 
-    fun init(context: Context) {
+    /**
+     * Loads persisted downloads and starts the network monitor. Returns the [Job] doing this work
+     * so callers that can't suspend (like [DownloadBootReceiver]) can still wait for completion via
+     * [Job.invokeOnCompletion], pairing it with `goAsync()`.
+     */
+    fun init(context: Context): Job {
         appContext = context.applicationContext
-        if (!initialized) {
-            initialized = true
-            loadDownloads()
-            DownloadNetworkMonitor.register(context)
-            tryDequeueNext(context)
+        if (initialized) return Job().apply { complete() }
+        initialized = true
+        val appCtx = context.applicationContext
+        return applicationScope.launch {
+            loadDownloads(appCtx)
+            DownloadNetworkMonitor.register(appCtx)
+            tryDequeueNext(appCtx)
         }
     }
 
-    private fun loadDownloads() {
-        val ctx = appContext ?: return
-        val loaded = DownloadPersistence.loadDownloads(ctx)
-        loaded.forEach { item ->
+    private suspend fun loadDownloads(context: Context) {
+        val loaded = DownloadPersistence.loadDownloads(context).map { item ->
             if (item.url == "blob:" && item.status == DownloadStatus.QUEUED) {
-                item.status = DownloadStatus.FAILED
-                item.errorMessage = ctx.getString(R.string.download_error_blob_expired)
-                DownloadPersistence.persistDownload(ctx, item, removedIds)
+                val expired = item.copy(
+                    status = DownloadStatus.FAILED,
+                    errorMessage = context.getString(R.string.download_error_blob_expired)
+                )
+                DownloadPersistence.persistDownload(context, expired, removedIds)
+                expired
+            } else {
+                item
             }
         }
-        synchronized(downloads) { downloads.addAll(loaded) }
+        _downloads.update { loaded }
         loaded.maxOfOrNull { it.id }?.let { max ->
             if (max >= idCounter.get()) idCounter.set(max + 1)
         }
@@ -92,110 +138,127 @@ object ClintDownloadManager {
         )
     }
 
-    internal fun activeCount(): Int = synchronized(downloads) {
-        downloads.count {
-            it.status == DownloadStatus.CONNECTING ||
-            it.status == DownloadStatus.DOWNLOADING ||
-            it.status == DownloadStatus.ALLOCATING ||
-            it.status == DownloadStatus.MOVING ||
-            it.status == DownloadStatus.RETRYING
-        }
-    }
+    internal fun activeCount(): Int =
+        downloadsFlow.value.count { it.status in DownloadStatus.ACTIVELY_WORKING }
 
     internal fun tryDequeueNext(context: Context) {
         val limit = concurrentLimit(context)
         val isMetered = !DownloadNetworkMonitor.isNetworkUnmetered(context)
         while (activeCount() < limit) {
-            val next = synchronized(downloads) {
-                downloads.lastOrNull { it.status == DownloadStatus.QUEUED && (!it.unmeteredOnly || !isMetered) }
+            val next = downloadsFlow.value.lastOrNull {
+                it.status == DownloadStatus.QUEUED && (!it.unmeteredOnly || !isMetered)
             } ?: break
-            next.status = DownloadStatus.CONNECTING
-            next.speedBytesPerSec = 0L
-            persistDownload(next)
-            onDownloadsChanged?.invoke()
-            DownloadNotificationHelper.showProgressNotification(context, next)
+            val updated = next.copy(status = DownloadStatus.CONNECTING, speedBytesPerSec = 0L)
+            publish(updated)
+            DownloadNotificationHelper.showProgressNotification(context, updated)
             DownloadForegroundService.start(context)
-            val future = executor.submit { DownloadWorker.runDownload(context, next) }
-            futures[next.id] = future
+            launchDownload(context, updated)
         }
+    }
+
+    /** Launches the coroutine that persists and runs one download attempt-chain, tracked in [activeJobs]. */
+    private fun launchDownload(context: Context, item: DownloadItem) {
+        val job = applicationScope.launch {
+            persistDownload(item)
+            DownloadWorker.run(context, item)
+        }
+        activeJobs[item.id] = job
+        job.invokeOnCompletion { activeJobs.remove(item.id, job) }
     }
 
     fun enqueueBlob(context: Context, base64: String, filename: String, mimeType: String) {
         val id = idCounter.getAndIncrement()
-        val item = DownloadItem(id = id, url = "blob:", filename = filename, userAgent = "")
-        item.startedAt = System.currentTimeMillis()
-        synchronized(downloads) { downloads.add(0, item) }
-        onDownloadsChanged?.invoke()
+        val item = DownloadItem(
+            id = id, url = "blob:", filename = filename, userAgent = "",
+            startedAt = System.currentTimeMillis()
+        )
+        addNew(item)
         DownloadNotificationHelper.showProgressNotification(context, item)
         DownloadForegroundService.start(context)
         val safMode = DownloadFileHelper.isSafCustomMode(context)
-        val future = executor.submit {
+        val job = applicationScope.launch {
+            var current = item
             try {
                 val bytes = android.util.Base64.decode(base64, android.util.Base64.DEFAULT)
-                var finalFilename = filename
+                var finalFilename = current.filename
                 if (finalFilename.endsWith(".bin") || !finalFilename.contains(".")) {
                     val ext = DownloadFileHelper.detectExtFromMagicBytes(bytes.copyOf(minOf(bytes.size, 512)))
                         ?: android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
                     if (ext != null) finalFilename = "${finalFilename.removeSuffix(".bin")}.$ext"
                 }
-                item.filename = finalFilename
                 val destDir = if (safMode) DownloadFileHelper.tempDownloadDir(context) else DownloadFileHelper.resolveDownloadDir()
                 destDir.mkdirs()
                 val destFile = DownloadFileHelper.uniqueFile(destDir, finalFilename)
-                item.filename = destFile.name
-                item.file = destFile
-                item.totalBytes = bytes.size.toLong()
                 java.io.FileOutputStream(destFile).use { it.write(bytes) }
-                item.bytesDownloaded = bytes.size.toLong()
+                current = current.copy(
+                    filename = destFile.name,
+                    file = destFile,
+                    totalBytes = bytes.size.toLong(),
+                    bytesDownloaded = bytes.size.toLong()
+                )
                 if (safMode) {
-                    DownloadWorker.moveTempToSaf(context, item)
+                    DownloadWorker.moveTempToSaf(context, current)
                 } else {
-                    item.status = DownloadStatus.COMPLETE
-                    persistDownload(item)
-                    onDownloadsChanged?.invoke()
-                    DownloadNotificationHelper.showCompleteNotification(context, item)
+                    current = current.copy(status = DownloadStatus.COMPLETE)
+                    persistDownload(current)
+                    publish(current)
+                    DownloadNotificationHelper.showCompleteNotification(context, current)
                     tryDequeueNext(context)
                 }
             } catch (e: Throwable) {
-                DownloadWorker.fail(context, item, e.message ?: context.getString(R.string.download_error_unknown))
+                DownloadWorker.fail(context, current, e.message ?: context.getString(R.string.download_error_unknown))
             }
         }
-        futures[id] = future
+        activeJobs[id] = job
+        job.invokeOnCompletion { activeJobs.remove(id, job) }
     }
 
-    fun enqueue(context: Context, url: String, filename: String, userAgent: String, referer: String = "", cookies: String = "", retryEnabled: Boolean = true, unmeteredOnly: Boolean = false, splitParts: Int = 32, multithreadingParts: Int = 4, locationMode: String = "default", customLocationUri: String? = null) {
+    fun enqueue(
+        context: Context,
+        url: String,
+        filename: String,
+        userAgent: String,
+        referer: String = "",
+        cookies: String = "",
+        retryEnabled: Boolean = true,
+        unmeteredOnly: Boolean = false,
+        splitParts: Int = 32,
+        multithreadingParts: Int = 4,
+        locationMode: String = "default",
+        customLocationUri: String? = null
+    ) {
         val id = idCounter.getAndIncrement()
-        val item = DownloadItem(id = id, url = url, filename = filename, userAgent = userAgent, referer = referer, cookies = cookies, retryEnabled = retryEnabled, unmeteredOnly = unmeteredOnly, splitParts = splitParts, multithreadingParts = multithreadingParts, locationMode = locationMode, customLocationUri = customLocationUri)
-        item.startedAt = System.currentTimeMillis()
+        val baseItem = DownloadItem(
+            id = id, url = url, filename = filename, userAgent = userAgent, referer = referer,
+            cookies = cookies, retryEnabled = retryEnabled, unmeteredOnly = unmeteredOnly,
+            splitParts = splitParts, multithreadingParts = multithreadingParts,
+            locationMode = locationMode, customLocationUri = customLocationUri,
+            startedAt = System.currentTimeMillis()
+        )
 
-        if (item.unmeteredOnly && !DownloadNetworkMonitor.isNetworkUnmetered(context)) {
-            item.status = DownloadStatus.PAUSED
-            item.waitingForUnmetered = true
-            synchronized(downloads) { downloads.add(0, item) }
+        if (baseItem.unmeteredOnly && !DownloadNetworkMonitor.isNetworkUnmetered(context)) {
+            val item = baseItem.copy(status = DownloadStatus.PAUSED, waitingForUnmetered = true)
+            addNew(item)
             DownloadNetworkMonitor.unmeteredPausedIds.add(id)
-            persistDownload(item)
-            onDownloadsChanged?.invoke()
+            applicationScope.launch { persistDownload(item) }
             DownloadNotificationHelper.showWaitingUnmeteredNotification(context, item)
             DownloadForegroundService.start(context)
             return
         }
 
         if (activeCount() >= concurrentLimit(context)) {
-            item.status = DownloadStatus.QUEUED
-            synchronized(downloads) { downloads.add(0, item) }
-            persistDownload(item)
-            onDownloadsChanged?.invoke()
+            val item = baseItem.copy(status = DownloadStatus.QUEUED)
+            addNew(item)
+            applicationScope.launch { persistDownload(item) }
             DownloadNotificationHelper.showQueuedNotification(context, item)
             DownloadForegroundService.start(context)
             return
         }
 
-        synchronized(downloads) { downloads.add(0, item) }
-        onDownloadsChanged?.invoke()
-        DownloadNotificationHelper.showProgressNotification(context, item)
+        addNew(baseItem)
+        DownloadNotificationHelper.showProgressNotification(context, baseItem)
         DownloadForegroundService.start(context)
-        val future = executor.submit { DownloadWorker.runDownload(context, item) }
-        futures[id] = future
+        launchDownload(context, baseItem)
     }
 
     fun cancel(context: Context, id: Int) {
@@ -203,48 +266,45 @@ object ClintDownloadManager {
     }
 
     fun pause(context: Context, id: Int) {
-        val item = synchronized(downloads) { downloads.find { it.id == id } } ?: return
+        val item = downloadsFlow.value.find { it.id == id } ?: return
 
         if (item.status == DownloadStatus.QUEUED) {
-            item.status = DownloadStatus.PAUSED
-            item.waitingForUnmetered = false
-            persistDownload(item)
-            onDownloadsChanged?.invoke()
+            val updated = item.copy(status = DownloadStatus.PAUSED, waitingForUnmetered = false)
+            publish(updated)
+            applicationScope.launch { persistDownload(updated) }
             return
         }
 
+        // Cooperative only: the worker polls pauseRequested itself so it can finish its current
+        // chunk cleanly and compute an accurate resume point. Cancelling activeJobs[id] here would
+        // unwind mid-transfer before that bookkeeping runs; remove() below is the hard-stop path.
         pauseRequested.add(id)
-        futures[id]?.cancel(true)
-        futures.remove(id)
 
         if (item.status == DownloadStatus.RETRYING || item.status == DownloadStatus.CONNECTING) {
-            item.status = DownloadStatus.PAUSED
-            item.retryDelaySec = 0
-            item.retryAttempt = 0
-            item.waitingForUnmetered = false
+            val updated = item.copy(
+                status = DownloadStatus.PAUSED, retryDelaySec = 0, retryAttempt = 0, waitingForUnmetered = false
+            )
             DownloadNetworkMonitor.unmeteredPausedIds.remove(id)
-            persistDownload(item)
-            onDownloadsChanged?.invoke()
+            publish(updated)
+            applicationScope.launch { persistDownload(updated) }
             tryDequeueNext(context)
         } else if (item.waitingForUnmetered) {
             DownloadNetworkMonitor.unmeteredPausedIds.remove(id)
-            item.waitingForUnmetered = false
-            item.status = DownloadStatus.PAUSED
+            val updated = item.copy(waitingForUnmetered = false, status = DownloadStatus.PAUSED)
             context.getSystemService(NotificationManager::class.java).cancel(id)
-            persistDownload(item)
-            onDownloadsChanged?.invoke()
+            publish(updated)
+            applicationScope.launch { persistDownload(updated) }
         } else if (item.waitingForNetwork) {
             DownloadNetworkMonitor.networkWaitingIds.remove(id)
-            item.waitingForNetwork = false
-            item.status = DownloadStatus.PAUSED
+            val updated = item.copy(waitingForNetwork = false, status = DownloadStatus.PAUSED)
             context.getSystemService(NotificationManager::class.java).cancel(id)
-            persistDownload(item)
-            onDownloadsChanged?.invoke()
+            publish(updated)
+            applicationScope.launch { persistDownload(updated) }
         }
     }
 
     fun resume(context: Context, id: Int) {
-        val item = synchronized(downloads) { downloads.find { it.id == id } } ?: return
+        val item = downloadsFlow.value.find { it.id == id } ?: return
         if (item.status != DownloadStatus.PAUSED) return
         pauseRequested.remove(id)
         DownloadNetworkMonitor.unmeteredPausedIds.remove(id)
@@ -252,33 +312,29 @@ object ClintDownloadManager {
 
         if (item.unmeteredOnly && !DownloadNetworkMonitor.isNetworkUnmetered(context)) {
             DownloadNetworkMonitor.unmeteredPausedIds.add(id)
-            item.waitingForUnmetered = true
-            persistDownload(item)
-            onDownloadsChanged?.invoke()
-            DownloadNotificationHelper.showWaitingUnmeteredNotification(context, item)
+            val updated = item.copy(waitingForUnmetered = true)
+            publish(updated)
+            applicationScope.launch { persistDownload(updated) }
+            DownloadNotificationHelper.showWaitingUnmeteredNotification(context, updated)
             return
         }
 
         if (activeCount() >= concurrentLimit(context)) {
-            item.status = DownloadStatus.QUEUED
-            item.waitingForUnmetered = false
-            item.waitingForNetwork = false
-            persistDownload(item)
-            onDownloadsChanged?.invoke()
-            DownloadNotificationHelper.showQueuedNotification(context, item)
+            val updated = item.copy(status = DownloadStatus.QUEUED, waitingForUnmetered = false, waitingForNetwork = false)
+            publish(updated)
+            applicationScope.launch { persistDownload(updated) }
+            DownloadNotificationHelper.showQueuedNotification(context, updated)
             return
         }
 
-        item.waitingForUnmetered = false
-        item.waitingForNetwork = false
-        item.status = DownloadStatus.CONNECTING
-        item.speedBytesPerSec = 0L
-        persistDownload(item)
-        onDownloadsChanged?.invoke()
-        DownloadNotificationHelper.showProgressNotification(context, item)
+        val updated = item.copy(
+            waitingForUnmetered = false, waitingForNetwork = false,
+            status = DownloadStatus.CONNECTING, speedBytesPerSec = 0L
+        )
+        publish(updated)
+        DownloadNotificationHelper.showProgressNotification(context, updated)
         DownloadForegroundService.start(context)
-        val future = executor.submit { DownloadWorker.runDownload(context, item) }
-        futures[item.id] = future
+        launchDownload(context, updated)
     }
 
     fun remove(context: Context, id: Int, deleteFile: Boolean = false) {
@@ -286,97 +342,80 @@ object ClintDownloadManager {
         pauseRequested.remove(id)
         DownloadNetworkMonitor.unmeteredPausedIds.remove(id)
         DownloadNetworkMonitor.networkWaitingIds.remove(id)
-        val item = synchronized(downloads) { downloads.find { it.id == id } }
-        futures[id]?.cancel(true)
-        futures.remove(id)
+        val item = downloadsFlow.value.find { it.id == id }
+        activeJobs[id]?.cancel()
         context.getSystemService(NotificationManager::class.java).cancel(id)
-        if (deleteFile) {
-            item?.file?.delete()
-            item?.contentUri?.let { uriStr ->
-                runCatching {
-                    val ctx = appContext ?: return@runCatching
-                    val docFile = DocumentFile.fromSingleUri(ctx, Uri.parse(uriStr))
-                    docFile?.delete()
+        _downloads.update { list -> list.filterNot { it.id == id } }
+        val appCtx = appContext
+        applicationScope.launch {
+            if (deleteFile) {
+                item?.file?.delete()
+                item?.contentUri?.let { uriStr ->
+                    runCatching {
+                        val ctx = appCtx ?: return@runCatching
+                        val docFile = DocumentFile.fromSingleUri(ctx, Uri.parse(uriStr))
+                        docFile?.delete()
+                    }
                 }
             }
+            val tempDir = DownloadFileHelper.tempDownloadDir(appCtx)
+            item?.filename?.let { name ->
+                File(tempDir, name).takeIf { it.exists() }?.delete()
+            }
+            deletePersistedDownload(id)
         }
-        val tempDir = DownloadFileHelper.tempDownloadDir(appContext)
-        item?.filename?.let { name ->
-            File(tempDir, name).takeIf { it.exists() }?.delete()
-        }
-        synchronized(downloads) { downloads.removeIf { it.id == id } }
-        deletePersistedDownload(id)
-        onDownloadsChanged?.invoke()
     }
 
     fun clearCompleted() {
-        val toDelete = synchronized(downloads) {
-            val ids = downloads.filter {
-                it.status != DownloadStatus.DOWNLOADING &&
-                it.status != DownloadStatus.PAUSED &&
-                it.status != DownloadStatus.MOVING &&
-                it.status != DownloadStatus.ALLOCATING &&
-                it.status != DownloadStatus.CONNECTING &&
-                it.status != DownloadStatus.RETRYING &&
-                it.status != DownloadStatus.QUEUED
-            }.map { it.id }
-            downloads.removeAll {
-                it.status != DownloadStatus.DOWNLOADING &&
-                it.status != DownloadStatus.PAUSED &&
-                it.status != DownloadStatus.MOVING &&
-                it.status != DownloadStatus.ALLOCATING &&
-                it.status != DownloadStatus.CONNECTING &&
-                it.status != DownloadStatus.RETRYING &&
-                it.status != DownloadStatus.QUEUED
-            }
-            ids
+        val nonTerminal = setOf(
+            DownloadStatus.DOWNLOADING, DownloadStatus.PAUSED, DownloadStatus.MOVING,
+            DownloadStatus.ALLOCATING, DownloadStatus.CONNECTING, DownloadStatus.RETRYING,
+            DownloadStatus.QUEUED
+        )
+        var toDelete: List<Int> = emptyList()
+        _downloads.update { list ->
+            val (keep, remove) = list.partition { it.status in nonTerminal }
+            toDelete = remove.map { it.id }
+            keep
         }
-        toDelete.forEach { deletePersistedDownload(it) }
-        onDownloadsChanged?.invoke()
+        applicationScope.launch {
+            toDelete.forEach { deletePersistedDownload(it) }
+        }
     }
 
     fun retryFailed(context: Context, id: Int) {
-        val item = synchronized(downloads) { downloads.find { it.id == id } } ?: return
+        val item = downloadsFlow.value.find { it.id == id } ?: return
         if (item.status != DownloadStatus.FAILED) return
-        item.retryAttempt = 0
-        item.retryDelaySec = 0
-        item.errorMessage = null
-        item.speedBytesPerSec = 0L
+        var updated = item.copy(retryAttempt = 0, retryDelaySec = 0, errorMessage = null, speedBytesPerSec = 0L)
 
-        if (item.unmeteredOnly && !DownloadNetworkMonitor.isNetworkUnmetered(context)) {
+        if (updated.unmeteredOnly && !DownloadNetworkMonitor.isNetworkUnmetered(context)) {
             DownloadNetworkMonitor.unmeteredPausedIds.add(id)
-            item.status = DownloadStatus.PAUSED
-            item.waitingForUnmetered = true
-            persistDownload(item)
-            onDownloadsChanged?.invoke()
-            DownloadNotificationHelper.showWaitingUnmeteredNotification(context, item)
+            updated = updated.copy(status = DownloadStatus.PAUSED, waitingForUnmetered = true)
+            publish(updated)
+            applicationScope.launch { persistDownload(updated) }
+            DownloadNotificationHelper.showWaitingUnmeteredNotification(context, updated)
             DownloadForegroundService.start(context)
             return
         }
 
         if (activeCount() >= concurrentLimit(context)) {
-            item.status = DownloadStatus.QUEUED
-            persistDownload(item)
-            onDownloadsChanged?.invoke()
-            DownloadNotificationHelper.showQueuedNotification(context, item)
+            updated = updated.copy(status = DownloadStatus.QUEUED)
+            publish(updated)
+            applicationScope.launch { persistDownload(updated) }
+            DownloadNotificationHelper.showQueuedNotification(context, updated)
             DownloadForegroundService.start(context)
             return
         }
 
-        item.waitingForUnmetered = false
-        item.status = DownloadStatus.CONNECTING
-        persistDownload(item)
-        onDownloadsChanged?.invoke()
-        DownloadNotificationHelper.showProgressNotification(context, item)
+        updated = updated.copy(waitingForUnmetered = false, status = DownloadStatus.CONNECTING)
+        publish(updated)
+        DownloadNotificationHelper.showProgressNotification(context, updated)
         DownloadForegroundService.start(context)
-        val future = executor.submit { DownloadWorker.runDownload(context, item) }
-        futures[item.id] = future
+        launchDownload(context, updated)
     }
 
     fun updateDownloadUrl(id: Int, newUrl: String) {
-        val item = synchronized(downloads) { downloads.find { it.id == id } } ?: return
-        item.url = newUrl
-        onDownloadsChanged?.invoke()
+        updateItem(id) { it.copy(url = newUrl) }
     }
 
     fun onUnmeteredOnlyChanged(context: Context, enabled: Boolean) {

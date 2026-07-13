@@ -1,11 +1,6 @@
 name: Build Clint Browser
 
 on:
-  push:
-    branches:
-      - '**'
-    paths:
-      - 'app/**'
   workflow_dispatch:
 
 jobs:
@@ -100,4 +95,4 @@ jobs:
           name: Clint-x86_64
           path: app/build/outputs/apk/github/release/app-github-x86_64-release.apk
           if-no-files-found: warn
-
+          

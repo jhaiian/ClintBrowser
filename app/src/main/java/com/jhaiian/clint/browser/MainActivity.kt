@@ -18,6 +18,7 @@ import android.webkit.WebView
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import kotlin.math.abs
 import androidx.core.content.ContextCompat
@@ -66,6 +67,8 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
     internal var autoDesktopPendingReload: String? = null
     internal val desktopScriptHandlers = mutableMapOf<String, ScriptHandler>()
     internal val autoplayScriptHandlers = mutableMapOf<String, ScriptHandler>()
+    internal val quiverGuardScriptHandlers = com.jhaiian.clint.quiver.engine.ScriptHandlerStore()
+    internal val quiverGuardJobs = mutableMapOf<String, kotlinx.coroutines.Job>()
 
     internal var topBarFullHeight = 0
     internal var bottomBarFullHeight = 0
@@ -263,6 +266,7 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
             "block_third_party_cookies" -> applyCookiePolicy()
             "custom_user_agent" -> applyUserAgent()
             "block_trackers" -> reattachWebClients()
+            "quiver_guard_enabled" -> onQuiverGuardEnabled(prefs.getBoolean("quiver_guard_enabled", false))
             "data_saver_enabled", "data_saver_disable_images", "data_saver_cache_first", "data_saver_disable_autoplay" -> applyDataSaverSettings()
             "force_dark_web" -> {
                 tabManager.tabs.forEach { applyWebDarkMode(it.webView) }
@@ -337,6 +341,8 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
         }
         ClintDownloadManager.createNotificationChannel(this)
         ClintDownloadManager.init(this)
+        initializeQuiverGuardEngine()
+        observeQuiverGuardCounter()
         createWebNotificationChannel()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
@@ -380,6 +386,7 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
                 openNewTab(isIncognito = false, url = getSearchEngineHomeUrl())
             }
         }
+        setupBackPressedDispatcher()
     }
 
     override fun onNewIntent(intent: android.content.Intent) {
@@ -449,6 +456,7 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
         suggestionFetcherTop?.cancel()
         suggestionFetcherBottom?.cancel()
         suggestionsBgThread?.quitSafely()
+        quiverGuardJobs.clear()
         super.onDestroy()
     }
 
@@ -485,17 +493,29 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
         return super.dispatchTouchEvent(ev)
     }
 
-    override fun onKeyDown(keyCode: Int, event: android.view.KeyEvent?): Boolean {
-        if (keyCode == android.view.KeyEvent.KEYCODE_BACK) {
-            if (fullscreenView != null) { exitFullscreen(); return true }
-            if (binding.addressBarSearch.isShowing) { binding.addressBarSearch.hide(); return true }
-            if (binding.addressBarSearchBottom.isShowing) { binding.addressBarSearchBottom.hide(); return true }
-            val wv = tabManager.activeTab?.webView
-            if (wv?.canGoBack() == true) { wv.goBack(); return true }
-            handleExitConfirmation()
-            return true
-        }
-        return super.onKeyDown(keyCode, event)
+    private fun setupBackPressedDispatcher() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (fullscreenView != null) {
+                    exitFullscreen()
+                    return
+                }
+                if (binding.addressBarSearch.isShowing) {
+                    binding.addressBarSearch.hide()
+                    return
+                }
+                if (binding.addressBarSearchBottom.isShowing) {
+                    binding.addressBarSearchBottom.hide()
+                    return
+                }
+                val wv = tabManager.activeTab?.webView
+                if (wv?.canGoBack() == true) {
+                    wv.goBack()
+                    return
+                }
+                handleExitConfirmation()
+            }
+        })
     }
 
     private fun handleExitConfirmation() {
@@ -533,6 +553,7 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
         val tab = tabManager.tabs.getOrNull(index)
         tab?.let {
             removeDesktopScript(it)
+            onQuiverGuardTabClosed(it)
             if (!it.isIncognito) com.jhaiian.clint.ui.FaviconCache.evict(this, it.url)
         }
         val wasActive = index == tabManager.activeIndex
@@ -642,6 +663,53 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
     override fun onMenuOpenDownloadSettings() {
         startActivity(android.content.Intent(this, com.jhaiian.clint.settings.SettingsActivity::class.java)
             .putExtra(com.jhaiian.clint.settings.SettingsActivity.EXTRA_OPEN_FRAGMENT, "download_settings"))
+    }
+    override fun onMenuQuiverGuard() {
+        val enabled = !prefs.getBoolean("quiver_guard_enabled", false)
+        if (enabled) {
+            val filterListDb = com.jhaiian.clint.quiver.FilterListDatabase(this)
+            val hasActive: Boolean
+            try {
+                hasActive = filterListDb.hasActiveFilterLists()
+            } finally {
+                filterListDb.close()
+            }
+            if (!hasActive) {
+                startActivity(
+                    android.content.Intent(this, com.jhaiian.clint.quiver.QuiverGuardActivity::class.java)
+                        .putExtra(com.jhaiian.clint.quiver.QuiverGuardActivity.EXTRA_SHOW_SETUP_GUIDE, true)
+                )
+                return
+            }
+        }
+        prefs.edit().putBoolean("quiver_guard_enabled", enabled).apply()
+    }
+    override fun onMenuOpenQuiverGuardSettings() {
+        startActivity(android.content.Intent(this, com.jhaiian.clint.quiver.QuiverGuardActivity::class.java))
+    }
+    override fun onMenuDisableQuiverGuardForSite() {
+        val tab = tabManager.activeTab ?: return
+        val wv = tab.webView
+        val currentUrl = wv.url ?: return
+        if (!currentUrl.startsWith("http://") && !currentUrl.startsWith("https://")) return
+        val host = runCatching { android.net.Uri.parse(currentUrl).host }.getOrNull() ?: return
+        if (tab.isIncognito) return
+        val isExcepted = com.jhaiian.clint.settings.sitepermissions.SitePermissionManager.getState(
+            this, host, com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.TYPE_QUIVER_GUARD_EXCEPTION
+        ) != null
+        if (isExcepted) {
+            com.jhaiian.clint.settings.sitepermissions.SitePermissionManager.deleteEntry(
+                this, host, com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.TYPE_QUIVER_GUARD_EXCEPTION
+            )
+        } else {
+            com.jhaiian.clint.settings.sitepermissions.SitePermissionManager.setState(
+                this, host,
+                com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.TYPE_QUIVER_GUARD_EXCEPTION,
+                com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.STATE_ALLOW
+            )
+            com.jhaiian.clint.quiver.engine.BlockedRequestCounter.resetTab(tab.id)
+        }
+        wv.reload()
     }
     override fun onMenuReaderMode() {
         val wv = tabManager.activeTab?.webView ?: return
@@ -819,7 +887,7 @@ td,th{border:1px solid $secondaryColor;padding:6px 8px;}
     inner class BlobDownloadBridge {
         @android.webkit.JavascriptInterface
         fun receiveBlob(base64: String, filename: String, mimeType: String) {
-            com.jhaiian.clint.downloads.ClintDownloadManager.mainHandler.post {
+            runOnUiThread {
                 showDownloadDialogForBlob(base64, filename, mimeType)
             }
         }

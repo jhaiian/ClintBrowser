@@ -3,9 +3,15 @@ package com.jhaiian.clint.downloads
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import java.io.File
 
+/**
+ * Wraps the SQLite-backed download store. All methods suspend and run on [Dispatchers.IO],
+ * since [android.database.sqlite.SQLiteDatabase] calls block the calling thread.
+ */
 internal object DownloadPersistence {
 
     private const val LEGACY_PREFS_NAME = "clint_downloads_prefs"
@@ -13,7 +19,7 @@ internal object DownloadPersistence {
 
     @Volatile private var db: DownloadDatabase? = null
 
-    fun db(context: Context): DownloadDatabase {
+    private fun db(context: Context): DownloadDatabase {
         return db ?: synchronized(this) {
             db ?: DownloadDatabase(context.applicationContext).also {
                 db = it
@@ -55,7 +61,7 @@ internal object DownloadPersistence {
         prefs.edit().remove(LEGACY_KEY_DOWNLOADS).apply()
     }
 
-    fun loadDownloads(context: Context): List<DownloadItem> {
+    suspend fun loadDownloads(context: Context): List<DownloadItem> = withContext(Dispatchers.IO) {
         val cursor = db(context).readableDatabase.query(
             DownloadDatabase.TABLE,
             null,
@@ -125,49 +131,52 @@ internal object DownloadPersistence {
                 loaded.add(item)
             }
         }
-        return loaded
+        loaded
     }
 
-    fun persistDownload(context: Context, item: DownloadItem, removedIds: Set<Int>) {
+    suspend fun persistDownload(context: Context, item: DownloadItem, removedIds: Set<Int>) {
         if (item.id in removedIds) return
-        val values = ContentValues().apply {
-            put(DownloadDatabase.COL_ID, item.id)
-            put(DownloadDatabase.COL_URL, item.url)
-            put(DownloadDatabase.COL_FILENAME, item.filename)
-            put(DownloadDatabase.COL_USER_AGENT, item.userAgent)
-            put(DownloadDatabase.COL_REFERER, item.referer)
-            put(DownloadDatabase.COL_COOKIES, item.cookies)
-            put(DownloadDatabase.COL_BYTES_DOWNLOADED, item.bytesDownloaded)
-            put(DownloadDatabase.COL_TOTAL_BYTES, item.totalBytes)
-            put(DownloadDatabase.COL_STATUS, item.status.name)
-            put(DownloadDatabase.COL_RESUMABLE, if (item.resumable) 1 else 0)
-            if (item.file != null) put(DownloadDatabase.COL_FILE_PATH, item.file!!.absolutePath)
-            else putNull(DownloadDatabase.COL_FILE_PATH)
-            if (item.errorMessage != null) put(DownloadDatabase.COL_ERROR_MESSAGE, item.errorMessage)
-            else putNull(DownloadDatabase.COL_ERROR_MESSAGE)
-            put(DownloadDatabase.COL_STARTED_AT, item.startedAt)
-            put(DownloadDatabase.COL_ACTIVE_ELAPSED_MS, item.activeElapsedMs)
-            put(DownloadDatabase.COL_COMPLETED_AT, item.completedAt)
-            if (item.contentUri != null) put(DownloadDatabase.COL_CONTENT_URI, item.contentUri)
-            else putNull(DownloadDatabase.COL_CONTENT_URI)
-            put(DownloadDatabase.COL_RETRY_ENABLED, if (item.retryEnabled) 1 else 0)
-            put(DownloadDatabase.COL_UNMETERED_ONLY, if (item.unmeteredOnly) 1 else 0)
-            put(DownloadDatabase.COL_SPLIT_PARTS, item.splitParts)
-            put(DownloadDatabase.COL_MULTITHREADING, item.multithreadingParts)
-            put(DownloadDatabase.COL_LOCATION_MODE, item.locationMode)
-            if (item.customLocationUri != null) put(DownloadDatabase.COL_CUSTOM_LOC_URI, item.customLocationUri)
-            else putNull(DownloadDatabase.COL_CUSTOM_LOC_URI)
+        withContext(Dispatchers.IO) {
+            val values = ContentValues().apply {
+                put(DownloadDatabase.COL_ID, item.id)
+                put(DownloadDatabase.COL_URL, item.url)
+                put(DownloadDatabase.COL_FILENAME, item.filename)
+                put(DownloadDatabase.COL_USER_AGENT, item.userAgent)
+                put(DownloadDatabase.COL_REFERER, item.referer)
+                put(DownloadDatabase.COL_COOKIES, item.cookies)
+                put(DownloadDatabase.COL_BYTES_DOWNLOADED, item.bytesDownloaded)
+                put(DownloadDatabase.COL_TOTAL_BYTES, item.totalBytes)
+                put(DownloadDatabase.COL_STATUS, item.status.name)
+                put(DownloadDatabase.COL_RESUMABLE, if (item.resumable) 1 else 0)
+                if (item.file != null) put(DownloadDatabase.COL_FILE_PATH, item.file!!.absolutePath)
+                else putNull(DownloadDatabase.COL_FILE_PATH)
+                if (item.errorMessage != null) put(DownloadDatabase.COL_ERROR_MESSAGE, item.errorMessage)
+                else putNull(DownloadDatabase.COL_ERROR_MESSAGE)
+                put(DownloadDatabase.COL_STARTED_AT, item.startedAt)
+                put(DownloadDatabase.COL_ACTIVE_ELAPSED_MS, item.activeElapsedMs)
+                put(DownloadDatabase.COL_COMPLETED_AT, item.completedAt)
+                if (item.contentUri != null) put(DownloadDatabase.COL_CONTENT_URI, item.contentUri)
+                else putNull(DownloadDatabase.COL_CONTENT_URI)
+                put(DownloadDatabase.COL_RETRY_ENABLED, if (item.retryEnabled) 1 else 0)
+                put(DownloadDatabase.COL_UNMETERED_ONLY, if (item.unmeteredOnly) 1 else 0)
+                put(DownloadDatabase.COL_SPLIT_PARTS, item.splitParts)
+                put(DownloadDatabase.COL_MULTITHREADING, item.multithreadingParts)
+                put(DownloadDatabase.COL_LOCATION_MODE, item.locationMode)
+                if (item.customLocationUri != null) put(DownloadDatabase.COL_CUSTOM_LOC_URI, item.customLocationUri)
+                else putNull(DownloadDatabase.COL_CUSTOM_LOC_URI)
+            }
+            db(context).writableDatabase.insertWithOnConflict(
+                DownloadDatabase.TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE
+            )
         }
-        db(context).writableDatabase.insertWithOnConflict(
-            DownloadDatabase.TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE
-        )
     }
 
-    fun deletePersistedDownload(context: Context, id: Int) {
+    suspend fun deletePersistedDownload(context: Context, id: Int) = withContext(Dispatchers.IO) {
         db(context).writableDatabase.delete(
             DownloadDatabase.TABLE,
             "${DownloadDatabase.COL_ID} = ?",
             arrayOf(id.toString())
         )
+        Unit
     }
 }

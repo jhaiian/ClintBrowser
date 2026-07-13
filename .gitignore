@@ -10,3 +10,10 @@
 *.keystore
 *.jks
 keystore_encoded.txt
+
+# Rust (native/quiverguard-jni) - compiled via GitHub Actions, not locally;
+# app/src/main/jniLibs/**/*.so and Cargo.lock are committed by that workflow
+# (Cargo.lock is checked in deliberately, per Cargo's own guidance for
+# binary/cdylib crates, so CI builds are reproducible) and intentionally NOT
+# ignored here.
+native/quiverguard-jni/target/

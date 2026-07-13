@@ -20,7 +20,7 @@ Material Design Android Browser With ADM
 
 ## What is Clint?
 
-Clint is a free and open-source Android browser with no dedicated backend infrastructure, meaning it does not collect any of your data. It features a clean, customizable Material Design interface that allows users to tailor the look and feel to their preferences. With an advanced built-in download manager, Clint delivers a powerful browsing experience while maintaining user privacy. Every feature is designed around the philosophy that your browsing data belongs to you and only you.
+Clint is a free and open-source Android browser with no dedicated backend infrastructure, meaning it does not collect any of your data. It features a clean, customizable Material Design interface, the built-in **Quiver Guard** content blocker for ads and trackers, and an advanced download manager. Every feature is designed around the philosophy that your browsing data belongs to you and only you.
 
 Built and maintained by **[@jhaiian](https://github.com/jhaiian)** — a solo developer from the Philippines 🇵🇭
 
@@ -68,6 +68,22 @@ Built and maintained by **[@jhaiian](https://github.com/jhaiian)** — a solo de
 - Enhanced intent support with more actions and deep linking capabilities.
 - Full‑screen video and media support.
 - **Popup Protection** — when a website tries to open a new window or popup, an alert asks if you want to allow it, helping prevent unwanted ads and tabs.
+
+### 🛡️ Quiver Guard
+
+Quiver Guard is Clint Browser's built-in content blocker powered by **adblock-rust**. It blocks ads, trackers, annoyances, and cosmetic elements directly inside the browser without relying on external services.
+
+- Built on **adblock-rust**
+- Blocks ads, trackers, and known malicious domains
+- Supports cosmetic filtering
+- Supports scriptlets
+- Supports network filtering
+- Multiple filter list support
+- Enable or disable individual filter lists
+- One-tap updates for filter lists
+- Disable Quiver Guard for specific websites
+- All downloaded filter lists are stored locally on your device
+- Filtering is performed entirely on-device  no browsing data or requests are sent to any server
 
 ### 🔐 Site Settings
 Manage website permissions in one place:

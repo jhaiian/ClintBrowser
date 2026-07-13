@@ -1,5 +1,6 @@
 package com.jhaiian.clint.settings.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import androidx.fragment.app.Fragment
 import com.jhaiian.clint.BuildConfig
 import com.jhaiian.clint.R
 import com.jhaiian.clint.crash.CrashReportFragment
+import com.jhaiian.clint.quiver.QuiverGuardActivity
 import com.jhaiian.clint.settings.SettingsActivity
 import com.jhaiian.clint.ui.DocumentViewer
 
@@ -39,6 +41,9 @@ class MainSettingsFragment : Fragment() {
         }
         view.findViewById<LinearLayout>(R.id.row_privacy).setOnClickListener {
             navigate(PrivacySettingsFragment(), getString(R.string.privacy_settings))
+        }
+        view.findViewById<LinearLayout>(R.id.row_quiver_guard).setOnClickListener {
+            startActivity(Intent(requireContext(), QuiverGuardActivity::class.java))
         }
         view.findViewById<LinearLayout>(R.id.row_site_settings).setOnClickListener {
             navigate(SiteSettingsFragment(), getString(R.string.site_settings))

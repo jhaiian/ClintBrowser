@@ -175,6 +175,55 @@
                     android:background="?android:attr/listDivider" />
 
                 <LinearLayout
+                    android:id="@+id/row_quiver_guard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="16dp"
+                    android:background="?attr/selectableItemBackground">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:layout_marginEnd="16dp"
+                        android:src="@drawable/ic_shield_24"
+                        android:tint="?attr/clintIconTint"
+                        android:contentDescription="@null" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/quiver_guard"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="15sp"
+                            android:fontFamily="sans-serif-medium" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="@string/quiver_guard_summary"
+                            android:textColor="?attr/clintSecondaryTextColor"
+                            android:textSize="13sp"
+                            android:lineSpacingMultiplier="1.3" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider" />
+
+                <LinearLayout
                     android:id="@+id/row_site_settings"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

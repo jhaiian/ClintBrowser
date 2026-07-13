@@ -76,15 +76,21 @@
                 android:background="@drawable/tab_count_background"
                 android:contentDescription="@string/tabs" />
 
-            <ImageButton
-                android:id="@+id/btnMenu"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_more_vert_24"
-                android:tint="?attr/clintIconTint"
-                android:layout_marginStart="2dp"
-                android:contentDescription="@string/menu" />
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="2dp">
+
+                <ImageButton
+                    android:id="@+id/btnMenu"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_more_vert_24"
+                    android:tint="?attr/clintIconTint"
+                    android:contentDescription="@string/menu" />
+
+            </FrameLayout>
 
         </LinearLayout>
 
@@ -186,15 +192,21 @@
                 android:background="@drawable/tab_count_background"
                 android:contentDescription="@string/tabs" />
 
-            <ImageButton
-                android:id="@+id/btnMenuBottom"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_more_vert_24"
-                android:tint="?attr/clintIconTint"
-                android:layout_marginStart="2dp"
-                android:contentDescription="@string/menu" />
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="2dp">
+
+                <ImageButton
+                    android:id="@+id/btnMenuBottom"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_more_vert_24"
+                    android:tint="?attr/clintIconTint"
+                    android:contentDescription="@string/menu" />
+
+            </FrameLayout>
 
         </LinearLayout>
 

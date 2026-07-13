@@ -70,6 +70,12 @@ Files you download are saved directly to your device. Clint Browser does not upl
 
 ---
 
+## Quiver Guard (Ad blocker)
+
+All downloaded filter lists are stored and processed locally on your device using the adblock-rust library. No filter lists, browsing data, or other information are sent to any servers. All ad-blocking operations are performed entirely on your device, helping protect your privacy.
+
+---
+
 ## Website Permissions
 
 Clint Browser allows websites to request access to certain device features. These permissions are fully controlled by you and can be configured in **Site Settings**.

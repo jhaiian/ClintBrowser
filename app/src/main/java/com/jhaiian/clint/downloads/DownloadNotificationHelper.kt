@@ -36,7 +36,7 @@ internal object DownloadNotificationHelper {
     fun showQueuedNotification(context: Context, item: DownloadItem) {
         val nm = context.getSystemService(NotificationManager::class.java)
         NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_keyboard_double_arrow_down_24)
+            .setSmallIcon(R.drawable.ic_notification_24)
             .setContentTitle(item.filename)
             .setContentText(context.getString(R.string.download_status_queued))
             .setOngoing(true)
@@ -108,7 +108,7 @@ internal object DownloadNotificationHelper {
 
         val contentText = if (metaText != null) "$statusText  \u2022  $metaText" else statusText
         val builder = NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_keyboard_double_arrow_down_24)
+            .setSmallIcon(R.drawable.ic_notification_24)
             .setContentTitle(item.filename)
             .setContentText(contentText)
             .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
@@ -133,7 +133,7 @@ internal object DownloadNotificationHelper {
         else
             allocStr
         NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_keyboard_double_arrow_down_24)
+            .setSmallIcon(R.drawable.ic_notification_24)
             .setContentTitle(item.filename)
             .setContentText(contentText)
             .setOngoing(true)
@@ -148,7 +148,7 @@ internal object DownloadNotificationHelper {
         val nm = context.getSystemService(NotificationManager::class.java)
         val progress = item.moveProgress
         NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_keyboard_double_arrow_down_24)
+            .setSmallIcon(R.drawable.ic_notification_24)
             .setContentTitle(item.filename)
             .setContentText(context.getString(R.string.download_moving_notification, progress))
             .setOngoing(true)
@@ -178,7 +178,7 @@ internal object DownloadNotificationHelper {
         )
 
         NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_keyboard_double_arrow_down_24)
+            .setSmallIcon(R.drawable.ic_notification_24)
             .setContentTitle(item.filename)
             .setContentText(contentText)
             .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
@@ -201,7 +201,7 @@ internal object DownloadNotificationHelper {
         val contentText = if (progressText != null) "$progressText  \u2022  $metaLabel" else metaLabel
 
         NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_keyboard_double_arrow_down_24)
+            .setSmallIcon(R.drawable.ic_notification_24)
             .setContentTitle(item.filename)
             .setContentText(contentText)
             .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
@@ -224,7 +224,7 @@ internal object DownloadNotificationHelper {
         val contentText = if (progressText != null) "$progressText  \u2022  $metaLabel" else metaLabel
 
         NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_keyboard_double_arrow_down_24)
+            .setSmallIcon(R.drawable.ic_notification_24)
             .setContentTitle(item.filename)
             .setContentText(contentText)
             .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
@@ -266,7 +266,7 @@ internal object DownloadNotificationHelper {
         )
 
         NotificationCompat.Builder(context, ClintDownloadManager.EVENT_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_keyboard_double_arrow_down_24)
+            .setSmallIcon(R.drawable.ic_notification_24)
             .setContentTitle(item.filename)
             .setContentText(context.getString(R.string.download_notification_complete))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -289,7 +289,7 @@ internal object DownloadNotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         NotificationCompat.Builder(context, ClintDownloadManager.EVENT_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_keyboard_double_arrow_down_24)
+            .setSmallIcon(R.drawable.ic_notification_24)
             .setContentTitle(item.filename)
             .setContentText(context.getString(R.string.download_notification_failed))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -315,7 +315,7 @@ internal object DownloadNotificationHelper {
         else
             context.getString(R.string.download_notification_retrying)
         NotificationCompat.Builder(context, ClintDownloadManager.EVENT_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_keyboard_double_arrow_down_24)
+            .setSmallIcon(R.drawable.ic_notification_24)
             .setContentTitle(item.filename)
             .setContentText(retryText)
             .setPriority(NotificationCompat.PRIORITY_HIGH)

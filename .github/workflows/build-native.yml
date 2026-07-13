@@ -1,0 +1,93 @@
+name: Build native library
+
+# Builds native/quiverguard-jni for every supported Android ABI and commits the
+# resulting libadblockrust.so files into app/src/main/jniLibs. Gradle then
+# just packages those prebuilt binaries (see hasNativeLibs in app/build.gradle.kts)
+# instead of invoking cargo/the NDK itself, so a normal `./gradlew assemble`
+# doesn't pay the cost of a full Rust cross-compile on every change.
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: build-native-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  CRATE_DIR: native/quiverguard-jni
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+
+      - name: Cache cargo registry and build artifacts
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ${{ env.CRATE_DIR }}
+
+      - name: Install cargo-ndk
+        run: cargo install cargo-ndk --locked
+
+      - name: Install Android NDK
+        id: setup-ndk
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r27c
+          add-to-path: false
+
+      - name: cargo check (host target, fast sanity check)
+        working-directory: ${{ env.CRATE_DIR }}
+        run: cargo check
+
+      - name: Build for all Android ABIs
+        working-directory: ${{ env.CRATE_DIR }}
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          cargo ndk \
+            -t arm64-v8a \
+            -t armeabi-v7a \
+            -t x86 \
+            -t x86_64 \
+            -o ../../app/src/main/jniLibs \
+            build --release
+
+      - name: Strip debug symbols
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          STRIP="$(find "$ANDROID_NDK_HOME/toolchains/llvm/prebuilt" -name llvm-strip | head -n1)"
+          find app/src/main/jniLibs -name '*.so' -exec "$STRIP" --strip-unneeded {} \;
+
+      - name: Report built library sizes
+        run: find app/src/main/jniLibs -name '*.so' -exec ls -lh {} \;
+
+      - name: Commit and push compiled libraries
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add app/src/main/jniLibs "$CRATE_DIR/Cargo.lock"
+
+          if git diff --staged --quiet; then
+            echo "No changes to the compiled libraries - nothing to commit."
+            exit 0
+          fi
+
+          git commit -m "ci: rebuild native library
+
+          Source: ${{ github.sha }}"
+
+          git push origin HEAD

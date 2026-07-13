@@ -7,3 +7,5 @@
 -keep class okhttp3.** { *; }
 -keep class okio.** { *; }
 -keep public class com.caverock.androidsvg.** { *; }
+-keep class com.google.flatbuffers.** { *; }
+-dontwarn com.google.flatbuffers.**

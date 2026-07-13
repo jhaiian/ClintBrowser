@@ -199,9 +199,7 @@ private fun MainActivity.deleteExistingDownload(
     locationMode: String,
     customLocationUri: String?
 ) {
-    val matchingIds = synchronized(ClintDownloadManager.downloads) {
-        ClintDownloadManager.downloads.filter { it.filename == filename }.map { it.id }
-    }
+    val matchingIds = ClintDownloadManager.downloadsFlow.value.filter { it.filename == filename }.map { it.id }
     matchingIds.forEach { ClintDownloadManager.remove(this, it, deleteFile = true) }
 
     val isSaf = locationMode == DownloadSettingsFragment.MODE_CUSTOM

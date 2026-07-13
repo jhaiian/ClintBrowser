@@ -23,6 +23,9 @@ import com.jhaiian.clint.downloads.formatFileSize
 import com.jhaiian.clint.downloads.updateStorageInfo
 import com.jhaiian.clint.settings.fragments.DownloadSettingsFragment
 import com.jhaiian.clint.ui.ClintToast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.Request
 
 private const val DIALOG_DEFAULT_PATH = "/storage/emulated/0/Download/"
@@ -273,11 +276,10 @@ private fun fetchFileSizeAsync(url: String, userAgent: String, tvFileSize: TextV
         return
     }
     tvFileSize.text = context.getString(R.string.download_dialog_file_size_fetching)
-    ClintDownloadManager.executor.submit {
+    ClintDownloadManager.applicationScope.launch {
         val ua = userAgent.ifEmpty { "Mozilla/5.0" }
-        val contentLength = tryHeadForSize(url, ua).takeIf { it > 0L }
-            ?: tryRangeGetForSize(url, ua)
-        ClintDownloadManager.mainHandler.post {
+        val contentLength = tryHeadForSize(url, ua).takeIf { it > 0L } ?: tryRangeGetForSize(url, ua)
+        withContext(Dispatchers.Main) {
             tvFileSize.tag = contentLength
             tvFileSize.text = if (contentLength > 0L) {
                 context.getString(R.string.download_dialog_file_size_value, formatFileSize(contentLength))

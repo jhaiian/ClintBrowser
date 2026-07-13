@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.net.Uri
-import android.os.Build
 import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -13,15 +12,24 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.content.FileProvider
 import androidx.core.content.pm.PackageInfoCompat
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jhaiian.clint.R
 import com.jhaiian.clint.base.ClintActivity
+import com.jhaiian.clint.downloads.formatFileSize
 import io.noties.markwon.Markwon
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 import java.io.File
-import java.util.concurrent.Executors
+import java.util.zip.ZipFile
 
 object UpdateChecker {
 
@@ -33,8 +41,13 @@ object UpdateChecker {
     private const val PREFS_NAME = "update_prefs"
     private const val KEY_SKIPPED_VERSION_CODE = "skipped_version_code"
     private const val KEY_CACHED_APK_VERSION_CODE = "cached_apk_version_code"
+    private const val ARCH_UNIVERSAL = "universal"
 
-    private val executor = Executors.newSingleThreadExecutor()
+    // Minimum interval between progress UI updates while downloading, so we
+    // don't hop to the main thread on every single buffer read.
+    private const val PROGRESS_UI_THROTTLE_BYTES = 65536L
+    private const val SPEED_SAMPLE_INTERVAL_MS = 400L
+
     private val client = OkHttpClient()
 
     private fun getDialogTheme(context: Context): Int {
@@ -48,17 +61,25 @@ object UpdateChecker {
         return tv.data
     }
 
-    fun check(activity: Activity, isBeta: Boolean, silent: Boolean) {
-        executor.submit {
-            try {
-                val stableJson = fetchJson(STABLE_URL)
-                val betaJson   = if (isBeta) fetchJson(BETA_URL) else null
+    // Ties background work to the activity's own lifecycle when possible (so it is
+    // cancelled automatically if the activity goes away), falling back to a
+    // standalone main-dispatcher scope for the rare case the activity isn't a
+    // LifecycleOwner.
+    private fun scopeFor(activity: Activity): CoroutineScope =
+        (activity as? LifecycleOwner)?.lifecycleScope ?: CoroutineScope(Dispatchers.Main.immediate)
 
-                val (json, isSelectedBeta) = when {
-                    betaJson == null -> Pair(stableJson, false)
-                    betaJson.getLong("versionCode") > stableJson.getLong("versionCode") ->
-                        Pair(betaJson, true)
-                    else -> Pair(stableJson, false)
+    fun check(activity: Activity, isBeta: Boolean, silent: Boolean) {
+        scopeFor(activity).launch {
+            try {
+                val (json, isSelectedBeta) = withContext(Dispatchers.IO) {
+                    val stableJson = fetchJson(STABLE_URL)
+                    val betaJson = if (isBeta) fetchJson(BETA_URL) else null
+                    when {
+                        betaJson == null -> Pair(stableJson, false)
+                        betaJson.getLong("versionCode") > stableJson.getLong("versionCode") ->
+                            Pair(betaJson, true)
+                        else -> Pair(stableJson, false)
+                    }
                 }
 
                 val remoteVersion = json.getString("version")
@@ -66,9 +87,10 @@ object UpdateChecker {
                 val changelog = json.getString("changelog")
                 val downloads = json.getJSONObject("downloads")
 
-                val arch = getDeviceArch()
-                val downloadUrl = downloads.optString(arch).takeIf { it.isNotEmpty() }
-                    ?: downloads.optString("universal").takeIf { it.isNotEmpty() }
+                val (installedArch, isUniversalInstall) = withContext(Dispatchers.IO) {
+                    getInstalledAppArch(activity)
+                }
+                val downloadUrl = resolveDownloadUrl(downloads, installedArch, isUniversalInstall)
 
                 val currentVersionCode = PackageInfoCompat.getLongVersionCode(
                     activity.packageManager.getPackageInfo(activity.packageName, 0)
@@ -77,22 +99,18 @@ object UpdateChecker {
                 val prefs = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 val skippedVersionCode = prefs.getLong(KEY_SKIPPED_VERSION_CODE, -1L)
 
-                cleanStaleApk(activity, currentVersionCode)
+                withContext(Dispatchers.IO) { cleanStaleApk(activity, currentVersionCode) }
 
                 val hasUpdate = remoteVersionCode > currentVersionCode
                 val isSkipped = silent && remoteVersionCode == skippedVersionCode
 
-                activity.runOnUiThread {
-                    if (hasUpdate && !isSkipped) {
-                        showUpdateDialog(activity, remoteVersion, remoteVersionCode, changelog, downloadUrl, isSelectedBeta)
-                    } else if (!silent) {
-                        showNoUpdateDialog(activity)
-                    }
+                if (hasUpdate && !isSkipped) {
+                    showUpdateDialog(activity, remoteVersion, remoteVersionCode, changelog, downloadUrl, isSelectedBeta)
+                } else if (!silent) {
+                    showNoUpdateDialog(activity)
                 }
             } catch (_: Throwable) {
-                if (!silent) {
-                    activity.runOnUiThread { showErrorDialog(activity) }
-                }
+                if (!silent) showErrorDialog(activity)
             }
         }
     }
@@ -102,6 +120,67 @@ object UpdateChecker {
         val body = client.newCall(request).execute().body?.string()
             ?: throw Exception("Empty response from $url")
         return JSONObject(body)
+    }
+
+    // Picks the download URL matching the architecture actually installed on this
+    // device. A universal (fat) install always prefers the universal build back, so
+    // an update never silently swaps a user from a universal install onto a slimmer
+    // arch-specific one (or vice versa) — falling back to the other kind only if the
+    // preferred one isn't published.
+    private fun resolveDownloadUrl(downloads: JSONObject, arch: String, isUniversal: Boolean): String? {
+        return if (isUniversal) {
+            downloads.optString(ARCH_UNIVERSAL).takeIf { it.isNotEmpty() }
+                ?: downloads.optString(arch).takeIf { it.isNotEmpty() }
+        } else {
+            downloads.optString(arch).takeIf { it.isNotEmpty() }
+                ?: downloads.optString(ARCH_UNIVERSAL).takeIf { it.isNotEmpty() }
+        }
+    }
+
+    // Determines which ABI(s) are actually packaged in the currently *installed*
+    // APK(s), rather than which ABIs the device supports. This matters now that
+    // AdBlock's engine is bundled as native (Rust/NDK) code: a device can support
+    // multiple ABIs while the installed build only ships one of them (an
+    // arch-specific split), or ships all of them together (a universal/fat APK).
+    // Basing the update choice on the installed build's own contents ensures a
+    // universal install is offered a universal update (and an arch-specific install
+    // stays on that same arch) rather than picking whatever the device prefers.
+    private fun getInstalledAppArch(context: Context): Pair<String, Boolean> {
+        val appInfo = context.applicationInfo
+        val apkPaths = mutableListOf(appInfo.sourceDir)
+        appInfo.splitSourceDirs?.let { apkPaths.addAll(it) }
+
+        val foundAbis = mutableSetOf<String>()
+        for (path in apkPaths) {
+            if (path.isNullOrEmpty()) continue
+            try {
+                ZipFile(path).use { zip ->
+                    val entries = zip.entries()
+                    while (entries.hasMoreElements()) {
+                        val name = entries.nextElement().name
+                        if (name.startsWith("lib/") && name.endsWith(".so")) {
+                            val abi = name.removePrefix("lib/").substringBefore('/')
+                            if (abi.isNotEmpty()) foundAbis.add(abi)
+                        }
+                    }
+                }
+            } catch (_: Exception) {
+                // This APK part couldn't be read; other paths may still yield an answer.
+            }
+        }
+
+        // More than one ABI folder packaged together means this install is a
+        // universal/fat build rather than a single-arch split.
+        val isUniversal = foundAbis.size > 1
+        val arch = when {
+            isUniversal || foundAbis.isEmpty() -> ARCH_UNIVERSAL
+            foundAbis.contains("arm64-v8a") -> "arm64-v8a"
+            foundAbis.contains("armeabi-v7a") -> "armeabi-v7a"
+            foundAbis.contains("x86_64") -> "x86_64"
+            foundAbis.contains("x86") -> "x86"
+            else -> ARCH_UNIVERSAL
+        }
+        return Pair(arch, isUniversal)
     }
 
     private fun cleanStaleApk(activity: Activity, currentVersionCode: Long) {
@@ -259,17 +338,31 @@ object UpdateChecker {
             progress = 0
             isIndeterminate = false
             progressTintList = ColorStateList.valueOf(colorPrimary)
+            indeterminateTintList = ColorStateList.valueOf(colorPrimary)
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).also { lp -> lp.topMargin = 32; lp.bottomMargin = 8 }
         }
 
-        val percentText = TextView(activity).apply {
-            text = activity.getString(R.string.update_download_percent, 0)
+        val sizeText = TextView(activity).apply {
+            text = ""
+            setTextColor(colorOnSurfaceMedium)
+            textSize = 12f
+            gravity = Gravity.START
+        }
+
+        val speedText = TextView(activity).apply {
+            text = ""
             setTextColor(colorOnSurfaceMedium)
             textSize = 12f
             gravity = Gravity.END
+        }
+
+        val detailRow = LinearLayout(activity).apply {
+            orientation = LinearLayout.HORIZONTAL
+            addView(sizeText, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+            addView(speedText, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
         }
 
         val layout = LinearLayout(activity).apply {
@@ -277,42 +370,65 @@ object UpdateChecker {
             setPadding(72, 48, 72, 24)
             addView(statusText)
             addView(progressBar)
-            addView(percentText)
+            addView(detailRow)
         }
 
-        val request = Request.Builder().url(downloadUrl).build()
-        val call = client.newCall(request)
+        var downloadJob: Job? = null
 
         val dialog = MaterialAlertDialogBuilder(activity, dialogTheme)
             .setTitle(activity.getString(R.string.update_download_dialog_title))
             .setView(layout)
             .setCancelable(false)
-            .setNegativeButton(activity.getString(R.string.action_cancel)) { _, _ -> call.cancel() }
+            .setNegativeButton(activity.getString(R.string.action_cancel)) { _, _ -> downloadJob?.cancel() }
             .create()
         (activity as? ClintActivity)?.applyStatusBarFlagToDialog(dialog)
         dialog.show()
 
-        executor.submit {
+        downloadJob = scopeFor(activity).launch {
             try {
-                val response = call.execute()
-                val body = response.body ?: throw Exception("Empty response")
-                val contentLength = body.contentLength()
+                withContext(Dispatchers.IO) {
+                    val request = Request.Builder().url(downloadUrl).build()
+                    val call = client.newCall(request)
+                    currentCoroutineContext()[Job]?.invokeOnCompletion { call.cancel() }
 
-                activity.runOnUiThread { statusText.text = activity.getString(R.string.update_download_in_progress) }
+                    call.execute().use { response ->
+                        val body = response.body ?: throw Exception("Empty response")
+                        val contentLength = body.contentLength()
 
-                var downloaded = 0L
-                body.byteStream().use { input ->
-                    apkFile.outputStream().use { output ->
-                        val buffer = ByteArray(8192)
-                        var bytes: Int
-                        while (input.read(buffer).also { bytes = it } != -1) {
-                            output.write(buffer, 0, bytes)
-                            downloaded += bytes
-                            if (contentLength > 0) {
-                                val pct = (downloaded * 100 / contentLength).toInt()
-                                activity.runOnUiThread {
-                                    progressBar.progress = pct
-                                    percentText.text = activity.getString(R.string.update_download_percent, pct)
+                        withContext(Dispatchers.Main) {
+                            statusText.text = activity.getString(R.string.update_download_in_progress)
+                            progressBar.isIndeterminate = contentLength <= 0L
+                        }
+
+                        var downloaded = 0L
+                        var lastUiBytes = 0L
+                        var lastSpeedBytes = 0L
+                        var lastSpeedTime = System.currentTimeMillis()
+                        var speedBps = 0L
+
+                        body.byteStream().use { input ->
+                            apkFile.outputStream().use { output ->
+                                val buffer = ByteArray(65536)
+                                var bytes: Int
+                                while (input.read(buffer).also { bytes = it } != -1) {
+                                    output.write(buffer, 0, bytes)
+                                    downloaded += bytes
+                                    val isLastChunk = contentLength in 1..downloaded
+                                    if (downloaded - lastUiBytes >= PROGRESS_UI_THROTTLE_BYTES || isLastChunk) {
+                                        lastUiBytes = downloaded
+                                        val now = System.currentTimeMillis()
+                                        val elapsed = now - lastSpeedTime
+                                        if (elapsed >= SPEED_SAMPLE_INTERVAL_MS || isLastChunk) {
+                                            val delta = downloaded - lastSpeedBytes
+                                            speedBps = if (elapsed > 0) delta * 1000L / elapsed else speedBps
+                                            lastSpeedBytes = downloaded
+                                            lastSpeedTime = now
+                                        }
+                                        updateDownloadProgress(
+                                            activity, progressBar, sizeText, speedText,
+                                            downloaded, contentLength, speedBps
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -320,18 +436,37 @@ object UpdateChecker {
                 }
 
                 prefs.edit().putLong(KEY_CACHED_APK_VERSION_CODE, remoteVersionCode).apply()
-
-                activity.runOnUiThread {
-                    if (dialog.isShowing) dialog.dismiss()
-                    installApk(activity, apkFile)
-                }
+                if (dialog.isShowing) dialog.dismiss()
+                installApk(activity, apkFile)
             } catch (_: Exception) {
                 apkFile.delete()
-                activity.runOnUiThread {
-                    if (dialog.isShowing) dialog.dismiss()
-                }
+                if (dialog.isShowing) dialog.dismiss()
             }
         }
+    }
+
+    private suspend fun updateDownloadProgress(
+        activity: Activity,
+        progressBar: ProgressBar,
+        sizeText: TextView,
+        speedText: TextView,
+        downloaded: Long,
+        contentLength: Long,
+        speedBps: Long
+    ) = withContext(Dispatchers.Main) {
+        if (contentLength > 0) {
+            val pct = (downloaded * 100 / contentLength).toInt()
+            progressBar.progress = pct
+            sizeText.text = activity.getString(
+                R.string.update_download_progress_size_known,
+                formatFileSize(downloaded), formatFileSize(contentLength), pct
+            )
+        } else {
+            sizeText.text = activity.getString(
+                R.string.update_download_progress_size_unknown, formatFileSize(downloaded)
+            )
+        }
+        speedText.text = if (speedBps > 0) activity.getString(R.string.download_speed_only, formatFileSize(speedBps)) else ""
     }
 
     private fun installApk(activity: Activity, apkFile: File) {
@@ -382,16 +517,5 @@ object UpdateChecker {
             }
         }
         return result.joinToString("\n").trim()
-    }
-
-    private fun getDeviceArch(): String {
-        val abi = Build.SUPPORTED_ABIS.firstOrNull() ?: return "universal"
-        return when {
-            abi.contains("arm64") -> "arm64-v8a"
-            abi.contains("armeabi") -> "armeabi-v7a"
-            abi.contains("x86_64") -> "x86_64"
-            abi.contains("x86") -> "x86"
-            else -> "universal"
-        }
     }
 }

@@ -15,6 +15,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.jhaiian.clint.R
+import com.jhaiian.clint.quiver.engine.BlockedRequestCounter
 
 class MenuBottomSheet : BottomSheetDialogFragment() {
 
@@ -37,6 +38,9 @@ class MenuBottomSheet : BottomSheetDialogFragment() {
         fun onMenuDataSaver()
         fun onMenuOpenDataSaverSettings()
         fun onMenuOpenDownloadSettings()
+        fun onMenuQuiverGuard()
+        fun onMenuOpenQuiverGuardSettings()
+        fun onMenuDisableQuiverGuardForSite()
     }
 
     var showNavRow: Boolean = false
@@ -46,6 +50,9 @@ class MenuBottomSheet : BottomSheetDialogFragment() {
     var isLoading: Boolean = false
     var isDesktopMode: Boolean = false
     var isDataSaverEnabled: Boolean = false
+    var isQuiverGuardEnabled: Boolean = false
+    var quiverGuardBlockedCount: Long = 0L
+    var isQuiverGuardExceptionForSite: Boolean = false
     var openInAppLabel: String? = null
     var openInAppEnabled: Boolean = false
 
@@ -100,6 +107,9 @@ class MenuBottomSheet : BottomSheetDialogFragment() {
         val navDivider = view.findViewById<View>(R.id.nav_icons_divider_sheet)
         val desktopCheck = view.findViewById<ImageView>(R.id.sheet_desktop_mode_check)
         val dataSaverCheck = view.findViewById<ImageView>(R.id.sheet_data_saver_check)
+        val quiverGuardBadge = view.findViewById<TextView>(R.id.sheet_quiver_guard_badge)
+        val quiverGuardCheck = view.findViewById<ImageView>(R.id.sheet_quiver_guard_check)
+        val quiverGuardExceptionCheck = view.findViewById<ImageView>(R.id.sheet_quiver_guard_exception_check)
 
         if (showNavRow) {
             navRow.visibility = View.VISIBLE
@@ -124,6 +134,14 @@ class MenuBottomSheet : BottomSheetDialogFragment() {
 
         desktopCheck.alpha = if (isDesktopMode) 1f else 0f
         dataSaverCheck.alpha = if (isDataSaverEnabled) 1f else 0f
+        quiverGuardCheck.alpha = if (isQuiverGuardEnabled) 1f else 0f
+        quiverGuardExceptionCheck.alpha = if (isQuiverGuardExceptionForSite) 1f else 0f
+        if (isQuiverGuardEnabled && !isQuiverGuardExceptionForSite && quiverGuardBlockedCount > 0L) {
+            quiverGuardBadge.text = BlockedRequestCounter.formatCount(quiverGuardBlockedCount)
+            quiverGuardBadge.visibility = View.VISIBLE
+        } else {
+            quiverGuardBadge.visibility = View.GONE
+        }
 
         view.findViewById<View>(R.id.sheet_menu_data_saver).setOnClickListener {
             dismiss()
@@ -133,6 +151,21 @@ class MenuBottomSheet : BottomSheetDialogFragment() {
             dismiss()
             listener?.onMenuOpenDataSaverSettings()
             true
+        }
+
+        view.findViewById<View>(R.id.sheet_menu_quiver_guard).setOnClickListener {
+            dismiss()
+            listener?.onMenuQuiverGuard()
+        }
+        view.findViewById<View>(R.id.sheet_menu_quiver_guard).setOnLongClickListener {
+            dismiss()
+            listener?.onMenuOpenQuiverGuardSettings()
+            true
+        }
+
+        view.findViewById<View>(R.id.sheet_menu_disable_quiver_guard_for_site).setOnClickListener {
+            dismiss()
+            listener?.onMenuDisableQuiverGuardForSite()
         }
 
         val openInAppItem = view.findViewById<View>(R.id.sheet_menu_open_in_app)
