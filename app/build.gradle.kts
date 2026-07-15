@@ -117,7 +117,7 @@ dependencies {
     implementation("com.j256.simplemagic:simplemagic:1.17")
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("com.caverock:androidsvg-aar:1.4")
-    implementation("androidx.activity:activity-ktx:1.10.1")
+    implementation("androidx.activity:activity-ktx:1.13.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.11.0")
     implementation("androidx.lifecycle:lifecycle-service:2.11.0")
 }
