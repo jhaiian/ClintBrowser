@@ -36,6 +36,20 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+## Dependency Updates
+
+- Bump `androidx.lifecycle:lifecycle-runtime-ktx` from 2.8.7 to 2.11.0 by [@dependabot[bot]](https://github.com/dependabot[bot]) in [#14](https://github.com/jhaiian/ClintBrowser/pull/14)
+- Bump `androidx.documentfile:documentfile` from 1.0.1 to 1.1.0 by [@dependabot[bot]](https://github.com/dependabot[bot]) in [#13](https://github.com/jhaiian/ClintBrowser/pull/13)
+- Bump `androidx.activity:activity-ktx` from 1.10.1 to 1.13.0 by [@dependabot[bot]](https://github.com/dependabot[bot]) in [#12](https://github.com/jhaiian/ClintBrowser/pull/12)
+- Bump `com.android.application` from 9.2.0 to 9.3.0 by [@dependabot[bot]](https://github.com/dependabot[bot]) in [#11](https://github.com/jhaiian/ClintBrowser/pull/11)
+- Bump `org.jetbrains.kotlinx:kotlinx-coroutines-android` from 1.9.0 to 1.11.0 by [@dependabot[bot]](https://github.com/dependabot[bot]) in [#10](https://github.com/jhaiian/ClintBrowser/pull/10)
+
+## New Contributors
+
+- [@dependabot[bot]](https://github.com/dependabot[bot]) made their first contribution in [#14](https://github.com/jhaiian/ClintBrowser/pull/14)
+
+---
+
 # v1.0.5
 
 *Finally guys, I'm done with the update. I'm really sorry, y'all. It took a while because I had to learn Rust.*
