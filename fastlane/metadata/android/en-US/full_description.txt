@@ -1,4 +1,4 @@
-Clint is a free and open-source Android browser with no dedicated backend infrastructure, which means it does not collect any of your data. It features a clean, customizable interface that allows users to tailor the look and feel to their preferences. With an advanced built-in download manager, Clint provides a powerful browsing experience while maintaining user privacy. Every feature is designed around the philosophy that your browsing data belongs to you and only you.
+Clint is a free and open-source Android browser with no dedicated backend infrastructure, meaning it does not collect any of your data. It features a clean, customizable Material Design interface, the built-in **Quiver Guard** content blocker for ads and trackers, and an advanced download manager. Every feature is designed around the philosophy that your browsing data belongs to you and only you.
 
 Privacy & Security
 
@@ -20,6 +20,7 @@ Browsing Features
 · Desktop mode
 · Pop-up protection
 · Full-screen video support
+· Content Blocker
 
 Customization
 

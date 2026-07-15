@@ -795,14 +795,13 @@
     <string name="misc_section_setup">SETUP</string>
 
     <string name="quiver_guard">Quiver Guard</string>
-    <string name="quiver_guard_summary">Protection and security features</string>
 
     <string name="about_section_attribution">ATTRIBUTION</string>
     <string name="about_attribution_text">View the full list of third-party libraries, icons, and acknowledgments used in this app.</string>
     <string name="document_viewer_attribution_title">Attribution</string>
 
     <string name="quiver_guard_master_switch_title">Enable Quiver Guard</string>
-    <string name="quiver_guard_master_switch_summary">Block ads, trackers, and annoyances using filter lists</string>
+    <string name="quiver_guard_description">Block ads, trackers, and annoyances using filter lists</string>
     <string name="quiver_guard_section_general">QUIVER GUARD</string>
     <string name="quiver_guard_section_filter_lists">FILTER LISTS</string>
     <string name="filter_list_status_not_downloaded">Not Downloaded</string>
@@ -821,6 +820,9 @@
     <string name="quiver_guard_download_error_network">Could not reach the URL. Check your connection and try again.</string>
 
     <string name="filter_list_add_fab_desc">Add custom filter list</string>
+    <string name="filter_list_add_menu_close_desc">Close menu</string>
+    <string name="filter_list_add_menu_from_link">Add from link</string>
+    <string name="filter_list_add_menu_from_file">Add from file</string>
     <string name="filter_list_add_dialog_title">Add Filter List</string>
     <string name="filter_list_add_url_hint">Download Link</string>
     <string name="filter_list_add_title_hint">Title</string>
@@ -830,6 +832,11 @@
     <string name="filter_list_add_error_invalid_format">This doesn\'t look like a valid filter list</string>
     <string name="filter_list_add_error_save">Couldn\'t save the filter list. Try again.</string>
     <string name="filter_list_add_success_toast">%1$s added</string>
+    <string name="filter_list_add_file_dialog_title">Add Filter List From File</string>
+    <string name="filter_list_add_file_summary">%1$d rules • %2$s</string>
+    <string name="filter_list_add_file_error_read">Couldn\'t read the selected file. Try again.</string>
+    <string name="filter_list_add_file_picker_unavailable">No file picker app available</string>
+    <string name="filter_list_item_local_no_update">Local filter lists don\'t have updates to check</string>
     <string name="filter_list_search_hint">Search filter lists…</string>
     <string name="filter_list_sort_by_date_downloaded">Date Downloaded</string>
     <string name="filter_list_delete_confirm_title">Delete filter lists</string>
@@ -958,5 +965,34 @@
     <string name="filter_list_selection_not_downloaded">None of the selected filter lists have been downloaded yet.</string>
     <string name="filter_list_selection_names_copied">Names copied</string>
     <string name="filter_list_selection_links_copied">Links copied</string>
+
+    <!-- Manual Filter: pinned row shown at the top of the filter list, and its own screen
+         for adding, editing, and removing custom rules -->
+    <string name="quiver_guard_manual_filter_title">Manual Filter</string>
+    <string name="quiver_guard_manual_filter_status_empty">No custom rules yet</string>
+    <string name="quiver_guard_manual_filter_status_enabled">%1$s rules • Enabled</string>
+    <string name="quiver_guard_manual_filter_status_disabled">%1$s rules • Disabled</string>
+
+    <string name="quiver_guard_manual_filter_master_switch_title">Enable Manual Filter</string>
+    <string name="quiver_guard_manual_filter_master_switch_summary">Apply your custom rules alongside your filter lists</string>
+    <string name="quiver_guard_manual_filter_section_rules">YOUR RULES</string>
+    <string name="quiver_guard_manual_filter_empty_state">No custom rules yet. Tap + to add your first one.</string>
+
+    <string name="quiver_guard_manual_filter_add_fab_desc">Add rule</string>
+    <string name="quiver_guard_manual_filter_delete_rule_desc">Delete rule</string>
+
+    <string name="quiver_guard_manual_filter_rule_hint">e.g. ||example.com^</string>
+    <string name="quiver_guard_manual_filter_add_dialog_title">Add Rule</string>
+    <string name="quiver_guard_manual_filter_add_dialog_helper">One rule per line, in standard AdBlock/uBlock syntax. Lines that don\'t match a rule\'s syntax are ignored when compiling.</string>
+    <string name="quiver_guard_manual_filter_edit_dialog_title">Edit Rule</string>
+    <string name="quiver_guard_manual_filter_edit_action_save">Save</string>
+    <string name="quiver_guard_manual_filter_error_empty">Enter at least one rule</string>
+
+    <string name="quiver_guard_manual_filter_added_toast">%1$d rule(s) added</string>
+    <string name="quiver_guard_manual_filter_no_new_rules_toast">No new rules added (already in your list)</string>
+
+    <string name="quiver_guard_manual_filter_delete_confirm_title">Delete rule</string>
+    <string name="quiver_guard_manual_filter_delete_confirm_message">Remove this rule from your manual filter?\n\n%1$s</string>
+    <string name="quiver_guard_manual_filter_rule_deleted_toast">Rule deleted</string>
 
 </resources>

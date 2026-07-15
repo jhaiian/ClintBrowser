@@ -10,8 +10,8 @@ Material Design Android Browser With ADM
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blueviolet.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B-blueviolet.svg)](https://developer.android.com)
-[![Stable](https://img.shields.io/badge/Stable-1.0.5-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.4)
-[![Beta](https://img.shields.io/badge/Beta-1.0.5-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.4)
+[![Stable](https://img.shields.io/badge/Stable-1.0.6-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.6)
+[![Beta](https://img.shields.io/badge/Beta-1.0.6-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.6)
 [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser)
 
 </div>
@@ -245,6 +245,8 @@ Join the official Clint Browser community on Discord and Reddit to share feedbac
 The source code of this project is licensed under the [GNU General Public License v3.0 (GPLv3)](https://github.com/jhaiian/ClintBrowser/blob/main/LICENSE).  
 
 The names "Clint" and "Clint Browser," the logo, screenshots, and all related branding assets are **trademarks** or **proprietary assets** of the author and are **not licensed under the GPL**. Use of these assets requires explicit permission from the author.
+
+All libraries used in this app have their own licenses. Please comply with their respective license terms. See [Attribution.md](https://github.com/jhaiian/ClintBrowser/blob/main/Attribution.md) for details.
 
 ---
 

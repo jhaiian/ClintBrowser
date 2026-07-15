@@ -124,12 +124,14 @@ internal fun QuiverGuardActivity.performStartupValidation() {
     }
 
     val currentLists = database().getAllFilterLists()
-    val manifestMap = manifest.entries.associateBy { it.id }
+    // The manual filter's own entry, if any, is compared separately below via
+    // isManualFilterDirty since it has no corresponding row in FilterListDatabase.
+    val manifestMap = manifest.entries.filterNot { it.id == ManualFilterState.COMPILE_ID }.associateBy { it.id }
 
     // Compare the count and per-list enabled flags. Count mismatch means lists
     // were added or removed since the last compile; flag mismatch means lists
     // were toggled without recompiling.
-    var diffFound = currentLists.size != manifest.entries.size
+    var diffFound = currentLists.size != manifestMap.size
     if (!diffFound) {
         for (fl in currentLists) {
             val entry = manifestMap[fl.id]
@@ -139,11 +141,11 @@ internal fun QuiverGuardActivity.performStartupValidation() {
             }
         }
     }
+    if (!diffFound) diffFound = isManualFilterDirty(manifest)
 
     if (diffFound) {
         isStartupDirty = true
         refreshFabState()
-        showStartupBanner(getString(R.string.quiver_guard_banner_recompile_needed))
     }
 }
 
@@ -167,8 +169,10 @@ internal fun QuiverGuardActivity.startCompilation() {
 
     val effectiveLists = effectiveFilterLists()
     val enabledAndDownloaded = effectiveLists.filter { it.isEnabled && it.isDownloaded }
+    val manualFilterRules = manualFilterDb().getAllRules()
+    val manualFilterContributes = ManualFilterState.isEnabled(this) && manualFilterRules.isNotEmpty()
 
-    if (enabledAndDownloaded.isEmpty()) {
+    if (enabledAndDownloaded.isEmpty() && !manualFilterContributes) {
         MaterialAlertDialogBuilder(this, getDialogTheme())
             .setTitle(getString(R.string.quiver_guard_compile_progress_title))
             .setMessage(getString(R.string.quiver_guard_banner_no_database))
@@ -186,6 +190,20 @@ internal fun QuiverGuardActivity.startCompilation() {
             id = fl.id, name = fl.name,
             rulesFile = FilterListDownloader.localFileFor(applicationContext, fl.id)
         )
+    } + if (manualFilterContributes) {
+        // Writing the rule set to disk right before compiling, rather than keeping it
+        // continuously in sync, avoids a redundant file write on every add/edit/delete in
+        // ManualFilterActivity for a file only the compiler ever reads.
+        ManualFilterDatabase.writeRulesFile(applicationContext, manualFilterRules)
+        listOf(
+            FilterListCompileInput(
+                id = ManualFilterState.COMPILE_ID,
+                name = getString(R.string.quiver_guard_manual_filter_title),
+                rulesFile = ManualFilterDatabase.rulesFile(applicationContext)
+            )
+        )
+    } else {
+        emptyList()
     }
 
     val outputFile = QuiverGuardPaths.databaseFile(this)
@@ -240,7 +258,7 @@ internal fun QuiverGuardActivity.startCompilation() {
                         timerJob?.cancel()
                         progressDialog.dismiss()
                         when (val r = event.result) {
-                            is CompileResult.Success -> onCompileSuccess(r, enabledAndDownloaded, effectiveLists)
+                            is CompileResult.Success -> onCompileSuccess(r, inputs.size, effectiveLists, manualFilterContributes)
                             is CompileResult.Failure -> onCompileFailure(r)
                         }
                     }
@@ -268,8 +286,9 @@ internal fun QuiverGuardActivity.startCompilation() {
 // compiled engine so filtering with the new rules starts immediately.
 private fun QuiverGuardActivity.onCompileSuccess(
     result: CompileResult.Success,
-    compiledInputLists: List<FilterList>,
-    effectiveLists: List<FilterList>
+    compiledListCount: Int,
+    effectiveLists: List<FilterList>,
+    manualFilterIncluded: Boolean
 ) {
     val compiledAtMillis = System.currentTimeMillis()
     val survivingLists = database().getAllFilterLists().filterNot { it.id in pendingRemovedIds }
@@ -285,21 +304,40 @@ private fun QuiverGuardActivity.onCompileSuccess(
     }
     database().commitCompiledState(enabledStates, compiledAtMillis)
 
+    val filterListEntries = effectiveLists.filterNot { it.id in pendingRemovedIds }.map { fl ->
+        CompiledManifestEntry(
+            id = fl.id,
+            name = fl.name,
+            downloadUrl = fl.downloadUrl,
+            isCustom = fl.isCustom,
+            isEnabled = enabledStates[fl.id] ?: fl.isEnabled,
+            // Encodes enough information to detect content changes without re-reading the file.
+            contentFingerprint = "${fl.id}:${fl.downloadedAt}:${fl.ruleCount}"
+        )
+    }
+    // Recorded as its own manifest entry, using the same reserved id startCompilation() gave
+    // it, so isManualFilterDirty can find it again next time without scanning file contents.
+    val manualFilterEntries = if (manualFilterIncluded) {
+        val rules = manualFilterDb().getAllRules()
+        listOf(
+            CompiledManifestEntry(
+                id = ManualFilterState.COMPILE_ID,
+                name = getString(R.string.quiver_guard_manual_filter_title),
+                downloadUrl = "",
+                isCustom = true,
+                isEnabled = true,
+                contentFingerprint = ManualFilterState.contentFingerprint(rules)
+            )
+        )
+    } else {
+        emptyList()
+    }
+
     CompiledManifest.write(
         QuiverGuardPaths.manifestFile(this),
         CompiledManifestData(
             compiledAtMillis = compiledAtMillis,
-            entries = effectiveLists.filterNot { it.id in pendingRemovedIds }.map { fl ->
-                CompiledManifestEntry(
-                    id = fl.id,
-                    name = fl.name,
-                    downloadUrl = fl.downloadUrl,
-                    isCustom = fl.isCustom,
-                    isEnabled = enabledStates[fl.id] ?: fl.isEnabled,
-                    // Encodes enough information to detect content changes without re-reading the file.
-                    contentFingerprint = "${fl.id}:${fl.downloadedAt}:${fl.ruleCount}"
-                )
-            },
+            entries = filterListEntries + manualFilterEntries,
             totalRuleLines = result.statistics.ruleLines,
             outputFileSizeBytes = result.outputFileSizeBytes,
             durationMs = result.durationMs
@@ -309,12 +347,11 @@ private fun QuiverGuardActivity.onCompileSuccess(
     pendingEnabledOverrides.clear()
     pendingRemovedIds.clear()
     isStartupDirty = false
-    hideBanner()
     refreshFilterListDisplay()
     refreshFabState()
     com.jhaiian.clint.quiver.engine.QuiverGuardWebIntegration.onCompileComplete(this)
 
-    showCompileSuccessDialog(result, compiledInputLists.size)
+    showCompileSuccessDialog(result, compiledListCount)
 }
 
 private fun QuiverGuardActivity.onCompileFailure(result: CompileResult.Failure) {

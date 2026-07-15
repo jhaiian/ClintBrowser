@@ -9,5 +9,6 @@ data class BrowserTab(
     var url: String = "",
     val isIncognito: Boolean = false,
     val isRefreshLinkTab: Boolean = false,
+    val openerTabId: String? = null,
     val webView: WebView
 )

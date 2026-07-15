@@ -1,0 +1,4 @@
+Added the ability to add manual filter rules.
+Added the ability to add filter lists via file.
+The tab created by a pop-up dialog will now exit and return to the previous tab when you press the phone's back button, instead of showing the exit confirmation.
+Fixed content preview not applying cosmetic rules.

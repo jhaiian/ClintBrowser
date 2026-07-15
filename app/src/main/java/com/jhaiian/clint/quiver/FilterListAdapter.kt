@@ -18,7 +18,12 @@ import com.jhaiian.clint.downloads.formatFileSize
 import java.text.NumberFormat
 import java.util.Date
 
+// Rule count and enabled badge shown on the pinned Manual Filter row. FilterListAdapter owns
+// this separately from FilterList since manual rules are never rows in FilterListDatabase.
+data class ManualFilterSummary(val ruleCount: Int, val isEnabled: Boolean)
+
 // RecyclerView adapter for the filter list screen. Supports:
+//   - A pinned "Manual Filter" row at position 0 that opens the custom-rules screen
 //   - Multi-select with long-press entry point
 //   - Inline search filtering
 //   - Sort by title (A–Z / Z–A) or download date
@@ -26,14 +31,25 @@ import java.util.Date
 //   - Master-enabled dimming when Quiver Guard is toggled off globally
 //   - Interaction locking during compile and update runs
 //   - Per-item overflow menu (check/force update, remove, copy, share)
+//
+// Position 0 is always the Manual Filter row and is excluded from sorting, searching,
+// multi-select, and fast-scroll section indexing. Every method below that reads or notifies a
+// RecyclerView position for a FilterList works in "displayedItems index" terms and adds 1 to
+// convert to the real adapter position.
 class FilterListAdapter(
     private val onItemClick: (FilterList) -> Unit,
     private val onSelectionChanged: (Int) -> Unit,
-    private val onShowOptions: (FilterList, View) -> Unit
-) : RecyclerView.Adapter<FilterListAdapter.ViewHolder>(), FilterListFastScroller.SectionIndexer {
+    private val onShowOptions: (FilterList, View) -> Unit,
+    private val onManualFilterClick: () -> Unit
+) : RecyclerView.Adapter<FilterListAdapter.BaseViewHolder>(), FilterListFastScroller.SectionIndexer {
 
     enum class SortKey { TITLE, DATE_DOWNLOADED }
     enum class SortOrder { ASCENDING, DESCENDING }
+
+    private companion object {
+        const val VIEW_TYPE_MANUAL_FILTER = 0
+        const val VIEW_TYPE_FILTER_LIST = 1
+    }
 
     // allItems holds the full unfiltered dataset; displayedItems is the current
     // filtered+sorted view that the adapter draws from. They are kept in sync by
@@ -54,6 +70,8 @@ class FilterListAdapter(
     // change list states while a compile or update is in progress.
     private var interactionLocked = false
 
+    private var manualFilterSummary = ManualFilterSummary(ruleCount = 0, isEnabled = false)
+
     var sortKey = SortKey.TITLE
     var sortOrder = SortOrder.ASCENDING
 
@@ -62,7 +80,9 @@ class FilterListAdapter(
 
     val selectedCount get() = selectedIds.size
 
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    sealed class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view)
+
+    inner class FilterListViewHolder(view: View) : BaseViewHolder(view) {
         val name: TextView = view.findViewById(R.id.filter_list_name)
         val status: TextView = view.findViewById(R.id.filter_list_status)
         val switch: Switch = view.findViewById(R.id.filter_list_switch)
@@ -70,17 +90,57 @@ class FilterListAdapter(
         val btnMore: ImageView = view.findViewById(R.id.filter_list_more)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val v = LayoutInflater.from(parent.context).inflate(R.layout.item_filter_list, parent, false)
-        return ViewHolder(v)
+    inner class ManualFilterViewHolder(view: View) : BaseViewHolder(view) {
+        val row: View = view.findViewById(R.id.manual_filter_row)
+        val status: TextView = view.findViewById(R.id.manual_filter_status)
     }
 
-    override fun getItemCount() = displayedItems.size
+    override fun getItemViewType(position: Int): Int =
+        if (position == 0) VIEW_TYPE_MANUAL_FILTER else VIEW_TYPE_FILTER_LIST
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = displayedItems[position]
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
+        return if (viewType == VIEW_TYPE_MANUAL_FILTER) {
+            val v = LayoutInflater.from(parent.context).inflate(R.layout.item_manual_filter_row, parent, false)
+            ManualFilterViewHolder(v)
+        } else {
+            val v = LayoutInflater.from(parent.context).inflate(R.layout.item_filter_list, parent, false)
+            FilterListViewHolder(v)
+        }
+    }
+
+    override fun getItemCount() = displayedItems.size + 1
+
+    override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
+        when (holder) {
+            is ManualFilterViewHolder -> bindManualFilterRow(holder)
+            is FilterListViewHolder -> bindFilterListRow(holder, position - 1)
+        }
+    }
+
+    private fun bindManualFilterRow(holder: ManualFilterViewHolder) {
+        val context = holder.itemView.context
+        holder.status.text = when {
+            manualFilterSummary.ruleCount == 0 ->
+                context.getString(R.string.quiver_guard_manual_filter_status_empty)
+            manualFilterSummary.isEnabled -> context.getString(
+                R.string.quiver_guard_manual_filter_status_enabled,
+                NumberFormat.getNumberInstance().format(manualFilterSummary.ruleCount)
+            )
+            else -> context.getString(
+                R.string.quiver_guard_manual_filter_status_disabled,
+                NumberFormat.getNumberInstance().format(manualFilterSummary.ruleCount)
+            )
+        }
+        holder.itemView.alpha = if (masterEnabled) 1f else 0.38f
+        holder.row.setOnClickListener {
+            if (masterEnabled && !interactionLocked) onManualFilterClick()
+        }
+    }
+
+    private fun bindFilterListRow(holder: FilterListViewHolder, displayedIndex: Int) {
+        val item = displayedItems[displayedIndex]
         val isDownloading = downloadingIds.contains(item.id)
-        val isSelected = selectedPositions.contains(position)
+        val isSelected = selectedPositions.contains(displayedIndex)
 
         holder.name.text = item.name
 
@@ -119,8 +179,8 @@ class FilterListAdapter(
         holder.btnMore.visibility = View.VISIBLE
         holder.btnMore.setOnClickListener { v ->
             val pos = holder.bindingAdapterPosition
-            if (pos == RecyclerView.NO_ID.toInt() || pos !in displayedItems.indices) return@setOnClickListener
-            onShowOptions(displayedItems[pos], v)
+            if (pos == RecyclerView.NO_ID.toInt() || pos - 1 !in displayedItems.indices) return@setOnClickListener
+            onShowOptions(displayedItems[pos - 1], v)
         }
 
         holder.row.setOnClickListener {
@@ -128,9 +188,9 @@ class FilterListAdapter(
             if (pos == RecyclerView.NO_ID.toInt()) return@setOnClickListener
             if (interactionLocked) return@setOnClickListener
             if (isInSelectionMode) {
-                toggleSelection(pos)
+                toggleSelection(pos - 1)
             } else {
-                if (effectivelyClickable) onItemClick(displayedItems[pos])
+                if (effectivelyClickable) onItemClick(displayedItems[pos - 1])
             }
         }
 
@@ -140,10 +200,11 @@ class FilterListAdapter(
             if (pos == RecyclerView.NO_ID.toInt()) return@setOnLongClickListener true
             if (interactionLocked) return@setOnLongClickListener true
             if (!isInSelectionMode) isInSelectionMode = true
-            val id = displayedItems[pos].id
+            val displayedIndexAtPos = pos - 1
+            val id = displayedItems[displayedIndexAtPos].id
             if (id !in selectedIds) {
                 selectedIds.add(id)
-                selectedPositions.add(pos)
+                selectedPositions.add(displayedIndexAtPos)
                 notifyItemChanged(pos)
             }
             onSelectionChanged(selectedIds.size)
@@ -153,7 +214,8 @@ class FilterListAdapter(
 
     // Returns the first uppercase character of the list name as the fast-scroller
     // section letter when sorted alphabetically. Falls back to '#' for non-letter
-    // starts and for date-sorted lists where sections are not meaningful.
+    // starts and for date-sorted lists where sections are not meaningful. Position is a
+    // displayedItems index (see getAdapterPositionOffset), not a raw adapter position.
     override fun getSectionLetter(position: Int): String {
         if (position !in displayedItems.indices) return ""
         return when (sortKey) {
@@ -164,6 +226,10 @@ class FilterListAdapter(
 
     override fun getSectionItemCount(): Int = displayedItems.size
 
+    // The Manual Filter row occupies adapter position 0, so a displayedItems index must be
+    // shifted by 1 to land on the matching RecyclerView position.
+    override fun getAdapterPositionOffset(): Int = 1
+
     // Replaces the full dataset and resets all selection and search state.
     fun updateItems(newItems: List<FilterList>) {
         allItems.clear()
@@ -172,6 +238,14 @@ class FilterListAdapter(
         selectedPositions.clear()
         isInSelectionMode = false
         applyFilterAndSort()
+    }
+
+    // Updates the pinned row's rule count and enabled badge without touching the filter list
+    // dataset or any selection, search, or sort state.
+    fun setManualFilterSummary(summary: ManualFilterSummary) {
+        if (manualFilterSummary == summary) return
+        manualFilterSummary = summary
+        notifyItemChanged(0)
     }
 
     fun setFilter(query: String) {
@@ -213,16 +287,16 @@ class FilterListAdapter(
         notifyDataSetChanged()
     }
 
-    private fun toggleSelection(position: Int) {
-        val id = displayedItems[position].id
+    private fun toggleSelection(displayedIndex: Int) {
+        val id = displayedItems[displayedIndex].id
         if (id in selectedIds) {
             selectedIds.remove(id)
-            selectedPositions.remove(position)
+            selectedPositions.remove(displayedIndex)
         } else {
             selectedIds.add(id)
-            selectedPositions.add(position)
+            selectedPositions.add(displayedIndex)
         }
-        notifyItemChanged(position)
+        notifyItemChanged(displayedIndex + 1)
         onSelectionChanged(selectedIds.size)
     }
 
@@ -230,7 +304,7 @@ class FilterListAdapter(
         displayedItems.forEach { selectedIds.add(it.id) }
         selectedPositions.clear()
         displayedItems.indices.forEach { selectedPositions.add(it) }
-        notifyItemRangeChanged(0, displayedItems.size)
+        notifyItemRangeChanged(1, displayedItems.size)
         onSelectionChanged(selectedIds.size)
     }
 
@@ -241,14 +315,14 @@ class FilterListAdapter(
         toAdd.forEach { selectedIds.add(displayedItems[it].id) }
         selectedPositions.clear()
         displayedItems.forEachIndexed { i, item -> if (item.id in selectedIds) selectedPositions.add(i) }
-        notifyItemRangeChanged(0, displayedItems.size)
+        notifyItemRangeChanged(1, displayedItems.size)
         onSelectionChanged(selectedIds.size)
     }
 
     fun deselectAll() {
         selectedIds.clear()
         selectedPositions.clear()
-        notifyItemRangeChanged(0, displayedItems.size)
+        notifyItemRangeChanged(1, displayedItems.size)
         onSelectionChanged(0)
     }
 
@@ -256,7 +330,7 @@ class FilterListAdapter(
         isInSelectionMode = false
         selectedIds.clear()
         selectedPositions.clear()
-        notifyItemRangeChanged(0, displayedItems.size)
+        notifyItemRangeChanged(1, displayedItems.size)
         onSelectionChanged(0)
     }
 
@@ -293,7 +367,7 @@ class FilterListAdapter(
     fun setMasterEnabled(enabled: Boolean) {
         if (masterEnabled == enabled) return
         masterEnabled = enabled
-        notifyItemRangeChanged(0, displayedItems.size)
+        notifyItemRangeChanged(0, displayedItems.size + 1)
     }
 
     fun setInteractionLocked(locked: Boolean) {
@@ -304,7 +378,7 @@ class FilterListAdapter(
         val changed = if (downloading) downloadingIds.add(filterListId) else downloadingIds.remove(filterListId)
         if (!changed) return
         val index = displayedItems.indexOfFirst { it.id == filterListId }
-        if (index != -1) notifyItemChanged(index)
+        if (index != -1) notifyItemChanged(index + 1)
     }
 
     // Updates a single item in both the master and display lists without
@@ -315,7 +389,7 @@ class FilterListAdapter(
         val displayIndex = displayedItems.indexOfFirst { it.id == updated.id }
         if (displayIndex != -1) {
             displayedItems[displayIndex] = updated
-            notifyItemChanged(displayIndex)
+            notifyItemChanged(displayIndex + 1)
         }
     }
 
@@ -326,7 +400,7 @@ class FilterListAdapter(
 
     // Applies a rounded-rectangle card background with a ripple overlay. Selected
     // items are tinted by blending the card colour with the primary colour.
-    private fun applyRowBackground(holder: ViewHolder, isSelected: Boolean) {
+    private fun applyRowBackground(holder: FilterListViewHolder, isSelected: Boolean) {
         val primaryColor = MaterialColors.getColor(holder.itemView, androidx.appcompat.R.attr.colorPrimary)
         val cardColor = MaterialColors.getColor(holder.itemView, R.attr.clintCardBackground)
         val rippleColor = ColorUtils.setAlphaComponent(primaryColor, 52)

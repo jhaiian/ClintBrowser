@@ -2,6 +2,9 @@ package com.jhaiian.clint.quiver
 
 import android.widget.Switch
 import com.jhaiian.clint.R
+import com.jhaiian.clint.quiver.engine.CompiledManifest
+import com.jhaiian.clint.quiver.engine.CompiledManifestData
+import com.jhaiian.clint.quiver.engine.QuiverGuardPaths
 
 // Returns true when the user has unsaved changes that require a recompile before
 // they take effect. Changes include toggled list states, staged removals, or a
@@ -40,25 +43,77 @@ internal fun QuiverGuardActivity.effectiveFilterLists(): List<FilterList> =
 // scroller so its thumb position stays accurate.
 internal fun QuiverGuardActivity.refreshFilterListDisplay() {
     filterListAdapterOrNull()?.updateItems(effectiveFilterLists())
+    refreshManualFilterSummary()
     fastScrollerOrNull()?.notifyDataChanged()
 }
 
-// Updates the FAB icon and click target based on the current state:
-// when there are unsaved changes the FAB becomes a "compile" button,
-// otherwise it opens the add-custom-list dialog.
+// Pushes the current rule count and enabled state to the pinned Manual Filter row. Called after
+// any change to the rule set and whenever the activity resumes, since ManualFilterActivity edits
+// rules in a separate Activity instance and has no direct reference to this adapter.
+internal fun QuiverGuardActivity.refreshManualFilterSummary() {
+    val rules = manualFilterDb().getAllRules()
+    filterListAdapterOrNull()?.setManualFilterSummary(
+        ManualFilterSummary(ruleCount = rules.size, isEnabled = ManualFilterState.isEnabled(this))
+    )
+}
+
+// True when the manual filter's contribution to a compile (whether it is included at all, and
+// if so its rule content) no longer matches what the last successful compile recorded. Mirrors
+// the "contributes to the compile" condition startCompilation() uses so this never reports dirty
+// for a state that would actually compile to the same manifest entry.
+internal fun QuiverGuardActivity.isManualFilterDirty(manifest: CompiledManifestData): Boolean {
+    val rules = manualFilterDb().getAllRules()
+    val contributesNow = ManualFilterState.isEnabled(this) && rules.isNotEmpty()
+    val manifestEntry = manifest.entries.firstOrNull { it.id == ManualFilterState.COMPILE_ID }
+    val contributedBefore = manifestEntry != null
+    if (!contributesNow && !contributedBefore) return false
+    if (contributesNow != contributedBefore) return true
+    return manifestEntry?.contentFingerprint != ManualFilterState.contentFingerprint(rules)
+}
+
+// Escalates isStartupDirty when the manual filter changed since the last compile, or since the
+// engine was ever compiled at all. This only ever turns the flag on, mirroring how
+// performStartupValidation treats FilterList changes, so it is safe to call every time the user
+// returns to this activity from ManualFilterActivity.
+internal fun QuiverGuardActivity.recheckManualFilterDirtyState() {
+    if (isStartupDirty) return
+    val manifest = CompiledManifest.read(QuiverGuardPaths.manifestFile(this))
+    val dirty = if (manifest == null) {
+        ManualFilterState.isEnabled(this) && manualFilterDb().getAllRules().isNotEmpty()
+    } else {
+        isManualFilterDirty(manifest)
+    }
+    if (dirty) {
+        isStartupDirty = true
+        refreshFabState()
+    }
+}
+
+// Updates the FAB icon and click target, and keeps the "Compilation required" banner in sync,
+// based on the current isConfigurationDirty() state. This is the single place that decides
+// whether the banner should be visible, so every action that can change pendingEnabledOverrides,
+// pendingRemovedIds, or isStartupDirty only needs to call this afterward rather than also
+// remembering to show or hide the banner itself.
 internal fun QuiverGuardActivity.refreshFabState() {
     val masterEnabled = findViewById<Switch>(R.id.switch_quiver_guard)?.isChecked ?: true
     val dirty = isConfigurationDirty()
     val locked = isCompileRunning || isUpdateRunning
 
+    // The FAB menu only makes sense for the "add" role below; the "save" role
+    // performs its action directly, and a disabled FAB shouldn't have a menu
+    // left open behind it either.
+    closeFabMenu()
+
     if (dirty) {
         fabAdd.setImageResource(R.drawable.ic_save_24)
         fabAdd.contentDescription = getString(R.string.quiver_guard_compile_fab_desc)
         fabAdd.setOnClickListener { startCompilation() }
+        showStartupBanner(getString(R.string.quiver_guard_banner_recompile_needed))
     } else {
         fabAdd.setImageResource(R.drawable.ic_add_24)
         fabAdd.contentDescription = getString(R.string.filter_list_add_fab_desc)
-        fabAdd.setOnClickListener { showAddCustomFilterListDialog() }
+        fabAdd.setOnClickListener { toggleFabMenu() }
+        hideBanner()
     }
 
     fabAdd.isEnabled = masterEnabled && !locked
@@ -82,6 +137,10 @@ internal fun QuiverGuardActivity.discardPendingChanges() {
     pendingEnabledOverrides.clear()
     pendingRemovedIds.clear()
     isStartupDirty = false
+    // isStartupDirty may have been true partly (or entirely) because of manual filter changes,
+    // which are already saved and were never part of the pending state just cleared above, so
+    // it needs a fresh look rather than staying cleared unconditionally.
+    recheckManualFilterDirtyState()
     refreshFilterListDisplay()
     refreshFabState()
 }

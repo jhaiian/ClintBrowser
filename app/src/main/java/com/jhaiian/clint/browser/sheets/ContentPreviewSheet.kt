@@ -165,6 +165,21 @@ class ContentPreviewSheet : BottomSheetDialogFragment() {
         val wv = view.findViewById<WebView>(R.id.preview_webview)
         previewWebView = wv
 
+        // Quiver Guard: register the cosmetic-filter bootstrap script (and its JS
+        // bridge) before this WebView's first navigation. addJavascriptInterface
+        // and addDocumentStartJavaScript only take effect starting with the
+        // navigation *after* they're called, so the exception-aware, reactive
+        // registration further below is always one navigation too late for a
+        // brand-new WebView - see QuiverGuardWebIntegration.installEarly's kdoc.
+        // Every preview WebView is freshly constructed and torn down with this
+        // sheet, so its one and only page load *is* that first navigation; without
+        // this call cosmetic filtering never gets a chance to apply here, even
+        // though it works fine on a real tab, which gets this same call from
+        // MainActivity.createWebView.
+        if (quiverGuardEnabled) {
+            QuiverGuardWebIntegration.installEarly(requireContext(), wv)
+        }
+
         wv.settings.apply {
             javaScriptEnabled = isPage
             builtInZoomControls = true

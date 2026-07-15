@@ -41,16 +41,6 @@ internal object CustomFilterListFetcher {
     // even when downloading from a fast local connection.
     private const val PROGRESS_EMIT_INTERVAL_MS = 80L
 
-    // Only the first N comment lines are scanned for header metadata to keep
-    // startup analysis time bounded for large lists.
-    private const val METADATA_SCAN_LINE_LIMIT = 200
-
-    // Number of characters read from the beginning of the file to detect HTML
-    // responses that indicate the URL does not point to a filter list.
-    private const val HTML_SNIFF_CHARS = 512
-
-    private data class FilterListAnalysis(val ruleCount: Long, val metadata: Map<String, String>)
-
     // Validates that the string is a well-formed HTTP or HTTPS URL with a non-empty host.
     fun isValidUrl(url: String): Boolean {
         val trimmed = url.trim()
@@ -69,59 +59,6 @@ internal object CustomFilterListFetcher {
         val dir = File(context.applicationContext.cacheDir, "quiver_guard_fetch")
         dir.mkdirs()
         return File(dir, "fetch_${UUID.randomUUID()}.txt")
-    }
-
-    // Returns true if the beginning of the file looks like an HTML document.
-    // Some servers return a login or error page instead of a plain-text list;
-    // this check catches the most common cases without a full HTML parser.
-    private fun looksLikeHtml(file: File): Boolean {
-        val sample = try {
-            file.bufferedReader().use { reader ->
-                val buffer = CharArray(HTML_SNIFF_CHARS)
-                val read = reader.read(buffer)
-                if (read <= 0) "" else String(buffer, 0, read)
-            }
-        } catch (_: Exception) {
-            ""
-        }
-        val lowered = sample.trimStart().lowercase()
-        return lowered.startsWith("<!doctype html") || lowered.startsWith("<html")
-    }
-
-    // Scans the downloaded file to count actionable rules and extract metadata
-    // from the comment header. The header is considered ended once a non-comment,
-    // non-empty line is encountered.
-    private fun analyzeFile(file: File): FilterListAnalysis {
-        var ruleCount = 0L
-        val metadata = mutableMapOf<String, String>()
-        var headerEnded = false
-        var scannedHeaderLines = 0
-        file.bufferedReader().useLines { lines ->
-            for (line in lines) {
-                val trimmed = line.trim()
-                if (trimmed.isEmpty()) continue
-                if (trimmed.startsWith("[") && trimmed.endsWith("]")) continue
-                if (trimmed.startsWith("!")) {
-                    if (!headerEnded && scannedHeaderLines < METADATA_SCAN_LINE_LIMIT) {
-                        // Parse "! Key: Value" comment lines into the metadata map.
-                        val content = trimmed.removePrefix("!").trim()
-                        val colonIndex = content.indexOf(':')
-                        if (colonIndex > 0) {
-                            val key = content.substring(0, colonIndex).trim()
-                            val value = content.substring(colonIndex + 1).trim()
-                            if (key.isNotEmpty() && value.isNotEmpty()) {
-                                metadata[key] = value
-                            }
-                        }
-                        scannedHeaderLines++
-                    }
-                    continue
-                }
-                headerEnded = true
-                ruleCount++
-            }
-        }
-        return FilterListAnalysis(ruleCount, metadata)
     }
 
     // Downloads the URL to a temporary file, validates that it is a filter list
@@ -190,13 +127,13 @@ internal object CustomFilterListFetcher {
 
                 currentCoroutineContext().ensureActive()
 
-                if (looksLikeHtml(tempFile)) {
+                if (FilterListContentValidator.looksLikeHtml(tempFile)) {
                     throw CustomFilterListFetchException(
                         appContext.getString(R.string.filter_list_add_error_invalid_format)
                     )
                 }
 
-                val analysis = analyzeFile(tempFile)
+                val analysis = FilterListContentValidator.analyzeFile(tempFile)
                 // Reject files that contain no actionable rules; an empty file cannot
                 // contribute anything useful to the compiled database.
                 if (analysis.ruleCount <= 0L) {

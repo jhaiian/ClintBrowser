@@ -508,9 +508,13 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
                     binding.addressBarSearchBottom.hide()
                     return
                 }
-                val wv = tabManager.activeTab?.webView
+                val activeTab = tabManager.activeTab
+                val wv = activeTab?.webView
                 if (wv?.canGoBack() == true) {
                     wv.goBack()
+                    return
+                }
+                if (activeTab != null && closePopupTabToOpener(activeTab)) {
                     return
                 }
                 handleExitConfirmation()

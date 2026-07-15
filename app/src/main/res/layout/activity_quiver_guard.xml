@@ -142,179 +142,280 @@
         android:layout_height="1dp"
         android:background="?attr/clintDividerColor" />
 
-    <LinearLayout
-        android:id="@+id/quiver_guard_compile_banner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:background="?attr/colorErrorContainer"
-        android:visibility="gone">
-
-        <ImageView
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:layout_marginEnd="10dp"
-            android:src="@drawable/ic_warning_24"
-            android:tint="?attr/colorError"
-            android:contentDescription="@null" />
-
-        <TextView
-            android:id="@+id/quiver_guard_compile_banner_text"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="?attr/colorOnErrorContainer"
-            android:textSize="13sp"
-            android:lineSpacingMultiplier="1.3" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="16dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginBottom="8dp"
-            android:text="@string/quiver_guard_section_general"
-            android:textColor="?attr/colorPrimary"
-            android:textSize="11sp"
-            android:letterSpacing="0.1"
-            android:fontFamily="sans-serif-medium" />
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            app:cardBackgroundColor="?attr/clintCardBackground"
-            app:cardCornerRadius="14dp"
-            app:strokeWidth="0dp">
-
-            <LinearLayout
-                android:id="@+id/row_quiver_guard_master"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="16dp"
-                android:background="?attr/selectableItemBackground">
-
-                <ImageView
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:layout_marginEnd="16dp"
-                    android:src="@drawable/ic_shield_24"
-                    android:tint="?attr/clintIconTint"
-                    android:contentDescription="@null" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginEnd="12dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/quiver_guard_master_switch_title"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="15sp"
-                        android:fontFamily="sans-serif-medium" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="@string/quiver_guard_master_switch_summary"
-                        android:textColor="?attr/clintSecondaryTextColor"
-                        android:textSize="13sp"
-                        android:lineSpacingMultiplier="1.3" />
-
-                </LinearLayout>
-
-                <Switch
-                    android:id="@+id/switch_quiver_guard"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:focusable="false" />
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <TextView
-            android:id="@+id/tv_filter_lists_section_header"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginBottom="6dp"
-            android:text="@string/quiver_guard_section_filter_lists"
-            android:textColor="?attr/colorPrimary"
-            android:textSize="11sp"
-            android:letterSpacing="0.1"
-            android:fontFamily="sans-serif-medium" />
-
-    </LinearLayout>
-
     <FrameLayout
-        android:id="@+id/quiver_guard_list_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_filter_lists"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingBottom="88dp"
-            android:clipToPadding="false"
-            android:scrollbars="none"
-            android:overScrollMode="never" />
+            android:orientation="vertical">
 
-        <com.jhaiian.clint.quiver.FilterListFastScroller
-            android:id="@+id/filter_list_fast_scroller"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/quiver_guard_section_general"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
+                    android:fontFamily="sans-serif-medium" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    app:cardBackgroundColor="?attr/clintCardBackground"
+                    app:cardCornerRadius="14dp"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:id="@+id/row_quiver_guard_master"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="16dp"
+                        android:background="?attr/selectableItemBackground">
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_marginEnd="16dp"
+                            android:src="@drawable/ic_shield_24"
+                            android:tint="?attr/clintIconTint"
+                            android:contentDescription="@null" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/quiver_guard_master_switch_title"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="15sp"
+                                android:fontFamily="sans-serif-medium" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/quiver_guard_description"
+                                android:textColor="?attr/clintSecondaryTextColor"
+                                android:textSize="13sp"
+                                android:lineSpacingMultiplier="1.3" />
+
+                        </LinearLayout>
+
+                        <Switch
+                            android:id="@+id/switch_quiver_guard"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:clickable="false"
+                            android:focusable="false" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:id="@+id/tv_filter_lists_section_header"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginBottom="6dp"
+                    android:text="@string/quiver_guard_section_filter_lists"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.1"
+                    android:fontFamily="sans-serif-medium" />
+
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/quiver_guard_list_container"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_filter_lists"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingBottom="88dp"
+                    android:clipToPadding="false"
+                    android:scrollbars="none"
+                    android:overScrollMode="never" />
+
+                <com.jhaiian.clint.quiver.FilterListFastScroller
+                    android:id="@+id/filter_list_fast_scroller"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fab_delete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|end"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="24dp"
+                    android:src="@drawable/ic_delete_24"
+                    android:contentDescription="@string/history_delete_selected_desc"
+                    app:backgroundTint="?attr/clintButtonBackground"
+                    app:tint="?attr/clintButtonIconTint"
+                    app:fabSize="normal"
+                    android:visibility="gone" />
+
+                <!-- Catches taps outside the FAB menu to dismiss it; left fully
+                     transparent since the reference design doesn't dim the list
+                     behind the menu. -->
+                <View
+                    android:id="@+id/fab_menu_scrim"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/fab_menu_options"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|end"
+                    android:layout_marginEnd="20dp"
+                    android:orientation="vertical"
+                    android:gravity="end"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:id="@+id/fab_menu_item_file"
+                        android:layout_width="wrap_content"
+                        android:layout_height="56dp"
+                        android:layout_marginBottom="16dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="24dp"
+                        android:background="@drawable/fab_menu_pill_background"
+                        android:elevation="6dp">
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_file_document_24"
+                            app:tint="?attr/clintButtonIconTint"
+                            android:contentDescription="@null" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="14dp"
+                            android:text="@string/filter_list_add_menu_from_file"
+                            android:textColor="?attr/clintButtonTextColor"
+                            android:textSize="15sp"
+                            android:fontFamily="sans-serif-medium" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/fab_menu_item_link"
+                        android:layout_width="wrap_content"
+                        android:layout_height="56dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="24dp"
+                        android:background="@drawable/fab_menu_pill_background"
+                        android:elevation="6dp">
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_link_24"
+                            app:tint="?attr/clintButtonIconTint"
+                            android:contentDescription="@null" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="14dp"
+                            android:text="@string/filter_list_add_menu_from_link"
+                            android:textColor="?attr/clintButtonTextColor"
+                            android:textSize="15sp"
+                            android:fontFamily="sans-serif-medium" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fab_add_filter_list"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|end"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="24dp"
+                    android:src="@drawable/ic_add_24"
+                    android:contentDescription="@string/filter_list_add_fab_desc"
+                    app:backgroundTint="?attr/clintButtonBackground"
+                    app:tint="?attr/clintButtonIconTint"
+                    app:fabSize="normal" />
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+        <!-- Floats on top of the content above instead of sitting inline in the vertical
+             layout, so toggling its visibility (see refreshFabState) never resizes or
+             shifts the section header, master row, or list underneath it. -->
+        <LinearLayout
+            android:id="@+id/quiver_guard_compile_banner"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_delete"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="24dp"
-            android:src="@drawable/ic_delete_24"
-            android:contentDescription="@string/history_delete_selected_desc"
-            app:backgroundTint="?attr/clintButtonBackground"
-            app:tint="?attr/clintButtonIconTint"
-            app:fabSize="normal"
-            android:visibility="gone" />
+            android:layout_gravity="top"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:background="?attr/colorErrorContainer"
+            android:elevation="6dp"
+            android:visibility="gone">
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_add_filter_list"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="24dp"
-            android:src="@drawable/ic_add_24"
-            android:contentDescription="@string/filter_list_add_fab_desc"
-            app:backgroundTint="?attr/clintButtonBackground"
-            app:tint="?attr/clintButtonIconTint"
-            app:fabSize="normal" />
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_warning_24"
+                android:tint="?attr/colorError"
+                android:contentDescription="@null" />
+
+            <TextView
+                android:id="@+id/quiver_guard_compile_banner_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="?attr/colorOnErrorContainer"
+                android:textSize="13sp"
+                android:lineSpacingMultiplier="1.3" />
+
+        </LinearLayout>
 
     </FrameLayout>
 

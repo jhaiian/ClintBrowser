@@ -70,7 +70,7 @@ internal object FilterListUpdateChecker {
         forceUpdate: Boolean = false
     ): Flow<FilterListUpdateEvent> = flow {
         val appContext = context.applicationContext
-        val downloadedLists = filterLists.filter { it.isDownloaded }
+        val downloadedLists = filterLists.filter { it.isDownloaded && !it.isLocal }
         val total = downloadedLists.size
 
         for ((index, filterList) in downloadedLists.withIndex()) {

@@ -92,15 +92,15 @@ internal fun MainActivity.openNewTabSilent(url: String) {
         onWebPermissionRequest = { request -> onWebPermissionRequest(request) },
         onGeolocationRequest = { origin, callback -> onWebGeolocationRequest(origin, callback) },
         onNewWindowRequest = { newUrl ->
-            showPopupAlertDialog(newUrl, tab.isIncognito)
+            showPopupAlertDialog(newUrl, tab.isIncognito, tab.id)
         }
     )
     webView.loadUrl(url)
 }
 
-internal fun MainActivity.openNewTab(isIncognito: Boolean, url: String = getSearchEngineHomeUrl()) {
+internal fun MainActivity.openNewTab(isIncognito: Boolean, url: String = getSearchEngineHomeUrl(), openerTabId: String? = null) {
     val webView = createWebView(isIncognito)
-    val tab = BrowserTab(isIncognito = isIncognito, webView = webView)
+    val tab = BrowserTab(isIncognito = isIncognito, openerTabId = openerTabId, webView = webView)
     val index = tabManager.add(tab)
     if (isDesktopMode) addDesktopScript(tab)
     webView.webViewClient = ClintWebViewClient(
@@ -126,7 +126,7 @@ internal fun MainActivity.openNewTab(isIncognito: Boolean, url: String = getSear
         onWebPermissionRequest = { request -> onWebPermissionRequest(request) },
         onGeolocationRequest = { origin, callback -> onWebGeolocationRequest(origin, callback) },
         onNewWindowRequest = { newUrl ->
-            showPopupAlertDialog(newUrl, isIncognito)
+            showPopupAlertDialog(newUrl, isIncognito, tab.id)
         }
     )
     tabManager.switchTo(index)
@@ -203,7 +203,7 @@ internal fun MainActivity.openRefreshLinkTab(url: String) {
         onWebPermissionRequest = { request -> onWebPermissionRequest(request) },
         onGeolocationRequest = { origin, callback -> onWebGeolocationRequest(origin, callback) },
         onNewWindowRequest = { newUrl ->
-            showPopupAlertDialog(newUrl, false)
+            showPopupAlertDialog(newUrl, false, tab.id)
         }
     )
     tabManager.switchTo(index)
@@ -227,4 +227,23 @@ internal fun MainActivity.cleanupRefreshLinkTabs() {
     }
     tabManager.switchTo(targetIndex)
     attachActiveWebView()
+}
+
+internal fun MainActivity.closePopupTabToOpener(tab: BrowserTab): Boolean {
+    val openerId = tab.openerTabId ?: return false
+    val openerIndex = tabManager.tabs.indexOfFirst { it.id == openerId }
+    if (openerIndex !in tabManager.tabs.indices) return false
+    val closingIndex = tabManager.tabs.indexOfFirst { it.id == tab.id }
+    if (closingIndex !in tabManager.tabs.indices) return false
+
+    removeDesktopScript(tab)
+    onQuiverGuardTabClosed(tab)
+    if (!tab.isIncognito) com.jhaiian.clint.ui.FaviconCache.evict(this, tab.url)
+    tabManager.closeTab(closingIndex)
+
+    val restoredIndex = tabManager.tabs.indexOfFirst { it.id == openerId }
+    if (restoredIndex !in tabManager.tabs.indices) return false
+    tabManager.switchTo(restoredIndex)
+    attachActiveWebView()
+    return true
 }

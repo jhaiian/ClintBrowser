@@ -209,7 +209,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="@string/quiver_guard_summary"
+                            android:text="@string/quiver_guard_description"
                             android:textColor="?attr/clintSecondaryTextColor"
                             android:textSize="13sp"
                             android:lineSpacingMultiplier="1.3" />

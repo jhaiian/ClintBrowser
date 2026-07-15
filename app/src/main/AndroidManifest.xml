@@ -151,6 +151,12 @@
             android:configChanges="uiMode"
             android:parentActivityName=".settings.SettingsActivity" />
 
+        <activity
+            android:name=".quiver.ManualFilterActivity"
+            android:exported="false"
+            android:configChanges="uiMode"
+            android:parentActivityName=".quiver.QuiverGuardActivity" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

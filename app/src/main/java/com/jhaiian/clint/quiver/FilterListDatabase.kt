@@ -148,6 +148,20 @@ internal class FilterListDatabase(context: Context) :
         return db.insert(TABLE, null, cv)
     }
 
+    // Inserts a list added from a local file. The download URL is left blank,
+    // which FilterList.isLocal treats as the signal that this row has no remote
+    // source to check for updates against.
+    fun addLocalFilterList(name: String): Long {
+        val db = writableDatabase
+        val cv = ContentValues()
+        cv.put(COL_NAME, name)
+        cv.put(COL_DOWNLOAD_URL, "")
+        cv.put(COL_ENABLED, 0)
+        cv.put(COL_IS_CUSTOM, 1)
+        cv.put(COL_COMPILED_AT, 0)
+        return db.insert(TABLE, null, cv)
+    }
+
     fun deleteFilterList(id: Long) {
         val db = writableDatabase
         db.delete(TABLE, "$COL_ID = ?", arrayOf(id.toString()))

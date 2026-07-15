@@ -31,6 +31,11 @@ class FilterListFastScroller @JvmOverloads constructor(
     interface SectionIndexer {
         fun getSectionLetter(position: Int): String
         fun getSectionItemCount(): Int
+
+        // Adapters with content pinned before the indexed section (e.g. a fixed header row)
+        // override this so drag() can convert a section-space position into the RecyclerView
+        // position that actually holds it.
+        fun getAdapterPositionOffset(): Int = 0
     }
 
     private val dp = resources.displayMetrics.density
@@ -184,7 +189,7 @@ class FilterListFastScroller @JvmOverloads constructor(
         if (count == 0) return
         val pos = (thumbFraction * (count - 1)).toInt().coerceIn(0, count - 1)
         currentLetter = idx.getSectionLetter(pos)
-        (rv.layoutManager as? LinearLayoutManager)?.scrollToPositionWithOffset(pos, 0)
+        (rv.layoutManager as? LinearLayoutManager)?.scrollToPositionWithOffset(pos + idx.getAdapterPositionOffset(), 0)
         invalidate()
     }
 

@@ -30,6 +30,14 @@ internal fun QuiverGuardActivity.showFilterListItemOptionsMenu(filterList: Filte
     popup.elevation = 12f
     popup.isOutsideTouchable = true
 
+    if (filterList.isLocal) {
+        popupView.findViewById<View>(R.id.menu_item_check_update).visibility = View.GONE
+        popupView.findViewById<View>(R.id.menu_item_force_update).visibility = View.GONE
+        popupView.findViewById<View>(R.id.divider_update_actions).visibility = View.GONE
+        popupView.findViewById<View>(R.id.menu_item_copy_link).visibility = View.GONE
+        popupView.findViewById<View>(R.id.menu_item_share_link).visibility = View.GONE
+    }
+
     popupView.findViewById<View>(R.id.menu_item_check_update).setOnClickListener {
         popup.dismiss(); confirmCheckUpdateForItem(filterList)
     }
@@ -116,6 +124,10 @@ private fun QuiverGuardActivity.confirmCheckUpdateForItem(filterList: FilterList
         ClintToast.show(this, getString(R.string.filter_list_operation_in_progress), R.drawable.ic_warning_24)
         return
     }
+    if (filterList.isLocal) {
+        ClintToast.show(this, getString(R.string.filter_list_item_local_no_update), R.drawable.ic_warning_24)
+        return
+    }
     if (!filterList.isDownloaded) {
         ClintToast.show(this, getString(R.string.filter_list_item_not_downloaded, filterList.name), R.drawable.ic_warning_24)
         return
@@ -141,6 +153,10 @@ private fun QuiverGuardActivity.confirmCheckUpdateForItem(filterList: FilterList
 private fun QuiverGuardActivity.confirmForceUpdateForItem(filterList: FilterList) {
     if (isUpdateRunning || isCompileRunning || isDownloadInProgress(filterList.id)) {
         ClintToast.show(this, getString(R.string.filter_list_operation_in_progress), R.drawable.ic_warning_24)
+        return
+    }
+    if (filterList.isLocal) {
+        ClintToast.show(this, getString(R.string.filter_list_item_local_no_update), R.drawable.ic_warning_24)
         return
     }
     if (!filterList.isDownloaded) {
@@ -229,7 +245,7 @@ private fun QuiverGuardActivity.confirmCheckUpdateForSelection(selection: List<F
         ClintToast.show(this, getString(R.string.filter_list_operation_in_progress), R.drawable.ic_warning_24)
         return
     }
-    val downloaded = selection.filter { it.isDownloaded }
+    val downloaded = selection.filter { it.isDownloaded && !it.isLocal }
     if (downloaded.isEmpty()) {
         MaterialAlertDialogBuilder(this, getDialogTheme())
             .setTitle(getString(R.string.filter_list_update_check_title))
@@ -255,7 +271,7 @@ private fun QuiverGuardActivity.confirmForceUpdateForSelection(selection: List<F
         ClintToast.show(this, getString(R.string.filter_list_operation_in_progress), R.drawable.ic_warning_24)
         return
     }
-    val downloaded = selection.filter { it.isDownloaded }
+    val downloaded = selection.filter { it.isDownloaded && !it.isLocal }
     if (downloaded.isEmpty()) {
         MaterialAlertDialogBuilder(this, getDialogTheme())
             .setTitle(getString(R.string.filter_list_force_update_selected_confirm_title))
@@ -289,7 +305,7 @@ private fun QuiverGuardActivity.copySelectedFilterListNames(selection: List<Filt
 // text with one URL per line.
 private fun QuiverGuardActivity.copySelectedFilterListDownloadLinks(selection: List<FilterList>) {
     val clipboard = getSystemService(ClipboardManager::class.java)
-    val combined = selection.joinToString("\n") { it.downloadUrl }
+    val combined = selection.filterNot { it.isLocal }.joinToString("\n") { it.downloadUrl }
     clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.filter_list_link_clip_label), combined))
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
         ClintToast.show(this, getString(R.string.filter_list_selection_links_copied), R.drawable.ic_copy_24)
@@ -304,7 +320,7 @@ private fun QuiverGuardActivity.shareSelectedFilterListDownloadLinks(selection: 
             Intent.createChooser(
                 Intent(Intent.ACTION_SEND).apply {
                     type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, selection.joinToString("\n") { it.downloadUrl })
+                    putExtra(Intent.EXTRA_TEXT, selection.filterNot { it.isLocal }.joinToString("\n") { it.downloadUrl })
                 },
                 getString(R.string.filter_list_share_chooser_title)
             )

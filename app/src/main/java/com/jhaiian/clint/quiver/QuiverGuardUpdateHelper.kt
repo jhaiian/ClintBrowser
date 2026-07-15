@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 // if no lists have been downloaded yet, since there is nothing to update.
 internal fun QuiverGuardActivity.showFilterListUpdateConfirmation() {
     if (isUpdateRunning || isCompileRunning) return
-    val downloadedCount = effectiveFilterLists().count { it.isDownloaded }
+    val downloadedCount = effectiveFilterLists().count { it.isDownloaded && !it.isLocal }
     if (downloadedCount == 0) {
         MaterialAlertDialogBuilder(this, getDialogTheme())
             .setTitle(getString(R.string.filter_list_update_check_title))
@@ -52,7 +52,7 @@ internal fun QuiverGuardActivity.startFilterListUpdateCheck(
 ) {
     if (isUpdateRunning || isCompileRunning) return
     val activity = this
-    val filterLists = listsOverride ?: effectiveFilterLists().filter { it.isDownloaded }
+    val filterLists = listsOverride ?: effectiveFilterLists().filter { it.isDownloaded && !it.isLocal }
     if (filterLists.isEmpty()) return
 
     isUpdateRunning = true
@@ -309,7 +309,7 @@ private fun QuiverGuardActivity.showActiveFilterListUpdateConfirmation(forceUpda
         ClintToast.show(this, getString(R.string.filter_list_operation_in_progress), R.drawable.ic_warning_24)
         return
     }
-    val activeLists = getActiveFilterLists()
+    val activeLists = getActiveFilterLists().filter { !it.isLocal }
     if (activeLists.isEmpty()) {
         MaterialAlertDialogBuilder(this, getDialogTheme())
             .setTitle(
@@ -351,7 +351,7 @@ internal fun QuiverGuardActivity.showForceUpdateAllConfirmation() {
         ClintToast.show(this, getString(R.string.filter_list_operation_in_progress), R.drawable.ic_warning_24)
         return
     }
-    val downloadedCount = effectiveFilterLists().count { it.isDownloaded }
+    val downloadedCount = effectiveFilterLists().count { it.isDownloaded && !it.isLocal }
     if (downloadedCount == 0) {
         MaterialAlertDialogBuilder(this, getDialogTheme())
             .setTitle(getString(R.string.filter_list_force_update_all_confirm_title))

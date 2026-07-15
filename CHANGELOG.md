@@ -4,6 +4,38 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.0.6
+
+*A small update.*
+
+---
+
+## Added
+
+- Added the ability to add manual filter rules.
+- Added the ability to add filter lists via file.
+
+---
+
+## Enhancement
+
+- The tab created by a pop-up dialog will now exit and return to the previous tab when you press the phone's back button, instead of showing the exit confirmation.
+
+---
+
+## Bug Fixes
+
+- Fixed content preview not applying cosmetic rules.
+
+---
+
+## Extra Changes
+
+- Updated the Quiver Guard description in the main settings.
+- Added Dependabot to the repository.
+
+---
+
 # v1.0.5
 
 *Finally guys, I'm done with the update. I'm really sorry, y'all. It took a while because I had to learn Rust.*

@@ -1,5 +1,7 @@
 package com.jhaiian.clint.quiver
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -14,6 +16,8 @@ import android.widget.ImageView
 import android.widget.Switch
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -42,7 +46,9 @@ import java.io.File
 //   - QuiverGuardDownloadHelper: per-list download workflow
 //   - QuiverGuardUpdateHelper: batch update-check workflow
 //   - QuiverGuardItemMenuHelper: per-row and multi-select overflow menus
-//   - CustomFilterListDialogHelper: add-custom-list dialog
+//   - CustomFilterListDialogHelper: add-custom-list-from-link dialog
+//   - CustomFilterListFileDialogHelper: add-custom-list-from-file dialog
+//   - QuiverGuardFabMenuHelper: expand/collapse animation for the add-list FAB menu
 class QuiverGuardActivity : ClintActivity() {
 
     companion object {
@@ -60,6 +66,7 @@ class QuiverGuardActivity : ClintActivity() {
 
     private lateinit var filterListAdapter: FilterListAdapter
     private lateinit var filterListDb: FilterListDatabase
+    private lateinit var manualFilterDatabase: ManualFilterDatabase
     private lateinit var fastScroller: FilterListFastScroller
     private lateinit var toolbarTitle: TextView
     private lateinit var btnBack: ImageView
@@ -75,7 +82,22 @@ class QuiverGuardActivity : ClintActivity() {
     internal var btnFilterListActions: ImageView? = null
     internal lateinit var fabAdd: FloatingActionButton
     internal lateinit var fabDelete: FloatingActionButton
+    internal lateinit var fabMenuScrim: View
+    internal lateinit var fabMenuOptions: View
     internal lateinit var recycler: RecyclerView
+
+    // True while the add-list FAB menu (file / link options) is expanded.
+    internal var isFabMenuOpen = false
+
+    // Must be registered before the activity reaches STARTED, so it lives here
+    // as a field initializer rather than being created inside onCreate's body.
+    internal val filePickerLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val uri: Uri? = result.data?.data
+            if (result.resultCode == RESULT_OK && uri != null) {
+                handlePickedFilterListFile(uri)
+            }
+        }
 
     // IDs of lists currently being downloaded, used to prevent duplicate launches
     // and to update the adapter's downloading indicator.
@@ -127,6 +149,8 @@ class QuiverGuardActivity : ClintActivity() {
         btnRefresh = findViewById(R.id.btn_refresh_filter_lists)
         fabAdd = findViewById(R.id.fab_add_filter_list)
         fabDelete = findViewById(R.id.fab_delete)
+        fabMenuScrim = findViewById(R.id.fab_menu_scrim)
+        fabMenuOptions = findViewById(R.id.fab_menu_options)
         recycler = findViewById(R.id.recycler_filter_lists)
         fastScroller = findViewById(R.id.filter_list_fast_scroller)
         btnFilterListActions = findViewById(R.id.btn_filter_list_actions)
@@ -146,11 +170,30 @@ class QuiverGuardActivity : ClintActivity() {
             v.layoutParams = lp
             insets
         }
+        // The option pills sit directly above the FAB: FAB margin + FAB height + gap.
+        ViewCompat.setOnApplyWindowInsetsListener(fabMenuOptions) { v, insets ->
+            val navBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            val lp = v.layoutParams as FrameLayout.LayoutParams
+            lp.bottomMargin = (96 * resources.displayMetrics.density).toInt() + navBars.bottom
+            v.layoutParams = lp
+            insets
+        }
+
+        fabMenuScrim.setOnClickListener { closeFabMenu() }
+        findViewById<View>(R.id.fab_menu_item_file).setOnClickListener {
+            closeFabMenu()
+            launchAddFilterListFromFile()
+        }
+        findViewById<View>(R.id.fab_menu_item_link).setOnClickListener {
+            closeFabMenu()
+            showAddCustomFilterListDialog()
+        }
 
         // The back button's behaviour depends on the current UI mode: exit search
         // or selection mode first, then handle navigation-level back.
         btnBack.setOnClickListener {
             when {
+                isFabMenuOpen -> closeFabMenu()
                 isSearchMode -> exitSearchMode()
                 ::filterListAdapter.isInitialized && filterListAdapter.isInSelectionMode -> exitSelectionMode()
                 else -> handleBackNavigation()
@@ -199,11 +242,13 @@ class QuiverGuardActivity : ClintActivity() {
         masterRow.setOnClickListener { masterSwitch.isChecked = !masterSwitch.isChecked }
 
         filterListDb = FilterListDatabase(this)
+        manualFilterDatabase = ManualFilterDatabase(this)
 
         filterListAdapter = FilterListAdapter(
             onItemClick = { filterList -> handleFilterListTap(filterList) },
             onSelectionChanged = { count -> updateSelectionUi(count) },
-            onShowOptions = { filterList, anchor -> showFilterListItemOptionsMenu(filterList, anchor) }
+            onShowOptions = { filterList, anchor -> showFilterListItemOptionsMenu(filterList, anchor) },
+            onManualFilterClick = { openManualFilter() }
         )
 
         recycler.layoutManager = LinearLayoutManager(this)
@@ -217,10 +262,12 @@ class QuiverGuardActivity : ClintActivity() {
         fastScroller.isInteractive = false
 
         filterListAdapter.updateItems(effectiveFilterLists())
+        refreshManualFilterSummary()
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 when {
+                    isFabMenuOpen -> closeFabMenu()
                     isSearchMode -> exitSearchMode()
                     filterListAdapterOrNull()?.isInSelectionMode == true -> exitSelectionMode()
                     else -> handleBackNavigation()
@@ -252,6 +299,7 @@ class QuiverGuardActivity : ClintActivity() {
     // During selection mode the title shows the count, the back button becomes a
     // close icon, and sort/search icons are hidden to reduce clutter.
     private fun updateSelectionUi(selectedCount: Int) {
+        closeFabMenu()
         val inSelectionMode = ::filterListAdapter.isInitialized && filterListAdapter.isInSelectionMode
 
         btnSelectionOptions.visibility = if (inSelectionMode) View.VISIBLE else View.GONE
@@ -297,6 +345,7 @@ class QuiverGuardActivity : ClintActivity() {
     // Enters search mode: hides regular toolbar icons, shows the search field,
     // requests focus, and shows the soft keyboard.
     private fun enterSearchMode() {
+        closeFabMenu()
         isSearchMode = true
         toolbarTitle.visibility = View.GONE
         btnSearch.visibility = View.GONE
@@ -517,7 +566,23 @@ class QuiverGuardActivity : ClintActivity() {
         filterListAdapterOrNull()?.updateItem(filterList.copy(isEnabled = enabled))
     }
 
+    private fun openManualFilter() {
+        startActivity(Intent(this, ManualFilterActivity::class.java))
+    }
+
     internal fun database(): FilterListDatabase = filterListDb
+    internal fun manualFilterDb(): ManualFilterDatabase = manualFilterDatabase
+
+    // ManualFilterActivity is a separate Activity instance, so anything it changed only
+    // becomes visible here once this activity resumes: the pinned row's rule count and the
+    // dirty banner both need a fresh look at ManualFilterDatabase and SharedPreferences.
+    override fun onResume() {
+        super.onResume()
+        if (::manualFilterDatabase.isInitialized) {
+            refreshManualFilterSummary()
+            recheckManualFilterDirtyState()
+        }
+    }
 
     override fun onDestroy() {
         fastScroller.detach()

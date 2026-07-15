@@ -31,4 +31,10 @@ data class FilterList(
     // True when the list has never been included in a compiled rule database.
     val isNeverCompiled: Boolean
         get() = compiledAt <= 0L
+
+    // True for a list added from a local file rather than a URL. Local lists
+    // have no download URL to check, so the update checker and the per-item
+    // update/link actions skip them.
+    val isLocal: Boolean
+        get() = downloadUrl.isBlank()
 }
