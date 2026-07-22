@@ -1,5 +1,8 @@
 package com.jhaiian.clint.downloads
 
+import com.jhaiian.clint.util.formatFileSize
+
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -11,6 +14,12 @@ import com.jhaiian.clint.R
 import com.jhaiian.clint.settings.fragments.DownloadSettingsFragment
 
 internal object DownloadNotificationHelper {
+
+    /**
+     * Notifications sharing this key collapse into one expandable group in the notification
+     * shade, headed by the group-summary notification built in [buildSummaryNotification].
+     */
+    const val DOWNLOAD_GROUP_KEY = "com.jhaiian.clint.downloads.GROUP"
 
     fun createNotificationChannel(context: Context) {
         val nm = context.getSystemService(NotificationManager::class.java)
@@ -33,12 +42,43 @@ internal object DownloadNotificationHelper {
         nm.createNotificationChannel(eventChannel)
     }
 
+    /**
+     * Serves as both the required foreground-service notification and the group summary for the
+     * per-download notifications below it, so simultaneous downloads collapse under one entry in
+     * the notification shade instead of each spawning its own top-level entry.
+     */
+    fun buildSummaryNotification(context: Context, activeCount: Int): Notification {
+        val downloadsIntent = Intent(context, DownloadsActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        }
+        val downloadsPi = PendingIntent.getActivity(
+            context, 0, downloadsIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val text = if (activeCount > 0)
+            context.resources.getQuantityString(R.plurals.download_notification_group_summary, activeCount, activeCount)
+        else
+            context.getString(R.string.download_foreground_notification_text)
+        return NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
+            .setContentTitle(context.getString(R.string.download_foreground_notification_title))
+            .setContentText(text)
+            .setSmallIcon(R.drawable.ic_notification_24)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setSilent(true)
+            .setContentIntent(downloadsPi)
+            .setGroup(DOWNLOAD_GROUP_KEY)
+            .setGroupSummary(true)
+            .build()
+    }
+
     fun showQueuedNotification(context: Context, item: DownloadItem) {
         val nm = context.getSystemService(NotificationManager::class.java)
         NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification_24)
             .setContentTitle(item.filename)
             .setContentText(context.getString(R.string.download_status_queued))
+            .setGroup(DOWNLOAD_GROUP_KEY)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setSilent(true)
@@ -59,7 +99,7 @@ internal object DownloadNotificationHelper {
 
         when (item.status) {
             DownloadStatus.CONNECTING -> {
-                val sizeStr = if (item.totalBytes > 0) formatBytes(item.totalBytes) else null
+                val sizeStr = if (item.totalBytes > 0) formatFileSize(item.totalBytes) else null
                 statusText = sizeStr ?: context.getString(R.string.download_status_connecting)
                 metaText = if (sizeStr != null) context.getString(R.string.download_status_connecting) else null
                 indeterminate = true
@@ -70,12 +110,12 @@ internal object DownloadNotificationHelper {
                 val pct = item.progressPercent
                 val sizeStr = when {
                     item.bytesDownloaded > 0 && pct >= 0 && item.totalBytes > 0 ->
-                        context.getString(R.string.download_status_progress, pct, formatBytes(item.bytesDownloaded), formatBytes(item.totalBytes))
+                        context.getString(R.string.download_status_progress, pct, formatFileSize(item.bytesDownloaded), formatFileSize(item.totalBytes))
                     item.bytesDownloaded > 0 && pct >= 0 ->
-                        context.getString(R.string.download_status_progress_unknown_total, pct, formatBytes(item.bytesDownloaded))
+                        context.getString(R.string.download_status_progress_unknown_total, pct, formatFileSize(item.bytesDownloaded))
                     item.bytesDownloaded > 0 ->
-                        context.getString(R.string.download_status_progress_indeterminate, formatBytes(item.bytesDownloaded))
-                    item.totalBytes > 0 -> formatBytes(item.totalBytes)
+                        context.getString(R.string.download_status_progress_indeterminate, formatFileSize(item.bytesDownloaded))
+                    item.totalBytes > 0 -> formatFileSize(item.totalBytes)
                     else -> null
                 }
                 val retryStr = if (item.retryDelaySec > 0)
@@ -90,10 +130,10 @@ internal object DownloadNotificationHelper {
             }
             else -> {
                 val pct = item.progressPercent
-                val downloaded = formatBytes(item.bytesDownloaded)
+                val downloaded = formatFileSize(item.bytesDownloaded)
                 statusText = if (pct >= 0) {
                     if (item.totalBytes > 0)
-                        context.getString(R.string.download_status_progress, pct, downloaded, formatBytes(item.totalBytes))
+                        context.getString(R.string.download_status_progress, pct, downloaded, formatFileSize(item.totalBytes))
                     else
                         context.getString(R.string.download_status_progress_unknown_total, pct, downloaded)
                 } else {
@@ -106,6 +146,14 @@ internal object DownloadNotificationHelper {
             }
         }
 
+        val downloadsIntent = Intent(context, DownloadsActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        }
+        val downloadsPi = PendingIntent.getActivity(
+            context, item.id + 50000, downloadsIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         val contentText = if (metaText != null) "$statusText  \u2022  $metaText" else statusText
         val builder = NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification_24)
@@ -116,6 +164,8 @@ internal object DownloadNotificationHelper {
             .setOnlyAlertOnce(true)
             .setSilent(true)
             .setProgress(100, progress, indeterminate)
+            .setGroup(DOWNLOAD_GROUP_KEY)
+            .setContentIntent(downloadsPi)
 
         if (showPause) {
             builder.addAction(0, context.getString(R.string.action_pause), pausePendingIntent(context, item.id))
@@ -129,7 +179,7 @@ internal object DownloadNotificationHelper {
         val pct = item.allocationProgress
         val allocStr = context.getString(R.string.download_status_allocating, pct)
         val contentText = if (item.totalBytes > 0)
-            "${formatBytes(item.totalBytes)}  \u2022  $allocStr"
+            "${formatFileSize(item.totalBytes)}  \u2022  $allocStr"
         else
             allocStr
         NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
@@ -140,21 +190,38 @@ internal object DownloadNotificationHelper {
             .setOnlyAlertOnce(true)
             .setSilent(true)
             .setProgress(100, pct, pct == 0)
+            .setGroup(DOWNLOAD_GROUP_KEY)
             .build()
             .let { nm.notify(item.id, it) }
     }
 
-    fun showMovingNotification(context: Context, item: DownloadItem) {
+    fun showCopyingTempNotification(context: Context, item: DownloadItem) {
         val nm = context.getSystemService(NotificationManager::class.java)
-        val progress = item.moveProgress
+        val progress = item.copyProgress
         NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification_24)
             .setContentTitle(item.filename)
-            .setContentText(context.getString(R.string.download_moving_notification, progress))
+            .setContentText(context.getString(R.string.download_copying_temp_notification, progress))
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setSilent(true)
             .setProgress(100, progress, progress == 0)
+            .setGroup(DOWNLOAD_GROUP_KEY)
+            .build()
+            .let { nm.notify(item.id, it) }
+    }
+
+    fun showDeletingTempNotification(context: Context, item: DownloadItem) {
+        val nm = context.getSystemService(NotificationManager::class.java)
+        NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification_24)
+            .setContentTitle(item.filename)
+            .setContentText(context.getString(R.string.download_deleting_temp_notification))
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setSilent(true)
+            .setProgress(0, 0, true)
+            .setGroup(DOWNLOAD_GROUP_KEY)
             .build()
             .let { nm.notify(item.id, it) }
     }
@@ -187,6 +254,7 @@ internal object DownloadNotificationHelper {
             .setSilent(true)
             .setProgress(100, pct.coerceAtLeast(0), false)
             .addAction(0, context.getString(R.string.action_resume), resumePi)
+            .setGroup(DOWNLOAD_GROUP_KEY)
             .build()
             .let { nm.notify(item.id, it) }
     }
@@ -202,6 +270,7 @@ internal object DownloadNotificationHelper {
 
         NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification_24)
+            .setGroup(DOWNLOAD_GROUP_KEY)
             .setContentTitle(item.filename)
             .setContentText(contentText)
             .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
@@ -225,6 +294,56 @@ internal object DownloadNotificationHelper {
 
         NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification_24)
+            .setGroup(DOWNLOAD_GROUP_KEY)
+            .setContentTitle(item.filename)
+            .setContentText(contentText)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
+            .setOngoing(false)
+            .setOnlyAlertOnce(true)
+            .setSilent(true)
+            .setProgress(100, pct.coerceAtLeast(0), false)
+            .addAction(0, context.getString(R.string.action_pause), pausePendingIntent(context, item.id))
+            .build()
+            .let { nm.notify(item.id, it) }
+    }
+
+    fun showWaitingScheduleNotification(context: Context, item: DownloadItem) {
+        val nm = context.getSystemService(NotificationManager::class.java)
+        val pct = item.progressPercent
+        val progressText = buildPausedProgressText(context, item)
+        val elapsedSec = item.activeElapsedMs / 1000L
+        val waitingLabel = context.getString(R.string.download_notification_waiting_schedule)
+        val metaLabel = if (elapsedSec >= 1L) "$waitingLabel  \u2022  ${formatElapsed(elapsedSec)}" else waitingLabel
+        val contentText = if (progressText != null) "$progressText  \u2022  $metaLabel" else metaLabel
+
+        NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification_24)
+            .setGroup(DOWNLOAD_GROUP_KEY)
+            .setContentTitle(item.filename)
+            .setContentText(contentText)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
+            .setOngoing(false)
+            .setOnlyAlertOnce(true)
+            .setSilent(true)
+            .setProgress(100, pct.coerceAtLeast(0), false)
+            .addAction(0, context.getString(R.string.action_pause), pausePendingIntent(context, item.id))
+            .build()
+            .let { nm.notify(item.id, it) }
+    }
+
+    fun showWaitingCustomScheduleNotification(context: Context, item: DownloadItem) {
+        val nm = context.getSystemService(NotificationManager::class.java)
+        val pct = item.progressPercent
+        val progressText = buildPausedProgressText(context, item)
+        val waitingLabel = context.getString(
+            R.string.download_notification_waiting_custom_schedule,
+            formatScheduledDateTime(context, item.scheduledStartAtMillis)
+        )
+        val contentText = if (progressText != null) "$progressText  \u2022  $waitingLabel" else waitingLabel
+
+        NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification_24)
+            .setGroup(DOWNLOAD_GROUP_KEY)
             .setContentTitle(item.filename)
             .setContentText(contentText)
             .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
@@ -269,6 +388,7 @@ internal object DownloadNotificationHelper {
             .setSmallIcon(R.drawable.ic_notification_24)
             .setContentTitle(item.filename)
             .setContentText(context.getString(R.string.download_notification_complete))
+            .setGroup(DOWNLOAD_GROUP_KEY)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .setOngoing(false)
@@ -292,6 +412,7 @@ internal object DownloadNotificationHelper {
             .setSmallIcon(R.drawable.ic_notification_24)
             .setContentTitle(item.filename)
             .setContentText(context.getString(R.string.download_notification_failed))
+            .setGroup(DOWNLOAD_GROUP_KEY)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .setContentIntent(downloadsPi)
@@ -318,6 +439,7 @@ internal object DownloadNotificationHelper {
             .setSmallIcon(R.drawable.ic_notification_24)
             .setContentTitle(item.filename)
             .setContentText(retryText)
+            .setGroup(DOWNLOAD_GROUP_KEY)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .setOngoing(false)
@@ -344,11 +466,11 @@ internal object DownloadNotificationHelper {
         val pct = item.progressPercent
         return when {
             pct >= 0 && item.totalBytes > 0 ->
-                context.getString(R.string.download_status_progress, pct, formatBytes(item.bytesDownloaded), formatBytes(item.totalBytes))
+                context.getString(R.string.download_status_progress, pct, formatFileSize(item.bytesDownloaded), formatFileSize(item.totalBytes))
             pct >= 0 ->
-                context.getString(R.string.download_status_progress_unknown_total, pct, formatBytes(item.bytesDownloaded))
+                context.getString(R.string.download_status_progress_unknown_total, pct, formatFileSize(item.bytesDownloaded))
             item.bytesDownloaded > 0 ->
-                context.getString(R.string.download_status_progress_indeterminate, formatBytes(item.bytesDownloaded))
+                context.getString(R.string.download_status_progress_indeterminate, formatFileSize(item.bytesDownloaded))
             else -> null
         }
     }
@@ -361,9 +483,14 @@ internal object DownloadNotificationHelper {
         if (speed <= 0L) return elapsedStr
         val remaining = item.totalBytes - item.bytesDownloaded
         val speedEta = if (item.totalBytes <= 0L || remaining <= 0L)
-            context.getString(R.string.download_speed_only, formatBytes(speed))
-        else
-            context.getString(R.string.download_speed_eta, formatBytes(speed), formatEta(context, remaining / speed))
+            context.getString(R.string.download_speed_only, formatFileSize(speed))
+        else {
+            // The ETA uses the average speed rather than the current reading above, since the
+            // current speed alone can swing the remaining-time estimate wildly on a connection
+            // that briefly speeds up or stalls.
+            val etaSpeed = item.averageSpeedBytesPerSec().takeIf { it > 0L } ?: speed
+            context.getString(R.string.download_speed_eta, formatFileSize(speed), formatEta(context, remaining / etaSpeed))
+        }
         return if (elapsedStr != null) "$speedEta  \u2022  $elapsedStr" else speedEta
     }
 
@@ -379,10 +506,4 @@ internal object DownloadNotificationHelper {
         else -> context.getString(R.string.download_eta_hours, seconds / 3600, (seconds % 3600) / 60)
     }
 
-    private fun formatBytes(bytes: Long): String = when {
-        bytes >= 1_073_741_824 -> "%.1f GB".format(bytes / 1_073_741_824.0)
-        bytes >= 1_048_576 -> "%.1f MB".format(bytes / 1_048_576.0)
-        bytes >= 1024 -> "%.0f KB".format(bytes / 1024.0)
-        else -> "$bytes B"
-    }
 }

@@ -75,7 +75,8 @@ internal object DownloadPersistence {
                 val statusStr = it.getString(it.getColumnIndexOrThrow(DownloadDatabase.COL_STATUS))
                 var status = runCatching { DownloadStatus.valueOf(statusStr) }
                     .getOrDefault(DownloadStatus.FAILED)
-                if (status == DownloadStatus.MOVING
+                if (status == DownloadStatus.COPYING_TEMP
+                    || status == DownloadStatus.DELETING_TEMP
                     || status == DownloadStatus.CONNECTING
                     || status == DownloadStatus.RETRYING
                     || status == DownloadStatus.ALLOCATING
@@ -94,10 +95,20 @@ internal object DownloadPersistence {
                 val splitParts = if (splitPartsIdx >= 0) it.getInt(splitPartsIdx) else 32
                 val multithreadingIdx = it.getColumnIndex(DownloadDatabase.COL_MULTITHREADING)
                 val multithreadingParts = if (multithreadingIdx >= 0) it.getInt(multithreadingIdx) else 4
+                val speedLimitIdx = it.getColumnIndex(DownloadDatabase.COL_SPEED_LIMIT_BPS)
+                val speedLimitBytesPerSec = if (speedLimitIdx >= 0) it.getLong(speedLimitIdx) else 0L
                 val locationModeIdx = it.getColumnIndex(DownloadDatabase.COL_LOCATION_MODE)
                 val locationMode = if (locationModeIdx >= 0) it.getString(locationModeIdx) ?: "default" else "default"
                 val customLocUriIdx = it.getColumnIndex(DownloadDatabase.COL_CUSTOM_LOC_URI)
                 val customLocationUri = if (customLocUriIdx >= 0) it.getString(customLocUriIdx) else null
+                val completedMaskIdx = it.getColumnIndex(DownloadDatabase.COL_COMPLETED_PARTS_MASK)
+                val completedPartsMask = if (completedMaskIdx >= 0) it.getLong(completedMaskIdx) else 0L
+                val partOffsetsIdx = it.getColumnIndex(DownloadDatabase.COL_PART_OFFSETS)
+                val partOffsets = if (partOffsetsIdx >= 0) it.getString(partOffsetsIdx) ?: "" else ""
+                val scheduledStartAtIdx = it.getColumnIndex(DownloadDatabase.COL_SCHEDULED_START_AT)
+                val scheduledStartAtMillis = if (scheduledStartAtIdx >= 0) it.getLong(scheduledStartAtIdx) else 0L
+                val waitingCustomScheduleIdx = it.getColumnIndex(DownloadDatabase.COL_WAITING_CUSTOM_SCHEDULE)
+                val waitingForCustomSchedule = if (waitingCustomScheduleIdx >= 0) it.getInt(waitingCustomScheduleIdx) != 0 else false
                 val item = DownloadItem(
                     id = id,
                     url = it.getString(it.getColumnIndexOrThrow(DownloadDatabase.COL_URL)),
@@ -125,8 +136,13 @@ internal object DownloadPersistence {
                     unmeteredOnly = unmeteredOnly,
                     splitParts = splitParts,
                     multithreadingParts = multithreadingParts,
+                    speedLimitBytesPerSec = speedLimitBytesPerSec,
                     locationMode = locationMode,
-                    customLocationUri = customLocationUri
+                    customLocationUri = customLocationUri,
+                    completedPartsMask = completedPartsMask,
+                    partOffsets = partOffsets,
+                    scheduledStartAtMillis = scheduledStartAtMillis,
+                    waitingForCustomSchedule = waitingForCustomSchedule
                 )
                 loaded.add(item)
             }
@@ -161,14 +177,36 @@ internal object DownloadPersistence {
                 put(DownloadDatabase.COL_UNMETERED_ONLY, if (item.unmeteredOnly) 1 else 0)
                 put(DownloadDatabase.COL_SPLIT_PARTS, item.splitParts)
                 put(DownloadDatabase.COL_MULTITHREADING, item.multithreadingParts)
+                put(DownloadDatabase.COL_SPEED_LIMIT_BPS, item.speedLimitBytesPerSec)
                 put(DownloadDatabase.COL_LOCATION_MODE, item.locationMode)
                 if (item.customLocationUri != null) put(DownloadDatabase.COL_CUSTOM_LOC_URI, item.customLocationUri)
                 else putNull(DownloadDatabase.COL_CUSTOM_LOC_URI)
+                put(DownloadDatabase.COL_COMPLETED_PARTS_MASK, item.completedPartsMask)
+                put(DownloadDatabase.COL_PART_OFFSETS, item.partOffsets)
+                put(DownloadDatabase.COL_SCHEDULED_START_AT, item.scheduledStartAtMillis)
+                put(DownloadDatabase.COL_WAITING_CUSTOM_SCHEDULE, if (item.waitingForCustomSchedule) 1 else 0)
             }
             db(context).writableDatabase.insertWithOnConflict(
                 DownloadDatabase.TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE
             )
         }
+    }
+
+    /**
+     * A cheap progress write used during an active transfer: it updates only the byte count and
+     * completed parts mask columns for [id], skipping the full row write [persistDownload] does.
+     * Callers already run on a background thread (the download read loop, or an IO dispatched
+     * coroutine), so this stays a plain blocking call rather than a suspend function.
+     */
+    fun checkpointProgress(context: Context, id: Int, bytesDownloaded: Long, completedPartsMask: Long, partOffsets: String) {
+        val values = ContentValues().apply {
+            put(DownloadDatabase.COL_BYTES_DOWNLOADED, bytesDownloaded)
+            put(DownloadDatabase.COL_COMPLETED_PARTS_MASK, completedPartsMask)
+            put(DownloadDatabase.COL_PART_OFFSETS, partOffsets)
+        }
+        db(context).writableDatabase.update(
+            DownloadDatabase.TABLE, values, "${DownloadDatabase.COL_ID} = ?", arrayOf(id.toString())
+        )
     }
 
     suspend fun deletePersistedDownload(context: Context, id: Int) = withContext(Dispatchers.IO) {

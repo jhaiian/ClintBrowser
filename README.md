@@ -10,8 +10,9 @@ Material Design Android Browser With ADM
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blueviolet.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B-blueviolet.svg)](https://developer.android.com)
-[![Stable](https://img.shields.io/badge/Stable-1.0.6-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.6)
-[![Beta](https://img.shields.io/badge/Beta-1.0.6-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.6)
+[![Stable](https://img.shields.io/badge/Stable-1.0.7-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.7)
+[![Beta](https://img.shields.io/badge/Beta-1.0.7-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.0.7)
+[![Downloads](https://img.shields.io/github/downloads/jhaiian/ClintBrowser/total?color=blueviolet)](https://github.com/jhaiian/ClintBrowser/releases)
 [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser)
 
 </div>
@@ -125,7 +126,6 @@ Manage website permissions in one place:
 - **Search Suggestions** — real‑time predictions from DuckDuckGo
 
 ### 🔒 Privacy & Security
-- **Tracker blocking** — 16+ known analytics and ad domains blocked at the network level.
 - **Third‑party cookie blocking** — prevents cross‑site tracking.
 - **Generic User‑Agent** — reduces browser fingerprinting.
 - **HTTPS-Only Mode** — Redirect HTTP connections to HTTPS and block sites that don't support it.
@@ -137,14 +137,12 @@ Manage website permissions in one place:
 - Google *(with privacy warning)*
 - Change at any time from Settings
 
-### ⬇️ Downloads
-- Custom download engine built on OkHttp — no reliance on the system DownloadManager.
-- Real‑time progress with percentage and file size.
-- Cancel downloads in‑app or from the notification.
-- Open completed files directly from the downloads screen.
-- Install APK files straight from the downloads screen.
-- Automatic duplicate filename handling.
-- Download images inside the WebView.
+### ⬇️ Advance Download Manager
+- Custom download engine built on OkHttp
+- Smart multi-part and multi-threaded downloads
+- Speed limiter
+- Download scheduler
+- High-speed downloads
 
 ### 🎨 Look & Feel
 The dedicated **Look & Feel** section in Settings gives you full control over the interface:
@@ -215,8 +213,6 @@ All these options combine to give you **~52 distinct theme combinations**, and t
 
 Download the latest APK from the [Releases](https://github.com/jhaiian/ClintBrowser/releases) page.
 
-1 download = 1 petition for Hawkeye Season 2
-
 ---
 
 ## Contributing
@@ -249,11 +245,6 @@ The names "Clint" and "Clint Browser," the logo, screenshots, and all related br
 All libraries used in this app have their own licenses. Please comply with their respective license terms. See [Attribution.md](https://github.com/jhaiian/ClintBrowser/blob/main/Attribution.md) for details.
 
 ---
-
-## Disclaimer
-
-This app is not associated with Marvel, Clint Barton, or Hawkeye in any way. 
-The app's name, design, and logo are simply inspired by Hawkeye and have no official connection to Marvel.
 
 ## Legal
 

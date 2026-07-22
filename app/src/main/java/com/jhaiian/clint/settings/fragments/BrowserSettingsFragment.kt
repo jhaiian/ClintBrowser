@@ -21,8 +21,6 @@ class BrowserSettingsFragment : Fragment() {
     private lateinit var textSearchEngineSummary: TextView
     private lateinit var rowJavascriptEnabled: LinearLayout
     private lateinit var switchJavascriptEnabled: Switch
-    private lateinit var rowCacheMode: LinearLayout
-    private lateinit var textCacheModeSummary: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,8 +37,6 @@ class BrowserSettingsFragment : Fragment() {
         textSearchEngineSummary = view.findViewById(R.id.text_search_engine_summary)
         rowJavascriptEnabled = view.findViewById(R.id.row_javascript_enabled)
         switchJavascriptEnabled = view.findViewById(R.id.switch_javascript_enabled)
-        rowCacheMode = view.findViewById(R.id.row_cache_mode)
-        textCacheModeSummary = view.findViewById(R.id.text_cache_mode_summary)
 
         rowSearchEngine.setOnClickListener { showEngineDialog() }
         rowJavascriptEnabled.setOnClickListener {
@@ -53,7 +49,6 @@ class BrowserSettingsFragment : Fragment() {
                 prefs.edit().putBoolean("javascript_enabled", true).apply()
             }
         }
-        rowCacheMode.setOnClickListener { showCacheModeDialog() }
 
         updateAll()
     }
@@ -65,7 +60,6 @@ class BrowserSettingsFragment : Fragment() {
 
     private fun updateAll() {
         updateEngineSummary()
-        updateCacheModeSummary()
         updateJavascriptSwitch()
     }
 
@@ -75,16 +69,6 @@ class BrowserSettingsFragment : Fragment() {
             "brave" -> getString(R.string.engine_brave)
             "google" -> getString(R.string.engine_google)
             else -> getString(R.string.engine_duckduckgo)
-        }
-    }
-
-    private fun updateCacheModeSummary() {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        textCacheModeSummary.text = when (prefs.getString("cache_mode", "default")) {
-            "cache_else_network" -> getString(R.string.cache_mode_summary_cache_first)
-            "no_cache" -> getString(R.string.cache_mode_summary_always_fresh)
-            "cache_only" -> getString(R.string.cache_mode_summary_offline)
-            else -> getString(R.string.cache_mode_summary_smart)
         }
     }
 
@@ -177,67 +161,6 @@ class BrowserSettingsFragment : Fragment() {
             .setMessage(getString(R.string.google_warning_message))
             .setNegativeButton(getString(R.string.choose_another), null)
             .setPositiveButton(getString(R.string.use_google_anyway)) { _, _ -> onConfirm() }
-            .create().also { (requireActivity() as ClintActivity).applyStatusBarFlagToDialog(it) }.show()
-    }
-
-    private fun showCacheModeDialog() {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val current = prefs.getString("cache_mode", "default") ?: "default"
-
-        val dialogView = LayoutInflater.from(requireContext())
-            .inflate(R.layout.dialog_cache_mode, null)
-
-        val cardSmart = dialogView.findViewById<MaterialCardView>(R.id.cardCacheSmart)
-        val cardCacheFirst = dialogView.findViewById<MaterialCardView>(R.id.cardCacheFirst)
-        val cardAlwaysFresh = dialogView.findViewById<MaterialCardView>(R.id.cardCacheAlwaysFresh)
-        val cardOffline = dialogView.findViewById<MaterialCardView>(R.id.cardCacheOffline)
-
-        val radioSmart = dialogView.findViewById<RadioButton>(R.id.radioCacheSmart)
-        val radioCacheFirst = dialogView.findViewById<RadioButton>(R.id.radioCacheFirst)
-        val radioAlwaysFresh = dialogView.findViewById<RadioButton>(R.id.radioCacheAlwaysFresh)
-        val radioOffline = dialogView.findViewById<RadioButton>(R.id.radioCacheOffline)
-
-        val cardMap = mapOf(
-            "default" to cardSmart,
-            "cache_else_network" to cardCacheFirst,
-            "no_cache" to cardAlwaysFresh,
-            "cache_only" to cardOffline
-        )
-        val radioMap = mapOf(
-            "default" to radioSmart,
-            "cache_else_network" to radioCacheFirst,
-            "no_cache" to radioAlwaysFresh,
-            "cache_only" to radioOffline
-        )
-
-        var selected = current
-        val strokePx = (3 * resources.displayMetrics.density).toInt()
-
-        fun selectOption(key: String) {
-            selected = key
-            cardMap.forEach { (k, card) ->
-                val active = k == key
-                card.strokeWidth = if (active) strokePx else 0
-                card.alpha = if (active) 1f else 0.45f
-                radioMap[k]?.isChecked = active
-            }
-        }
-
-        selectOption(current)
-
-        cardSmart.setOnClickListener { selectOption("default") }
-        cardCacheFirst.setOnClickListener { selectOption("cache_else_network") }
-        cardAlwaysFresh.setOnClickListener { selectOption("no_cache") }
-        cardOffline.setOnClickListener { selectOption("cache_only") }
-
-        MaterialAlertDialogBuilder(requireContext(), (requireActivity() as ClintActivity).getDialogTheme())
-            .setTitle(getString(R.string.cache_mode_dialog_title))
-            .setView(dialogView)
-            .setNegativeButton(android.R.string.cancel, null)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                prefs.edit().putString("cache_mode", selected).apply()
-                updateCacheModeSummary()
-            }
             .create().also { (requireActivity() as ClintActivity).applyStatusBarFlagToDialog(it) }.show()
     }
 }

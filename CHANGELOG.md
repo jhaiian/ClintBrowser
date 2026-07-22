@@ -4,6 +4,66 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.0.7
+
+> This update mainly enhances and fixes the download manager.
+
+## New Features
+
+### Measurement System
+- Binary System (Default): 1 GB = 1024 MB
+- Decimal System: 1 GB = 1000 MB
+
+All file size displays in the app (including Quiver Guard and GitHub updates) now adapt to your chosen system.
+
+### Scheduled Downloads (Download Settings)
+- Set a start and end time for a download.
+- The "Schedule this download" option appears only in the download dialog.
+- Pick a date and time to begin the download.
+
+**Important:** Auto‑start and auto‑pause may not work reliably in the background – this depends on your OS optimisations. For best results, keep the app open and on screen, reduce brightness, and disable auto‑sleep. Even then, the download link might expire before it starts (many links do).
+
+### Download Speed Limit
+You can now set a speed limit in KB/s or MB/s. The measurement system (binary or decimal) applies here too.
+
+### Change Settings During an Active Download
+You can now adjust these options while a download is running:
+- Retry
+- Unmetered only
+- Speed limit
+
+Other settings are unsafe to change mid‑download – they could corrupt the file.
+
+### All File Access Permission (GitHub releases only)
+This permission is **not** requested automatically. To enable it:
+1. Go to **Download Settings** → scroll to the **Permission** section (formerly labelled "Battery").
+2. Tap it – the app will take you to system settings where you can grant All File Access.
+
+Why this matters:  
+Previously, the app always used **SAF mode** for custom locations – that writes the file to the app's data folder, copies it to your chosen destination, then deletes the original. This doubles the storage needed.
+
+With All File Access granted (on Android 11+), the app writes directly to your chosen location – no extra copy, no double storage.  
+- On **Android 10**, neither method works perfectly – sorry.  
+- On **Pie and older**, the condition is always true because external storage permission is enough.
+
+## Changes
+
+- Removed all caching‑related settings (they were causing bugs).
+- Removed "Block Trackers" from Privacy & Policy – Quiver Guard already handles tracker blocking (it blocks the 17 most common trackers), so this option was redundant.
+- SAF mode progress is now split into two phases: copy, then delete the temporary file   it's no longer a single "move" operation.
+- Update ToS
+- Update Privacy and policy
+
+## Bug Fixes
+
+- Fixed downloads randomly restarting midway.
+- Fixed progress decreasing when pausing and resuming.
+- Fixed crash when using the Share button in Downloads.
+- Fixed "Open Folder"  it now shows a clear error message with the folder path instead of failing silently.
+- Fixed progress getting stuck when you immediately close a tab that was opened by a pop‑up.
+
+---
+
 # v1.0.6
 
 *A small update.*

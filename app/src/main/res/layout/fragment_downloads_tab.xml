@@ -13,14 +13,21 @@
         android:textSize="15sp"
         android:visibility="gone" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/tab_recycler"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/tab_swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="6dp"
-        android:clipToPadding="false"
-        android:scrollbars="none"
-        android:visibility="gone" />
+        android:visibility="gone">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/tab_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="6dp"
+            android:clipToPadding="false"
+            android:scrollbars="none" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <com.jhaiian.clint.history.HistoryFastScroller
         android:id="@+id/tab_fast_scroller"

@@ -20,8 +20,8 @@ android {
         applicationId = "com.jhaiian.clint"
         minSdk = 26
         targetSdk = 37
-        versionCode = 18
-        versionName = "1.0.6"
+        versionCode = 19
+        versionName = "1.0.7"
     }
 
     val hasSigningConfig = localProperties.getProperty("signingConfig.storePassword") != null
@@ -120,4 +120,5 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.13.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.11.0")
     implementation("androidx.lifecycle:lifecycle-service:2.11.0")
+    implementation("androidx.work:work-runtime-ktx:2.11.2")
 }

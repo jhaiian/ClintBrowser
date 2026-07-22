@@ -12,6 +12,8 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.color.MaterialColors
 import com.jhaiian.clint.R
 import com.jhaiian.clint.history.HistoryFastScroller
 
@@ -35,6 +37,7 @@ class DownloadsTabFragment : Fragment() {
     }
 
     private lateinit var recycler: RecyclerView
+    private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var emptyView: TextView
     private lateinit var fastScroller: HistoryFastScroller
     lateinit var adapter: DownloadsAdapter
@@ -63,10 +66,22 @@ class DownloadsTabFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         recycler = view.findViewById(R.id.tab_recycler)
+        swipeRefresh = view.findViewById(R.id.tab_swipe_refresh)
         emptyView = view.findViewById(R.id.tab_empty_view)
         fastScroller = view.findViewById(R.id.tab_fast_scroller)
 
         emptyView.setText(emptyStringRes())
+
+        swipeRefresh.setColorSchemeColors(MaterialColors.getColor(view, androidx.appcompat.R.attr.colorPrimary))
+        swipeRefresh.setProgressBackgroundColorSchemeColor(
+            MaterialColors.getColor(view, com.google.android.material.R.attr.colorSurface)
+        )
+        // Only let the swipe gesture start the refresh when the list has nothing left to scroll upward, so it doesn't fight with normal list scrolling.
+        swipeRefresh.setOnChildScrollUpCallback { _, _ -> recycler.canScrollVertically(-1) }
+        swipeRefresh.setOnRefreshListener {
+            (requireActivity() as DownloadsActivity).refresh()
+            swipeRefresh.postDelayed({ swipeRefresh.isRefreshing = false }, 300L)
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(recycler) { v, insets ->
             val navBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
@@ -133,7 +148,7 @@ class DownloadsTabFragment : Fragment() {
     private fun updateEmptyState() {
         val hasItems = adapter.itemCount > 0
         emptyView.isVisible = !hasItems
-        recycler.isVisible = hasItems
+        swipeRefresh.isVisible = hasItems
         fastScroller.visibility = if (hasItems) View.VISIBLE else View.GONE
     }
 

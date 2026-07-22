@@ -1,11 +1,16 @@
 package com.jhaiian.clint.downloads
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.webkit.MimeTypeMap
+import androidx.core.content.ContextCompat
 import androidx.documentfile.provider.DocumentFile
 import androidx.preference.PreferenceManager
+import com.jhaiian.clint.BuildConfig
 import com.jhaiian.clint.settings.fragments.DownloadSettingsFragment
 import java.io.File
 
@@ -42,6 +47,65 @@ internal object DownloadFileHelper {
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
                 ".clint_temp"
             )
+    }
+
+    fun isInTempDir(context: Context, file: File?): Boolean {
+        if (file == null) return false
+        return file.absolutePath.startsWith(tempDownloadDir(context).absolutePath + File.separator)
+    }
+
+    /**
+     * True once the OS has granted blanket filesystem access. Only reachable on the GitHub
+     * flavor since the F-Droid manifest never declares MANAGE_EXTERNAL_STORAGE, and never true
+     * below Android 11 since the permission does not exist there.
+     */
+    fun hasAllFilesAccess(): Boolean =
+        !BuildConfig.IS_FDROID &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+            Environment.isExternalStorageManager()
+
+    /**
+     * True when the OS lets this app write anywhere in shared storage without staging through
+     * SAF. Android 8 and 9 predate scoped storage entirely, so a granted WRITE_EXTERNAL_STORAGE
+     * is enough there regardless of flavor. Android 10 enforces scoped storage for apps
+     * targeting API 30+ with no opt-out, so it always falls through to SAF. Android 11+ needs
+     * [hasAllFilesAccess].
+     */
+    fun canWriteSharedStorageDirectly(context: Context): Boolean = when {
+        Build.VERSION.SDK_INT <= Build.VERSION_CODES.P ->
+            ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                PackageManager.PERMISSION_GRANTED
+        Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> false
+        else -> hasAllFilesAccess()
+    }
+
+    /**
+     * Converts a SAF tree Uri from the custom folder picker back into a real filesystem path,
+     * relying on the same `<volume>:<relative path>` document id convention the External
+     * Storage Provider uses when issuing tree Uris. Returns null for anything that doesn't
+     * match, since that convention isn't a guaranteed public contract.
+     */
+    fun safTreeUriToFile(uri: Uri): File? {
+        val docId = uri.lastPathSegment ?: return null
+        val separator = docId.indexOf(':')
+        if (separator < 0) return null
+        val volume = docId.substring(0, separator)
+        val relativePath = docId.substring(separator + 1)
+        val root = if (volume == "primary") Environment.getExternalStorageDirectory() else File("/storage/$volume")
+        return File(root, relativePath)
+    }
+
+    /**
+     * Resolves the user's chosen custom folder straight to a filesystem path so a download can
+     * write to it directly instead of staging in the app's own storage and copying out through
+     * SAF. Returns null unless the location mode is custom and this Android version and flavor
+     * combination allows direct shared-storage writes; callers should fall back to the SAF
+     * temp-then-copy workflow in that case.
+     */
+    fun resolveDirectCustomDir(context: Context, item: DownloadItem? = null): File? {
+        if (!canWriteSharedStorageDirectly(context) || !isSafCustomMode(context, item)) return null
+        val treeUri = getSafTreeUri(context, item) ?: return null
+        return safTreeUriToFile(treeUri)
     }
 
     fun resolveDownloadDir(): File {

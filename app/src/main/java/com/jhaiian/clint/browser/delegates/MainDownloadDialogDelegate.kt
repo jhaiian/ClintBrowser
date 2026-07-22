@@ -18,9 +18,17 @@ import com.google.android.material.textfield.TextInputEditText
 import com.jhaiian.clint.R
 import com.jhaiian.clint.browser.MainActivity
 import com.jhaiian.clint.downloads.ClintDownloadManager
+import com.jhaiian.clint.downloads.checkFat32FileSizeLimit
 import com.jhaiian.clint.downloads.checkStorageAvailable
-import com.jhaiian.clint.downloads.formatFileSize
+import com.jhaiian.clint.downloads.estimateBase64DecodedSize
+import com.jhaiian.clint.downloads.DEFAULT_SPEED_LIMIT_UNIT
+import com.jhaiian.clint.downloads.resolveSpeedLimitBytesPerSec
+import com.jhaiian.clint.downloads.SPEED_LIMIT_UNIT_KB
+import com.jhaiian.clint.downloads.SPEED_LIMIT_UNIT_MB
+import com.jhaiian.clint.util.formatFileSize
+import com.jhaiian.clint.downloads.readScheduledStartAtMillis
 import com.jhaiian.clint.downloads.updateStorageInfo
+import com.jhaiian.clint.downloads.wireScheduleThisDownloadRow
 import com.jhaiian.clint.settings.fragments.DownloadSettingsFragment
 import com.jhaiian.clint.ui.ClintToast
 import kotlinx.coroutines.Dispatchers
@@ -62,16 +70,38 @@ internal fun MainActivity.showDownloadDialog(
                     .show()
                 return@setOnClickListener
             }
+            val fat32Error = checkFat32FileSizeLimit(this, contentLength, currentMode, currentCustomUri)
+            if (fat32Error != null) {
+                MaterialAlertDialogBuilder(this, getDialogTheme())
+                    .setTitle(getString(R.string.download_error_fat32_title))
+                    .setMessage(fat32Error)
+                    .setPositiveButton(getString(R.string.action_ok), null)
+                    .show()
+                return@setOnClickListener
+            }
+            val scheduledStartAtMillis = readScheduledStartAtMillis(dialogView.findViewById(R.id.switch_dialog_schedule))
+            if (scheduledStartAtMillis > 0L && scheduledStartAtMillis <= System.currentTimeMillis()) {
+                MaterialAlertDialogBuilder(this, getDialogTheme())
+                    .setTitle(getString(R.string.download_schedule_invalid_title))
+                    .setMessage(getString(R.string.download_schedule_past_time_error))
+                    .setPositiveButton(getString(R.string.action_ok), null)
+                    .show()
+                return@setOnClickListener
+            }
             val resolvedFilename = resolveFilenameFromDialog(dialogView)
             ClintToast.show(this, getString(R.string.toast_downloading, resolvedFilename), R.drawable.ic_download_24)
             val retryEnabled = dialogView.findViewById<Switch>(R.id.switch_dialog_retry).isChecked
             val unmeteredOnly = dialogView.findViewById<Switch>(R.id.switch_dialog_unmetered).isChecked
             val splitParts = dialogView.findViewById<Slider>(R.id.slider_dialog_split_parts).value.toInt()
             val multithreadingParts = dialogView.findViewById<Slider>(R.id.slider_dialog_multi_parts).value.toInt()
+            val speedLimitAmount = dialogView.findViewById<TextInputEditText>(R.id.et_dialog_speed_limit).text?.toString()?.toIntOrNull()?.coerceAtLeast(0) ?: 0
+            val speedLimitUnitText = dialogView.findViewById<AutoCompleteTextView>(R.id.speed_limit_unit_dropdown_dialog).text?.toString()
+            val speedLimitUnit = if (speedLimitUnitText == getString(R.string.speed_limit_unit_mb)) SPEED_LIMIT_UNIT_MB else SPEED_LIMIT_UNIT_KB
+            val speedLimitBytesPerSec = resolveSpeedLimitBytesPerSec(this, speedLimitAmount, speedLimitUnit)
             initiateDownload(
                 url, resolvedFilename, userAgent, referer, cookies,
-                retryEnabled, unmeteredOnly, splitParts, multithreadingParts,
-                currentMode, currentCustomUri?.toString(),
+                retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec,
+                currentMode, currentCustomUri?.toString(), scheduledStartAtMillis,
                 onDismiss = { dialog.dismiss() },
                 onRename = {
                     val etFilename = dialogView.findViewById<TextInputEditText>(R.id.et_dl_filename)
@@ -104,6 +134,19 @@ internal fun MainActivity.showDownloadDialogForBlob(
 
     dialog.setOnShowListener {
         dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+            val mode = prefs.getString(DownloadSettingsFragment.PREF_DOWNLOAD_LOCATION_MODE, DownloadSettingsFragment.MODE_DEFAULT)
+                ?: DownloadSettingsFragment.MODE_DEFAULT
+            val customUri = prefs.getString(DownloadSettingsFragment.PREF_DOWNLOAD_CUSTOM_URI, null)?.let { Uri.parse(it) }
+            val fat32Error = checkFat32FileSizeLimit(this, estimateBase64DecodedSize(base64), mode, customUri)
+            if (fat32Error != null) {
+                MaterialAlertDialogBuilder(this, getDialogTheme())
+                    .setTitle(getString(R.string.download_error_fat32_title))
+                    .setMessage(fat32Error)
+                    .setPositiveButton(getString(R.string.action_ok), null)
+                    .show()
+                return@setOnClickListener
+            }
             val resolvedFilename = resolveFilenameFromDialog(dialogView)
             ClintToast.show(this, getString(R.string.toast_downloading, resolvedFilename), R.drawable.ic_download_24)
             dialog.dismiss()
@@ -243,6 +286,27 @@ private fun MainActivity.setupDownloadDialogView(
         sliderMulti.addOnChangeListener { _, value, _ ->
             textMultiSummary.text = resources.getQuantityString(R.plurals.download_multithreading_value, value.toInt(), value.toInt())
         }
+
+        val etSpeedLimit = dialogView.findViewById<TextInputEditText>(R.id.et_dialog_speed_limit)
+        val speedLimitDropdown = dialogView.findViewById<AutoCompleteTextView>(R.id.speed_limit_unit_dropdown_dialog)
+        val initSpeedLimitAmount = prefs.getInt(DownloadSettingsFragment.PREF_SPEED_LIMIT_AMOUNT, DownloadSettingsFragment.DEFAULT_SPEED_LIMIT_AMOUNT)
+        val initSpeedLimitUnit = prefs.getString(DownloadSettingsFragment.PREF_SPEED_LIMIT_UNIT, DEFAULT_SPEED_LIMIT_UNIT) ?: DEFAULT_SPEED_LIMIT_UNIT
+        if (initSpeedLimitAmount > 0) etSpeedLimit.setText(initSpeedLimitAmount.toString())
+        val speedLimitUnitOptions = listOf(getString(R.string.speed_limit_unit_kb), getString(R.string.speed_limit_unit_mb))
+        speedLimitDropdown.setAdapter(ArrayAdapter(this, R.layout.item_dropdown, speedLimitUnitOptions))
+        speedLimitDropdown.setText(if (initSpeedLimitUnit == SPEED_LIMIT_UNIT_MB) speedLimitUnitOptions[1] else speedLimitUnitOptions[0], false)
+
+        wireScheduleThisDownloadRow(
+            context = this,
+            fragmentManager = supportFragmentManager,
+            rowSchedule = dialogView.findViewById(R.id.row_dialog_schedule),
+            switchSchedule = dialogView.findViewById(R.id.switch_dialog_schedule),
+            containerDetails = dialogView.findViewById(R.id.container_dialog_schedule_details),
+            rowDate = dialogView.findViewById(R.id.row_dialog_schedule_date),
+            textDateValue = dialogView.findViewById(R.id.text_dialog_schedule_date_value),
+            rowTime = dialogView.findViewById(R.id.row_dialog_schedule_time),
+            textTimeValue = dialogView.findViewById(R.id.text_dialog_schedule_time_value)
+        )
     } else {
         optionsSection?.visibility = View.GONE
     }

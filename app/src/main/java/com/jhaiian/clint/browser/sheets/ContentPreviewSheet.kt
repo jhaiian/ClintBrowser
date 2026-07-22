@@ -117,10 +117,9 @@ class ContentPreviewSheet : BottomSheetDialogFragment() {
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val dataSaverEnabled = prefs.getBoolean("data_saver_enabled", false)
-        val disableImages = dataSaverEnabled && prefs.getBoolean("data_saver_disable_images", false)
+        val disableImages = dataSaverEnabled && prefs.getBoolean("data_saver_disable_images", true)
         val disableAutoplay = dataSaverEnabled && prefs.getBoolean("data_saver_disable_autoplay", true)
         val quiverGuardEnabled = prefs.getBoolean("quiver_guard_enabled", false)
-        val effectiveCacheMode = resolveEffectiveCacheMode(prefs)
 
         if (isReaderMode) {
             titleView.text = readerTitle.ifEmpty { host }
@@ -189,7 +188,7 @@ class ContentPreviewSheet : BottomSheetDialogFragment() {
             userAgentString = buildPreviewUserAgent(isDesktop)
             loadsImagesAutomatically = !disableImages
             mediaPlaybackRequiresUserGesture = disableAutoplay
-            cacheMode = effectiveCacheMode
+            cacheMode = WebSettings.LOAD_DEFAULT
         }
 
         if (isPage && WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {

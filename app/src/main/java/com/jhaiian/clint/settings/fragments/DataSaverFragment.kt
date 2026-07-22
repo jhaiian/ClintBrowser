@@ -15,11 +15,9 @@ class DataSaverFragment : Fragment() {
     companion object {
         const val PREF_DATA_SAVER_ENABLED = "data_saver_enabled"
         const val PREF_DISABLE_IMAGES = "data_saver_disable_images"
-        const val PREF_CACHE_FIRST = "data_saver_cache_first"
         const val PREF_DISABLE_AUTOPLAY = "data_saver_disable_autoplay"
         const val DEFAULT_DATA_SAVER_ENABLED = false
-        const val DEFAULT_DISABLE_IMAGES = false
-        const val DEFAULT_CACHE_FIRST = true
+        const val DEFAULT_DISABLE_IMAGES = true
         const val DEFAULT_DISABLE_AUTOPLAY = true
     }
 
@@ -27,8 +25,6 @@ class DataSaverFragment : Fragment() {
     private lateinit var switchEnabled: Switch
     private lateinit var rowDisableImages: LinearLayout
     private lateinit var switchDisableImages: Switch
-    private lateinit var rowCacheFirst: LinearLayout
-    private lateinit var switchCacheFirst: Switch
     private lateinit var rowDisableAutoplay: LinearLayout
     private lateinit var switchDisableAutoplay: Switch
 
@@ -47,8 +43,6 @@ class DataSaverFragment : Fragment() {
         switchEnabled = view.findViewById(R.id.switch_data_saver_enabled)
         rowDisableImages = view.findViewById(R.id.row_data_saver_disable_images)
         switchDisableImages = view.findViewById(R.id.switch_data_saver_disable_images)
-        rowCacheFirst = view.findViewById(R.id.row_data_saver_cache_first)
-        switchCacheFirst = view.findViewById(R.id.switch_data_saver_cache_first)
         rowDisableAutoplay = view.findViewById(R.id.row_data_saver_disable_autoplay)
         switchDisableAutoplay = view.findViewById(R.id.switch_data_saver_disable_autoplay)
 
@@ -56,7 +50,6 @@ class DataSaverFragment : Fragment() {
 
         switchEnabled.isChecked = prefs.getBoolean(PREF_DATA_SAVER_ENABLED, DEFAULT_DATA_SAVER_ENABLED)
         switchDisableImages.isChecked = prefs.getBoolean(PREF_DISABLE_IMAGES, DEFAULT_DISABLE_IMAGES)
-        switchCacheFirst.isChecked = prefs.getBoolean(PREF_CACHE_FIRST, DEFAULT_CACHE_FIRST)
         switchDisableAutoplay.isChecked = prefs.getBoolean(PREF_DISABLE_AUTOPLAY, DEFAULT_DISABLE_AUTOPLAY)
 
         syncDependentsState(switchEnabled.isChecked)
@@ -74,12 +67,6 @@ class DataSaverFragment : Fragment() {
             switchDisableImages.isChecked = newVal
         }
 
-        rowCacheFirst.setOnClickListener {
-            val newVal = !switchCacheFirst.isChecked
-            prefs.edit().putBoolean(PREF_CACHE_FIRST, newVal).apply()
-            switchCacheFirst.isChecked = newVal
-        }
-
         rowDisableAutoplay.setOnClickListener {
             val newVal = !switchDisableAutoplay.isChecked
             prefs.edit().putBoolean(PREF_DISABLE_AUTOPLAY, newVal).apply()
@@ -89,7 +76,7 @@ class DataSaverFragment : Fragment() {
 
     private fun syncDependentsState(enabled: Boolean) {
         val alpha = if (enabled) 1f else 0.4f
-        listOf(rowDisableImages, rowCacheFirst, rowDisableAutoplay).forEach { row ->
+        listOf(rowDisableImages, rowDisableAutoplay).forEach { row ->
             row.isEnabled = enabled
             row.isClickable = enabled
             row.alpha = alpha

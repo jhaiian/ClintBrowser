@@ -14,7 +14,7 @@ import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import com.jhaiian.clint.R
-import com.jhaiian.clint.downloads.formatFileSize
+import com.jhaiian.clint.util.formatFileSize
 import java.text.NumberFormat
 import java.util.Date
 

@@ -5,15 +5,6 @@
     <PreferenceCategory android:title="@string/privacy_settings">
 
         <SwitchPreferenceCompat
-            app:key="block_trackers"
-            app:title="@string/block_trackers"
-            app:summary="@string/block_trackers_summary"
-            app:defaultValue="true"
-            app:icon="@drawable/ic_shield_24"
-        app:iconTint="?attr/colorPrimary"
-            app:singleLineTitle="false" />
-
-        <SwitchPreferenceCompat
             app:key="block_third_party_cookies"
             app:title="@string/block_third_party_cookies"
             app:summary="@string/block_third_party_cookies_summary"

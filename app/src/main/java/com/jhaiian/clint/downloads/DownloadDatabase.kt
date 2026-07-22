@@ -31,16 +31,35 @@ internal class DownloadDatabase(context: Context) :
                 $COL_SPLIT_PARTS       INTEGER NOT NULL DEFAULT 32,
                 $COL_MULTITHREADING    INTEGER NOT NULL DEFAULT 4,
                 $COL_LOCATION_MODE     TEXT    NOT NULL DEFAULT 'default',
-                $COL_CUSTOM_LOC_URI    TEXT
+                $COL_CUSTOM_LOC_URI    TEXT,
+                $COL_COMPLETED_PARTS_MASK INTEGER NOT NULL DEFAULT 0,
+                $COL_PART_OFFSETS      TEXT    NOT NULL DEFAULT '',
+                $COL_SCHEDULED_START_AT INTEGER NOT NULL DEFAULT 0,
+                $COL_WAITING_CUSTOM_SCHEDULE INTEGER NOT NULL DEFAULT 0,
+                $COL_SPEED_LIMIT_BPS   INTEGER NOT NULL DEFAULT 0
             )"""
         )
     }
 
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {}
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        if (oldVersion < 2) {
+            db.execSQL("ALTER TABLE $TABLE ADD COLUMN $COL_COMPLETED_PARTS_MASK INTEGER NOT NULL DEFAULT 0")
+        }
+        if (oldVersion < 3) {
+            db.execSQL("ALTER TABLE $TABLE ADD COLUMN $COL_PART_OFFSETS TEXT NOT NULL DEFAULT ''")
+        }
+        if (oldVersion < 4) {
+            db.execSQL("ALTER TABLE $TABLE ADD COLUMN $COL_SCHEDULED_START_AT INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE $TABLE ADD COLUMN $COL_WAITING_CUSTOM_SCHEDULE INTEGER NOT NULL DEFAULT 0")
+        }
+        if (oldVersion < 5) {
+            db.execSQL("ALTER TABLE $TABLE ADD COLUMN $COL_SPEED_LIMIT_BPS INTEGER NOT NULL DEFAULT 0")
+        }
+    }
 
     companion object {
         const val DB_NAME                = "clint_downloads.db"
-        const val DB_VERSION             = 1
+        const val DB_VERSION             = 5
         const val TABLE                  = "downloads"
         const val COL_ID                 = "id"
         const val COL_URL                = "url"
@@ -64,5 +83,10 @@ internal class DownloadDatabase(context: Context) :
         const val COL_MULTITHREADING     = "multithreading_parts"
         const val COL_LOCATION_MODE      = "location_mode"
         const val COL_CUSTOM_LOC_URI     = "custom_location_uri"
+        const val COL_COMPLETED_PARTS_MASK = "completed_parts_mask"
+        const val COL_PART_OFFSETS       = "part_offsets"
+        const val COL_SCHEDULED_START_AT = "scheduled_start_at"
+        const val COL_WAITING_CUSTOM_SCHEDULE = "waiting_custom_schedule"
+        const val COL_SPEED_LIMIT_BPS    = "speed_limit_bps"
     }
 }

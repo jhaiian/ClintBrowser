@@ -13,7 +13,7 @@ If you do not agree, simply uninstall the app.
 Clint Browser is a **free, open‑source Android browser** built around privacy. Key facts:
 
 - No backend servers  everything runs on your device.
-- Blocks trackers and analytics by default.
+- Block ads and trackers with Quiver Guard.
 - Incognito sessions are completely isolated..
 - You can view, modify, or share the source code under the GPL‑v3 license.
 

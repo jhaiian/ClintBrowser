@@ -101,6 +101,71 @@
 
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Measurement System -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/download_section_measurement"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="11sp"
+            android:letterSpacing="0.1"
+            android:fontFamily="sans-serif-medium" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardBackgroundColor="?attr/clintCardBackground"
+            app:cardCornerRadius="14dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:id="@+id/row_measurement_system"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp"
+                android:background="?attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_format_size_24"
+                    android:tint="?attr/clintIconTint"
+                    android:contentDescription="@null" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/measurement_system_title"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <TextView
+                        android:id="@+id/text_measurement_system_summary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textColor="?attr/clintSecondaryTextColor"
+                        android:textSize="13sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Network -->
         <TextView
             android:layout_width="wrap_content"
@@ -175,6 +240,183 @@
                         android:layout_height="wrap_content"
                         android:clickable="false"
                         android:focusable="false" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Scheduling -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/download_section_scheduling"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="11sp"
+            android:letterSpacing="0.1"
+            android:fontFamily="sans-serif-medium" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardBackgroundColor="?attr/clintCardBackground"
+            app:cardCornerRadius="14dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/row_schedule_enabled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="16dp"
+                    android:background="?attr/selectableItemBackground">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:layout_marginEnd="16dp"
+                        android:src="@drawable/ic_date_range_24"
+                        android:tint="?attr/clintIconTint"
+                        android:contentDescription="@null" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginEnd="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/download_schedule_enabled_title"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="15sp"
+                            android:fontFamily="sans-serif-medium" />
+
+                        <TextView
+                            android:id="@+id/text_schedule_summary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="?attr/clintSecondaryTextColor"
+                            android:textSize="13sp"
+                            android:lineSpacingMultiplier="1.3" />
+
+                    </LinearLayout>
+
+                    <Switch
+                        android:id="@+id/switch_schedule_enabled"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:focusable="false" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider" />
+
+                <LinearLayout
+                    android:id="@+id/row_schedule_start"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="16dp"
+                    android:background="?attr/selectableItemBackground">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:layout_marginEnd="16dp"
+                        android:src="@drawable/ic_hourglass_empty_24"
+                        android:tint="?attr/clintIconTint"
+                        android:contentDescription="@null" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/download_schedule_start_title"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="15sp"
+                            android:fontFamily="sans-serif-medium" />
+
+                        <TextView
+                            android:id="@+id/text_schedule_start_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="?attr/clintSecondaryTextColor"
+                            android:textSize="13sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider" />
+
+                <LinearLayout
+                    android:id="@+id/row_schedule_end"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="16dp"
+                    android:background="?attr/selectableItemBackground">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:layout_marginEnd="16dp"
+                        android:src="@drawable/ic_hourglass_empty_24"
+                        android:tint="?attr/clintIconTint"
+                        android:contentDescription="@null" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/download_schedule_end_title"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="15sp"
+                            android:fontFamily="sans-serif-medium" />
+
+                        <TextView
+                            android:id="@+id/text_schedule_end_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="?attr/clintSecondaryTextColor"
+                            android:textSize="13sp" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -452,6 +694,71 @@
                     android:layout_marginBottom="4dp"
                     android:textColor="?attr/clintSecondaryTextColor"
                     android:textSize="13sp" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Speed Limit -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/download_section_speed_limit"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="11sp"
+            android:letterSpacing="0.1"
+            android:fontFamily="sans-serif-medium" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardBackgroundColor="?attr/clintCardBackground"
+            app:cardCornerRadius="14dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:id="@+id/row_speed_limit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp"
+                android:background="?attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_speed_24"
+                    android:tint="?attr/clintIconTint"
+                    android:contentDescription="@null" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/download_speed_limit_title"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <TextView
+                        android:id="@+id/text_speed_limit_summary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textColor="?attr/clintSecondaryTextColor"
+                        android:textSize="13sp" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -776,13 +1083,13 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Battery -->
+        <!-- Permissions -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginBottom="8dp"
-            android:text="@string/download_section_battery"
+            android:text="@string/download_section_permissions"
             android:textColor="?attr/colorPrimary"
             android:textSize="11sp"
             android:letterSpacing="0.1"
@@ -797,45 +1104,109 @@
             app:strokeWidth="0dp">
 
             <LinearLayout
-                android:id="@+id/row_ignore_battery_opt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="16dp"
-                android:background="?attr/selectableItemBackground">
-
-                <ImageView
-                    android:id="@+id/icon_ignore_battery_opt"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:layout_marginEnd="16dp"
-                    android:src="@drawable/ic_battery_profile_24"
-                    android:tint="?attr/clintIconTint"
-                    android:contentDescription="@null" />
+                android:orientation="vertical">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:id="@+id/row_ignore_battery_opt"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="16dp"
+                    android:background="?attr/selectableItemBackground">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/download_ignore_battery_opt_title"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="15sp"
-                        android:fontFamily="sans-serif-medium" />
+                    <ImageView
+                        android:id="@+id/icon_ignore_battery_opt"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:layout_marginEnd="16dp"
+                        android:src="@drawable/ic_battery_profile_24"
+                        android:tint="?attr/clintIconTint"
+                        android:contentDescription="@null" />
 
-                    <TextView
-                        android:id="@+id/text_ignore_battery_opt_summary"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:textColor="?attr/clintSecondaryTextColor"
-                        android:textSize="13sp"
-                        android:lineSpacingMultiplier="1.3" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/download_ignore_battery_opt_title"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="15sp"
+                            android:fontFamily="sans-serif-medium" />
+
+                        <TextView
+                            android:id="@+id/text_ignore_battery_opt_summary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="?attr/clintSecondaryTextColor"
+                            android:textSize="13sp"
+                            android:lineSpacingMultiplier="1.3" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/divider_grant_all_files_access"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider"
+                    android:visibility="gone" />
+
+                <!-- GitHub flavor only, Android 11+: MANAGE_EXTERNAL_STORAGE is not declared
+                     in the F-Droid manifest and the permission itself does not exist below
+                     API 30, so this row starts hidden and is only revealed in code. -->
+                <LinearLayout
+                    android:id="@+id/row_grant_all_files_access"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="16dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/icon_grant_all_files_access"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:layout_marginEnd="16dp"
+                        android:src="@drawable/ic_folder_24"
+                        android:tint="?attr/clintIconTint"
+                        android:contentDescription="@null" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/download_grant_all_files_access_title"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="15sp"
+                            android:fontFamily="sans-serif-medium" />
+
+                        <TextView
+                            android:id="@+id/text_grant_all_files_access_summary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="@string/download_grant_all_files_access_summary"
+                            android:textColor="?attr/clintSecondaryTextColor"
+                            android:textSize="13sp"
+                            android:lineSpacingMultiplier="1.3" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 

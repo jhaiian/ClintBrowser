@@ -1,5 +1,7 @@
 package com.jhaiian.clint.downloads
 
+import com.jhaiian.clint.util.formatFileSize
+
 import android.content.Intent
 import android.net.Uri
 import android.text.Editable
@@ -21,6 +23,7 @@ import com.google.android.material.slider.Slider
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.jhaiian.clint.R
+import com.jhaiian.clint.browser.delegates.PREF_BATTERY_OPT_ASKED
 import com.jhaiian.clint.settings.fragments.DownloadSettingsFragment
 import com.jhaiian.clint.ui.ClintToast
 import kotlinx.coroutines.Dispatchers
@@ -49,6 +52,9 @@ internal fun DownloadsActivity.showManualDownloadDialog() {
     val textSplitSummary = dialogView.findViewById<TextView>(R.id.text_manual_split_summary)
     val sliderMulti = dialogView.findViewById<Slider>(R.id.slider_manual_multi_parts)
     val textMultiSummary = dialogView.findViewById<TextView>(R.id.text_manual_multi_summary)
+    val etSpeedLimit = dialogView.findViewById<TextInputEditText>(R.id.et_manual_speed_limit)
+    val speedLimitDropdown = dialogView.findViewById<AutoCompleteTextView>(R.id.speed_limit_unit_dropdown_manual)
+    val switchSchedule = dialogView.findViewById<Switch>(R.id.switch_manual_schedule)
     val tvFileSize = dialogView.findViewById<TextView>(R.id.tv_manual_file_size)
     val tvStorageInfo = dialogView.findViewById<TextView>(R.id.tv_manual_storage_info)
 
@@ -109,6 +115,25 @@ internal fun DownloadsActivity.showManualDownloadDialog() {
     sliderMulti.addOnChangeListener { _, value, _ ->
         textMultiSummary.text = resources.getQuantityString(R.plurals.download_multithreading_value, value.toInt(), value.toInt())
     }
+
+    val initSpeedLimitAmount = prefs.getInt(DownloadSettingsFragment.PREF_SPEED_LIMIT_AMOUNT, DownloadSettingsFragment.DEFAULT_SPEED_LIMIT_AMOUNT)
+    val initSpeedLimitUnit = prefs.getString(DownloadSettingsFragment.PREF_SPEED_LIMIT_UNIT, DEFAULT_SPEED_LIMIT_UNIT) ?: DEFAULT_SPEED_LIMIT_UNIT
+    if (initSpeedLimitAmount > 0) etSpeedLimit.setText(initSpeedLimitAmount.toString())
+    val speedLimitUnitOptions = listOf(getString(R.string.speed_limit_unit_kb), getString(R.string.speed_limit_unit_mb))
+    speedLimitDropdown.setAdapter(ArrayAdapter(this, R.layout.item_dropdown, speedLimitUnitOptions))
+    speedLimitDropdown.setText(if (initSpeedLimitUnit == SPEED_LIMIT_UNIT_MB) speedLimitUnitOptions[1] else speedLimitUnitOptions[0], false)
+
+    wireScheduleThisDownloadRow(
+        context = this,
+        fragmentManager = supportFragmentManager,
+        rowSchedule = dialogView.findViewById(R.id.row_manual_schedule),
+        switchSchedule = switchSchedule,
+        containerDetails = dialogView.findViewById(R.id.container_manual_schedule_details),
+        rowDate = dialogView.findViewById(R.id.row_manual_schedule_date),
+        textDateValue = dialogView.findViewById(R.id.text_manual_schedule_date_value),
+        rowTime = dialogView.findViewById(R.id.row_manual_schedule_time),
+        textTimeValue = dialogView.findViewById(R.id.text_manual_schedule_time_value)
+    )
 
     var fetchedFilename: String? = null
     var isFetched = false
@@ -221,12 +246,33 @@ internal fun DownloadsActivity.showManualDownloadDialog() {
                         .show()
                     return@setOnClickListener
                 }
+                val fat32Error = checkFat32FileSizeLimit(this, contentLength, currentMode, currentCustomUri)
+                if (fat32Error != null) {
+                    MaterialAlertDialogBuilder(this, getDialogTheme())
+                        .setTitle(getString(R.string.download_error_fat32_title))
+                        .setMessage(fat32Error)
+                        .setPositiveButton(getString(R.string.action_ok), null)
+                        .show()
+                    return@setOnClickListener
+                }
                 val nameText = etFilename.text?.toString()?.trim() ?: ""
                 val extText = etExtension.text?.toString()?.trim() ?: ""
                 val resolvedFilename = if (extText.isNotEmpty()) "$nameText.$extText" else nameText
                 val splitParts = sliderSplit.value.toInt()
                 val multithreadingParts = sliderMulti.value.toInt()
+                val speedLimitAmount = etSpeedLimit.text?.toString()?.toIntOrNull()?.coerceAtLeast(0) ?: 0
+                val speedLimitUnit = if (speedLimitDropdown.text.toString() == speedLimitUnitOptions[1]) SPEED_LIMIT_UNIT_MB else SPEED_LIMIT_UNIT_KB
+                val speedLimitBytesPerSec = resolveSpeedLimitBytesPerSec(this, speedLimitAmount, speedLimitUnit)
                 val ua = android.webkit.WebSettings.getDefaultUserAgent(this)
+                val scheduledStartAtMillis = readScheduledStartAtMillis(switchSchedule)
+                if (scheduledStartAtMillis > 0L && scheduledStartAtMillis <= System.currentTimeMillis()) {
+                    MaterialAlertDialogBuilder(this, getDialogTheme())
+                        .setTitle(getString(R.string.download_schedule_invalid_title))
+                        .setMessage(getString(R.string.download_schedule_past_time_error))
+                        .setPositiveButton(getString(R.string.action_ok), null)
+                        .show()
+                    return@setOnClickListener
+                }
                 performManualDownload(
                     url = url,
                     filename = resolvedFilename,
@@ -235,8 +281,10 @@ internal fun DownloadsActivity.showManualDownloadDialog() {
                     unmeteredOnly = switchUnmetered.isChecked,
                     splitParts = splitParts,
                     multithreadingParts = multithreadingParts,
+                    speedLimitBytesPerSec = speedLimitBytesPerSec,
                     locationMode = currentMode,
                     customLocationUri = currentCustomUri?.toString(),
+                    scheduledStartAtMillis = scheduledStartAtMillis,
                     onDismiss = {
                         ClintToast.show(this, getString(R.string.toast_downloading, resolvedFilename), R.drawable.ic_download_24)
                         dialog.dismiss()
@@ -353,8 +401,49 @@ private fun DownloadsActivity.performManualDownload(
     unmeteredOnly: Boolean,
     splitParts: Int,
     multithreadingParts: Int,
+    speedLimitBytesPerSec: Long,
     locationMode: String,
     customLocationUri: String?,
+    scheduledStartAtMillis: Long,
+    onDismiss: () -> Unit,
+    onRename: () -> Unit
+) {
+    val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+    val pm = getSystemService(android.os.PowerManager::class.java)
+    if (!prefs.getBoolean(PREF_BATTERY_OPT_ASKED, false) && !pm.isIgnoringBatteryOptimizations(packageName)) {
+        prefs.edit().putBoolean(PREF_BATTERY_OPT_ASKED, true).apply()
+        MaterialAlertDialogBuilder(this, getDialogTheme())
+            .setTitle(getString(R.string.battery_opt_rationale_title))
+            .setMessage(getString(R.string.battery_opt_rationale_message))
+            .setCancelable(false)
+            .setPositiveButton(getString(R.string.action_allow)) { _, _ ->
+                val intent = Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                    data = Uri.parse("package:$packageName")
+                }
+                startActivity(intent)
+                continueManualDownload(url, filename, userAgent, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, scheduledStartAtMillis, onDismiss, onRename)
+            }
+            .setNegativeButton(getString(R.string.action_not_now)) { _, _ ->
+                continueManualDownload(url, filename, userAgent, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, scheduledStartAtMillis, onDismiss, onRename)
+            }
+            .show()
+        return
+    }
+    continueManualDownload(url, filename, userAgent, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, scheduledStartAtMillis, onDismiss, onRename)
+}
+
+private fun DownloadsActivity.continueManualDownload(
+    url: String,
+    filename: String,
+    userAgent: String,
+    retryEnabled: Boolean,
+    unmeteredOnly: Boolean,
+    splitParts: Int,
+    multithreadingParts: Int,
+    speedLimitBytesPerSec: Long,
+    locationMode: String,
+    customLocationUri: String?,
+    scheduledStartAtMillis: Long,
     onDismiss: () -> Unit,
     onRename: () -> Unit
 ) {
@@ -365,16 +454,16 @@ private fun DownloadsActivity.performManualDownload(
             .setTitle(getString(R.string.download_metered_warning_title))
             .setMessage(getString(R.string.download_metered_warning_message))
             .setPositiveButton(getString(R.string.action_yes)) { _, _ ->
-                checkConflictAndEnqueueManual(url, filename, userAgent, retryEnabled, false, splitParts, multithreadingParts, locationMode, customLocationUri, onDismiss, onRename)
+                checkConflictAndEnqueueManual(url, filename, userAgent, retryEnabled, false, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, scheduledStartAtMillis, onDismiss, onRename)
             }
             .setNegativeButton(getString(R.string.action_no)) { _, _ ->
-                checkConflictAndEnqueueManual(url, filename, userAgent, retryEnabled, true, splitParts, multithreadingParts, locationMode, customLocationUri, onDismiss, onRename)
+                checkConflictAndEnqueueManual(url, filename, userAgent, retryEnabled, true, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, scheduledStartAtMillis, onDismiss, onRename)
             }
             .setNeutralButton(getString(R.string.action_cancel), null)
             .show()
         return
     }
-    checkConflictAndEnqueueManual(url, filename, userAgent, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, locationMode, customLocationUri, onDismiss, onRename)
+    checkConflictAndEnqueueManual(url, filename, userAgent, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, scheduledStartAtMillis, onDismiss, onRename)
 }
 
 private fun DownloadsActivity.checkConflictAndEnqueueManual(
@@ -385,8 +474,40 @@ private fun DownloadsActivity.checkConflictAndEnqueueManual(
     unmeteredOnly: Boolean,
     splitParts: Int,
     multithreadingParts: Int,
+    speedLimitBytesPerSec: Long,
     locationMode: String,
     customLocationUri: String?,
+    scheduledStartAtMillis: Long,
+    onDismiss: () -> Unit,
+    onRename: () -> Unit
+) {
+    val existing = ClintDownloadManager.findActiveDownloadForUrl(url)
+    if (existing != null) {
+        MaterialAlertDialogBuilder(this, getDialogTheme())
+            .setTitle(getString(R.string.download_already_active_title))
+            .setMessage(getString(R.string.download_already_active_message, existing.filename))
+            .setPositiveButton(getString(R.string.action_download_anyway)) { _, _ ->
+                checkFilenameConflictAndEnqueueManual(url, filename, userAgent, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, scheduledStartAtMillis, onDismiss, onRename)
+            }
+            .setNegativeButton(getString(R.string.action_cancel), null)
+            .show()
+        return
+    }
+    checkFilenameConflictAndEnqueueManual(url, filename, userAgent, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, scheduledStartAtMillis, onDismiss, onRename)
+}
+
+private fun DownloadsActivity.checkFilenameConflictAndEnqueueManual(
+    url: String,
+    filename: String,
+    userAgent: String,
+    retryEnabled: Boolean,
+    unmeteredOnly: Boolean,
+    splitParts: Int,
+    multithreadingParts: Int,
+    speedLimitBytesPerSec: Long,
+    locationMode: String,
+    customLocationUri: String?,
+    scheduledStartAtMillis: Long,
     onDismiss: () -> Unit,
     onRename: () -> Unit
 ) {
@@ -399,7 +520,7 @@ private fun DownloadsActivity.checkConflictAndEnqueueManual(
     }
     if (!fileExists) {
         onDismiss()
-        ClintDownloadManager.enqueue(this, url, filename, userAgent, "", "", retryEnabled, unmeteredOnly, splitParts, multithreadingParts, locationMode, customLocationUri)
+        ClintDownloadManager.enqueue(this, url, filename, userAgent, "", "", retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, scheduledStartAtMillis)
         return
     }
     val items = arrayOf(
@@ -413,12 +534,12 @@ private fun DownloadsActivity.checkConflictAndEnqueueManual(
             when (which) {
                 0 -> {
                     onDismiss()
-                    ClintDownloadManager.enqueue(this, url, filename, userAgent, "", "", retryEnabled, unmeteredOnly, splitParts, multithreadingParts, locationMode, customLocationUri)
+                    ClintDownloadManager.enqueue(this, url, filename, userAgent, "", "", retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, scheduledStartAtMillis)
                 }
                 1 -> {
                     deleteExistingManual(filename, locationMode, customLocationUri)
                     onDismiss()
-                    ClintDownloadManager.enqueue(this, url, filename, userAgent, "", "", retryEnabled, unmeteredOnly, splitParts, multithreadingParts, locationMode, customLocationUri)
+                    ClintDownloadManager.enqueue(this, url, filename, userAgent, "", "", retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, scheduledStartAtMillis)
                 }
                 2 -> onRename()
             }

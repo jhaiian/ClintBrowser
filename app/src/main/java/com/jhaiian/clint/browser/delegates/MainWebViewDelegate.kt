@@ -24,7 +24,7 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
     val settings = webView.settings
     settings.javaScriptEnabled = prefs.getBoolean("javascript_enabled", true)
     settings.domStorageEnabled = !isIncognito
-    settings.cacheMode = if (isIncognito) WebSettings.LOAD_NO_CACHE else resolveEffectiveCacheMode(prefs)
+    settings.cacheMode = if (isIncognito) WebSettings.LOAD_NO_CACHE else WebSettings.LOAD_DEFAULT
     settings.setSupportZoom(true)
     settings.setSupportMultipleWindows(true)
     settings.builtInZoomControls = true
@@ -33,7 +33,7 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
     settings.useWideViewPort = true
     val dataSaverEnabled = prefs.getBoolean("data_saver_enabled", false)
     settings.mediaPlaybackRequiresUserGesture = dataSaverEnabled && prefs.getBoolean("data_saver_disable_autoplay", true)
-    settings.loadsImagesAutomatically = !(dataSaverEnabled && prefs.getBoolean("data_saver_disable_images", false))
+    settings.loadsImagesAutomatically = !(dataSaverEnabled && prefs.getBoolean("data_saver_disable_images", true))
     settings.allowFileAccess = false
     settings.allowContentAccess = false
     settings.safeBrowsingEnabled = false
@@ -161,29 +161,6 @@ internal fun MainActivity.applyWebDarkMode(webView: WebView) {
     }
 }
 
-internal fun resolveCacheMode(key: String?): Int = when (key) {
-    "cache_else_network" -> WebSettings.LOAD_CACHE_ELSE_NETWORK
-    "no_cache"           -> WebSettings.LOAD_NO_CACHE
-    "cache_only"         -> WebSettings.LOAD_CACHE_ONLY
-    else                 -> WebSettings.LOAD_DEFAULT
-}
-
-internal fun resolveEffectiveCacheMode(prefs: android.content.SharedPreferences): Int {
-    val dataSaverEnabled = prefs.getBoolean("data_saver_enabled", false)
-    if (dataSaverEnabled && prefs.getBoolean("data_saver_cache_first", true)) {
-        return WebSettings.LOAD_CACHE_ELSE_NETWORK
-    }
-    return resolveCacheMode(prefs.getString("cache_mode", "default"))
-}
-
-internal fun MainActivity.applyCacheMode() {
-    val mode = resolveEffectiveCacheMode(prefs)
-    tabManager.tabs.forEach { tab ->
-        if (!tab.isIncognito) tab.webView.settings.cacheMode = mode
-    }
-    tabManager.activeTab?.webView?.reload()
-}
-
 internal fun MainActivity.addAutoplayScript(tab: BrowserTab) {
     if (!WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) return
     removeAutoplayScript(tab)
@@ -196,15 +173,12 @@ internal fun MainActivity.removeAutoplayScript(tab: BrowserTab) {
 
 internal fun MainActivity.applyDataSaverSettings() {
     val dataSaverEnabled = prefs.getBoolean("data_saver_enabled", false)
-    val disableImages = dataSaverEnabled && prefs.getBoolean("data_saver_disable_images", false)
+    val disableImages = dataSaverEnabled && prefs.getBoolean("data_saver_disable_images", true)
     val disableAutoplay = dataSaverEnabled && prefs.getBoolean("data_saver_disable_autoplay", true)
     tabManager.tabs.forEach { tab ->
         tab.webView.settings.loadsImagesAutomatically = !disableImages
         tab.webView.settings.mediaPlaybackRequiresUserGesture = disableAutoplay
         if (disableAutoplay) addAutoplayScript(tab) else removeAutoplayScript(tab)
-        if (!tab.isIncognito) {
-            tab.webView.settings.cacheMode = resolveEffectiveCacheMode(prefs)
-        }
     }
     tabManager.activeTab?.webView?.reload()
 }
@@ -261,21 +235,6 @@ internal fun MainActivity.applyUserAgent() {
         applyUserAgentMetadata(it.webView)
     }
     tabManager.activeTab?.webView?.reload()
-}
-
-@SuppressLint("SetJavaScriptEnabled")
-internal fun MainActivity.reattachWebClients() {
-    tabManager.tabs.forEach { tab ->
-        tab.webView.webViewClient = com.jhaiian.clint.browser.webview.ClintWebViewClient(
-            prefs = prefs,
-            isActive = { tabManager.activeTab?.id == tab.id },
-            onPageStartedCallback = { url -> if (tabManager.activeTab?.id == tab.id) onPageStarted(url) },
-            onPageFinishedCallback = { url -> if (tabManager.activeTab?.id == tab.id) onPageFinished(url) },
-            onTabUrlUpdatedCallback = { wv, url -> onTabUrlUpdated(wv, url) },
-            getDesktopHeaders = { buildDesktopHeaders() },
-            getTabId = { tab.id }
-        )
-    }
 }
 
 internal fun MainActivity.addDesktopScript(tab: BrowserTab) {

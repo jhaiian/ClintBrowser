@@ -86,7 +86,7 @@ class BookmarksAdapter(
         if (faviconUrl.isNotEmpty()) {
             val prefs = PreferenceManager.getDefaultSharedPreferences(holder.itemView.context)
             val cacheOnly = prefs.getBoolean("data_saver_enabled", false) &&
-                prefs.getBoolean("data_saver_disable_images", false)
+                prefs.getBoolean("data_saver_disable_images", true)
             FaviconCache.load(holder.itemView.context, faviconUrl, cacheOnly) { bmp ->
                 if (holder.bindingAdapterPosition == position && bmp != null) {
                     holder.icon.setImageBitmap(bmp)

@@ -10,7 +10,8 @@ enum class DownloadsTabType {
             DownloadStatus.ALLOCATING,
             DownloadStatus.DOWNLOADING,
             DownloadStatus.RETRYING,
-            DownloadStatus.MOVING,
+            DownloadStatus.COPYING_TEMP,
+            DownloadStatus.DELETING_TEMP,
             DownloadStatus.PAUSED
         )
     }

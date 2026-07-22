@@ -462,6 +462,13 @@ internal fun MainActivity.onProgressChanged(progress: Int) {
     binding.progressBarBottom.visibility = if (progress < 100) View.VISIBLE else View.INVISIBLE
 }
 
+internal fun MainActivity.resetProgressBar() {
+    binding.progressBar.progress = 0
+    binding.progressBar.visibility = View.INVISIBLE
+    binding.progressBarBottom.progress = 0
+    binding.progressBarBottom.visibility = View.INVISIBLE
+}
+
 internal fun MainActivity.updateBookmarkIcon() {
     val url = tabManager.activeTab?.webView?.url ?: ""
     val isBookmarked = url.isNotEmpty() && BookmarkManager.isBookmarked(this, url)

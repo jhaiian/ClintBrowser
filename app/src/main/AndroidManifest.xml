@@ -18,6 +18,7 @@
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <queries>
         <intent>
@@ -179,15 +180,24 @@
             android:name=".downloads.DownloadActionReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.jhaiian.clint.DOWNLOAD_CANCEL" />
                 <action android:name="com.jhaiian.clint.DOWNLOAD_PAUSE" />
                 <action android:name="com.jhaiian.clint.DOWNLOAD_RESUME" />
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".downloads.DownloadCustomScheduleReceiver"
+            android:exported="false" />
+
         <service
             android:name=".downloads.DownloadForegroundService"
             android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <!-- WorkManager runs DownloadScheduleWorker's setForeground() promotion through its own
+             internal service, so that service needs the same type declared here too. -->
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
             android:foregroundServiceType="dataSync" />
 
     </application>

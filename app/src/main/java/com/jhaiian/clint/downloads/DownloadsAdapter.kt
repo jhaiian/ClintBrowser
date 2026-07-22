@@ -1,5 +1,8 @@
 package com.jhaiian.clint.downloads
 
+import com.jhaiian.clint.util.formatFileSize
+import com.jhaiian.clint.util.measurementSystemEpoch
+
 import android.content.res.ColorStateList
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
@@ -31,6 +34,7 @@ class DownloadsAdapter(
     private val allItems = mutableListOf<DownloadItem>()
     private val items = mutableListOf<DownloadItem>()
     private var filterQuery = ""
+    private var boundFormatEpoch = measurementSystemEpoch
 
     val isInSelectionMode: Boolean get() = sharedSelection.isActive
     val selectedCount: Int get() = sharedSelection.count
@@ -61,11 +65,13 @@ class DownloadsAdapter(
                 o.filename == n.filename &&
                 o.errorMessage == n.errorMessage &&
                 o.startedAt == n.startedAt &&
-                o.moveProgress == n.moveProgress &&
+                o.copyProgress == n.copyProgress &&
                 o.allocationProgress == n.allocationProgress &&
                 o.retryDelaySec == n.retryDelaySec &&
                 o.waitingForUnmetered == n.waitingForUnmetered &&
                 o.waitingForNetwork == n.waitingForNetwork &&
+                o.waitingForSchedule == n.waitingForSchedule &&
+                o.waitingForCustomSchedule == n.waitingForCustomSchedule &&
                 o.activeElapsedMs == n.activeElapsedMs
         }
 
@@ -73,7 +79,8 @@ class DownloadsAdapter(
             val o = oldList[oldItemPosition]
             val n = newList[newItemPosition]
             val isActiveProgress = n.status == DownloadStatus.DOWNLOADING ||
-                n.status == DownloadStatus.MOVING ||
+                n.status == DownloadStatus.COPYING_TEMP ||
+                n.status == DownloadStatus.DELETING_TEMP ||
                 n.status == DownloadStatus.CONNECTING ||
                 n.status == DownloadStatus.RETRYING ||
                 n.status == DownloadStatus.ALLOCATING
@@ -119,8 +126,14 @@ class DownloadsAdapter(
             val q = filterQuery.trim().lowercase()
             allItems.filterTo(items) { it.filename.lowercase().contains(q) }
         }
-        val diffResult = DiffUtil.calculateDiff(DownloadDiffCallback(oldItems, items))
-        diffResult.dispatchUpdatesTo(this)
+        val epochChanged = boundFormatEpoch != measurementSystemEpoch
+        boundFormatEpoch = measurementSystemEpoch
+        if (epochChanged) {
+            notifyDataSetChanged()
+        } else {
+            val diffResult = DiffUtil.calculateDiff(DownloadDiffCallback(oldItems, items))
+            diffResult.dispatchUpdatesTo(this)
+        }
     }
 
     fun syncSelectionUi() {
@@ -256,7 +269,7 @@ class DownloadsAdapter(
             }
             DownloadStatus.ALLOCATING -> {
                 val pct = item.allocationProgress
-                holder.status.text = if (item.totalBytes > 0) formatBytes(item.totalBytes) else ""
+                holder.status.text = if (item.totalBytes > 0) formatFileSize(item.totalBytes) else ""
                 holder.meta.text = ctx.getString(R.string.download_status_allocating, pct)
                 holder.meta.visibility = View.VISIBLE
                 if (pct > 0) holder.card.setDownloadProgress(pct) else holder.card.setIndeterminate()
@@ -265,7 +278,7 @@ class DownloadsAdapter(
                 holder.btnMore.visibility = View.GONE
             }
             DownloadStatus.CONNECTING -> {
-                holder.status.text = if (item.totalBytes > 0) formatBytes(item.totalBytes) else ""
+                holder.status.text = if (item.totalBytes > 0) formatFileSize(item.totalBytes) else ""
                 holder.meta.text = ctx.getString(R.string.download_status_connecting)
                 holder.meta.visibility = View.VISIBLE
                 holder.card.setIndeterminate()
@@ -281,12 +294,12 @@ class DownloadsAdapter(
                 val pct = item.progressPercent
                 holder.status.text = when {
                     item.bytesDownloaded > 0 && pct >= 0 && item.totalBytes > 0 ->
-                        ctx.getString(R.string.download_status_progress, pct, formatBytes(item.bytesDownloaded), formatBytes(item.totalBytes))
+                        ctx.getString(R.string.download_status_progress, pct, formatFileSize(item.bytesDownloaded), formatFileSize(item.totalBytes))
                     item.bytesDownloaded > 0 && pct >= 0 ->
-                        ctx.getString(R.string.download_status_progress_unknown_total, pct, formatBytes(item.bytesDownloaded))
+                        ctx.getString(R.string.download_status_progress_unknown_total, pct, formatFileSize(item.bytesDownloaded))
                     item.bytesDownloaded > 0 ->
-                        ctx.getString(R.string.download_status_progress_indeterminate, formatBytes(item.bytesDownloaded))
-                    item.totalBytes > 0 -> formatBytes(item.totalBytes)
+                        ctx.getString(R.string.download_status_progress_indeterminate, formatFileSize(item.bytesDownloaded))
+                    item.totalBytes > 0 -> formatFileSize(item.totalBytes)
                     else -> ""
                 }
                 holder.meta.text = if (delaySec > 0)
@@ -308,10 +321,10 @@ class DownloadsAdapter(
             }
             DownloadStatus.DOWNLOADING -> {
                 val pct = item.progressPercent
-                val downloaded = formatBytes(item.bytesDownloaded)
+                val downloaded = formatFileSize(item.bytesDownloaded)
                 holder.status.text = if (pct >= 0) {
                     if (item.totalBytes > 0)
-                        ctx.getString(R.string.download_status_progress, pct, downloaded, formatBytes(item.totalBytes))
+                        ctx.getString(R.string.download_status_progress, pct, downloaded, formatFileSize(item.totalBytes))
                     else
                         ctx.getString(R.string.download_status_progress_unknown_total, pct, downloaded)
                 } else {
@@ -336,16 +349,21 @@ class DownloadsAdapter(
                 val pct = item.progressPercent
                 holder.status.text = if (pct >= 0) {
                     if (item.totalBytes > 0)
-                        ctx.getString(R.string.download_status_progress, pct, formatBytes(item.bytesDownloaded), formatBytes(item.totalBytes))
+                        ctx.getString(R.string.download_status_progress, pct, formatFileSize(item.bytesDownloaded), formatFileSize(item.totalBytes))
                     else
-                        ctx.getString(R.string.download_status_progress_unknown_total, pct, formatBytes(item.bytesDownloaded))
+                        ctx.getString(R.string.download_status_progress_unknown_total, pct, formatFileSize(item.bytesDownloaded))
                 } else {
-                    ctx.getString(R.string.download_status_progress_indeterminate, formatBytes(item.bytesDownloaded))
+                    ctx.getString(R.string.download_status_progress_indeterminate, formatFileSize(item.bytesDownloaded))
                 }
                 if (pct >= 0) holder.card.setDownloadProgress(pct) else holder.card.clearProgress()
                 val pausedLabel = when {
                     item.waitingForNetwork -> ctx.getString(R.string.download_paused_waiting_network)
                     item.waitingForUnmetered -> ctx.getString(R.string.download_paused_waiting_unmetered)
+                    item.waitingForSchedule -> ctx.getString(R.string.download_paused_waiting_schedule)
+                    item.waitingForCustomSchedule -> ctx.getString(
+                        R.string.download_paused_waiting_custom_schedule,
+                        formatScheduledDateTime(ctx, item.scheduledStartAtMillis)
+                    )
                     else -> ctx.getString(R.string.download_paused)
                 }
                 val elapsedSec = item.activeElapsedMs / 1000L
@@ -355,7 +373,7 @@ class DownloadsAdapter(
                     pausedLabel
                 holder.meta.visibility = View.VISIBLE
                 bindResumableBadge(holder, item)
-                if (item.waitingForUnmetered || item.waitingForNetwork) {
+                if (item.waitingForUnmetered || item.waitingForNetwork || item.waitingForSchedule || item.waitingForCustomSchedule) {
                     holder.btnPause.setImageResource(R.drawable.ic_pause_24)
                     holder.btnPause.contentDescription = ctx.getString(R.string.download_pause_desc)
                     holder.btnPause.visibility = View.VISIBLE
@@ -369,7 +387,7 @@ class DownloadsAdapter(
                 holder.btnMore.visibility = View.GONE
             }
             DownloadStatus.COMPLETE -> {
-                val sizeStr = formatBytes(item.bytesDownloaded)
+                val sizeStr = formatFileSize(item.bytesDownloaded)
                 holder.status.text = if (item.startedAt > 0L)
                     ctx.getString(R.string.download_info_with_time, sizeStr, formatTimestamp(item.startedAt))
                 else
@@ -406,12 +424,21 @@ class DownloadsAdapter(
                     holder.retryHint.visibility = View.VISIBLE
                 }
             }
-            DownloadStatus.MOVING -> {
-                val pct = item.moveProgress
-                holder.status.text = if (item.totalBytes > 0) formatBytes(item.totalBytes) else ""
-                holder.meta.text = ctx.getString(R.string.download_status_moving, pct)
+            DownloadStatus.COPYING_TEMP -> {
+                val pct = item.copyProgress
+                holder.status.text = if (item.totalBytes > 0) formatFileSize(item.totalBytes) else ""
+                holder.meta.text = ctx.getString(R.string.download_status_copying_temp, pct)
                 holder.meta.visibility = View.VISIBLE
                 holder.card.setDownloadProgress(pct)
+                holder.resumableBadge.visibility = View.GONE
+                holder.btnPause.visibility = View.GONE
+                holder.btnMore.visibility = View.GONE
+            }
+            DownloadStatus.DELETING_TEMP -> {
+                holder.status.text = if (item.totalBytes > 0) formatFileSize(item.totalBytes) else ""
+                holder.meta.text = ctx.getString(R.string.download_status_deleting_temp)
+                holder.meta.visibility = View.VISIBLE
+                holder.card.setIndeterminate()
                 holder.resumableBadge.visibility = View.GONE
                 holder.btnPause.visibility = View.GONE
                 holder.btnMore.visibility = View.GONE
@@ -461,9 +488,14 @@ class DownloadsAdapter(
         if (speed <= 0L) return elapsedStr
         val remaining = item.totalBytes - item.bytesDownloaded
         val speedEta = if (item.totalBytes <= 0L || remaining <= 0L)
-            ctx.getString(R.string.download_speed_only, formatBytes(speed))
-        else
-            ctx.getString(R.string.download_speed_eta, formatBytes(speed), formatEta(ctx, remaining / speed))
+            ctx.getString(R.string.download_speed_only, formatFileSize(speed))
+        else {
+            // The ETA uses the average speed rather than the current reading above, since the
+            // current speed alone can swing the remaining-time estimate wildly on a connection
+            // that briefly speeds up or stalls.
+            val etaSpeed = item.averageSpeedBytesPerSec().takeIf { it > 0L } ?: speed
+            ctx.getString(R.string.download_speed_eta, formatFileSize(speed), formatEta(ctx, remaining / etaSpeed))
+        }
         return if (elapsedStr != null) "$speedEta  \u2022  $elapsedStr" else speedEta
     }
 
@@ -523,10 +555,4 @@ class DownloadsAdapter(
         }
     }
 
-    private fun formatBytes(bytes: Long): String = when {
-        bytes >= 1_073_741_824 -> "%.1f GB".format(bytes / 1_073_741_824.0)
-        bytes >= 1_048_576 -> "%.1f MB".format(bytes / 1_048_576.0)
-        bytes >= 1024 -> "%.0f KB".format(bytes / 1024.0)
-        else -> "$bytes B"
-    }
 }

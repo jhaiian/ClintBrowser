@@ -1,6 +1,7 @@
 package com.jhaiian.clint.downloads
 
 import android.app.Notification
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
@@ -22,11 +23,12 @@ import kotlinx.coroutines.launch
  * to state changes as they happen rather than checking on a fixed interval. [collectLatest] with a
  * trailing [delay] reproduces the old "wait a second before actually stopping" debounce, so a
  * download finishing right as the next one starts doesn't cause a stop-then-immediately-restart.
+ * The same collection keeps the active count on the summary notification current.
  */
 class DownloadForegroundService : LifecycleService() {
 
     companion object {
-        private const val FOREGROUND_ID = 9001
+        internal const val FOREGROUND_ID = 9001
 
         fun start(context: Context) {
             val intent = Intent(context, DownloadForegroundService::class.java)
@@ -41,19 +43,23 @@ class DownloadForegroundService : LifecycleService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
-        val notification = buildPlaceholderNotification()
+        val notification = DownloadNotificationHelper.buildSummaryNotification(this, 0)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(FOREGROUND_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
         } else {
             startForeground(FOREGROUND_ID, notification)
         }
 
+        val nm = getSystemService(NotificationManager::class.java)
+
         lifecycleScope.launch {
             ClintDownloadManager.downloadsFlow
-                .map { list -> list.any { it.status in DownloadStatus.ACTIVELY_WORKING } }
+                .map { list -> list.count { it.status in DownloadStatus.ACTIVELY_WORKING } }
                 .distinctUntilChanged()
-                .collectLatest { hasActive ->
-                    if (!hasActive) {
+                .collectLatest { activeCount ->
+                    if (activeCount > 0) {
+                        nm.notify(FOREGROUND_ID, DownloadNotificationHelper.buildSummaryNotification(this@DownloadForegroundService, activeCount))
+                    } else {
                         delay(1000)
                         stopSelf()
                     }
@@ -61,14 +67,5 @@ class DownloadForegroundService : LifecycleService() {
         }
 
         return START_STICKY
-    }
-
-    private fun buildPlaceholderNotification(): Notification {
-        return NotificationCompat.Builder(this, ClintDownloadManager.CHANNEL_ID)
-            .setContentTitle(getString(R.string.download_foreground_notification_title))
-            .setContentText(getString(R.string.download_foreground_notification_text))
-            .setSmallIcon(R.drawable.ic_notification_24)
-            .setOngoing(true)
-            .build()
     }
 }

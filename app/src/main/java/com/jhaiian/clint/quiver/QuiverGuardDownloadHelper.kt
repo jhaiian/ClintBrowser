@@ -4,7 +4,7 @@ import android.widget.TextView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.jhaiian.clint.R
-import com.jhaiian.clint.downloads.formatFileSize
+import com.jhaiian.clint.util.formatFileSize
 import com.jhaiian.clint.ui.ClintToast
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job

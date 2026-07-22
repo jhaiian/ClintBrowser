@@ -5,6 +5,7 @@ import android.app.Application
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceManager
+import com.jhaiian.clint.util.loadMeasurementSystemPreference
 import java.lang.ref.WeakReference
 
 class ClintApplication : Application() {
@@ -15,6 +16,7 @@ class ClintApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         applyNightMode()
+        loadMeasurementSystemPreference(this)
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
             override fun onActivityStarted(activity: Activity) {}

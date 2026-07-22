@@ -217,6 +217,7 @@ internal fun MainActivity.cleanupRefreshLinkTabs() {
     for (i in indices) {
         tabManager.closeTab(i)
     }
+    resetProgressBar()
     if (tabManager.tabs.isEmpty()) {
         openNewTab(isIncognito = false, url = getSearchEngineHomeUrl())
         return
@@ -240,6 +241,7 @@ internal fun MainActivity.closePopupTabToOpener(tab: BrowserTab): Boolean {
     onQuiverGuardTabClosed(tab)
     if (!tab.isIncognito) com.jhaiian.clint.ui.FaviconCache.evict(this, tab.url)
     tabManager.closeTab(closingIndex)
+    resetProgressBar()
 
     val restoredIndex = tabManager.tabs.indexOfFirst { it.id == openerId }
     if (restoredIndex !in tabManager.tabs.indices) return false

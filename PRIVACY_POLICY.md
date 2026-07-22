@@ -119,6 +119,8 @@ Clint Browser requests the following permissions:
 - **WRITE_EXTERNAL_STORAGE** – Saves downloaded files to your Downloads folder. *(Android 9 and below only)*
 - **POST_NOTIFICATIONS** – Shows download progress, completion, and failure alerts in your notification bar.
 - **REQUEST_INSTALL_PACKAGES** – Installs APK files downloaded from the download screen and installing updates from GitHub.
+- **SCHEDULE_EXACT_ALARM** – Download Scheduler
+- **MANAGE_EXTERNAL_STORAGE** – Allow the download manager to write directly to a custom location without requiring SAF (exclusively available in the GitHub Release).
 
 ## Camera & Audio
 - **CAMERA** – Used when a website asks you to upload a photo and you choose to take one with your camera, or when a website requests camera access for video calls.

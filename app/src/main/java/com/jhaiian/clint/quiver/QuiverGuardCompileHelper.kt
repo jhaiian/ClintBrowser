@@ -7,7 +7,7 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.jhaiian.clint.R
-import com.jhaiian.clint.downloads.formatFileSize
+import com.jhaiian.clint.util.formatFileSize
 import com.jhaiian.clint.quiver.engine.CompileEvent
 import com.jhaiian.clint.quiver.engine.CompileResult
 import com.jhaiian.clint.quiver.engine.CompileStage

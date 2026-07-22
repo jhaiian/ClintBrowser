@@ -69,15 +69,6 @@ class ClintWebViewClient(
         }
     }
 
-    private val trackerHosts = setOf(
-        "googletagmanager.com", "google-analytics.com", "analytics.google.com",
-        "doubleclick.net", "googlesyndication.com", "adservice.google.com",
-        "connect.facebook.net", "scorecardresearch.com", "quantserve.com",
-        "amazon-adsystem.com", "ads.twitter.com", "static.ads-twitter.com",
-        "pixel.facebook.com", "an.facebook.com", "stats.g.doubleclick.net",
-        "pagead2.googlesyndication.com"
-    )
-
     private fun registeredDomain(host: String): String =
         "https://$host".toHttpUrlOrNull()?.topPrivateDomain() ?: host
 
@@ -140,11 +131,6 @@ class ClintWebViewClient(
                 view.loadUrl(httpsUri.toString())
                 return true
             }
-        }
-
-        val host = uri.host ?: return false
-        if (prefs.getBoolean("block_trackers", true)) {
-            if (trackerHosts.any { host.contains(it) }) return true
         }
 
         if (request.isForMainFrame && tryOpenInApp(view, uri)) return true
@@ -428,7 +414,7 @@ class ClintWebViewClient(
         view: WebView,
         request: WebResourceRequest
     ): WebResourceResponse? {
-        val host = request.url.host ?: return super.shouldInterceptRequest(view, request)
+        if (request.url.host == null) return super.shouldInterceptRequest(view, request)
 
         val quiverGuardEnabled = prefs.getBoolean("quiver_guard_enabled", false)
         if (quiverGuardEnabled) {
@@ -448,11 +434,6 @@ class ClintWebViewClient(
             }
         }
 
-        if (prefs.getBoolean("block_trackers", true)) {
-            if (trackerHosts.any { host.contains(it) }) {
-                return WebResourceResponse("text/plain", "UTF-8", null)
-            }
-        }
         return super.shouldInterceptRequest(view, request)
     }
 

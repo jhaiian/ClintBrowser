@@ -17,7 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jhaiian.clint.R
 import com.jhaiian.clint.base.ClintActivity
-import com.jhaiian.clint.downloads.formatFileSize
+import com.jhaiian.clint.util.formatFileSize
 import io.noties.markwon.Markwon
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

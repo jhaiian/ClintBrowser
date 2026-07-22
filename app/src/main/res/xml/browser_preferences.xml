@@ -25,13 +25,6 @@
             app:iconTint="?attr/colorPrimary"
             app:singleLineTitle="false" />
 
-        <Preference
-            app:key="cache_mode"
-            app:title="@string/cache_mode_title"
-            app:icon="@drawable/ic_cached_24"
-            app:iconTint="?attr/colorPrimary"
-            app:singleLineTitle="false" />
-
     </PreferenceCategory>
 
 </PreferenceScreen>

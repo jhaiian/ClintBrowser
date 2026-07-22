@@ -262,12 +262,10 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
     private val prefsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         when (key) {
             "javascript_enabled" -> applyJavaScript()
-            "cache_mode" -> applyCacheMode()
             "block_third_party_cookies" -> applyCookiePolicy()
             "custom_user_agent" -> applyUserAgent()
-            "block_trackers" -> reattachWebClients()
             "quiver_guard_enabled" -> onQuiverGuardEnabled(prefs.getBoolean("quiver_guard_enabled", false))
-            "data_saver_enabled", "data_saver_disable_images", "data_saver_cache_first", "data_saver_disable_autoplay" -> applyDataSaverSettings()
+            "data_saver_enabled", "data_saver_disable_images", "data_saver_disable_autoplay" -> applyDataSaverSettings()
             "force_dark_web" -> {
                 tabManager.tabs.forEach { applyWebDarkMode(it.webView) }
                 tabManager.activeTab?.webView?.reload()
@@ -562,6 +560,7 @@ class MainActivity : ClintActivity(), TabSwitcherSheet.Listener, MenuBottomSheet
         }
         val wasActive = index == tabManager.activeIndex
         tabManager.closeTab(index)
+        resetProgressBar()
         if (tabManager.count == 0) openNewTab(false)
         else if (wasActive) attachActiveWebView()
         else updateTabCount()

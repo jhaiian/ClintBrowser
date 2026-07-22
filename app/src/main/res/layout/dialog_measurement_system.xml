@@ -16,7 +16,7 @@
     android:paddingBottom="8dp">
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardCacheSmart"
+        android:id="@+id/cardMeasurementBinary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -31,7 +31,7 @@
             android:padding="14dp"
             android:gravity="center_vertical">
             <RadioButton
-                android:id="@+id/radioCacheSmart"
+                android:id="@+id/radioMeasurementBinary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
@@ -47,7 +47,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/cache_mode_smart"
+                    android:text="@string/measurement_system_binary"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="15sp"
                     android:fontFamily="sans-serif-medium" />
@@ -55,7 +55,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="@string/cache_mode_smart_desc"
+                    android:text="@string/measurement_system_binary_desc"
                     android:textColor="?attr/clintSecondaryTextColor"
                     android:textSize="13sp" />
             </LinearLayout>
@@ -75,99 +75,7 @@
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardCacheFirst"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:alpha="0.45"
-        app:cardBackgroundColor="?attr/clintCardBackground"
-        app:cardCornerRadius="14dp"
-        app:strokeColor="?attr/colorPrimary"
-        app:strokeWidth="0dp">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="14dp"
-            android:gravity="center_vertical">
-            <RadioButton
-                android:id="@+id/radioCacheFirst"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:buttonTint="?attr/colorPrimary"
-                android:clickable="false"
-                android:focusable="false" />
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginStart="12dp">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/cache_mode_cache_first"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="15sp"
-                    android:fontFamily="sans-serif-medium" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="@string/cache_mode_cache_first_desc"
-                    android:textColor="?attr/clintSecondaryTextColor"
-                    android:textSize="13sp" />
-            </LinearLayout>
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardCacheAlwaysFresh"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:alpha="0.45"
-        app:cardBackgroundColor="?attr/clintCardBackground"
-        app:cardCornerRadius="14dp"
-        app:strokeColor="?attr/colorPrimary"
-        app:strokeWidth="0dp">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="14dp"
-            android:gravity="center_vertical">
-            <RadioButton
-                android:id="@+id/radioCacheAlwaysFresh"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:buttonTint="?attr/colorPrimary"
-                android:clickable="false"
-                android:focusable="false" />
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginStart="12dp">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/cache_mode_always_fresh"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="15sp"
-                    android:fontFamily="sans-serif-medium" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="@string/cache_mode_always_fresh_desc"
-                    android:textColor="?attr/clintSecondaryTextColor"
-                    android:textSize="13sp" />
-            </LinearLayout>
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardCacheOffline"
+        android:id="@+id/cardMeasurementDecimal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
@@ -183,7 +91,7 @@
             android:padding="14dp"
             android:gravity="center_vertical">
             <RadioButton
-                android:id="@+id/radioCacheOffline"
+                android:id="@+id/radioMeasurementDecimal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:buttonTint="?attr/colorPrimary"
@@ -197,7 +105,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/cache_mode_offline"
+                    android:text="@string/measurement_system_decimal"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="15sp"
                     android:fontFamily="sans-serif-medium" />
@@ -205,7 +113,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="@string/cache_mode_offline_desc"
+                    android:text="@string/measurement_system_decimal_desc"
                     android:textColor="?attr/clintSecondaryTextColor"
                     android:textSize="13sp" />
             </LinearLayout>

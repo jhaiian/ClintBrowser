@@ -1,5 +1,8 @@
 package com.jhaiian.clint.downloads
 
+import com.jhaiian.clint.util.formatFileSize
+import com.jhaiian.clint.util.formatStorageBytes
+
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -13,10 +16,14 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.webkit.MimeTypeMap
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.PopupWindow
+import android.widget.Switch
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
@@ -31,6 +38,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.android.material.textfield.TextInputEditText
 import com.jhaiian.clint.R
 import com.jhaiian.clint.base.ClintActivity
 import com.jhaiian.clint.ui.ClintToast
@@ -233,7 +241,8 @@ class DownloadsActivity : ClintActivity() {
                 ClintDownloadManager.downloadsFlow.collect {
                     val now = System.currentTimeMillis()
                     val hasActiveDownload = ClintDownloadManager.downloadsFlow.value.any {
-                        it.status == DownloadStatus.DOWNLOADING || it.status == DownloadStatus.MOVING
+                        it.status == DownloadStatus.DOWNLOADING || it.status == DownloadStatus.COPYING_TEMP ||
+                            it.status == DownloadStatus.DELETING_TEMP
                     }
                     if (!hasActiveDownload) lastRefreshMs = 0L
                     if (now - lastRefreshMs >= minRefreshIntervalMs) {
@@ -279,7 +288,7 @@ class DownloadsActivity : ClintActivity() {
         }
     }
 
-    private fun refresh() {
+    internal fun refresh() {
         allItems = ClintDownloadManager.downloadsFlow.value.map { it.copy() }.toMutableList()
 
         val allSorted = getSortedItems()
@@ -321,7 +330,8 @@ class DownloadsActivity : ClintActivity() {
             DownloadStatus.ALLOCATING to 0,
             DownloadStatus.DOWNLOADING to 0,
             DownloadStatus.RETRYING to 0,
-            DownloadStatus.MOVING to 0,
+            DownloadStatus.COPYING_TEMP to 0,
+            DownloadStatus.DELETING_TEMP to 0,
             DownloadStatus.QUEUED to 1,
             DownloadStatus.PAUSED to 2,
             DownloadStatus.FAILED to 3,
@@ -731,6 +741,7 @@ class DownloadsActivity : ClintActivity() {
                         unmeteredOnly = item.unmeteredOnly,
                         splitParts = item.splitParts,
                         multithreadingParts = item.multithreadingParts,
+                        speedLimitBytesPerSec = item.speedLimitBytesPerSec,
                         locationMode = item.locationMode,
                         customLocationUri = item.customLocationUri
                     )
@@ -793,6 +804,14 @@ class DownloadsActivity : ClintActivity() {
         }
         popupView.findViewById<View>(R.id.menu_download_redownload_options).setOnClickListener {
             popup.dismiss(); showRedownloadDialog(item)
+        }
+
+        val menuChangeSettings = popupView.findViewById<View>(R.id.menu_download_change_settings)
+        if (item.status in DownloadStatus.NOT_FINISHED) {
+            menuChangeSettings.visibility = View.VISIBLE
+            menuChangeSettings.setOnClickListener {
+                popup.dismiss(); showChangeDownloadSettingsDialog(item)
+            }
         }
 
         val menuUpdateLink = popupView.findViewById<View>(R.id.menu_download_update_link)
@@ -873,7 +892,7 @@ class DownloadsActivity : ClintActivity() {
                 val relative = parent.absolutePath.removePrefix(externalRoot).trimStart('/')
                 val docUri = Uri.parse(
                     "content://com.android.externalstorage.documents/document/primary:" +
-                        Uri.encode(relative)
+                        Uri.encode(relative, "/")
                 )
                 try {
                     startActivity(Intent(Intent.ACTION_VIEW).apply {
@@ -883,7 +902,9 @@ class DownloadsActivity : ClintActivity() {
                 } catch (_: Exception) {
                     try {
                         startActivity(Intent(android.app.DownloadManager.ACTION_VIEW_DOWNLOADS))
-                    } catch (_: Exception) {}
+                    } catch (_: Exception) {
+                        showOpenFolderError(parent.absolutePath)
+                    }
                 }
             }
             item.contentUri != null -> {
@@ -900,11 +921,21 @@ class DownloadsActivity : ClintActivity() {
                 } catch (_: Exception) {
                     try {
                         startActivity(Intent(android.app.DownloadManager.ACTION_VIEW_DOWNLOADS))
-                    } catch (_: Exception) {}
+                    } catch (_: Exception) {
+                        showOpenFolderError(treeUri.path ?: treeUri.toString())
+                    }
                 }
             }
             else -> return
         }
+    }
+
+    private fun showOpenFolderError(path: String) {
+        MaterialAlertDialogBuilder(this, getDialogTheme())
+            .setTitle(getString(R.string.open_folder_error_title))
+            .setMessage(getString(R.string.open_folder_error_message, path))
+            .setPositiveButton(getString(R.string.action_ok), null)
+            .create().also { applyStatusBarFlagToDialog(it) }.show()
     }
 
     private fun redownload(item: DownloadItem) {
@@ -922,6 +953,7 @@ class DownloadsActivity : ClintActivity() {
                     unmeteredOnly = item.unmeteredOnly,
                     splitParts = item.splitParts,
                     multithreadingParts = item.multithreadingParts,
+                    speedLimitBytesPerSec = item.speedLimitBytesPerSec,
                     locationMode = item.locationMode,
                     customLocationUri = item.customLocationUri
                 )
@@ -1039,11 +1071,11 @@ class DownloadsActivity : ClintActivity() {
         }
 
         val totalBytesStr = if (item.totalBytes > 0)
-            getString(R.string.download_props_size_format, propFormatBytes(item.totalBytes), item.totalBytes)
+            getString(R.string.download_props_size_format, formatStorageBytes(item.totalBytes), item.totalBytes)
         else getString(R.string.download_props_dash)
 
         val downloadedStr = if (item.bytesDownloaded > 0)
-            getString(R.string.download_props_size_format, propFormatBytes(item.bytesDownloaded), item.bytesDownloaded)
+            getString(R.string.download_props_size_format, formatStorageBytes(item.bytesDownloaded), item.bytesDownloaded)
         else getString(R.string.download_props_dash)
 
         val currentInProgressMs = if (item.activeStartedAt > 0L) System.currentTimeMillis() - item.activeStartedAt else 0L
@@ -1053,8 +1085,7 @@ class DownloadsActivity : ClintActivity() {
         else getString(R.string.download_props_dash)
 
         val avgSpeedStr = if (totalActiveElapsedMs > 0 && item.bytesDownloaded > 0) {
-            val bps = item.bytesDownloaded * 1000L / totalActiveElapsedMs
-            propFormatSpeed(bps)
+            propFormatSpeed(item.averageSpeedBytesPerSec())
         } else getString(R.string.download_props_dash)
 
         val dateAddedStr = if (item.startedAt > 0L) propFormatTimestamp(item.startedAt)
@@ -1294,6 +1325,58 @@ class DownloadsActivity : ClintActivity() {
             .showSoftInput(et, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
     }
 
+    /**
+     * Lets the person change the subset of a download's settings that stay safe to touch while
+     * it's queued, paused, or actively transferring: retry-on-failure, Wi-Fi/unmetered-only, and
+     * the speed limit. Filename, destination, and part count are deliberately left out since
+     * those are tied to bytes already written and changing them mid-transfer could corrupt the
+     * resume state.
+     */
+    private fun showChangeDownloadSettingsDialog(item: DownloadItem) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_change_download_settings, null)
+
+        val rowRetry = dialogView.findViewById<LinearLayout>(R.id.row_change_settings_retry)
+        val switchRetry = dialogView.findViewById<Switch>(R.id.switch_change_settings_retry)
+        val rowUnmetered = dialogView.findViewById<LinearLayout>(R.id.row_change_settings_unmetered)
+        val switchUnmetered = dialogView.findViewById<Switch>(R.id.switch_change_settings_unmetered)
+        val etSpeedLimit = dialogView.findViewById<TextInputEditText>(R.id.et_change_settings_speed_limit)
+        val speedLimitDropdown = dialogView.findViewById<AutoCompleteTextView>(R.id.speed_limit_unit_dropdown_change_settings)
+
+        switchRetry.isChecked = item.retryEnabled
+        switchUnmetered.isChecked = item.unmeteredOnly
+        rowRetry.setOnClickListener { switchRetry.isChecked = !switchRetry.isChecked }
+        rowUnmetered.setOnClickListener { switchUnmetered.isChecked = !switchUnmetered.isChecked }
+
+        val (initSpeedLimitAmount, initSpeedLimitUnit) = speedLimitBytesToAmountAndUnit(this, item.speedLimitBytesPerSec)
+        if (initSpeedLimitAmount > 0) etSpeedLimit.setText(initSpeedLimitAmount.toString())
+        val speedLimitUnitOptions = listOf(getString(R.string.speed_limit_unit_kb), getString(R.string.speed_limit_unit_mb))
+        speedLimitDropdown.setAdapter(ArrayAdapter(this, R.layout.item_dropdown, speedLimitUnitOptions))
+        speedLimitDropdown.setText(if (initSpeedLimitUnit == SPEED_LIMIT_UNIT_MB) speedLimitUnitOptions[1] else speedLimitUnitOptions[0], false)
+
+        MaterialAlertDialogBuilder(this, getDialogTheme())
+            .setTitle(getString(R.string.download_change_settings_dialog_title))
+            .setView(dialogView)
+            .setNegativeButton(getString(R.string.action_cancel), null)
+            .setPositiveButton(getString(R.string.action_save)) { _, _ ->
+                val speedLimitAmount = etSpeedLimit.text?.toString()?.toIntOrNull()?.coerceAtLeast(0) ?: 0
+                val speedLimitUnit = if (speedLimitDropdown.text.toString() == speedLimitUnitOptions[1]) {
+                    SPEED_LIMIT_UNIT_MB
+                } else {
+                    SPEED_LIMIT_UNIT_KB
+                }
+                val speedLimitBytesPerSec = resolveSpeedLimitBytesPerSec(this, speedLimitAmount, speedLimitUnit)
+                ClintDownloadManager.updateDownloadSettings(
+                    this,
+                    item.id,
+                    retryEnabled = switchRetry.isChecked,
+                    unmeteredOnly = switchUnmetered.isChecked,
+                    speedLimitBytesPerSec = speedLimitBytesPerSec
+                )
+                ClintToast.show(this, getString(R.string.download_change_settings_saved), R.drawable.ic_tune_24)
+            }
+            .create().also { applyStatusBarFlagToDialog(it) }.show()
+    }
+
     private fun propComputeHash(file: java.io.File, algorithm: String): String {
         val digest = java.security.MessageDigest.getInstance(algorithm)
         java.io.FileInputStream(file).use { fis ->
@@ -1304,18 +1387,7 @@ class DownloadsActivity : ClintActivity() {
         return digest.digest().joinToString("") { "%02x".format(it) }
     }
 
-    private fun propFormatBytes(bytes: Long): String = when {
-        bytes >= 1_073_741_824 -> "%.2f GB".format(bytes / 1_073_741_824.0)
-        bytes >= 1_048_576 -> "%.2f MB".format(bytes / 1_048_576.0)
-        bytes >= 1024 -> "%.2f KB".format(bytes / 1024.0)
-        else -> "$bytes B"
-    }
-
-    private fun propFormatSpeed(bps: Long): String = when {
-        bps >= 1_048_576 -> "%.2f MB/s".format(bps / 1_048_576.0)
-        bps >= 1024 -> "%.2f KB/s".format(bps / 1024.0)
-        else -> "$bps B/s"
-    }
+    private fun propFormatSpeed(bps: Long): String = getString(R.string.download_speed_only, formatFileSize(bps))
 
     private fun propFormatElapsed(seconds: Long): String = when {
         seconds < 60 -> "${seconds}s"

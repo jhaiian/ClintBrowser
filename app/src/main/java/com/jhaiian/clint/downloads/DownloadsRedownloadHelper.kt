@@ -39,6 +39,8 @@ internal fun DownloadsActivity.showRedownloadDialog(item: DownloadItem) {
     val textSplitSummary = dialogView.findViewById<TextView>(R.id.text_dialog_split_summary)
     val sliderMulti = dialogView.findViewById<Slider>(R.id.slider_dialog_multi_parts)
     val textMultiSummary = dialogView.findViewById<TextView>(R.id.text_dialog_multi_summary)
+    val etSpeedLimit = dialogView.findViewById<TextInputEditText>(R.id.et_dialog_speed_limit)
+    val speedLimitDropdown = dialogView.findViewById<AutoCompleteTextView>(R.id.speed_limit_unit_dropdown_dialog)
 
     tvUrl.text = item.url
 
@@ -139,6 +141,12 @@ internal fun DownloadsActivity.showRedownloadDialog(item: DownloadItem) {
         textMultiSummary.text = resources.getQuantityString(R.plurals.download_multithreading_value, value.toInt(), value.toInt())
     }
 
+    val (initSpeedLimitAmount, initSpeedLimitUnit) = speedLimitBytesToAmountAndUnit(this, item.speedLimitBytesPerSec)
+    if (initSpeedLimitAmount > 0) etSpeedLimit.setText(initSpeedLimitAmount.toString())
+    val speedLimitUnitOptions = listOf(getString(R.string.speed_limit_unit_kb), getString(R.string.speed_limit_unit_mb))
+    speedLimitDropdown.setAdapter(ArrayAdapter(this, R.layout.item_dropdown, speedLimitUnitOptions))
+    speedLimitDropdown.setText(if (initSpeedLimitUnit == SPEED_LIMIT_UNIT_MB) speedLimitUnitOptions[1] else speedLimitUnitOptions[0], false)
+
     val dialog = MaterialAlertDialogBuilder(this, getDialogTheme())
         .setTitle(getString(R.string.download_dialog_title))
         .setView(dialogView)
@@ -148,11 +156,23 @@ internal fun DownloadsActivity.showRedownloadDialog(item: DownloadItem) {
 
     dialog.setOnShowListener {
         dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val fat32Error = checkFat32FileSizeLimit(this, item.totalBytes, currentMode, currentCustomUri)
+            if (fat32Error != null) {
+                MaterialAlertDialogBuilder(this, getDialogTheme())
+                    .setTitle(getString(R.string.download_error_fat32_title))
+                    .setMessage(fat32Error)
+                    .setPositiveButton(getString(R.string.action_ok), null)
+                    .show()
+                return@setOnClickListener
+            }
             val nameText = etFilename.text?.toString()?.trim() ?: ""
             val extText = etExtension.text?.toString()?.trim() ?: ""
             val resolvedFilename = if (extText.isNotEmpty()) "$nameText.$extText" else nameText
             val splitParts = sliderSplit.value.toInt()
             val multithreadingParts = sliderMulti.value.toInt()
+            val speedLimitAmount = etSpeedLimit.text?.toString()?.toIntOrNull()?.coerceAtLeast(0) ?: 0
+            val speedLimitUnit = if (speedLimitDropdown.text.toString() == speedLimitUnitOptions[1]) SPEED_LIMIT_UNIT_MB else SPEED_LIMIT_UNIT_KB
+            val speedLimitBytesPerSec = resolveSpeedLimitBytesPerSec(this, speedLimitAmount, speedLimitUnit)
             performRedownload(
                 item = item,
                 filename = resolvedFilename,
@@ -160,6 +180,7 @@ internal fun DownloadsActivity.showRedownloadDialog(item: DownloadItem) {
                 unmeteredOnly = switchUnmetered.isChecked,
                 splitParts = splitParts,
                 multithreadingParts = multithreadingParts,
+                speedLimitBytesPerSec = speedLimitBytesPerSec,
                 locationMode = currentMode,
                 customLocationUri = currentCustomUri?.toString(),
                 onDismiss = {
@@ -194,6 +215,7 @@ private fun DownloadsActivity.performRedownload(
     unmeteredOnly: Boolean,
     splitParts: Int,
     multithreadingParts: Int,
+    speedLimitBytesPerSec: Long,
     locationMode: String,
     customLocationUri: String?,
     onDismiss: () -> Unit
@@ -206,16 +228,16 @@ private fun DownloadsActivity.performRedownload(
             .setMessage(getString(R.string.download_metered_warning_message))
             .setPositiveButton(getString(R.string.action_yes)) { _, _ ->
                 onDismiss()
-                ClintDownloadManager.enqueue(this, item.url, filename, item.userAgent, item.referer, item.cookies, retryEnabled, false, splitParts, multithreadingParts, locationMode, customLocationUri)
+                ClintDownloadManager.enqueue(this, item.url, filename, item.userAgent, item.referer, item.cookies, retryEnabled, false, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri)
             }
             .setNegativeButton(getString(R.string.action_no)) { _, _ ->
                 onDismiss()
-                ClintDownloadManager.enqueue(this, item.url, filename, item.userAgent, item.referer, item.cookies, retryEnabled, true, splitParts, multithreadingParts, locationMode, customLocationUri)
+                ClintDownloadManager.enqueue(this, item.url, filename, item.userAgent, item.referer, item.cookies, retryEnabled, true, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri)
             }
             .setNeutralButton(getString(R.string.action_cancel), null)
             .show()
         return
     }
     onDismiss()
-    ClintDownloadManager.enqueue(this, item.url, filename, item.userAgent, item.referer, item.cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, locationMode, customLocationUri)
+    ClintDownloadManager.enqueue(this, item.url, filename, item.userAgent, item.referer, item.cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri)
 }

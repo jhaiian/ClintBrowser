@@ -118,7 +118,7 @@ class TabAdapter(
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(ctx)
         val cacheOnly = prefs.getBoolean("data_saver_enabled", false) &&
-            prefs.getBoolean("data_saver_disable_images", false)
+            prefs.getBoolean("data_saver_disable_images", true)
 
         if (tab.isIncognito) {
             FaviconCache.loadMemoryOnly(faviconUrl) { bmp ->

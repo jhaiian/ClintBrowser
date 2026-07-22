@@ -55,6 +55,13 @@ object ClintDownloadManager {
     /** Tracks the coroutine running each download so [pause]/[remove] can cancel it. */
     internal val activeJobs: MutableMap<Int, Job> = ConcurrentHashMap()
 
+    /**
+     * Tracks the [SpeedLimiter] backing each currently-running transfer, keyed the same way and
+     * with the same lifetime as [activeJobs], so [updateDownloadSettings] can change an active
+     * download's throttle in place instead of waiting for it to restart.
+     */
+    internal val activeSpeedLimiters: MutableMap<Int, SpeedLimiter> = ConcurrentHashMap()
+
     /** Cooperative "please stop and preserve partial progress" signal, checked by [DownloadWorker]. */
     internal val pauseRequested: MutableSet<Int> = ConcurrentHashMap.newKeySet()
 
@@ -85,6 +92,13 @@ object ClintDownloadManager {
         DownloadPersistence.persistDownload(ctx, item, removedIds)
     }
 
+    /** Lightweight progress checkpoint so a killed process resumes near where it left off; see [DownloadPersistence.checkpointProgress]. */
+    internal fun checkpointProgress(id: Int, bytesDownloaded: Long, completedPartsMask: Long, partOffsets: String) {
+        if (id in removedIds) return
+        val ctx = appContext ?: return
+        DownloadPersistence.checkpointProgress(ctx, id, bytesDownloaded, completedPartsMask, partOffsets)
+    }
+
     private suspend fun deletePersistedDownload(id: Int) {
         val ctx = appContext ?: return
         DownloadPersistence.deletePersistedDownload(ctx, id)
@@ -107,6 +121,8 @@ object ClintDownloadManager {
         return applicationScope.launch {
             loadDownloads(appCtx)
             DownloadNetworkMonitor.register(appCtx)
+            DownloadScheduleMonitor.scheduleNextCheck(appCtx)
+            DownloadCustomScheduleMonitor.rearmAll(appCtx)
             tryDequeueNext(appCtx)
         }
     }
@@ -141,12 +157,18 @@ object ClintDownloadManager {
     internal fun activeCount(): Int =
         downloadsFlow.value.count { it.status in DownloadStatus.ACTIVELY_WORKING }
 
+    /** Returns the first unfinished download already queued for [url], if any, so callers can warn before starting a duplicate. */
+    fun findActiveDownloadForUrl(url: String): DownloadItem? =
+        downloadsFlow.value.firstOrNull { it.url == url && it.status in DownloadStatus.NOT_FINISHED }
+
     internal fun tryDequeueNext(context: Context) {
         val limit = concurrentLimit(context)
         val isMetered = !DownloadNetworkMonitor.isNetworkUnmetered(context)
+        val globalWindowOpen = DownloadScheduleMonitor.isWithinWindow(context)
         while (activeCount() < limit) {
             val next = downloadsFlow.value.lastOrNull {
-                it.status == DownloadStatus.QUEUED && (!it.unmeteredOnly || !isMetered)
+                it.status == DownloadStatus.QUEUED && (!it.unmeteredOnly || !isMetered) &&
+                    (globalWindowOpen || it.scheduledStartAtMillis > 0L)
             } ?: break
             val updated = next.copy(status = DownloadStatus.CONNECTING, speedBytesPerSec = 0L)
             publish(updated)
@@ -158,12 +180,58 @@ object ClintDownloadManager {
 
     /** Launches the coroutine that persists and runs one download attempt-chain, tracked in [activeJobs]. */
     private fun launchDownload(context: Context, item: DownloadItem) {
+        activeSpeedLimiters[item.id] = SpeedLimiter(item.speedLimitBytesPerSec)
         val job = applicationScope.launch {
             persistDownload(item)
             DownloadWorker.run(context, item)
         }
         activeJobs[item.id] = job
-        job.invokeOnCompletion { activeJobs.remove(item.id, job) }
+        job.invokeOnCompletion {
+            activeJobs.remove(item.id, job)
+            activeSpeedLimiters.remove(item.id)
+        }
+    }
+
+    /**
+     * Applies a [transform] to [item] using whatever retry/unmetered/speed-limit settings are
+     * currently live for its id, so a change saved through [updateDownloadSettings] while this
+     * transfer is in flight survives the worker's own next progress publish instead of being
+     * reverted by it. Every other field comes from [item] untouched.
+     */
+    internal fun withLiveSettings(item: DownloadItem): DownloadItem {
+        val current = downloadsFlow.value.find { it.id == item.id } ?: return item
+        return item.copy(
+            retryEnabled = current.retryEnabled,
+            unmeteredOnly = current.unmeteredOnly,
+            speedLimitBytesPerSec = current.speedLimitBytesPerSec
+        )
+    }
+
+    /**
+     * Updates the subset of a download's settings that can change safely while it's queued,
+     * paused, or actively transferring: retry-on-failure, Wi-Fi/unmetered-only, and the speed
+     * limit. Unlike the filename, destination, or part count, none of these are tied to bytes
+     * already written, so nothing needs to restart. Takes effect immediately: the change is
+     * published and persisted right away, and if this download is actively transferring right
+     * now, its live [SpeedLimiter] is retuned in place so a lowered or raised cap is honored on
+     * the very next chunk rather than the next attempt.
+     */
+    fun updateDownloadSettings(
+        context: Context,
+        id: Int,
+        retryEnabled: Boolean,
+        unmeteredOnly: Boolean,
+        speedLimitBytesPerSec: Long
+    ) {
+        val item = downloadsFlow.value.find { it.id == id } ?: return
+        val updated = item.copy(
+            retryEnabled = retryEnabled,
+            unmeteredOnly = unmeteredOnly,
+            speedLimitBytesPerSec = speedLimitBytesPerSec
+        )
+        publish(updated)
+        applicationScope.launch { persistDownload(updated) }
+        activeSpeedLimiters[id]?.updateLimit(speedLimitBytesPerSec)
     }
 
     fun enqueueBlob(context: Context, base64: String, filename: String, mimeType: String) {
@@ -175,7 +243,8 @@ object ClintDownloadManager {
         addNew(item)
         DownloadNotificationHelper.showProgressNotification(context, item)
         DownloadForegroundService.start(context)
-        val safMode = DownloadFileHelper.isSafCustomMode(context)
+        val directCustomDir = DownloadFileHelper.resolveDirectCustomDir(context)
+        val safMode = DownloadFileHelper.isSafCustomMode(context) && directCustomDir == null
         val job = applicationScope.launch {
             var current = item
             try {
@@ -186,7 +255,8 @@ object ClintDownloadManager {
                         ?: android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
                     if (ext != null) finalFilename = "${finalFilename.removeSuffix(".bin")}.$ext"
                 }
-                val destDir = if (safMode) DownloadFileHelper.tempDownloadDir(context) else DownloadFileHelper.resolveDownloadDir()
+                val destDir = directCustomDir
+                    ?: if (safMode) DownloadFileHelper.tempDownloadDir(context) else DownloadFileHelper.resolveDownloadDir()
                 destDir.mkdirs()
                 val destFile = DownloadFileHelper.uniqueFile(destDir, finalFilename)
                 java.io.FileOutputStream(destFile).use { it.write(bytes) }
@@ -224,17 +294,40 @@ object ClintDownloadManager {
         unmeteredOnly: Boolean = false,
         splitParts: Int = 32,
         multithreadingParts: Int = 4,
+        speedLimitBytesPerSec: Long = 0L,
         locationMode: String = "default",
-        customLocationUri: String? = null
+        customLocationUri: String? = null,
+        scheduledStartAtMillis: Long = 0L
     ) {
         val id = idCounter.getAndIncrement()
         val baseItem = DownloadItem(
             id = id, url = url, filename = filename, userAgent = userAgent, referer = referer,
             cookies = cookies, retryEnabled = retryEnabled, unmeteredOnly = unmeteredOnly,
             splitParts = splitParts, multithreadingParts = multithreadingParts,
+            speedLimitBytesPerSec = speedLimitBytesPerSec,
             locationMode = locationMode, customLocationUri = customLocationUri,
-            startedAt = System.currentTimeMillis()
+            startedAt = System.currentTimeMillis(), scheduledStartAtMillis = scheduledStartAtMillis
         )
+
+        if (scheduledStartAtMillis > System.currentTimeMillis()) {
+            val item = baseItem.copy(status = DownloadStatus.PAUSED, waitingForCustomSchedule = true)
+            addNew(item)
+            applicationScope.launch { persistDownload(item) }
+            DownloadCustomScheduleMonitor.schedule(context, id, scheduledStartAtMillis)
+            DownloadNotificationHelper.showWaitingCustomScheduleNotification(context, item)
+            DownloadForegroundService.start(context)
+            return
+        }
+
+        if (scheduledStartAtMillis == 0L && !DownloadScheduleMonitor.isWithinWindow(context)) {
+            val item = baseItem.copy(status = DownloadStatus.PAUSED, waitingForSchedule = true)
+            addNew(item)
+            DownloadScheduleMonitor.scheduleWaitingIds.add(id)
+            applicationScope.launch { persistDownload(item) }
+            DownloadNotificationHelper.showWaitingScheduleNotification(context, item)
+            DownloadForegroundService.start(context)
+            return
+        }
 
         if (baseItem.unmeteredOnly && !DownloadNetworkMonitor.isNetworkUnmetered(context)) {
             val item = baseItem.copy(status = DownloadStatus.PAUSED, waitingForUnmetered = true)
@@ -300,6 +393,18 @@ object ClintDownloadManager {
             context.getSystemService(NotificationManager::class.java).cancel(id)
             publish(updated)
             applicationScope.launch { persistDownload(updated) }
+        } else if (item.waitingForSchedule) {
+            DownloadScheduleMonitor.scheduleWaitingIds.remove(id)
+            val updated = item.copy(waitingForSchedule = false, status = DownloadStatus.PAUSED)
+            context.getSystemService(NotificationManager::class.java).cancel(id)
+            publish(updated)
+            applicationScope.launch { persistDownload(updated) }
+        } else if (item.waitingForCustomSchedule) {
+            DownloadCustomScheduleMonitor.cancel(context, id)
+            val updated = item.copy(waitingForCustomSchedule = false, status = DownloadStatus.PAUSED)
+            context.getSystemService(NotificationManager::class.java).cancel(id)
+            publish(updated)
+            applicationScope.launch { persistDownload(updated) }
         }
     }
 
@@ -309,10 +414,36 @@ object ClintDownloadManager {
         pauseRequested.remove(id)
         DownloadNetworkMonitor.unmeteredPausedIds.remove(id)
         DownloadNetworkMonitor.networkWaitingIds.remove(id)
+        DownloadScheduleMonitor.scheduleWaitingIds.remove(id)
+        DownloadCustomScheduleMonitor.cancel(context, id)
+
+        if (item.scheduledStartAtMillis > System.currentTimeMillis()) {
+            val updated = item.copy(
+                waitingForCustomSchedule = true, waitingForUnmetered = false, waitingForNetwork = false,
+                waitingForSchedule = false
+            )
+            publish(updated)
+            applicationScope.launch { persistDownload(updated) }
+            DownloadCustomScheduleMonitor.schedule(context, id, item.scheduledStartAtMillis)
+            DownloadNotificationHelper.showWaitingCustomScheduleNotification(context, updated)
+            return
+        }
+
+        if (item.scheduledStartAtMillis == 0L && !DownloadScheduleMonitor.isWithinWindow(context)) {
+            DownloadScheduleMonitor.scheduleWaitingIds.add(id)
+            val updated = item.copy(
+                waitingForSchedule = true, waitingForUnmetered = false, waitingForNetwork = false,
+                waitingForCustomSchedule = false
+            )
+            publish(updated)
+            applicationScope.launch { persistDownload(updated) }
+            DownloadNotificationHelper.showWaitingScheduleNotification(context, updated)
+            return
+        }
 
         if (item.unmeteredOnly && !DownloadNetworkMonitor.isNetworkUnmetered(context)) {
             DownloadNetworkMonitor.unmeteredPausedIds.add(id)
-            val updated = item.copy(waitingForUnmetered = true)
+            val updated = item.copy(waitingForUnmetered = true, waitingForCustomSchedule = false)
             publish(updated)
             applicationScope.launch { persistDownload(updated) }
             DownloadNotificationHelper.showWaitingUnmeteredNotification(context, updated)
@@ -320,7 +451,10 @@ object ClintDownloadManager {
         }
 
         if (activeCount() >= concurrentLimit(context)) {
-            val updated = item.copy(status = DownloadStatus.QUEUED, waitingForUnmetered = false, waitingForNetwork = false)
+            val updated = item.copy(
+                status = DownloadStatus.QUEUED, waitingForUnmetered = false, waitingForNetwork = false,
+                waitingForCustomSchedule = false
+            )
             publish(updated)
             applicationScope.launch { persistDownload(updated) }
             DownloadNotificationHelper.showQueuedNotification(context, updated)
@@ -328,7 +462,7 @@ object ClintDownloadManager {
         }
 
         val updated = item.copy(
-            waitingForUnmetered = false, waitingForNetwork = false,
+            waitingForUnmetered = false, waitingForNetwork = false, waitingForCustomSchedule = false,
             status = DownloadStatus.CONNECTING, speedBytesPerSec = 0L
         )
         publish(updated)
@@ -342,6 +476,7 @@ object ClintDownloadManager {
         pauseRequested.remove(id)
         DownloadNetworkMonitor.unmeteredPausedIds.remove(id)
         DownloadNetworkMonitor.networkWaitingIds.remove(id)
+        DownloadCustomScheduleMonitor.cancel(context, id)
         val item = downloadsFlow.value.find { it.id == id }
         activeJobs[id]?.cancel()
         context.getSystemService(NotificationManager::class.java).cancel(id)
@@ -367,14 +502,9 @@ object ClintDownloadManager {
     }
 
     fun clearCompleted() {
-        val nonTerminal = setOf(
-            DownloadStatus.DOWNLOADING, DownloadStatus.PAUSED, DownloadStatus.MOVING,
-            DownloadStatus.ALLOCATING, DownloadStatus.CONNECTING, DownloadStatus.RETRYING,
-            DownloadStatus.QUEUED
-        )
         var toDelete: List<Int> = emptyList()
         _downloads.update { list ->
-            val (keep, remove) = list.partition { it.status in nonTerminal }
+            val (keep, remove) = list.partition { it.status in DownloadStatus.NOT_FINISHED }
             toDelete = remove.map { it.id }
             keep
         }
@@ -387,6 +517,16 @@ object ClintDownloadManager {
         val item = downloadsFlow.value.find { it.id == id } ?: return
         if (item.status != DownloadStatus.FAILED) return
         var updated = item.copy(retryAttempt = 0, retryDelaySec = 0, errorMessage = null, speedBytesPerSec = 0L)
+
+        if (item.scheduledStartAtMillis == 0L && !DownloadScheduleMonitor.isWithinWindow(context)) {
+            DownloadScheduleMonitor.scheduleWaitingIds.add(id)
+            updated = updated.copy(status = DownloadStatus.PAUSED, waitingForSchedule = true)
+            publish(updated)
+            applicationScope.launch { persistDownload(updated) }
+            DownloadNotificationHelper.showWaitingScheduleNotification(context, updated)
+            DownloadForegroundService.start(context)
+            return
+        }
 
         if (updated.unmeteredOnly && !DownloadNetworkMonitor.isNetworkUnmetered(context)) {
             DownloadNetworkMonitor.unmeteredPausedIds.add(id)

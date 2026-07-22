@@ -9,7 +9,7 @@ import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.jhaiian.clint.R
-import com.jhaiian.clint.downloads.formatFileSize
+import com.jhaiian.clint.util.formatFileSize
 import com.jhaiian.clint.ui.ClintToast
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
