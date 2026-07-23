@@ -1,6 +1,6 @@
 # Privacy Policy for Clint Browser
 
-*Last updated: June 4, 2026*
+*Last updated: July 23, 2026*
 
 ## Overview
 
