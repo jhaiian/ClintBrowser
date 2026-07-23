@@ -1,6 +1,6 @@
 # Terms of Service for Clint Browser
 
-*Last updated: June 4, 2026*
+*Last updated: July 22 2026*
 
 ## 1. What These Terms Cover
 
