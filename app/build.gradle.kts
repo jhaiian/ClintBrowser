@@ -132,7 +132,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-service:2.11.0")
     implementation("androidx.work:work-runtime-ktx:2.11.2")
     implementation("androidx.biometric:biometric:1.1.0")
-    implementation("org.bouncycastle:bcprov-jdk18on:1.85.2")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.86")
 
     implementation(platform("androidx.compose:compose-bom:2026.08.00"))
     implementation("androidx.compose.ui:ui")
