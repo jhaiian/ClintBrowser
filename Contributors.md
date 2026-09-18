@@ -9,10 +9,15 @@
 
 - [@snashyturner](https://github.com/snashyturner)
 
-## Issue  
-> people who open issue to report a bug and suggestions
+## Translator
+
+- [mirr1184-ctrl](https://github.com/mirr1184-ctrl)
+
+## Issues
+> People who open issues to report bugs and suggestions
+
 - [@manhd89](https://github.com/manhd89)
 - [@brnwlshubh](https://github.com/brnwlshubh)
 - [@ncgjbr-ai](https://github.com/ncgjbr-ai)
 - [@deniganda](https://github.com/deniganda)
-
+- [@iHarryPotter178](https://github.com/iHarryPotter178)
