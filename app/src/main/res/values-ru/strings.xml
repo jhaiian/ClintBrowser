@@ -296,9 +296,9 @@
     <string name="about_library_codeview_label">CodeView</string>
     <string name="about_library_codeview_license">MIT License \u2197</string>
     <string name="about_library_codeview_usage">Обеспечивает подсветку синтаксиса и нумерацию строк в редакторе пользовательских скриптов.</string>
-    <string name="about_library_ffmpeg_label">FFmpeg</string>
-    <string name="about_library_ffmpeg_license">GNU Lesser General Public License 2.1 \u2197</string>
-    <string name="about_library_ffmpeg_usage">Нативная библиотека, подключаемая через JNI, объединяющая загруженные видео- и аудиодорожки в один файл.</string>
+    <string name="about_library_media3_label">AndroidX Media3</string>
+    <string name="about_library_media3_license">Apache License 2.0 \u2197</string>
+    <string name="about_library_media3_usage">Используется для объединения загруженных видео- и аудиодорожек в один файл.</string>
     <string name="about_linktree_url">jhaiian \u2197</string>
     <string name="open_in_app_dialog_title">Открыть в приложении?</string>
     <string name="open_in_app_dialog_message">%1$s хочет открыть %2$s.</string>
@@ -526,8 +526,6 @@
     <string name="download_error_playlist_unavailable">Не удалось получить плейлист видео. Возможно, он устарел — попробуйте определить медиа заново.</string>
     <string name="download_error_mux_failed">Не удалось объединить загруженное видео и аудио в один файл.</string>
     <string name="download_error_mux_failed_detail">Не удалось объединить загруженное видео и аудио в один файл: %1$s</string>
-    <string name="download_error_convert_failed">Не удалось преобразовать загруженный файл.</string>
-    <string name="download_error_convert_failed_detail">Не удалось преобразовать загруженный файл: %1$s</string>
     <string name="download_error_saf_no_access">Нет доступа к выбранной папке загрузок</string>
     <string name="download_error_saf_not_writable">В выбранную папку загрузок нельзя записывать данные</string>
     <string name="download_location_invalid_title">Папка загрузок недоступна</string>
@@ -1545,6 +1543,4 @@
     <string name="media_capture_menu_stream">Поток</string>
     <string name="media_capture_menu_copy_link">Скопировать ссылку загрузки</string>
     <string name="media_capture_menu_share_link">Поделиться ссылкой загрузки</string>
-    <string name="media_capture_convert_ts">Преобразовывать файлы TS в MP4 (видео) и AAC (аудио)</string>
-    <string name="media_capture_convert_ts_warning">Итоговый файл может работать некорректно</string>
 </resources>
