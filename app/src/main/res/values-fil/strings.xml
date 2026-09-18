@@ -377,6 +377,7 @@
     <string name="download_manual_fab_desc">Magdagdag ng download</string>
     <string name="download_menu_share">Ibahagi</string>
     <string name="download_menu_open_folder">Buksan ang folder</string>
+    <string name="download_file_missing">Wala na ang file</string>
     <string name="open_folder_error_title">Hindi mabuksan ang folder</string>
     <string name="open_folder_error_message">Walang app sa device na ito na makakabukas ng folder view. Naka-save ang file sa:\n\n%1$s</string>
     <string name="download_menu_update_link">I-update ang download link</string>

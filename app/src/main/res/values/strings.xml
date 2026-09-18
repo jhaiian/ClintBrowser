@@ -377,6 +377,7 @@
     <string name="download_manual_fab_desc">Add download</string>
     <string name="download_menu_share">Share</string>
     <string name="download_menu_open_folder">Open folder</string>
+    <string name="download_file_missing">File no longer exists</string>
     <string name="open_folder_error_title">Can\'t open folder</string>
     <string name="open_folder_error_message">No app on this device can open a folder view. The file is saved at:\n\n%1$s</string>
     <string name="download_menu_update_link">Update download link</string>

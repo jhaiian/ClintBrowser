@@ -21,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.content.FileProvider
+import androidx.documentfile.provider.DocumentFile
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
@@ -258,12 +259,24 @@ class DownloadsActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActi
 
     internal fun handleOpenItem(item: DownloadItem) {
         if (item.status != DownloadStatus.COMPLETE) return
+        if (!fileStillExists(item)) {
+            Toast.makeText(this, getString(R.string.download_file_missing), Toast.LENGTH_SHORT).show()
+            return
+        }
         val ext = when {
             item.file != null -> item.file.extension.lowercase()
             item.contentUri != null -> item.filename.substringAfterLast('.').lowercase()
             else -> return
         }
         if (ext == "apk") handleApkOpen(item) else openFile(item)
+    }
+
+    private fun fileStillExists(item: DownloadItem): Boolean = when {
+        item.file != null -> item.file.exists()
+        item.contentUri != null -> runCatching {
+            DocumentFile.fromSingleUri(this, Uri.parse(item.contentUri))?.exists() == true
+        }.getOrDefault(false)
+        else -> false
     }
 
     private fun handleApkOpen(item: DownloadItem) {

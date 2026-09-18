@@ -1,9 +1,6 @@
 name: Build Clint Browser ARM64
 
 on:
-  push:
-    paths:
-      - 'app/**'
   workflow_dispatch:
 
 env:
