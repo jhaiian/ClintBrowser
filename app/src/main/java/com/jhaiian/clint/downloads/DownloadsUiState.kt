@@ -27,6 +27,7 @@ class DownloadsUiState {
 
     var deleteProgress by mutableStateOf<DeleteProgress?>(null)
 
+    var renameItem by mutableStateOf<DownloadItem?>(null)
     var propertiesItem by mutableStateOf<DownloadItem?>(null)
     var changeSettingsItem by mutableStateOf<DownloadItem?>(null)
     var updateLinkItem by mutableStateOf<DownloadItem?>(null)

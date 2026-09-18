@@ -172,6 +172,7 @@ class DownloadsActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActi
                             onOpen = { item -> handleOpenItem(item) },
                             onShare = { item -> shareFile(item) },
                             onOpenFolder = { item -> openFolder(item) },
+                            onRename = { item -> uiState.renameItem = item },
                             onRedownload = { item -> redownload(item) },
                             onRedownloadOptions = { item -> showRedownloadDialog(item) },
                             onChangeSettings = { item -> uiState.changeSettingsItem = item },

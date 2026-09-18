@@ -397,6 +397,10 @@
     <string name="redownload_confirm_title">Redownload?</string>
     <string name="redownload_confirm_message">The existing file will be deleted and downloaded again. Continue?</string>
     <string name="redownload_confirm_action">Redownload</string>
+    <string name="download_menu_rename">Rename file</string>
+    <string name="download_rename_positive">Rename</string>
+    <string name="download_rename_exists">A file with that name already exists</string>
+    <string name="download_rename_failed">Couldn\'t rename the file</string>
     <string name="download_menu_remove">Remove</string>
     <string name="download_menu_copy_link">Copy download link</string>
     <string name="download_menu_copy_filename">Copy file name</string>

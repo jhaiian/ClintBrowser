@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.Info
@@ -99,6 +100,7 @@ data class DownloadItemActions(
     val onOpen: (DownloadItem) -> Unit,
     val onShare: (DownloadItem) -> Unit,
     val onOpenFolder: (DownloadItem) -> Unit,
+    val onRename: (DownloadItem) -> Unit,
     val onRedownload: (DownloadItem) -> Unit,
     val onRedownloadOptions: (DownloadItem) -> Unit,
     val onChangeSettings: (DownloadItem) -> Unit,
@@ -119,6 +121,7 @@ fun DownloadItemOptionsMenu(
     onOpen: () -> Unit,
     onShare: () -> Unit,
     onOpenFolder: () -> Unit,
+    onRename: () -> Unit,
     onRedownload: () -> Unit,
     onRedownloadOptions: () -> Unit,
     onChangeSettings: () -> Unit,
@@ -141,6 +144,9 @@ fun DownloadItemOptionsMenu(
         ListMenuItem(androidx.compose.material.icons.Icons.AutoMirrored.Filled.OpenInNew, stringResource(R.string.action_open), false) { onDismiss(); onOpen() }
         ListMenuItem(androidx.compose.material.icons.Icons.Filled.Share, stringResource(R.string.download_menu_share), false) { onDismiss(); onShare() }
         ListMenuItem(androidx.compose.material.icons.Icons.Filled.Folder, stringResource(R.string.download_menu_open_folder), false) { onDismiss(); onOpenFolder() }
+        if (item.status == DownloadStatus.COMPLETE) {
+            ListMenuItem(androidx.compose.material.icons.Icons.Filled.Edit, stringResource(R.string.download_menu_rename), false) { onDismiss(); onRename() }
+        }
         ListMenuItem(androidx.compose.material.icons.Icons.Filled.Refresh, stringResource(R.string.download_menu_redownload), false) { onDismiss(); onRedownload() }
         ListMenuItem(androidx.compose.material.icons.Icons.Filled.Download, stringResource(R.string.download_menu_redownload_options), false) { onDismiss(); onRedownloadOptions() }
         if (item.status in DownloadStatus.NOT_FINISHED) {

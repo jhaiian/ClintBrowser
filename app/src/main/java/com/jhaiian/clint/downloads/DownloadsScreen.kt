@@ -232,6 +232,9 @@ fun DownloadsScreen(
             onOpen = { itemActions.onOpen(it) }
         )
     }
+    state.renameItem?.let { item ->
+        DownloadRenameDialog(item = item, hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation, onDismiss = { state.renameItem = null })
+    }
     state.changeSettingsItem?.let { item ->
         DownloadChangeSettingsDialog(item = item, hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation, onDismiss = { state.changeSettingsItem = null })
     }
@@ -359,6 +362,7 @@ private fun DownloadsToolbar(
                             onOpen = { itemActions.onOpen(singleItem) },
                             onShare = { itemActions.onShare(singleItem) },
                             onOpenFolder = { itemActions.onOpenFolder(singleItem) },
+                        onRename = { itemActions.onRename(singleItem) },
                             onRedownload = { itemActions.onRedownload(singleItem) },
                             onRedownloadOptions = { itemActions.onRedownloadOptions(singleItem) },
                             onChangeSettings = { itemActions.onChangeSettings(singleItem) },

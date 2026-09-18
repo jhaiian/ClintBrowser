@@ -397,6 +397,10 @@
     <string name="redownload_confirm_title">I-download ulit?</string>
     <string name="redownload_confirm_message">Buburahin ang kasalukuyang file at ida-download ulit. Magpatuloy?</string>
     <string name="redownload_confirm_action">I-download ulit</string>
+    <string name="download_menu_rename">Palitan ang pangalan ng file</string>
+    <string name="download_rename_positive">Palitan</string>
+    <string name="download_rename_exists">May file nang may ganitong pangalan</string>
+    <string name="download_rename_failed">Hindi mapalitan ang pangalan ng file</string>
     <string name="download_menu_remove">Alisin</string>
     <string name="download_menu_copy_link">Kopyahin ang download link</string>
     <string name="download_menu_copy_filename">Kopyahin ang pangalan ng file</string>

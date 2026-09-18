@@ -150,6 +150,7 @@ fun DownloadRow(
                         onOpen = { itemActions.onOpen(item) },
                         onShare = { itemActions.onShare(item) },
                         onOpenFolder = { itemActions.onOpenFolder(item) },
+                        onRename = { itemActions.onRename(item) },
                         onRedownload = { itemActions.onRedownload(item) },
                         onRedownloadOptions = { itemActions.onRedownloadOptions(item) },
                         onChangeSettings = { itemActions.onChangeSettings(item) },

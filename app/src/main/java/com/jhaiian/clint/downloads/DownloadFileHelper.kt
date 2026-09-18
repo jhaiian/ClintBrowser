@@ -103,7 +103,7 @@ internal object DownloadFileHelper {
         return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
     }
 
-    private fun sanitizeFileName(name: String): String {
+    internal fun sanitizeFileName(name: String): String {
         var cleaned = name.substringAfterLast('/').substringAfterLast('\\').trim()
         cleaned = cleaned.replace(Regex("[\\\\/:*?\"<>|\\x00-\\x1F]"), "_")
         if (cleaned.isBlank() || cleaned.all { it == '.' }) cleaned = "download"

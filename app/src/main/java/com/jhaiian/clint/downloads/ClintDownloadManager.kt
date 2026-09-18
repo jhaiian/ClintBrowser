@@ -683,6 +683,43 @@ object ClintDownloadManager {
         if (updated.isStream) launchStreamDownload(context, updated) else launchDownload(context, updated)
     }
 
+    enum class RenameResult { SUCCESS, EXISTS, MISSING, FAILED }
+
+    suspend fun renameFile(context: Context, id: Int, newName: String): RenameResult = kotlinx.coroutines.withContext(Dispatchers.IO) {
+        val item = downloadsFlow.value.find { it.id == id }
+        if (item == null || item.status != DownloadStatus.COMPLETE) return@withContext RenameResult.FAILED
+        val sourceExists = when {
+            item.file != null -> item.file.exists()
+            item.contentUri != null -> runCatching { DocumentFile.fromSingleUri(context, Uri.parse(item.contentUri))?.exists() == true }.getOrDefault(false)
+            else -> false
+        }
+        if (!sourceExists) return@withContext RenameResult.MISSING
+        val name = DownloadFileHelper.sanitizeFileName(newName)
+        val renamed: DownloadItem? = try {
+            when {
+                item.file != null -> {
+                    val target = File(item.file.parentFile, name)
+                    if (target.exists() && target.absolutePath != item.file.absolutePath) return@withContext RenameResult.EXISTS
+                    if (item.file.renameTo(target)) item.copy(filename = name, file = target) else null
+                }
+                item.contentUri != null -> {
+                    val newUri = android.provider.DocumentsContract.renameDocument(context.contentResolver, Uri.parse(item.contentUri), name)
+                    if (newUri != null) {
+                        val finalName = DocumentFile.fromSingleUri(context, newUri)?.name ?: name
+                        item.copy(filename = finalName, contentUri = newUri.toString())
+                    } else null
+                }
+                else -> null
+            }
+        } catch (_: Exception) {
+            null
+        }
+        if (renamed == null) return@withContext RenameResult.FAILED
+        updateItem(id) { renamed }
+        persistDownload(renamed)
+        RenameResult.SUCCESS
+    }
+
     fun updateDownloadUrl(id: Int, newUrl: String) {
         updateItem(id) { it.copy(url = newUrl) }
     }
