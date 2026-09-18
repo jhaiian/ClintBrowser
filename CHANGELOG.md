@@ -14,7 +14,7 @@ All notable changes to Clint Browser are documented here.
 
 You can now download media directly from webpages using Clint's new Media Capture feature.
 
-It works with normal video and audio files and also supports streaming media such as HLS/M3U8 streams. When Clint detects downloadable media on a webpage, you can easily download it and convert it to MP4 or AAC.
+It works with normal video and audio files and also supports streaming media such as HLS/M3U8 streams. When Clint detects downloadable media on a webpage, you can easily download it.
 
 You guys already know how this works, so I'm not going to explain it further.
 
