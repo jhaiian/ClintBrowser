@@ -55,6 +55,12 @@ The file type system has been expanded from 6 icon categories covering around 14
 
 ---
 
+## Translation
+
+- Added Russian translation. (Thank you so much to @mirr1184-ctrl #52)
+
+---
+
 ## Changes Outside Downloads
 
 ### New Browser Setting: Custom Select Menus
@@ -86,6 +92,8 @@ More options for overriding the ugly default WebView UI will be added in the fut
 ---
 
 > *And yeah, I'm still working on improving Clint's download manager and making it better. So feel free to report any bugs you find, and we'll work on fixing them!*
+
+---
 
 
 # v1.1.5
