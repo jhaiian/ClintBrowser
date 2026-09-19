@@ -14,6 +14,14 @@ import kotlinx.coroutines.coroutineScope
 
 object StreamDownloadJob {
 
+    private fun DownloadItem.withClockStarted(): DownloadItem =
+        if (activeStartedAt > 0L) this else copy(activeStartedAt = System.currentTimeMillis())
+
+    private fun DownloadItem.withClockStopped(): DownloadItem =
+        if (activeStartedAt > 0L) {
+            copy(activeElapsedMs = activeElapsedMs + (System.currentTimeMillis() - activeStartedAt), activeStartedAt = 0L)
+        } else this
+
     suspend fun run(context: Context, initialItem: DownloadItem) {
         var current = initialItem
         val workDir = File(context.filesDir, "stream_downloads/${current.id}")
@@ -41,7 +49,10 @@ object StreamDownloadJob {
 
             if (isLiveCapture) {
                 publishProgress {
-                    it.copy(status = DownloadStatus.DOWNLOADING, segmentsCompleted = 0, segmentsTotal = 0, bytesDownloaded = 0L)
+                    it.withClockStarted().copy(
+                        status = DownloadStatus.DOWNLOADING, segmentsCompleted = 0, segmentsTotal = 0, bytesDownloaded = 0L,
+                        activeElapsedMs = 0L
+                    )
                 }
                 DownloadNotificationHelper.showProgressNotification(context, current)
 
@@ -108,7 +119,7 @@ object StreamDownloadJob {
                     current.streamVideoWidth, current.streamVideoHeight, current.streamVideoBandwidth, current.streamHeaders,
                     current.streamVideoRepresentationId
                 ) ?: run {
-                    DownloadWorker.fail(context, current, context.getString(R.string.download_error_playlist_unavailable))
+                    DownloadWorker.fail(context, current.withClockStopped(), context.getString(R.string.download_error_playlist_unavailable))
                     return
                 }
                 videoTrack = resolvedVideoTrack
@@ -132,7 +143,7 @@ object StreamDownloadJob {
                     existingAudioSegments.values.sumOf { it.file.length() }
 
                 publishProgress {
-                    it.copy(
+                    it.withClockStarted().copy(
                         status = DownloadStatus.DOWNLOADING, segmentsCompleted = alreadyCompleted, segmentsTotal = totalSegments,
                         bytesDownloaded = bytesAtStart,
                         totalBytes = if (alreadyCompleted > 0) (bytesAtStart.toDouble() / alreadyCompleted * totalSegments).toLong() else it.totalBytes
@@ -202,6 +213,8 @@ object StreamDownloadJob {
                 } ?: emptyList()
             }
 
+            publishProgress { it.withClockStopped() }
+
             val anyEncrypted = (videoSegments + audioSegments).any { it.key != null }
             if (anyEncrypted) {
                 val encryptedTotal = (videoSegments + audioSegments).count { it.key != null }
@@ -251,7 +264,7 @@ object StreamDownloadJob {
             val locationMode = current.locationMode
             val customLocationUri = current.customLocationUri
             if (!DownloadFileHelper.isCustomLocationAccessible(context, locationMode, customLocationUri)) {
-                DownloadWorker.fail(context, current, context.getString(R.string.download_location_invalid_message))
+                DownloadWorker.fail(context, current.withClockStopped(), context.getString(R.string.download_location_invalid_message))
                 workDir.deleteRecursively()
                 return
             }
@@ -279,7 +292,7 @@ object StreamDownloadJob {
                     val message = result.errorMessage?.let {
                         context.getString(R.string.download_error_mux_failed_detail, it)
                     } ?: context.getString(R.string.download_error_mux_failed)
-                    DownloadWorker.fail(context, current, message)
+                    DownloadWorker.fail(context, current.withClockStopped(), message)
                     workDir.deleteRecursively()
                     return
                 }
@@ -299,7 +312,7 @@ object StreamDownloadJob {
 
             workDir.deleteRecursively()
 
-            current = current.copy(
+            current = current.withClockStopped().copy(
                 filename = finalFile.name,
                 file = finalFile,
                 totalBytes = finalFile.length(),
@@ -309,7 +322,7 @@ object StreamDownloadJob {
             if (safMode) {
                 DownloadWorker.moveTempToSaf(context, current)
             } else {
-                current = current.copy(status = DownloadStatus.COMPLETE)
+                current = current.copy(status = DownloadStatus.COMPLETE, completedAt = System.currentTimeMillis())
                 ClintDownloadManager.persistDownload(current)
                 ClintDownloadManager.publish(current)
                 DownloadNotificationHelper.showCompleteNotification(context, current)
@@ -322,13 +335,13 @@ object StreamDownloadJob {
             }
             if (current.id in ClintDownloadManager.pauseRequested) {
                 ClintDownloadManager.pauseRequested.remove(current.id)
-                val updated = current.copy(status = DownloadStatus.PAUSED)
+                val updated = current.withClockStopped().copy(status = DownloadStatus.PAUSED)
                 ClintDownloadManager.publish(updated)
                 ClintDownloadManager.persistDownload(updated)
                 ClintDownloadManager.tryDequeueNext(context)
             }
         } catch (e: Throwable) {
-            DownloadWorker.fail(context, current, e.message ?: context.getString(R.string.download_error_unknown))
+            DownloadWorker.fail(context, current.withClockStopped(), e.message ?: context.getString(R.string.download_error_unknown))
         }
     }
 

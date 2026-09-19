@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.DocumentsContract
 import android.widget.Toast
+import androidx.documentfile.provider.DocumentFile
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -68,7 +69,14 @@ fun DownloadPropertiesDialog(
     val activeTimeStr = if (activeElapsedSec > 0) formatElapsed(activeElapsedSec) else dash
     val avgSpeedStr = if (activeElapsedSec > 0 && item.bytesDownloaded > 0) stringResource(R.string.download_speed_only, formatFileSize(item.averageSpeedBytesPerSec())) else dash
     val dateAddedStr = if (item.startedAt > 0L) formatPropTimestamp(item.startedAt) else dash
-    val dateCompletedStr = if (item.completedAt > 0L) formatPropTimestamp(item.completedAt) else dash
+    val completedAtResolved = remember(item.id, item.completedAt, item.status) {
+        when {
+            item.completedAt > 0L -> item.completedAt
+            item.status == DownloadStatus.COMPLETE -> fallbackCompletedAt(context, item)
+            else -> 0L
+        }
+    }
+    val dateCompletedStr = if (completedAtResolved > 0L) formatPropTimestamp(completedAtResolved) else dash
     val yes = stringResource(R.string.download_props_yes)
     val no = stringResource(R.string.download_props_no)
     val canComputeHash = item.file != null && item.file.exists()
@@ -268,4 +276,11 @@ private fun resolvePropertiesPath(context: Context, item: DownloadItem, dash: St
     }
     item.file != null -> item.file.absolutePath
     else -> dash
+}
+
+private fun fallbackCompletedAt(context: Context, item: DownloadItem): Long {
+    val fileTime = item.file?.takeIf { it.exists() }?.lastModified() ?: 0L
+    if (fileTime > 0L) return fileTime
+    val uriStr = item.contentUri ?: return 0L
+    return runCatching { DocumentFile.fromSingleUri(context, Uri.parse(uriStr))?.lastModified() ?: 0L }.getOrDefault(0L)
 }
