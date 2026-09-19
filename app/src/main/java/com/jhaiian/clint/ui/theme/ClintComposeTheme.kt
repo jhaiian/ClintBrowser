@@ -1,6 +1,5 @@
 package com.jhaiian.clint.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -69,12 +68,7 @@ private fun ClintColors(resolved: ClintResolvedTheme) = ClintColors(
 @Composable
 fun ClintComposeTheme(theme: String, content: @Composable () -> Unit) {
     val context = LocalContext.current
-    val systemDark = isSystemInDarkTheme()
-    val resolvedTheme = when (theme) {
-        "light" -> "light"
-        "dark" -> "dark"
-        else -> if (systemDark) "dark" else "light"
-    }
+    val resolvedTheme = if (rememberIsLightTheme(theme)) "light" else "dark"
     val prefs = remember { PreferenceManager.getDefaultSharedPreferences(context) }
     val accent = prefs.getString("accent_color", "material_you") ?: "material_you"
     val intensity = prefs.getString("surface_intensity", "soft_tint") ?: "soft_tint"

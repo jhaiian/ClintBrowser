@@ -19,7 +19,7 @@ object LocaleHelper {
     fun wrapContext(context: Context): Context {
         val locale = resolveEffectiveLocale(context)
         Locale.setDefault(locale)
-        val config = Configuration(context.resources.configuration)
+        val config = Configuration()
         config.setLocale(locale)
         return context.createConfigurationContext(config)
     }

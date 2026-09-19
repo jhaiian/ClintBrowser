@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceManager
 import com.jhaiian.clint.util.LocaleHelper
+import com.jhaiian.clint.ui.theme.SystemDarkState
 import com.jhaiian.clint.util.loadMeasurementSystemPreference
 import java.lang.ref.WeakReference
 
@@ -22,6 +23,7 @@ class ClintApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         applyNightMode()
+        SystemDarkState.install(this)
         loadMeasurementSystemPreference(this)
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
@@ -47,7 +49,7 @@ class ClintApplication : Application() {
             when (theme) {
                 "dark" -> AppCompatDelegate.MODE_NIGHT_YES
                 "light" -> AppCompatDelegate.MODE_NIGHT_NO
-                else -> AppCompatDelegate.MODE_NIGHT_NO
+                else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
             }
         )
     }

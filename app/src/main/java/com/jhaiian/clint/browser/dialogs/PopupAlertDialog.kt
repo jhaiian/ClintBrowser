@@ -61,6 +61,7 @@ internal fun PopupAlertDialog(request: PopupAlertRequest, hideStatusBar: Boolean
                     }
                 },
                 update = { tv ->
+                    tv.setTextColor(colors.onSurface.toArgb())
                     tv.text = android.text.Html.fromHtml(
                         context.getString(R.string.popup_alert_message, request.sourceHost),
                         android.text.Html.FROM_HTML_MODE_COMPACT

@@ -129,6 +129,8 @@
     <string name="theme_light_desc">Clean white background</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_dark_desc">Dark background </string>
+    <string name="theme_system">System</string>
+    <string name="theme_system_desc">Follows your device&#8217;s theme automatically</string>
     <string name="hide_status_bar">Hide status bar</string>
     <string name="hide_status_bar_summary">Hide the system status bar for a more immersive browsing experience</string>
     <string name="hide_system_navigation">Hide navigation bar</string>

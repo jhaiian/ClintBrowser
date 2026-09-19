@@ -1,4 +1,5 @@
 package com.jhaiian.clint.browser.delegates
+import com.jhaiian.clint.ui.theme.ThemeMode
 import com.jhaiian.clint.browser.*
 import com.jhaiian.clint.browser.suggestions.SuggestionFetcher
 import com.jhaiian.clint.browser.webview.loadJsAsset
@@ -323,7 +324,7 @@ internal fun MainActivity.onPageFinished(url: String) {
         injectCanvasTouchDetector(wv)
         wv.evaluateJavascript(loadJsAsset("link_touch_tracker.js"), null)
         val theme = prefs.getString("app_theme", "dark") ?: "dark"
-        val darkWeb = theme == "dark"
+        val darkWeb = !ThemeMode.isLight(theme)
         if (darkWeb
             && !WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)
             && !WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)

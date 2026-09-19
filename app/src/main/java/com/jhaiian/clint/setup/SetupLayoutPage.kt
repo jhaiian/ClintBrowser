@@ -45,7 +45,7 @@ fun SetupLayoutPage(
     val colors = LocalClintColors.current
     val context = LocalContext.current
 
-    val swatch = remember(theme, accent) {
+    val swatch = remember(theme, accent, colors.isLight) {
         ThemeSwatchUtils.resolveSwatchColors(context, theme, accent)
     }
     val bg = androidx.compose.ui.graphics.Color(swatch.bg)

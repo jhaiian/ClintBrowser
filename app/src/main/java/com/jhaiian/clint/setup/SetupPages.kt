@@ -1,4 +1,5 @@
 package com.jhaiian.clint.setup
+import com.jhaiian.clint.ui.theme.rememberIsLightTheme
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
@@ -207,8 +208,8 @@ data class IntensitySwatchColors(
 @Composable
 fun rememberIntensitySwatchColors(theme: String, accent: String): IntensitySwatchColors {
     val context = LocalContext.current
-    return remember(theme, accent) {
-        val isLight = theme == "light"
+    val isLight = rememberIsLightTheme(theme)
+    return remember(theme, accent, isLight) {
         val accentColorInt = ThemeSwatchUtils.resolveSwatchColors(context, theme, accent).accent
         val (noTintBg, noTintSurface) = ThemeSwatchUtils.resolveNoTintSwatchBgSurface(context, theme, accent)
         val (softBg, softSurface) = ThemeSwatchUtils.resolveSoftTintSwatchBgSurface(context, theme, accent)
@@ -249,6 +250,7 @@ fun SetupThemePage(
 
         data class ThemeOption(val key: String, val titleRes: Int, val descRes: Int, val drawableRes: Int)
         listOf(
+            ThemeOption("system", R.string.theme_system, R.string.theme_system_desc, R.drawable.theme_swatch_system),
             ThemeOption("dark", R.string.theme_dark, R.string.theme_dark_desc, R.drawable.theme_swatch_dark),
             ThemeOption("light", R.string.theme_light, R.string.theme_light_desc, R.drawable.theme_swatch_light)
         ).forEach { option ->
@@ -317,7 +319,7 @@ fun SetupThemePage(
             AccentOption("lime", R.string.accent_lime, R.string.accent_lime_desc),
             AccentOption("olive", R.string.accent_olive, R.string.accent_olive_desc)
         ).forEach { option ->
-            val swatch = remember(theme, option.key) {
+            val swatch = remember(theme, option.key, colors.isLight) {
                 ThemeSwatchUtils.resolveSwatchColors(context, theme, option.key)
             }
             SelectableCard(selected = accent == option.key, onClick = { onAccentSelected(option.key) }, cardBackground = colors.cardBackground, primary = colors.primary) {
@@ -365,7 +367,7 @@ fun SetupThemePage(
             Column(Modifier.weight(1f).padding(start = 16.dp, end = 8.dp)) {
                 Text(stringResource(R.string.surface_intensity_pure), color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 Text(
-                    stringResource(if (theme == "light") R.string.surface_intensity_pure_light_desc else R.string.surface_intensity_pure_dark_desc),
+                    stringResource(if (colors.isLight) R.string.surface_intensity_pure_light_desc else R.string.surface_intensity_pure_dark_desc),
                     color = colors.secondaryText, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp)
                 )
             }
@@ -376,7 +378,7 @@ fun SetupThemePage(
             Column(Modifier.weight(1f).padding(start = 16.dp, end = 8.dp)) {
                 Text(stringResource(R.string.surface_intensity_amoled_no_tint), color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 Text(
-                    stringResource(if (theme == "light") R.string.surface_intensity_amoled_no_tint_light_desc else R.string.surface_intensity_amoled_no_tint_dark_desc),
+                    stringResource(if (colors.isLight) R.string.surface_intensity_amoled_no_tint_light_desc else R.string.surface_intensity_amoled_no_tint_dark_desc),
                     color = colors.secondaryText, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp)
                 )
             }

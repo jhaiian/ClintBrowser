@@ -4367,7 +4367,7 @@ private fun applySurfaceIntensity(
 }
 
 internal fun resolveClintTheme(context: Context, theme: String, accent: String, intensity: String): ClintResolvedTheme {
-    val isLight = theme == "light"
+    val isLight = ThemeMode.isLight(theme)
     val base = if (accent == "material_you") materialYouBase(context, isLight) else accentBase(isLight, accent)
     return applySurfaceIntensity(base, context, accent, intensity, isLight)
 }

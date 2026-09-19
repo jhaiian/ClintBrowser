@@ -41,6 +41,7 @@ import com.jhaiian.clint.ui.ConfirmDialogHostActivity
 import com.jhaiian.clint.ui.OverlayHostActivity
 import com.jhaiian.clint.ui.SnackbarHostActivity
 import com.jhaiian.clint.ui.theme.ClintComposeTheme
+import com.jhaiian.clint.ui.theme.ThemeMode
 import com.jhaiian.clint.update.UpdateChecker
 import androidx.webkit.ScriptHandler
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -477,6 +478,11 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         }
     }
 
+    override fun onSystemThemeChanged() {
+        applyWebDarkModeToAllTabs()
+        if (::swipeRefreshView.isInitialized) updateSwipeRefreshColors(uiState.isIncognito)
+    }
+
     override fun onDestroy() {
         prefs.unregisterOnSharedPreferenceChangeListener(prefsListener)
         if (refreshLinkSession != null) {
@@ -797,11 +803,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
             val content = json.optString("content", "")
             val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this)
             val theme = prefs.getString("app_theme", "dark") ?: "dark"
-            val isDark = when (theme) {
-                "dark" -> true
-                "light" -> false
-                else -> (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
-            }
+            val isDark = !ThemeMode.isLight(theme)
             val bgColor = if (isDark) "#121212" else "#ffffff"
             val textColor = if (isDark) "#e0e0e0" else "#1a1a1a"
             val secondaryColor = if (isDark) "#aaaaaa" else "#555555"

@@ -1,4 +1,5 @@
 package com.jhaiian.clint.browser.delegates
+import com.jhaiian.clint.ui.theme.ThemeMode
 import com.jhaiian.clint.browser.webview.*
 import com.jhaiian.clint.browser.MainActivity
 
@@ -165,7 +166,7 @@ internal fun MainActivity.buildUserAgent(): String {
 @Suppress("DEPRECATION")
 internal fun MainActivity.applyWebDarkMode(webView: WebView) {
     val theme = prefs.getString("app_theme", "dark") ?: "dark"
-    val enabled = theme == "dark"
+    val enabled = !ThemeMode.isLight(theme)
     val settings = webView.settings
     when {
         WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING) ->
@@ -175,6 +176,15 @@ internal fun MainActivity.applyWebDarkMode(webView: WebView) {
                 settings,
                 if (enabled) WebSettingsCompat.FORCE_DARK_ON else WebSettingsCompat.FORCE_DARK_OFF
             )
+    }
+}
+
+internal fun MainActivity.applyWebDarkModeToAllTabs() {
+    tabManager.tabs.forEach { applyWebDarkMode(it.webView) }
+    if (!WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING) &&
+        !WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)
+    ) {
+        tabManager.activeTab?.webView?.reload()
     }
 }
 

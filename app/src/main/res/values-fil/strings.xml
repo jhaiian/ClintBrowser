@@ -129,6 +129,8 @@
     <string name="theme_light_desc">Malinis na puting background</string>
     <string name="theme_dark">Madilim</string>
     <string name="theme_dark_desc">Madilim na background </string>
+    <string name="theme_system">Sistema</string>
+    <string name="theme_system_desc">Awtomatikong sumusunod sa tema ng iyong device</string>
     <string name="hide_status_bar">Itago ang status bar</string>
     <string name="hide_status_bar_summary">Itago ang status bar ng system para sa mas immersive na karanasan sa pag-browse</string>
     <string name="hide_system_navigation">Itago ang navigation bar</string>

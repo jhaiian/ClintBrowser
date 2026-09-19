@@ -1,5 +1,6 @@
 package com.jhaiian.clint.settings.lookandfeel
 
+import com.jhaiian.clint.ui.theme.rememberIsLightTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
@@ -57,7 +58,8 @@ private val OptionBottomSpacing = SettingsPickerOptionBottomSpacing
 @Composable
 private fun rememberBgSurface(theme: String, accent: String): Pair<Color, Color> {
     val context = LocalContext.current
-    return remember(theme, accent) {
+    val isLight = rememberIsLightTheme(theme)
+    return remember(theme, accent, isLight) {
         val swatch = ThemeSwatchUtils.resolveSwatchColors(context, theme, accent)
         Color(swatch.bg) to Color(swatch.surface)
     }
@@ -70,6 +72,7 @@ fun ThemeSelectorDialog(current: String, hideStatusBar: Boolean, hideSystemNavig
     ClintDialog(title = stringResource(R.string.pref_app_theme_title), hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation, onDismiss = onDismiss, scrollState = scrollState) {
         data class ThemeOption(val key: String, val titleRes: Int, val descRes: Int, val drawableRes: Int)
         listOf(
+            ThemeOption("system", R.string.theme_system, R.string.theme_system_desc, R.drawable.theme_swatch_system),
             ThemeOption("dark", R.string.theme_dark, R.string.theme_dark_desc, R.drawable.theme_swatch_dark),
             ThemeOption("light", R.string.theme_light, R.string.theme_light_desc, R.drawable.theme_swatch_light)
         ).forEach { option ->
@@ -149,7 +152,7 @@ fun AccentColorDialog(current: String, theme: String, hideStatusBar: Boolean, hi
             AccentOption("lime", R.string.accent_lime, R.string.accent_lime_desc),
             AccentOption("olive", R.string.accent_olive, R.string.accent_olive_desc)
         ).forEach { option ->
-            val swatch = remember(theme, option.key) {
+            val swatch = remember(theme, option.key, colors.isLight) {
                 ThemeSwatchUtils.resolveSwatchColors(context, theme, option.key)
             }
             SelectableCard(
@@ -235,7 +238,7 @@ fun SurfaceIntensityDialog(
             Column(Modifier.weight(1f).padding(start = 16.dp, end = 8.dp)) {
                 Text(stringResource(R.string.surface_intensity_pure), color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 Text(
-                    stringResource(if (theme == "light") R.string.surface_intensity_pure_light_desc else R.string.surface_intensity_pure_dark_desc),
+                    stringResource(if (colors.isLight) R.string.surface_intensity_pure_light_desc else R.string.surface_intensity_pure_dark_desc),
                     color = colors.secondaryText, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp)
                 )
             }
@@ -251,7 +254,7 @@ fun SurfaceIntensityDialog(
             Column(Modifier.weight(1f).padding(start = 16.dp, end = 8.dp)) {
                 Text(stringResource(R.string.surface_intensity_amoled_no_tint), color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 Text(
-                    stringResource(if (theme == "light") R.string.surface_intensity_amoled_no_tint_light_desc else R.string.surface_intensity_amoled_no_tint_dark_desc),
+                    stringResource(if (colors.isLight) R.string.surface_intensity_amoled_no_tint_light_desc else R.string.surface_intensity_amoled_no_tint_dark_desc),
                     color = colors.secondaryText, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp)
                 )
             }

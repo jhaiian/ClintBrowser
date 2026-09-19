@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.ColorDrawable
@@ -16,8 +17,10 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.preference.PreferenceManager
+import com.jhaiian.clint.app.ClintApplication
 import com.jhaiian.clint.ui.ThemeRevealHolder
 import com.jhaiian.clint.ui.ThemeRevealOverlay
+import com.jhaiian.clint.ui.theme.ThemeMode
 import com.jhaiian.clint.ui.theme.resolveClintTheme
 import com.jhaiian.clint.util.LocaleHelper
 import kotlin.math.hypot
@@ -29,6 +32,7 @@ abstract class ClintActivity : AppCompatActivity() {
     private var appliedAccent: String? = null
     private var appliedIntensity: String? = null
     private var appliedLanguage: String? = null
+    private var appliedSystemDark = false
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(LocaleHelper.wrapContext(newBase))
@@ -40,9 +44,27 @@ abstract class ClintActivity : AppCompatActivity() {
         appliedAccent = prefs.getString("accent_color", "material_you") ?: "material_you"
         appliedIntensity = prefs.getString("surface_intensity", "soft_tint") ?: "soft_tint"
         appliedLanguage = prefs.getString(LocaleHelper.PREF_APP_LANGUAGE, LocaleHelper.LANGUAGE_SYSTEM) ?: LocaleHelper.LANGUAGE_SYSTEM
+        appliedSystemDark = ThemeMode.isSystemDark()
         applyWindowChrome()
         super.onCreate(savedInstanceState)
     }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        syncSystemTheme()
+    }
+
+    private fun syncSystemTheme() {
+        val systemDark = ThemeMode.isSystemDark()
+        if (systemDark == appliedSystemDark) return
+        appliedSystemDark = systemDark
+        if (appliedTheme == ThemeMode.SYSTEM) {
+            applyWindowChrome()
+            onSystemThemeChanged()
+        }
+    }
+
+    protected open fun onSystemThemeChanged() {}
 
     override fun onResume() {
         super.onResume()
@@ -57,6 +79,7 @@ abstract class ClintActivity : AppCompatActivity() {
             recreate()
             return
         }
+        syncSystemTheme()
         applyStatusBarVisibility()
         applyWindowChrome()
         window.decorView.post {
@@ -85,6 +108,7 @@ abstract class ClintActivity : AppCompatActivity() {
         if (current == newTheme) return
         captureScreenBitmap()
         prefs.edit().putString("app_theme", newTheme).commit()
+        (application as? ClintApplication)?.applyNightMode()
         window.setWindowAnimations(0)
         recreate()
     }

@@ -212,6 +212,8 @@ private fun ImageThumbnail(imageUrl: String, referer: String) {
                 imageView.imageTintList = null
                 imageView.setImageDrawable(d)
                 (d as? AnimatedImageDrawable)?.start()
+            } else {
+                imageView.imageTintList = android.content.res.ColorStateList.valueOf(colors.iconTint.toArgbCompat())
             }
         },
         modifier = Modifier.fillMaxWidth()

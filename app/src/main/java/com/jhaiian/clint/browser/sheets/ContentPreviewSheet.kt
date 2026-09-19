@@ -1,4 +1,5 @@
 package com.jhaiian.clint.browser.sheets
+import com.jhaiian.clint.ui.theme.SystemDarkState
 import androidx.compose.material.icons.automirrored.filled.ChromeReaderMode
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
@@ -208,11 +209,13 @@ private fun PreviewWebView(
     onPreviewLinkLongPress: (PreviewLinkLongPressRequest) -> Unit
 ) {
 
+    val systemDark = SystemDarkState.isDark
     CompositionLocalProvider(LocalOverscrollFactory provides null) {
     LazyColumn(Modifier.fillMaxSize()) {
         item {
             AndroidView(
                 modifier = Modifier.fillParentMaxSize(),
+                update = { wv -> if (!request.isReaderMode) applyPreviewDarkMode(wv.context, wv, systemDark) },
                 factory = { ctx ->
                     val prefs = PreferenceManager.getDefaultSharedPreferences(ctx)
                     val dataSaverEnabled = prefs.getBoolean("data_saver_enabled", false)
@@ -247,7 +250,7 @@ private fun PreviewWebView(
                         WebViewCompat.addDocumentStartJavaScript(wv, activity.loadJsAsset("disable_autoplay.js"), setOf("*"))
                     }
 
-                    if (!request.isReaderMode) applyPreviewDarkMode(ctx, wv)
+                    if (!request.isReaderMode) applyPreviewDarkMode(ctx, wv, systemDark)
 
                     wv.setOnScrollChangeListener { _, _, scrollY, _, _ -> onScrollYChanged(scrollY) }
                     wv.setOnTouchListener { view, _ -> view.parent?.requestDisallowInterceptTouchEvent(true); false }
@@ -380,10 +383,14 @@ private fun buildDesktopHeaders(webView: WebView): Map<String, String> {
 }
 
 @Suppress("DEPRECATION")
-private fun applyPreviewDarkMode(context: android.content.Context, webView: WebView) {
+private fun applyPreviewDarkMode(context: android.content.Context, webView: WebView, systemDark: Boolean) {
     val prefs = PreferenceManager.getDefaultSharedPreferences(context)
     val theme = prefs.getString("app_theme", "dark") ?: "dark"
-    val enabled = theme == "dark"
+    val enabled = when (theme) {
+        "dark" -> true
+        "light" -> false
+        else -> systemDark
+    }
     val settings = webView.settings
     when {
         WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING) ->

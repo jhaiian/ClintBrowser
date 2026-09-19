@@ -126,6 +126,8 @@
     <string name="theme_light_desc">Чистый белый фон</string>
     <string name="theme_dark">Тёмная</string>
     <string name="theme_dark_desc">Тёмный фон</string>
+    <string name="theme_system">Системная</string>
+    <string name="theme_system_desc">Автоматически следует теме устройства</string>
     <string name="hide_status_bar">Скрыть строку состояния</string>
     <string name="hide_status_bar_summary">Скрывать системную строку состояния для более полного погружения при просмотре</string>
     <string name="hide_system_navigation">Скрыть панель навигации</string>
