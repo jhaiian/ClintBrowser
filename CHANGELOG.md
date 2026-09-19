@@ -4,6 +4,41 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.1.6-beta-2
+
+---
+
+## What's New
+
+### Media Capture
+
+Fixed the following bugs:
+
+- Way off estimated size. It doesn't mean it's accurate now — it's still an estimate, guys. (Thank you to @iHarryPotter178 for reporting this #54)
+- Fixed downloads going way beyond 100%. This was probably the worst bug I encountered in Clint. It's honestly pretty hilarious. I'm really sorry to y'all. The issue happened when a segment didn't match what the manifest expected. For example, the manifest might say a segment is supposed to be 1,500 bytes, but Clint only downloads 150 bytes. Basically, Clint would go, "Huh, it doesn't match again. Let me download it again and check it again," and keep doing that over and over. It was pretty silly. Clint will now check the segment's actual Content-Length instead of relying only on the manifest. This check is required to make sure Clint doesn't remux a corrupted video. However, if the manifest reports incorrect information, it could trigger this bug. Hopefully, this is fixed now.
+- Fixed not being able to update the download link.
+- Fixed no duplicate handling.
+- Fixed some missing stats on stream downloads.
+
+This thing is still in beta, so don't expect it to be perfect. and report any issue you had encounter.
+
+---
+
+## Download Changes
+
+- Added a rename function for completed downloads.
+- Refactored some of its code.
+
+---
+
+## Other Changes
+
+- Added system themes. (Thanks to @ran-some for suggesting this #48)
+- Made the language selector hard coded.
+- Added the language selector in setup.
+
+---
+
 # v1.1.6-beta-1
 
 ---
