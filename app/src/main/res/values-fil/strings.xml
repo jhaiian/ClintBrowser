@@ -391,6 +391,7 @@
     <string name="download_update_link_dialog_fetch_failed">Nabigong kunin ang link</string>
     <string name="download_update_link_dialog_size_unverifiable">Hindi ma-verify ang laki ng file</string>
     <string name="download_update_link_dialog_size_mismatch">Hindi tugma ang laki ng file (%1$s vs %2$s bytes)</string>
+    <string name="download_update_link_dialog_not_a_manifest">Hindi valid na stream playlist ang link na ito</string>
     <string name="download_update_link_dialog_positive">I-update</string>
     <string name="download_menu_redownload">I-download ulit</string>
     <string name="download_menu_redownload_options">I-download ulit gamit ang karagdagang opsyon</string>
@@ -534,6 +535,7 @@
     <string name="download_info_with_time">%1$s  \u2022  %2$s</string>
     <string name="download_error_unknown">Hindi kilalang error</string>
     <string name="download_error_playlist_unavailable">Hindi makuha ang playlist ng video. Baka expired na ito — subukang i-detect ulit ang media.</string>
+    <string name="download_error_link_expired">Nag-expire ang download link habang naka-pause. I-restart ang download para makakuha ng bagong link.</string>
     <string name="download_error_mux_failed">Hindi napagsama ang na-download na video at audio sa isang file.</string>
     <string name="download_error_mux_failed_detail">Hindi napagsama ang na-download na video at audio sa isang file: %1$s</string>
     <string name="download_error_saf_no_access">Hindi ma-access ang piniling download folder</string>
@@ -1002,6 +1004,7 @@
     <string name="download_conflict_add_duplicate">Magdagdag ng duplicate</string>
     <string name="download_conflict_override">I-override ang umiiral na file</string>
     <string name="download_conflict_rename">Palitan ang pangalan</string>
+    <string name="download_conflict_update_link">I-update ang Link</string>
     <string name="download_already_active_title">Dina-download na</string>
     <string name="download_already_active_message">Dina-download na ang \"%1$s\". I-download ulit ito bilang hiwalay na file?</string>
     <string name="download_foreground_notification_title">Mga Download ng Clint</string>
@@ -1524,6 +1527,7 @@
     <string name="media_capture_no_audio_badge">NO AUDIO</string>
     <string name="media_capture_copy_link">Kopyahin ang link</string>
     <string name="media_capture_download">I-download</string>
+    <string name="media_capture_duplicate_link_updated">Na-update ang download link</string>
     <string name="media_capture_link_clip_label">URL ng Media</string>
     <string name="media_capture_link_copied">Nakopya ang link sa clipboard</string>
     <string name="media_capture_segments_count">%1$d na segment</string>

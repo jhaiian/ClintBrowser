@@ -25,7 +25,7 @@ object StreamTrackDownloader {
     private const val MAX_CONCURRENT_SEGMENTS = 6
     private const val MAX_SEGMENT_ATTEMPTS = 3
 
-    private data class FetchResult(val bytes: ByteArray?, val reason: String?)
+    private data class FetchResult(val bytes: ByteArray?, val reason: String?, val resourceTotalLength: Long? = null)
 
     private fun fetchSegment(
         seg: SegmentSpec, referer: String, cookies: String, userAgent: String, extraHeaders: Map<String, String>,
@@ -41,7 +41,12 @@ object StreamTrackDownloader {
         activeCalls.add(call)
         return try {
             call.execute().use { resp ->
-                if (!resp.isSuccessful) FetchResult(null, "HTTP ${resp.code}") else FetchResult(resp.body.bytes(), null)
+                if (!resp.isSuccessful) {
+                    FetchResult(null, "HTTP ${resp.code}")
+                } else {
+                    val totalLength = resp.header("Content-Range")?.substringAfterLast('/')?.toLongOrNull()
+                    FetchResult(resp.body.bytes(), null, totalLength)
+                }
             }
         } catch (e: Exception) {
             FetchResult(null, e.javaClass.simpleName + (e.message?.let { ": $it" } ?: ""))
@@ -92,10 +97,15 @@ object StreamTrackDownloader {
                         while (attempt < MAX_SEGMENT_ATTEMPTS && bytes == null) {
                             val fetched = fetchSegment(seg, referer, cookies, userAgent, extraHeaders, activeCalls)
                             val expectedLength = seg.byteRangeLength
-                            bytes = if (fetched.bytes != null && expectedLength != null && fetched.bytes.size.toLong() != expectedLength) {
-                                lastReason = "range size mismatch (expected $expectedLength, got ${fetched.bytes.size})"
-                                null
-                            } else fetched.bytes
+                            bytes = if (fetched.bytes != null) {
+                                val actualSize = fetched.bytes.size.toLong()
+                                val reachedEndOfResource = seg.byteRangeOffset != null && fetched.resourceTotalLength != null &&
+                                    seg.byteRangeOffset + actualSize == fetched.resourceTotalLength
+                                if (expectedLength != null && actualSize != expectedLength && !reachedEndOfResource) {
+                                    lastReason = "range size mismatch (expected $expectedLength, got $actualSize)"
+                                    null
+                                } else fetched.bytes
+                            } else null
                             if (bytes == null) {
                                 if (isCancelled()) throw StreamCancelledException()
                                 if (fetched.reason != null) lastReason = fetched.reason

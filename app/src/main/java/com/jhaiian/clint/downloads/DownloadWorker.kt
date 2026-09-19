@@ -125,6 +125,13 @@ internal object DownloadWorker {
             val serverAcceptedRange = response.code == 206
 
             if (isResumingFile && !serverAcceptedRange) {
+                val contentType = response.header("Content-Type")?.substringBefore(";")?.trim()?.lowercase()
+                val looksLikeErrorPage = contentType == "text/html" || contentType == "text/plain" || contentType == "application/json"
+                if (looksLikeErrorPage) {
+                    response.close()
+                    fail(context, item, context.getString(R.string.download_error_link_expired))
+                    return
+                }
                 item = item.copy(bytesDownloaded = 0L, resumable = false, file = null)
                 withContext(Dispatchers.IO) { initialItem.file.delete() }
             }

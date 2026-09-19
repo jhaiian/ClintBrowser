@@ -8,8 +8,11 @@ import androidx.preference.PreferenceManager
 import com.jhaiian.clint.R
 import com.jhaiian.clint.browser.MainActivity
 import com.jhaiian.clint.downloads.ClintDownloadManager
+import com.jhaiian.clint.downloads.DownloadConflictDialogRequest
 import com.jhaiian.clint.downloads.DownloadFileHelper
+import com.jhaiian.clint.downloads.DownloadItem
 import com.jhaiian.clint.downloads.DownloadRequestSubmission
+import com.jhaiian.clint.downloads.DownloadStatus
 import com.jhaiian.clint.downloads.DownloadsActivity
 import com.jhaiian.clint.mediacapture.DetectedMedia
 import com.jhaiian.clint.mediacapture.MediaCaptureDialog
@@ -103,35 +106,65 @@ private fun MainActivity.showMediaCaptureDownloadDialog(
         initialSpeedLimitAmount = prefs.getInt(DownloadSettingsKeys.PREF_SPEED_LIMIT_AMOUNT, DownloadSettingsKeys.DEFAULT_SPEED_LIMIT_AMOUNT),
         initialSpeedLimitUnit = prefs.getString(DownloadSettingsKeys.PREF_SPEED_LIMIT_UNIT, com.jhaiian.clint.downloads.DEFAULT_SPEED_LIMIT_UNIT) ?: com.jhaiian.clint.downloads.DEFAULT_SPEED_LIMIT_UNIT,
         onSubmit = { submission, dismiss, onRename ->
-            if (isManifestBased) {
-                if (DownloadFileHelper.isCustomLocationAccessible(this, submission.locationMode, submission.customLocationUri)) {
-                    showClintSnackbar(
-                        message = getString(R.string.toast_downloading, submission.filename),
-                        actionLabel = getString(R.string.download_started_view_action),
-                        onAction = { DownloadsActivity.open(this) }
+            fun proceed() {
+                if (isManifestBased) {
+                    if (DownloadFileHelper.isCustomLocationAccessible(this, submission.locationMode, submission.customLocationUri)) {
+                        showClintSnackbar(
+                            message = getString(R.string.toast_downloading, submission.filename),
+                            actionLabel = getString(R.string.download_started_view_action),
+                            onAction = { DownloadsActivity.open(this) }
+                        )
+                    }
+                    dismiss()
+                    enqueueMediaCaptureStream(media, allItems, pageUrl, userAgent, submission, knownLengthBytes ?: estimatedBytes ?: 0L)
+                } else {
+                    if (DownloadFileHelper.isCustomLocationAccessible(this, submission.locationMode, submission.customLocationUri)) {
+                        showClintSnackbar(
+                            message = getString(R.string.toast_downloading, submission.filename),
+                            actionLabel = getString(R.string.download_started_view_action),
+                            onAction = { DownloadsActivity.open(this) }
+                        )
+                    }
+                    initiateDownload(
+                        media.url, submission.filename, userAgent, pageUrl, "",
+                        submission.retryEnabled, submission.unmeteredOnly, submission.splitParts, submission.multithreadingParts, submission.speedLimitBytesPerSec,
+                        submission.locationMode, submission.customLocationUri, submission.scheduledStartAtMillis,
+                        onDismiss = dismiss,
+                        onRename = onRename
                     )
                 }
-                dismiss()
-                enqueueMediaCaptureStream(media, allItems, pageUrl, userAgent, submission, knownLengthBytes ?: estimatedBytes ?: 0L)
-            } else {
-                if (DownloadFileHelper.isCustomLocationAccessible(this, submission.locationMode, submission.customLocationUri)) {
-                    showClintSnackbar(
-                        message = getString(R.string.toast_downloading, submission.filename),
-                        actionLabel = getString(R.string.download_started_view_action),
-                        onAction = { DownloadsActivity.open(this) }
-                    )
-                }
-                initiateDownload(
-                    media.url, submission.filename, userAgent, pageUrl, "",
-                    submission.retryEnabled, submission.unmeteredOnly, submission.splitParts, submission.multithreadingParts, submission.speedLimitBytesPerSec,
-                    submission.locationMode, submission.customLocationUri, submission.scheduledStartAtMillis,
-                    onDismiss = dismiss,
-                    onRename = onRename
+            }
+
+            val existing = findExistingMediaCaptureDownload(media.url)
+            if (existing != null) {
+                val isPending = existing.status in DownloadStatus.NOT_FINISHED
+                uiState.conflictDialogRequest = DownloadConflictDialogRequest(
+                    onAddDuplicate = { proceed() },
+                    onOverride = {
+                        ClintDownloadManager.remove(this, existing.id, deleteFile = true)
+                        proceed()
+                    },
+                    onRename = onRename,
+                    onUpdateLink = if (isPending) {
+                        {
+                            ClintDownloadManager.updateDownloadUrl(existing.id, media.url)
+                            dismiss()
+                            showClintSnackbar(message = getString(R.string.media_capture_duplicate_link_updated))
+                        }
+                    } else null
                 )
+            } else {
+                proceed()
             }
         }
     )
 }
+
+private fun MainActivity.findExistingMediaCaptureDownload(mediaUrl: String): DownloadItem? =
+    ClintDownloadManager.downloadsFlow.value.firstOrNull {
+        it.status != DownloadStatus.FAILED &&
+            (it.url == mediaUrl || it.streamVideoUrl == mediaUrl || it.streamAudioUrl == mediaUrl)
+    }
 
 private fun MainActivity.enqueueMediaCaptureStream(
     media: DetectedMedia,

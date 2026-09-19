@@ -1,6 +1,7 @@
 package com.jhaiian.clint.downloads
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.FormatSize
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Save
 
 import androidx.compose.runtime.Composable
@@ -13,7 +14,8 @@ import com.jhaiian.clint.ui.ClintDialogCancelFooter
 data class DownloadConflictDialogRequest(
     val onAddDuplicate: () -> Unit,
     val onOverride: () -> Unit,
-    val onRename: () -> Unit
+    val onRename: () -> Unit,
+    val onUpdateLink: (() -> Unit)? = null
 )
 
 @Composable
@@ -24,6 +26,9 @@ internal fun DownloadConflictDialog(request: DownloadConflictDialogRequest, hide
         onDismiss = onDismiss,
         footer = { ClintDialogCancelFooter(onDismiss) }
     ) {
+        request.onUpdateLink?.let { onUpdateLink ->
+            ActionSheetRow(androidx.compose.material.icons.Icons.Filled.Link, stringResource(R.string.download_conflict_update_link)) { onDismiss(); onUpdateLink() }
+        }
         ActionSheetRow(androidx.compose.material.icons.Icons.Filled.Download, stringResource(R.string.download_conflict_add_duplicate)) { onDismiss(); request.onAddDuplicate() }
         ActionSheetRow(androidx.compose.material.icons.Icons.Filled.Save, stringResource(R.string.download_conflict_override)) { onDismiss(); request.onOverride() }
         ActionSheetRow(androidx.compose.material.icons.Icons.Filled.FormatSize, stringResource(R.string.download_conflict_rename)) { onDismiss(); request.onRename() }

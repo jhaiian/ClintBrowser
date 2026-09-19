@@ -378,6 +378,7 @@ object StreamDownloadJob {
                 throw e
             } catch (e: Throwable) {
                 lastError = e
+                downloaded = downloaded + loadExistingSegments(workDir, track)
             }
             attempt++
             if (attempt >= MAX_RESOLVE_ATTEMPTS) break

@@ -391,6 +391,7 @@
     <string name="download_update_link_dialog_fetch_failed">Failed to fetch link</string>
     <string name="download_update_link_dialog_size_unverifiable">File size could not be verified</string>
     <string name="download_update_link_dialog_size_mismatch">File size does not match (%1$s vs %2$s bytes)</string>
+    <string name="download_update_link_dialog_not_a_manifest">This link doesn\'t point to a valid stream playlist</string>
     <string name="download_update_link_dialog_positive">Update</string>
     <string name="download_menu_redownload">Redownload</string>
     <string name="download_menu_redownload_options">Redownload with additional options</string>
@@ -534,6 +535,7 @@
     <string name="download_info_with_time">%1$s  \u2022  %2$s</string>
     <string name="download_error_unknown">Unknown error</string>
     <string name="download_error_playlist_unavailable">Could not fetch the video playlist. It may have expired — try re-detecting the media.</string>
+    <string name="download_error_link_expired">The download link expired while paused. Restart the download to get a fresh link.</string>
     <string name="download_error_mux_failed">Failed to combine the downloaded video and audio into one file.</string>
     <string name="download_error_mux_failed_detail">Failed to combine the downloaded video and audio into one file: %1$s</string>
     <string name="download_error_saf_no_access">Cannot access the selected download folder</string>
@@ -1002,6 +1004,7 @@
     <string name="download_conflict_add_duplicate">Add duplicate</string>
     <string name="download_conflict_override">Override existing file</string>
     <string name="download_conflict_rename">Rename</string>
+    <string name="download_conflict_update_link">Update Link</string>
     <string name="download_already_active_title">Already downloading</string>
     <string name="download_already_active_message">"%1$s" is already downloading. Download it again as a separate file?</string>
     <string name="download_foreground_notification_title">Clint Downloads</string>
@@ -1531,6 +1534,7 @@
     <string name="media_capture_no_audio_badge">NO AUDIO</string>
     <string name="media_capture_copy_link">Copy link</string>
     <string name="media_capture_download">Download</string>
+    <string name="media_capture_duplicate_link_updated">Download link updated</string>
     <string name="media_capture_link_clip_label">Media URL</string>
     <string name="media_capture_link_copied">Link copied to clipboard</string>
     <string name="media_capture_segments_count">%1$d segments</string>

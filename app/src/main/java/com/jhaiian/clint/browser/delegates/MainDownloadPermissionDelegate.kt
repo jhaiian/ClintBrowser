@@ -15,6 +15,7 @@ import com.jhaiian.clint.browser.MainActivity
 import com.jhaiian.clint.downloads.ClintDownloadManager
 import com.jhaiian.clint.downloads.DownloadFileHelper
 import com.jhaiian.clint.settings.downloads.DownloadSettingsKeys
+import com.jhaiian.clint.ui.showClintSnackbar
 import java.io.File
 
 internal const val PREF_BATTERY_OPT_ASKED = "battery_opt_asked"
@@ -197,6 +198,10 @@ private fun MainActivity.checkFilenameConflictAndEnqueue(
     onDismiss: () -> Unit,
     onRename: () -> Unit
 ) {
+    val pendingMatch = ClintDownloadManager.downloadsFlow.value.firstOrNull {
+        it.status in com.jhaiian.clint.downloads.DownloadStatus.NOT_FINISHED && it.url == url
+    }
+
     val isSaf = locationMode == DownloadSettingsKeys.MODE_CUSTOM
     val fileExists = if (isSaf) {
         val treeUri = customLocationUri?.let { Uri.parse(it) }
@@ -206,7 +211,7 @@ private fun MainActivity.checkFilenameConflictAndEnqueue(
         File(DownloadFileHelper.resolveDownloadDir(), filename).exists()
     }
 
-    if (!fileExists) {
+    if (!fileExists && pendingMatch == null) {
         onDismiss()
         ClintDownloadManager.enqueue(this, url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, scheduledStartAtMillis)
         return
@@ -218,11 +223,19 @@ private fun MainActivity.checkFilenameConflictAndEnqueue(
             ClintDownloadManager.enqueue(this, url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, scheduledStartAtMillis)
         },
         onOverride = {
-            deleteExistingDownload(filename, locationMode, customLocationUri)
+            if (pendingMatch != null) ClintDownloadManager.remove(this, pendingMatch.id, deleteFile = true)
+            else deleteExistingDownload(filename, locationMode, customLocationUri)
             onDismiss()
             ClintDownloadManager.enqueue(this, url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, scheduledStartAtMillis)
         },
-        onRename = onRename
+        onRename = onRename,
+        onUpdateLink = pendingMatch?.let { match ->
+            {
+                ClintDownloadManager.updateDownloadUrl(match.id, url)
+                onDismiss()
+                showClintSnackbar(message = getString(R.string.media_capture_duplicate_link_updated))
+            }
+        }
     )
 }
 

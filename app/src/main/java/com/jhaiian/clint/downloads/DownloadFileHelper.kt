@@ -128,6 +128,21 @@ internal object DownloadFileHelper {
         return File(dir, "$base(${System.nanoTime()})$ext")
     }
 
+    fun previewUniqueName(dir: File, name: String): String {
+        val safeName = sanitizeFileName(name)
+        if (!File(dir, safeName).exists()) return safeName
+        val dot = safeName.lastIndexOf('.')
+        val base = if (dot > 0) safeName.substring(0, dot) else safeName
+        val ext = if (dot > 0) safeName.substring(dot) else ""
+        var i = 1
+        while (i <= 1000) {
+            val candidate = "$base($i)$ext"
+            if (!File(dir, candidate).exists()) return candidate
+            i++
+        }
+        return "$base(${System.nanoTime()})$ext"
+    }
+
     fun uniqueSafName(docDir: DocumentFile, name: String): String {
         val safeName = sanitizeFileName(name)
         if (docDir.findFile(safeName) == null) return safeName

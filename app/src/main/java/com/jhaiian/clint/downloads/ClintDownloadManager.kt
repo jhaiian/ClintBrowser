@@ -219,7 +219,7 @@ object ClintDownloadManager {
 
         val id = idCounter.getAndIncrement()
         val queued = activeCount() >= concurrentLimit(context)
-        val item = DownloadItem(
+        val baseItem = DownloadItem(
             id = id,
             url = request.videoUrl ?: request.audioUrl ?: "",
             filename = request.filename,
@@ -236,6 +236,7 @@ object ClintDownloadManager {
             streamSubtitleUrl = request.subtitleUrl,
             streamFormat = if (request.format == com.jhaiian.clint.mediacapture.download.StreamContainerFormat.DASH) "DASH" else "HLS",
             streamPageUrl = request.pageUrl,
+            referer = request.referer,
             streamVideoWidth = videoWidth,
             streamVideoHeight = videoHeight,
             streamVideoBandwidth = videoBandwidth,
@@ -249,6 +250,16 @@ object ClintDownloadManager {
             streamAudioRepresentationId = audioRepresentationId,
             speedLimitBytesPerSec = request.speedLimitBytesPerSec
         )
+        val destDir = DownloadFileHelper.resolveDirectCustomDir(context, baseItem)
+            ?: if (DownloadFileHelper.isSafCustomMode(context, baseItem)) DownloadFileHelper.tempDownloadDir(context) else DownloadFileHelper.resolveDownloadDir()
+        destDir.mkdirs()
+        val needsMuxGuess = request.videoUrl != null && request.audioUrl != null
+        val userExt = request.filename.substringAfterLast('.', "").trim().takeIf { it.isNotBlank() }
+        val guessedExt = userExt ?: if (needsMuxGuess) "mp4" else "ts"
+        val dot = request.filename.lastIndexOf('.')
+        val guessedBase = if (dot > 0) request.filename.substring(0, dot) else request.filename
+        val previewName = DownloadFileHelper.previewUniqueName(destDir, "$guessedBase.$guessedExt")
+        val item = baseItem.copy(filename = previewName)
         addNew(item)
 
         if (queued) {
@@ -468,7 +479,11 @@ object ClintDownloadManager {
             locationMode = locationMode, customLocationUri = customLocationUri,
             startedAt = System.currentTimeMillis(), scheduledStartAtMillis = scheduledStartAtMillis
         )
-        dispatchOrQueue(context, baseItem, ::addNew)
+        val destDir = DownloadFileHelper.resolveDirectCustomDir(context, baseItem)
+            ?: if (DownloadFileHelper.isSafCustomMode(context, baseItem)) DownloadFileHelper.tempDownloadDir(context) else DownloadFileHelper.resolveDownloadDir()
+        destDir.mkdirs()
+        val previewName = DownloadFileHelper.previewUniqueName(destDir, filename)
+        dispatchOrQueue(context, baseItem.copy(filename = previewName), ::addNew)
     }
 
     fun cancel(context: Context, id: Int) {
@@ -642,7 +657,14 @@ object ClintDownloadManager {
     }
 
     fun updateDownloadUrl(id: Int, newUrl: String) {
-        updateItem(id) { it.copy(url = newUrl) }
+        updateItem(id) { current ->
+            if (current.isStream) {
+                if (current.streamPrimaryIsAudio) current.copy(url = newUrl, streamAudioUrl = newUrl)
+                else current.copy(url = newUrl, streamVideoUrl = newUrl)
+            } else {
+                current.copy(url = newUrl)
+            }
+        }
     }
 
     fun onUnmeteredOnlyChanged(context: Context, enabled: Boolean) {
