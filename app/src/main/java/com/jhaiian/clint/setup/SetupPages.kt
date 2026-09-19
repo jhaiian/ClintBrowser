@@ -44,11 +44,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jhaiian.clint.R
+import com.jhaiian.clint.settings.lookandfeel.LanguageSelectorDialog
+import com.jhaiian.clint.settings.lookandfeel.languageSummaryText
 import com.jhaiian.clint.ui.ThemeSwatchUtils
 import com.jhaiian.clint.ui.theme.LocalClintColors
 
 @Composable
 fun SetupWelcomePage(
+    language: String,
+    hideStatusBar: Boolean,
+    hideSystemNavigation: Boolean,
+    onLanguageSelected: (String) -> Unit,
     consentChecked: Boolean,
     onConsentCheckedChange: (Boolean) -> Unit,
     onPrivacyClick: () -> Unit,
@@ -56,6 +62,16 @@ fun SetupWelcomePage(
     onContinue: () -> Unit
 ) {
     val colors = LocalClintColors.current
+    var showLanguageDialog by remember { mutableStateOf(false) }
+    if (showLanguageDialog) {
+        LanguageSelectorDialog(
+            current = language,
+            hideStatusBar = hideStatusBar,
+            hideSystemNavigation = hideSystemNavigation,
+            onSelect = { showLanguageDialog = false; onLanguageSelected(it) },
+            onDismiss = { showLanguageDialog = false }
+        )
+    }
     Column(
         Modifier
             .fillMaxSize()
@@ -83,6 +99,31 @@ fun SetupWelcomePage(
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
             modifier = Modifier.padding(top = 8.dp, bottom = 32.dp)
         )
+        Card(
+            Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp)
+                .clip(RoundedCornerShape(14.dp))
+                .clickable { showLanguageDialog = true },
+            shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(containerColor = colors.cardBackground)
+        ) {
+            Row(
+                Modifier.fillMaxWidth().padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(androidx.compose.material.icons.Icons.Filled.Language, null, tint = colors.primary, modifier = Modifier.size(20.dp))
+                Text(
+                    stringResource(R.string.pref_language_title),
+                    color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Medium,
+                    modifier = Modifier.weight(1f).padding(start = 12.dp)
+                )
+                Text(
+                    languageSummaryText(language),
+                    color = colors.primary, fontSize = 13.sp, fontWeight = FontWeight.Medium
+                )
+            }
+        }
         Card(
             Modifier.fillMaxWidth().padding(bottom = 12.dp),
             shape = RoundedCornerShape(14.dp),

@@ -292,7 +292,7 @@ private fun exitConfirmationSummaryRes(value: String): Int = when (value) {
 }
 
 @Composable
-private fun languageSummaryText(language: String): String {
+fun languageSummaryText(language: String): String {
     val option = languageOptions.firstOrNull { it.tag == language }
     return stringResource(option?.nameRes ?: R.string.language_system)
 }

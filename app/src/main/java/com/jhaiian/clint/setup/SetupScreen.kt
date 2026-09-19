@@ -39,6 +39,7 @@ fun SetupScreen(
     onThemeSelected: (String) -> Unit,
     onAccentSelected: (String) -> Unit,
     onIntensitySelected: (String) -> Unit,
+    onLanguageSelected: (String) -> Unit,
     onAddressBarPositionSelected: (String) -> Unit,
     onMenuStyleSelected: (String) -> Unit,
     onScrollHideModeSelected: (String) -> Unit,
@@ -86,6 +87,9 @@ fun SetupScreen(
                         ) {
                             when (page) {
                                 0 -> SetupWelcomePage(
+                                    language = state.language,
+                                    hideStatusBar = state.hideStatusBar, hideSystemNavigation = state.hideSystemNavigation,
+                                    onLanguageSelected = onLanguageSelected,
                                     consentChecked = state.consentChecked,
                                     onConsentCheckedChange = { state.consentChecked = it },
                                     onPrivacyClick = onPrivacyClick,

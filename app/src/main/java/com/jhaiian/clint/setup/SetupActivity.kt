@@ -23,6 +23,7 @@ import com.jhaiian.clint.browser.MainActivity
 import com.jhaiian.clint.crash.CrashHandler
 import com.jhaiian.clint.ui.DocumentViewer
 import com.jhaiian.clint.ui.OverlayHostActivity
+import com.jhaiian.clint.util.LocaleHelper
 
 class SetupActivity : ClintActivity(), OverlayHostActivity {
 
@@ -41,6 +42,7 @@ class SetupActivity : ClintActivity(), OverlayHostActivity {
         const val TERMS_URL = "https://github.com/jhaiian/ClintBrowser/blob/main/TERMS_OF_SERVICE.md"
         private const val KEY_PENDING_PAGE = "setup_pending_page"
         private const val KEY_PENDING_SCROLL = "setup_pending_scroll"
+        private const val KEY_PENDING_CONSENT = "setup_pending_consent"
         private const val KEY_PENDING_HIDE_STATUS_BAR = "setup_pending_hide_status_bar"
         private const val KEY_PENDING_HIDE_SYSTEM_NAVIGATION = "setup_pending_hide_system_navigation"
     }
@@ -72,6 +74,11 @@ class SetupActivity : ClintActivity(), OverlayHostActivity {
             hideSystemNavigation = prefs.getBoolean(KEY_PENDING_HIDE_SYSTEM_NAVIGATION, false)
             prefs.edit().remove(KEY_PENDING_HIDE_SYSTEM_NAVIGATION).apply()
         }
+        var consentChecked = false
+        if (prefs.contains(KEY_PENDING_CONSENT)) {
+            consentChecked = prefs.getBoolean(KEY_PENDING_CONSENT, false)
+            prefs.edit().remove(KEY_PENDING_CONSENT).apply()
+        }
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -94,6 +101,7 @@ class SetupActivity : ClintActivity(), OverlayHostActivity {
             initialTheme = prefs.getString("app_theme", "dark") ?: "dark",
             initialAccent = prefs.getString("accent_color", "material_you") ?: "material_you",
             initialIntensity = prefs.getString("surface_intensity", "soft_tint") ?: "soft_tint",
+            initialLanguage = prefs.getString(LocaleHelper.PREF_APP_LANGUAGE, LocaleHelper.LANGUAGE_SYSTEM) ?: LocaleHelper.LANGUAGE_SYSTEM,
             initialAddressBarPosition = prefs.getString("address_bar_position", "top") ?: "top",
             initialMenuStyle = prefs.getString("menu_style", "popup") ?: "popup",
             initialScrollHideMode = prefs.getString("scroll_hide_mode", "off") ?: "off",
@@ -101,6 +109,7 @@ class SetupActivity : ClintActivity(), OverlayHostActivity {
             initialEngine = "duckduckgo",
             initialCustomEngineName = "", initialCustomEngineUrl = ""
         )
+        uiState.consentChecked = consentChecked
         if (uiState.currentPage == 5) refreshDefaultBrowserState()
 
         setContent {
@@ -125,6 +134,7 @@ class SetupActivity : ClintActivity(), OverlayHostActivity {
                 onThemeSelected = { theme -> onSetupThemeSelected(theme) },
                 onAccentSelected = { accent -> onSetupAccentSelected(accent) },
                 onIntensitySelected = { intensity -> onSetupIntensitySelected(intensity) },
+                onLanguageSelected = { language -> onSetupLanguageSelected(language) },
                 onAddressBarPositionSelected = { position ->
                     uiState.addressBarPosition = position
                     uiState.scrollHideMode = sanitizeScrollHideMode(uiState.scrollHideMode, position)
@@ -240,11 +250,18 @@ class SetupActivity : ClintActivity(), OverlayHostActivity {
         captureAndApplySurfaceIntensity(intensity)
     }
 
-    private fun savePendingNavigationState() {
+    private fun onSetupLanguageSelected(language: String) {
+        if (language == uiState.language) return
+        savePendingNavigationState(0)
+        captureAndApplyLanguage(language)
+    }
+
+    private fun savePendingNavigationState(page: Int = 2) {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         prefs.edit()
-            .putInt(KEY_PENDING_PAGE, 2)
-            .putInt(KEY_PENDING_SCROLL, uiState.themePageScrollState.value)
+            .putInt(KEY_PENDING_PAGE, page)
+            .putInt(KEY_PENDING_SCROLL, if (page == 2) uiState.themePageScrollState.value else 0)
+            .putBoolean(KEY_PENDING_CONSENT, uiState.consentChecked)
             .putBoolean(KEY_PENDING_HIDE_STATUS_BAR, uiState.hideStatusBar)
             .putBoolean(KEY_PENDING_HIDE_SYSTEM_NAVIGATION, uiState.hideSystemNavigation)
             .apply()

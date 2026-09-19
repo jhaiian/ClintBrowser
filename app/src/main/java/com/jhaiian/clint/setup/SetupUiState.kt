@@ -11,6 +11,7 @@ class SetupUiState(
     initialTheme: String,
     initialAccent: String,
     initialIntensity: String,
+    initialLanguage: String,
     initialAddressBarPosition: String,
     initialMenuStyle: String,
     initialScrollHideMode: String,
@@ -24,6 +25,7 @@ class SetupUiState(
     var theme by mutableStateOf(initialTheme)
     var accent by mutableStateOf(initialAccent)
     var intensity by mutableStateOf(initialIntensity)
+    var language by mutableStateOf(initialLanguage)
 
     var addressBarPosition by mutableStateOf(initialAddressBarPosition)
     var menuStyle by mutableStateOf(initialMenuStyle)
