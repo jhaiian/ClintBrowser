@@ -120,6 +120,9 @@
     <string name="language_system">System</string>
     <string name="language_system_desc">Match your device\'s language, falling back to English if it\'s not supported</string>
     <string name="language_base_desc">Original language</string>
+    <string name="language_name_english">English</string>
+    <string name="language_name_filipino">Filipino</string>
+    <string name="language_name_russian">Русский</string>
     <string name="pref_app_theme_title">App Theme</string>
     <string name="pref_app_theme_summary">Choose the app&#8217;s visual theme</string>
     <string name="theme_light">Light</string>

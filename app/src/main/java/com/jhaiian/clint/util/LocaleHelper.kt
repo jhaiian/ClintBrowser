@@ -9,7 +9,12 @@ import java.util.Locale
 object LocaleHelper {
     const val PREF_APP_LANGUAGE = "app_language"
     const val LANGUAGE_SYSTEM = "system"
-    const val BASE_LANGUAGE_TAG = "en"
+    const val LANGUAGE_ENGLISH = "en"
+    const val LANGUAGE_FILIPINO = "fil"
+    const val LANGUAGE_RUSSIAN = "ru"
+    const val BASE_LANGUAGE_TAG = LANGUAGE_ENGLISH
+
+    private val SUPPORTED_LANGUAGE_TAGS = listOf(LANGUAGE_ENGLISH, LANGUAGE_FILIPINO, LANGUAGE_RUSSIAN)
 
     fun wrapContext(context: Context): Context {
         val locale = resolveEffectiveLocale(context)
@@ -22,17 +27,16 @@ object LocaleHelper {
     fun resolveEffectiveLocale(context: Context): Locale {
         val stored = PreferenceManager.getDefaultSharedPreferences(context)
             .getString(PREF_APP_LANGUAGE, LANGUAGE_SYSTEM) ?: LANGUAGE_SYSTEM
-        if (stored == LANGUAGE_SYSTEM) {
-            val systemLocale = systemLocale()
-            return if (isSupported(context, systemLocale.language)) systemLocale else Locale.forLanguageTag(BASE_LANGUAGE_TAG)
-        }
-        return Locale.forLanguageTag(stored)
+        if (stored in SUPPORTED_LANGUAGE_TAGS) return Locale.forLanguageTag(stored)
+        return supportedSystemLocale()
     }
 
-    private fun systemLocale(): Locale = Resources.getSystem().configuration.locales[0]
-
-    private fun isSupported(context: Context, languageTag: String): Boolean {
-        if (languageTag.equals(BASE_LANGUAGE_TAG, ignoreCase = true)) return true
-        return context.assets.locales.any { it.equals(languageTag, ignoreCase = true) }
+    private fun supportedSystemLocale(): Locale {
+        val system = Resources.getSystem().configuration.locales[0]
+        return when (system.language) {
+            "tl" -> Locale.forLanguageTag(LANGUAGE_FILIPINO)
+            in SUPPORTED_LANGUAGE_TAGS -> system
+            else -> Locale.forLanguageTag(BASE_LANGUAGE_TAG)
+        }
     }
 }

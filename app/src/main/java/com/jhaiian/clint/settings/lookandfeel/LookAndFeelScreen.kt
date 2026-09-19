@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.WebAsset
 import androidx.compose.foundation.layout.padding
 import com.jhaiian.clint.ui.ClintSwitch
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -26,8 +25,6 @@ import com.jhaiian.clint.settings.common.SettingsSection
 import com.jhaiian.clint.setup.SectionLabel
 import com.jhaiian.clint.ui.ThemeSwatchUtils
 import com.jhaiian.clint.ui.theme.LocalClintColors
-import com.jhaiian.clint.util.LocaleHelper
-import java.util.Locale
 
 @Composable
 fun LookAndFeelScreen(
@@ -296,9 +293,6 @@ private fun exitConfirmationSummaryRes(value: String): Int = when (value) {
 
 @Composable
 private fun languageSummaryText(language: String): String {
-    if (language == LocaleHelper.LANGUAGE_SYSTEM) return stringResource(R.string.language_system)
-    return remember(language) {
-        val locale = Locale.forLanguageTag(language)
-        locale.getDisplayName(locale).replaceFirstChar { it.titlecase(locale) }
-    }
+    val option = languageOptions.firstOrNull { it.tag == language }
+    return stringResource(option?.nameRes ?: R.string.language_system)
 }

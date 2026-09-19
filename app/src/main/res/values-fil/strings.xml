@@ -120,6 +120,9 @@
     <string name="language_system">Sistema</string>
     <string name="language_system_desc">Itutugma ang wika ng iyong device, babalik sa English kung hindi ito suportado</string>
     <string name="language_base_desc">Orihinal na wika</string>
+    <string name="language_name_english">English</string>
+    <string name="language_name_filipino">Filipino</string>
+    <string name="language_name_russian">Русский</string>
     <string name="pref_app_theme_title">Tema ng App</string>
     <string name="pref_app_theme_summary">Piliin ang visual na tema ng app</string>
     <string name="theme_light">Maliwanag</string>
