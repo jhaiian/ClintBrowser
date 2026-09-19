@@ -37,6 +37,7 @@ import com.jhaiian.clint.crash.CrashHandler
 import com.jhaiian.clint.downloads.ClintDownloadManager
 import com.jhaiian.clint.tabs.TabManager
 import com.jhaiian.clint.ui.ClintSnackbarHost
+import com.jhaiian.clint.ui.ConfirmDialogHostActivity
 import com.jhaiian.clint.ui.OverlayHostActivity
 import com.jhaiian.clint.ui.SnackbarHostActivity
 import com.jhaiian.clint.ui.theme.ClintComposeTheme
@@ -45,7 +46,7 @@ import androidx.webkit.ScriptHandler
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 
-class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity {
+class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity, ConfirmDialogHostActivity {
 
     companion object {
         const val EXTRA_REFRESH_LINK_MODE = "extra_refresh_link_mode"
@@ -67,6 +68,10 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity 
     internal var refreshLinkSession: RefreshLinkSession? = null
 
     internal val uiState = MainUiState()
+
+    override var confirmDialogConfig: com.jhaiian.clint.ui.listscreen.ConfirmDialogConfig?
+        get() = uiState.confirmDialogConfig
+        set(value) { uiState.confirmDialogConfig = value }
 
     override var overlayContent by mutableStateOf<(@Composable () -> Unit)?>(null)
 

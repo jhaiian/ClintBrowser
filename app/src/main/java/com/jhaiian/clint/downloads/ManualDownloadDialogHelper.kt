@@ -58,31 +58,36 @@ internal fun DownloadsActivity.performManualDownload(
     continueManualDownload(submission, userAgent, onDismiss, onRename)
 }
 
+internal fun DownloadsActivity.confirmMeteredWarningThenProceed(
+    unmeteredOnly: Boolean,
+    onDecided: (effectiveUnmeteredOnly: Boolean) -> Unit
+) {
+    val cm = getSystemService(android.net.ConnectivityManager::class.java)
+    val isMetered = cm?.isActiveNetworkMetered ?: false
+    if (unmeteredOnly && isMetered) {
+        uiState.confirmDialogConfig = com.jhaiian.clint.ui.listscreen.ConfirmDialogConfig(
+            title = getString(R.string.download_metered_warning_title),
+            message = getString(R.string.download_metered_warning_message),
+            positiveLabel = getString(R.string.action_yes),
+            onPositive = { onDecided(false) },
+            negativeLabel = getString(R.string.action_no),
+            onNegative = { onDecided(true) },
+            neutralLabel = getString(R.string.action_cancel)
+        )
+        return
+    }
+    onDecided(unmeteredOnly)
+}
+
 private fun DownloadsActivity.continueManualDownload(
     submission: ManualDownloadSubmission,
     userAgent: String,
     onDismiss: () -> Unit,
     onRename: () -> Unit
 ) {
-    val cm = getSystemService(android.net.ConnectivityManager::class.java)
-    val isMetered = cm?.isActiveNetworkMetered ?: false
-    if (submission.unmeteredOnly && isMetered) {
-        uiState.confirmDialogConfig = com.jhaiian.clint.ui.listscreen.ConfirmDialogConfig(
-            title = getString(R.string.download_metered_warning_title),
-            message = getString(R.string.download_metered_warning_message),
-            positiveLabel = getString(R.string.action_yes),
-            onPositive = {
-                checkConflictAndEnqueueManual(submission.copy(unmeteredOnly = false), userAgent, onDismiss, onRename)
-            },
-            negativeLabel = getString(R.string.action_no),
-            onNegative = {
-                checkConflictAndEnqueueManual(submission.copy(unmeteredOnly = true), userAgent, onDismiss, onRename)
-            },
-            neutralLabel = getString(R.string.action_cancel)
-        )
-        return
+    confirmMeteredWarningThenProceed(submission.unmeteredOnly) { effectiveUnmeteredOnly ->
+        checkConflictAndEnqueueManual(submission.copy(unmeteredOnly = effectiveUnmeteredOnly), userAgent, onDismiss, onRename)
     }
-    checkConflictAndEnqueueManual(submission, userAgent, onDismiss, onRename)
 }
 
 private fun DownloadsActivity.checkConflictAndEnqueueManual(

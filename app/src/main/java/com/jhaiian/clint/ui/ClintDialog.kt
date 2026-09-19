@@ -103,6 +103,29 @@ fun ClintDialogCancelFooter(onDismiss: () -> Unit) {
 }
 
 @Composable
+fun ClintDialogActionFooter(
+    onCancel: () -> Unit,
+    positiveLabel: String,
+    onPositive: () -> Unit,
+    positiveEnabled: Boolean = true,
+    cancelLabel: String = stringResource(R.string.action_cancel)
+) {
+    val colors = LocalClintColors.current
+    Row(Modifier.fillMaxWidth().padding(end = 12.dp, bottom = 8.dp), horizontalArrangement = Arrangement.End) {
+        TextButton(onClick = onCancel) {
+            Text(cancelLabel, color = colors.primary, fontWeight = FontWeight.Medium)
+        }
+        TextButton(onClick = onPositive, enabled = positiveEnabled) {
+            Text(
+                positiveLabel,
+                color = if (positiveEnabled) colors.primary else colors.secondaryText,
+                fontWeight = FontWeight.Medium
+            )
+        }
+    }
+}
+
+@Composable
 fun ClintDialog(
     title: String,
     hideStatusBar: Boolean, hideSystemNavigation: Boolean,

@@ -28,6 +28,7 @@ import androidx.preference.PreferenceManager
 import com.jhaiian.clint.base.ClintActivity
 import com.jhaiian.clint.settings.downloads.DownloadSettingsKeys
 import com.jhaiian.clint.ui.ClintSnackbarHost
+import com.jhaiian.clint.ui.ConfirmDialogHostActivity
 import com.jhaiian.clint.ui.OverlayHostActivity
 import com.jhaiian.clint.ui.SnackbarHostActivity
 import com.jhaiian.clint.ui.rememberMaxContentWidth
@@ -38,11 +39,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class DownloadsActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity {
+class DownloadsActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity, ConfirmDialogHostActivity {
 
     override var overlayContent by mutableStateOf<(@Composable () -> Unit)?>(null)
 
     override val snackbarHostState = SnackbarHostState()
+
+    override var confirmDialogConfig: com.jhaiian.clint.ui.listscreen.ConfirmDialogConfig?
+        get() = uiState.confirmDialogConfig
+        set(value) { uiState.confirmDialogConfig = value }
 
     companion object {
         const val EXTRA_OPEN_ID = "open_download_id"

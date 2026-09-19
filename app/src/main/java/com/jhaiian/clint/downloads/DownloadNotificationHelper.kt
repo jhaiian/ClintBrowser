@@ -245,93 +245,73 @@ internal object DownloadNotificationHelper {
     }
 
     fun showPausedNotification(context: Context, item: DownloadItem) {
-        val nm = context.getSystemService(NotificationManager::class.java)
-        val pct = item.progressPercent
-        val progressText = buildPausedProgressText(context, item)
-        val elapsedSec = item.activeElapsedMs / 1000L
-        val pausedLabel = context.getString(R.string.download_notification_paused)
-        val metaLabel = if (elapsedSec >= 1L) "$pausedLabel  \u2022  ${formatElapsed(elapsedSec)}" else pausedLabel
-        val contentText = if (progressText != null) "$progressText  \u2022  $metaLabel" else metaLabel
-
-        val resumePi = PendingIntent.getBroadcast(
-            context, item.id + 50000,
-            Intent(context, DownloadActionReceiver::class.java).apply {
-                action = DownloadActionReceiver.ACTION_RESUME
-                putExtra(DownloadActionReceiver.EXTRA_ID, item.id)
-            },
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        showWaitingStateNotification(
+            context, item,
+            label = context.getString(R.string.download_notification_paused),
+            includeElapsed = true,
+            actionLabel = context.getString(R.string.action_resume),
+            actionPendingIntent = resumePendingIntent(context, item.id)
         )
-
-        NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_notification_24)
-            .setContentTitle(item.filename)
-            .setContentText(contentText)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
-            .setOngoing(false)
-            .setOnlyAlertOnce(true)
-            .setSilent(true)
-            .setProgress(100, pct.coerceAtLeast(0), false)
-            .addAction(0, context.getString(R.string.action_resume), resumePi)
-            .setGroup(DOWNLOAD_GROUP_KEY)
-            .build()
-            .let { nm.notify(item.id, it) }
     }
 
     fun showWaitingUnmeteredNotification(context: Context, item: DownloadItem) {
-        val nm = context.getSystemService(NotificationManager::class.java)
-        val pct = item.progressPercent
-        val progressText = buildPausedProgressText(context, item)
-        val elapsedSec = item.activeElapsedMs / 1000L
-        val waitingLabel = context.getString(R.string.download_notification_waiting_unmetered)
-        val metaLabel = if (elapsedSec >= 1L) "$waitingLabel  \u2022  ${formatElapsed(elapsedSec)}" else waitingLabel
-        val contentText = if (progressText != null) "$progressText  \u2022  $metaLabel" else metaLabel
-
-        NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_notification_24)
-            .setGroup(DOWNLOAD_GROUP_KEY)
-            .setContentTitle(item.filename)
-            .setContentText(contentText)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
-            .setOngoing(false)
-            .setOnlyAlertOnce(true)
-            .setSilent(true)
-            .setProgress(100, pct.coerceAtLeast(0), false)
-            .addAction(0, context.getString(R.string.action_pause), pausePendingIntent(context, item.id))
-            .build()
-            .let { nm.notify(item.id, it) }
+        showWaitingStateNotification(
+            context, item,
+            label = context.getString(R.string.download_notification_waiting_unmetered),
+            includeElapsed = true,
+            actionLabel = context.getString(R.string.action_pause),
+            actionPendingIntent = pausePendingIntent(context, item.id)
+        )
     }
 
     fun showWaitingNetworkNotification(context: Context, item: DownloadItem) {
-        val nm = context.getSystemService(NotificationManager::class.java)
-        val pct = item.progressPercent
-        val progressText = buildPausedProgressText(context, item)
-        val elapsedSec = item.activeElapsedMs / 1000L
-        val waitingLabel = context.getString(R.string.download_notification_waiting_network)
-        val metaLabel = if (elapsedSec >= 1L) "$waitingLabel  \u2022  ${formatElapsed(elapsedSec)}" else waitingLabel
-        val contentText = if (progressText != null) "$progressText  \u2022  $metaLabel" else metaLabel
-
-        NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_notification_24)
-            .setGroup(DOWNLOAD_GROUP_KEY)
-            .setContentTitle(item.filename)
-            .setContentText(contentText)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
-            .setOngoing(false)
-            .setOnlyAlertOnce(true)
-            .setSilent(true)
-            .setProgress(100, pct.coerceAtLeast(0), false)
-            .addAction(0, context.getString(R.string.action_pause), pausePendingIntent(context, item.id))
-            .build()
-            .let { nm.notify(item.id, it) }
+        showWaitingStateNotification(
+            context, item,
+            label = context.getString(R.string.download_notification_waiting_network),
+            includeElapsed = true,
+            actionLabel = context.getString(R.string.action_pause),
+            actionPendingIntent = pausePendingIntent(context, item.id)
+        )
     }
 
     fun showWaitingScheduleNotification(context: Context, item: DownloadItem) {
+        showWaitingStateNotification(
+            context, item,
+            label = context.getString(R.string.download_notification_waiting_schedule),
+            includeElapsed = true,
+            actionLabel = context.getString(R.string.action_pause),
+            actionPendingIntent = pausePendingIntent(context, item.id)
+        )
+    }
+
+    fun showWaitingCustomScheduleNotification(context: Context, item: DownloadItem) {
+        showWaitingStateNotification(
+            context, item,
+            label = context.getString(
+                R.string.download_notification_waiting_custom_schedule,
+                formatScheduledDateTime(context, item.scheduledStartAtMillis)
+            ),
+            includeElapsed = false,
+            actionLabel = context.getString(R.string.action_pause),
+            actionPendingIntent = pausePendingIntent(context, item.id)
+        )
+    }
+
+    private fun showWaitingStateNotification(
+        context: Context,
+        item: DownloadItem,
+        label: String,
+        includeElapsed: Boolean,
+        actionLabel: String,
+        actionPendingIntent: PendingIntent
+    ) {
         val nm = context.getSystemService(NotificationManager::class.java)
         val pct = item.progressPercent
         val progressText = buildPausedProgressText(context, item)
-        val elapsedSec = item.activeElapsedMs / 1000L
-        val waitingLabel = context.getString(R.string.download_notification_waiting_schedule)
-        val metaLabel = if (elapsedSec >= 1L) "$waitingLabel  \u2022  ${formatElapsed(elapsedSec)}" else waitingLabel
+        val metaLabel = if (includeElapsed) {
+            val elapsedSec = item.activeElapsedMs / 1000L
+            if (elapsedSec >= 1L) "$label  \u2022  ${formatElapsed(elapsedSec)}" else label
+        } else label
         val contentText = if (progressText != null) "$progressText  \u2022  $metaLabel" else metaLabel
 
         NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
@@ -344,32 +324,7 @@ internal object DownloadNotificationHelper {
             .setOnlyAlertOnce(true)
             .setSilent(true)
             .setProgress(100, pct.coerceAtLeast(0), false)
-            .addAction(0, context.getString(R.string.action_pause), pausePendingIntent(context, item.id))
-            .build()
-            .let { nm.notify(item.id, it) }
-    }
-
-    fun showWaitingCustomScheduleNotification(context: Context, item: DownloadItem) {
-        val nm = context.getSystemService(NotificationManager::class.java)
-        val pct = item.progressPercent
-        val progressText = buildPausedProgressText(context, item)
-        val waitingLabel = context.getString(
-            R.string.download_notification_waiting_custom_schedule,
-            formatScheduledDateTime(context, item.scheduledStartAtMillis)
-        )
-        val contentText = if (progressText != null) "$progressText  \u2022  $waitingLabel" else waitingLabel
-
-        NotificationCompat.Builder(context, ClintDownloadManager.CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_notification_24)
-            .setGroup(DOWNLOAD_GROUP_KEY)
-            .setContentTitle(item.filename)
-            .setContentText(contentText)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
-            .setOngoing(false)
-            .setOnlyAlertOnce(true)
-            .setSilent(true)
-            .setProgress(100, pct.coerceAtLeast(0), false)
-            .addAction(0, context.getString(R.string.action_pause), pausePendingIntent(context, item.id))
+            .addAction(0, actionLabel, actionPendingIntent)
             .build()
             .let { nm.notify(item.id, it) }
     }
@@ -475,6 +430,16 @@ internal object DownloadNotificationHelper {
             context, id + 40000,
             Intent(context, DownloadActionReceiver::class.java).apply {
                 action = DownloadActionReceiver.ACTION_PAUSE
+                putExtra(DownloadActionReceiver.EXTRA_ID, id)
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+    private fun resumePendingIntent(context: Context, id: Int): PendingIntent =
+        PendingIntent.getBroadcast(
+            context, id + 50000,
+            Intent(context, DownloadActionReceiver::class.java).apply {
+                action = DownloadActionReceiver.ACTION_RESUME
                 putExtra(DownloadActionReceiver.EXTRA_ID, id)
             },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE

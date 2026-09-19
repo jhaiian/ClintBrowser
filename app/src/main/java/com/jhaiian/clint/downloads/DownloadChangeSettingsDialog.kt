@@ -7,7 +7,6 @@ import com.jhaiian.clint.R
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,7 +17,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.jhaiian.clint.settings.common.dialogSectionBackground
 import com.jhaiian.clint.settings.common.SettingsSection
 import com.jhaiian.clint.ui.ClintDialog
+import com.jhaiian.clint.ui.ClintDialogActionFooter
 import com.jhaiian.clint.ui.ClintOutlinedTextField
 import com.jhaiian.clint.ui.ClintSwitch
 import com.jhaiian.clint.ui.listscreen.PopupShape
@@ -59,11 +58,10 @@ fun DownloadChangeSettingsDialog(item: DownloadItem, hideStatusBar: Boolean, hid
         hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation,
         onDismiss = onDismiss,
         footer = {
-            Row(Modifier.fillMaxWidth().padding(end = 12.dp, bottom = 8.dp), horizontalArrangement = Arrangement.End) {
-                TextButton(onClick = onDismiss) {
-                    Text(stringResource(R.string.action_cancel), color = colors.primary, fontWeight = FontWeight.Medium)
-                }
-                TextButton(onClick = {
+            ClintDialogActionFooter(
+                onCancel = onDismiss,
+                positiveLabel = stringResource(R.string.action_save),
+                onPositive = {
                     val amount = speedLimitText.toIntOrNull()?.coerceAtLeast(0) ?: 0
                     val unit = if (unitLabel == mbLabel) SPEED_LIMIT_UNIT_MB else SPEED_LIMIT_UNIT_KB
                     val bytesPerSec = resolveSpeedLimitBytesPerSec(context, amount, unit)
@@ -75,10 +73,8 @@ fun DownloadChangeSettingsDialog(item: DownloadItem, hideStatusBar: Boolean, hid
                     )
                     Toast.makeText(context, context.getString(R.string.download_change_settings_saved), Toast.LENGTH_SHORT).show()
                     onDismiss()
-                }) {
-                    Text(stringResource(R.string.action_save), color = colors.primary, fontWeight = FontWeight.Medium)
                 }
-            }
+            )
         }
     ) {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {

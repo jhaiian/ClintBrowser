@@ -95,19 +95,7 @@ private fun DownloadsActivity.performRedownload(
         if (DownloadFileHelper.isCustomLocationAccessible(this, locationMode, customLocationUri)) onDismiss()
         ClintDownloadManager.enqueue(this, item.url, filename, item.userAgent, item.referer, item.cookies, retryEnabled, effectiveUnmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri)
     }
-    val cm = getSystemService(android.net.ConnectivityManager::class.java)
-    val isMetered = cm?.isActiveNetworkMetered ?: false
-    if (unmeteredOnly && isMetered) {
-        uiState.confirmDialogConfig = com.jhaiian.clint.ui.listscreen.ConfirmDialogConfig(
-            title = getString(R.string.download_metered_warning_title),
-            message = getString(R.string.download_metered_warning_message),
-            positiveLabel = getString(R.string.action_yes),
-            onPositive = { startRedownload(false) },
-            negativeLabel = getString(R.string.action_no),
-            onNegative = { startRedownload(true) },
-            neutralLabel = getString(R.string.action_cancel)
-        )
-        return
+    confirmMeteredWarningThenProceed(unmeteredOnly) { effectiveUnmeteredOnly ->
+        startRedownload(effectiveUnmeteredOnly)
     }
-    startRedownload(unmeteredOnly)
 }

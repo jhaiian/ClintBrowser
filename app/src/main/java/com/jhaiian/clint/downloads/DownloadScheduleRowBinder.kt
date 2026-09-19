@@ -11,7 +11,15 @@ import com.google.android.material.timepicker.TimeFormat
 import com.jhaiian.clint.R
 import com.jhaiian.clint.ui.listscreen.ConfirmDialogConfig
 import java.util.Calendar
+import java.util.Date
 import java.util.TimeZone
+
+internal fun formatScheduledDateTime(context: Context, millis: Long): String {
+    val date = Date(millis)
+    val datePart = android.text.format.DateFormat.getMediumDateFormat(context).format(date)
+    val timePart = android.text.format.DateFormat.getTimeFormat(context).format(date)
+    return "$datePart, $timePart"
+}
 
 internal fun showScheduleDatePicker(fragmentManager: FragmentManager, currentMillis: Long, onPicked: (year: Int, month: Int, dayOfMonth: Int) -> Unit) {
     val calendar = Calendar.getInstance().apply { timeInMillis = currentMillis }

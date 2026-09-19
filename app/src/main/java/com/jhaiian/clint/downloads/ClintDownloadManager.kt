@@ -308,10 +308,7 @@ object ClintDownloadManager {
             },
             neutralLabel = context.getString(R.string.action_cancel)
         )
-        when (context) {
-            is com.jhaiian.clint.downloads.DownloadsActivity -> context.uiState.confirmDialogConfig = config
-            is com.jhaiian.clint.browser.MainActivity -> context.uiState.confirmDialogConfig = config
-        }
+        if (context is com.jhaiian.clint.ui.ConfirmDialogHostActivity) context.confirmDialogConfig = config
     }
 
     fun enqueueBlob(context: Context, base64: String, filename: String, mimeType: String) {
@@ -371,6 +368,71 @@ object ClintDownloadManager {
         job.invokeOnCompletion { activeJobs.remove(id, job) }
     }
 
+    private fun dispatchOrQueue(context: Context, source: DownloadItem, record: (DownloadItem) -> Unit) {
+        var current = source
+
+        if (current.scheduledStartAtMillis > System.currentTimeMillis()) {
+            val updated = current.copy(
+                status = DownloadStatus.PAUSED, waitingForCustomSchedule = true,
+                waitingForUnmetered = false, waitingForNetwork = false, waitingForSchedule = false
+            )
+            record(updated)
+            applicationScope.launch { persistDownload(updated) }
+            DownloadCustomScheduleMonitor.schedule(context, updated.id, updated.scheduledStartAtMillis)
+            DownloadNotificationHelper.showWaitingCustomScheduleNotification(context, updated)
+            DownloadForegroundService.start(context)
+            return
+        }
+
+        if (current.scheduledStartAtMillis == 0L && !DownloadScheduleMonitor.isWithinWindow(context)) {
+            DownloadScheduleMonitor.scheduleWaitingIds.add(current.id)
+            val updated = current.copy(
+                status = DownloadStatus.PAUSED, waitingForSchedule = true,
+                waitingForUnmetered = false, waitingForNetwork = false, waitingForCustomSchedule = false
+            )
+            record(updated)
+            applicationScope.launch { persistDownload(updated) }
+            DownloadNotificationHelper.showWaitingScheduleNotification(context, updated)
+            DownloadForegroundService.start(context)
+            return
+        }
+
+        if (current.scheduledStartAtMillis != 0L) {
+            current = current.copy(scheduledStartAtMillis = 0L)
+        }
+
+        if (current.unmeteredOnly && !DownloadNetworkMonitor.isNetworkUnmetered(context)) {
+            DownloadNetworkMonitor.unmeteredPausedIds.add(current.id)
+            val updated = current.copy(status = DownloadStatus.PAUSED, waitingForUnmetered = true, waitingForCustomSchedule = false)
+            record(updated)
+            applicationScope.launch { persistDownload(updated) }
+            DownloadNotificationHelper.showWaitingUnmeteredNotification(context, updated)
+            DownloadForegroundService.start(context)
+            return
+        }
+
+        if (activeCount() >= concurrentLimit(context)) {
+            val updated = current.copy(
+                status = DownloadStatus.QUEUED, waitingForUnmetered = false, waitingForNetwork = false,
+                waitingForCustomSchedule = false
+            )
+            record(updated)
+            applicationScope.launch { persistDownload(updated) }
+            DownloadNotificationHelper.showQueuedNotification(context, updated)
+            DownloadForegroundService.start(context)
+            return
+        }
+
+        val updated = current.copy(
+            waitingForUnmetered = false, waitingForNetwork = false, waitingForCustomSchedule = false,
+            status = DownloadStatus.CONNECTING, speedBytesPerSec = 0L
+        )
+        record(updated)
+        DownloadNotificationHelper.showProgressNotification(context, updated)
+        DownloadForegroundService.start(context)
+        if (updated.isStream) launchStreamDownload(context, updated) else launchDownload(context, updated)
+    }
+
     fun enqueue(
         context: Context,
         url: String,
@@ -398,7 +460,7 @@ object ClintDownloadManager {
             return
         }
         val id = idCounter.getAndIncrement()
-        var baseItem = DownloadItem(
+        val baseItem = DownloadItem(
             id = id, url = url, filename = filename, userAgent = userAgent, referer = referer,
             cookies = cookies, retryEnabled = retryEnabled, unmeteredOnly = unmeteredOnly,
             splitParts = splitParts, multithreadingParts = multithreadingParts,
@@ -406,54 +468,7 @@ object ClintDownloadManager {
             locationMode = locationMode, customLocationUri = customLocationUri,
             startedAt = System.currentTimeMillis(), scheduledStartAtMillis = scheduledStartAtMillis
         )
-
-        if (scheduledStartAtMillis > System.currentTimeMillis()) {
-            val item = baseItem.copy(status = DownloadStatus.PAUSED, waitingForCustomSchedule = true)
-            addNew(item)
-            applicationScope.launch { persistDownload(item) }
-            DownloadCustomScheduleMonitor.schedule(context, id, scheduledStartAtMillis)
-            DownloadNotificationHelper.showWaitingCustomScheduleNotification(context, item)
-            DownloadForegroundService.start(context)
-            return
-        }
-
-        if (scheduledStartAtMillis == 0L && !DownloadScheduleMonitor.isWithinWindow(context)) {
-            val item = baseItem.copy(status = DownloadStatus.PAUSED, waitingForSchedule = true)
-            addNew(item)
-            DownloadScheduleMonitor.scheduleWaitingIds.add(id)
-            applicationScope.launch { persistDownload(item) }
-            DownloadNotificationHelper.showWaitingScheduleNotification(context, item)
-            DownloadForegroundService.start(context)
-            return
-        }
-
-        if (baseItem.scheduledStartAtMillis != 0L) {
-            baseItem = baseItem.copy(scheduledStartAtMillis = 0L)
-        }
-
-        if (baseItem.unmeteredOnly && !DownloadNetworkMonitor.isNetworkUnmetered(context)) {
-            val item = baseItem.copy(status = DownloadStatus.PAUSED, waitingForUnmetered = true)
-            addNew(item)
-            DownloadNetworkMonitor.unmeteredPausedIds.add(id)
-            applicationScope.launch { persistDownload(item) }
-            DownloadNotificationHelper.showWaitingUnmeteredNotification(context, item)
-            DownloadForegroundService.start(context)
-            return
-        }
-
-        if (activeCount() >= concurrentLimit(context)) {
-            val item = baseItem.copy(status = DownloadStatus.QUEUED)
-            addNew(item)
-            applicationScope.launch { persistDownload(item) }
-            DownloadNotificationHelper.showQueuedNotification(context, item)
-            DownloadForegroundService.start(context)
-            return
-        }
-
-        addNew(baseItem)
-        DownloadNotificationHelper.showProgressNotification(context, baseItem)
-        DownloadForegroundService.start(context)
-        launchDownload(context, baseItem)
+        dispatchOrQueue(context, baseItem, ::addNew)
     }
 
     fun cancel(context: Context, id: Int) {
@@ -524,70 +539,14 @@ object ClintDownloadManager {
     }
 
     fun resume(context: Context, id: Int) {
-        var item = downloadsFlow.value.find { it.id == id } ?: return
+        val item = downloadsFlow.value.find { it.id == id } ?: return
         if (item.status != DownloadStatus.PAUSED) return
         pauseRequested.remove(id)
         DownloadNetworkMonitor.unmeteredPausedIds.remove(id)
         DownloadNetworkMonitor.networkWaitingIds.remove(id)
         DownloadScheduleMonitor.scheduleWaitingIds.remove(id)
         DownloadCustomScheduleMonitor.cancel(context, id)
-
-        if (item.scheduledStartAtMillis > System.currentTimeMillis()) {
-            val updated = item.copy(
-                waitingForCustomSchedule = true, waitingForUnmetered = false, waitingForNetwork = false,
-                waitingForSchedule = false
-            )
-            publish(updated)
-            applicationScope.launch { persistDownload(updated) }
-            DownloadCustomScheduleMonitor.schedule(context, id, item.scheduledStartAtMillis)
-            DownloadNotificationHelper.showWaitingCustomScheduleNotification(context, updated)
-            return
-        }
-
-        if (item.scheduledStartAtMillis == 0L && !DownloadScheduleMonitor.isWithinWindow(context)) {
-            DownloadScheduleMonitor.scheduleWaitingIds.add(id)
-            val updated = item.copy(
-                waitingForSchedule = true, waitingForUnmetered = false, waitingForNetwork = false,
-                waitingForCustomSchedule = false
-            )
-            publish(updated)
-            applicationScope.launch { persistDownload(updated) }
-            DownloadNotificationHelper.showWaitingScheduleNotification(context, updated)
-            return
-        }
-
-        if (item.scheduledStartAtMillis != 0L) {
-            item = item.copy(scheduledStartAtMillis = 0L)
-        }
-
-        if (item.unmeteredOnly && !DownloadNetworkMonitor.isNetworkUnmetered(context)) {
-            DownloadNetworkMonitor.unmeteredPausedIds.add(id)
-            val updated = item.copy(waitingForUnmetered = true, waitingForCustomSchedule = false)
-            publish(updated)
-            applicationScope.launch { persistDownload(updated) }
-            DownloadNotificationHelper.showWaitingUnmeteredNotification(context, updated)
-            return
-        }
-
-        if (activeCount() >= concurrentLimit(context)) {
-            val updated = item.copy(
-                status = DownloadStatus.QUEUED, waitingForUnmetered = false, waitingForNetwork = false,
-                waitingForCustomSchedule = false
-            )
-            publish(updated)
-            applicationScope.launch { persistDownload(updated) }
-            DownloadNotificationHelper.showQueuedNotification(context, updated)
-            return
-        }
-
-        val updated = item.copy(
-            waitingForUnmetered = false, waitingForNetwork = false, waitingForCustomSchedule = false,
-            status = DownloadStatus.CONNECTING, speedBytesPerSec = 0L
-        )
-        publish(updated)
-        DownloadNotificationHelper.showProgressNotification(context, updated)
-        DownloadForegroundService.start(context)
-        if (updated.isStream) launchStreamDownload(context, updated) else launchDownload(context, updated)
+        dispatchOrQueue(context, item, ::publish)
     }
 
     fun remove(context: Context, id: Int, deleteFile: Boolean = false) {
@@ -641,46 +600,8 @@ object ClintDownloadManager {
     fun retryFailed(context: Context, id: Int) {
         val item = downloadsFlow.value.find { it.id == id } ?: return
         if (item.status != DownloadStatus.FAILED) return
-        var updated = item.copy(retryAttempt = 0, retryDelaySec = 0, errorMessage = null, speedBytesPerSec = 0L)
-
-        if (item.scheduledStartAtMillis == 0L && !DownloadScheduleMonitor.isWithinWindow(context)) {
-            DownloadScheduleMonitor.scheduleWaitingIds.add(id)
-            updated = updated.copy(status = DownloadStatus.PAUSED, waitingForSchedule = true)
-            publish(updated)
-            applicationScope.launch { persistDownload(updated) }
-            DownloadNotificationHelper.showWaitingScheduleNotification(context, updated)
-            DownloadForegroundService.start(context)
-            return
-        }
-
-        if (updated.scheduledStartAtMillis != 0L) {
-            updated = updated.copy(scheduledStartAtMillis = 0L)
-        }
-
-        if (updated.unmeteredOnly && !DownloadNetworkMonitor.isNetworkUnmetered(context)) {
-            DownloadNetworkMonitor.unmeteredPausedIds.add(id)
-            updated = updated.copy(status = DownloadStatus.PAUSED, waitingForUnmetered = true)
-            publish(updated)
-            applicationScope.launch { persistDownload(updated) }
-            DownloadNotificationHelper.showWaitingUnmeteredNotification(context, updated)
-            DownloadForegroundService.start(context)
-            return
-        }
-
-        if (activeCount() >= concurrentLimit(context)) {
-            updated = updated.copy(status = DownloadStatus.QUEUED)
-            publish(updated)
-            applicationScope.launch { persistDownload(updated) }
-            DownloadNotificationHelper.showQueuedNotification(context, updated)
-            DownloadForegroundService.start(context)
-            return
-        }
-
-        updated = updated.copy(waitingForUnmetered = false, status = DownloadStatus.CONNECTING)
-        publish(updated)
-        DownloadNotificationHelper.showProgressNotification(context, updated)
-        DownloadForegroundService.start(context)
-        if (updated.isStream) launchStreamDownload(context, updated) else launchDownload(context, updated)
+        val reset = item.copy(retryAttempt = 0, retryDelaySec = 0, errorMessage = null, speedBytesPerSec = 0L)
+        dispatchOrQueue(context, reset, ::publish)
     }
 
     enum class RenameResult { SUCCESS, EXISTS, MISSING, FAILED }

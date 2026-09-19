@@ -2,14 +2,12 @@ package com.jhaiian.clint.downloads
 
 import com.jhaiian.clint.R
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,13 +20,13 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jhaiian.clint.settings.common.SettingsSection
 import com.jhaiian.clint.settings.common.dialogSectionBackground
 import com.jhaiian.clint.ui.ClintDialog
+import com.jhaiian.clint.ui.ClintDialogActionFooter
 import com.jhaiian.clint.ui.ClintOutlinedTextField
 import com.jhaiian.clint.ui.theme.LocalClintColors
 import kotlinx.coroutines.launch
@@ -56,40 +54,31 @@ fun DownloadRenameDialog(item: DownloadItem, hideStatusBar: Boolean, hideSystemN
         hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation,
         onDismiss = onDismiss,
         footer = {
-            Row(Modifier.fillMaxWidth().padding(end = 12.dp, bottom = 8.dp), horizontalArrangement = Arrangement.End) {
-                TextButton(onClick = onDismiss) {
-                    Text(stringResource(R.string.action_cancel), color = colors.primary, fontWeight = FontWeight.Medium)
-                }
-                TextButton(
-                    onClick = {
-                        busy = true
-                        scope.launch {
-                            when (ClintDownloadManager.renameFile(context, item.id, resolvedName)) {
-                                ClintDownloadManager.RenameResult.SUCCESS -> onDismiss()
-                                ClintDownloadManager.RenameResult.EXISTS -> {
-                                    errorText = context.getString(R.string.download_rename_exists)
-                                    busy = false
-                                }
-                                ClintDownloadManager.RenameResult.MISSING -> {
-                                    android.widget.Toast.makeText(context, R.string.download_file_missing, android.widget.Toast.LENGTH_SHORT).show()
-                                    onDismiss()
-                                }
-                                ClintDownloadManager.RenameResult.FAILED -> {
-                                    errorText = context.getString(R.string.download_rename_failed)
-                                    busy = false
-                                }
+            ClintDialogActionFooter(
+                onCancel = onDismiss,
+                positiveLabel = stringResource(R.string.download_rename_positive),
+                positiveEnabled = canSubmit,
+                onPositive = {
+                    busy = true
+                    scope.launch {
+                        when (ClintDownloadManager.renameFile(context, item.id, resolvedName)) {
+                            ClintDownloadManager.RenameResult.SUCCESS -> onDismiss()
+                            ClintDownloadManager.RenameResult.EXISTS -> {
+                                errorText = context.getString(R.string.download_rename_exists)
+                                busy = false
+                            }
+                            ClintDownloadManager.RenameResult.MISSING -> {
+                                android.widget.Toast.makeText(context, R.string.download_file_missing, android.widget.Toast.LENGTH_SHORT).show()
+                                onDismiss()
+                            }
+                            ClintDownloadManager.RenameResult.FAILED -> {
+                                errorText = context.getString(R.string.download_rename_failed)
+                                busy = false
                             }
                         }
-                    },
-                    enabled = canSubmit
-                ) {
-                    Text(
-                        stringResource(R.string.download_rename_positive),
-                        color = if (canSubmit) colors.primary else colors.secondaryText,
-                        fontWeight = FontWeight.Medium
-                    )
+                    }
                 }
-            }
+            )
         }
     ) {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
