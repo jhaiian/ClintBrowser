@@ -28,48 +28,48 @@
     <string name="frameless_shortcut_summary">Itago ang search bar at bottom bar kapag binuksan ang isang shortcut mula sa home screen</string>
     <string name="pref_category_custom_prompts">Custom Browser Prompts</string>
     <string name="custom_select_menus_title">Custom Select Menus</string>
-    <string name="custom_select_menus_summary">Gamitin ang custom picker ni Clint para sa mga \"&lt;select&gt;\" dropdown sa halip na ang default ng WebView.</string>
+    <string name="custom_select_menus_summary">Gamitin ang custom picker ng Clint para sa mga \"&lt;select&gt;\" dropdown sa halip na ang default ng WebView.</string>
     <string name="pref_category_incognito">Incognito</string>
     <string name="incognito_search_history_title">Ipakita ang history ng paghahanap sa Incognito Mode</string>
-    <string name="incognito_search_history_summary">Isama ang iyong naka-save na history ng paghahanap bilang mga suhestyon habang naka-browse sa Incognito</string>
-    <string name="privacy_settings_summary">Cookies, User-Agent, HTTPS, at kasaysayan</string>
+    <string name="incognito_search_history_summary">Isama ang naka-save mong history ng paghahanap bilang mga suggestion habang nagba-browse sa Incognito</string>
+    <string name="privacy_settings_summary">Cookies, User-Agent, HTTPS, at history</string>
     <string name="javascript_enabled">I-enable ang JavaScript</string>
-    <string name="javascript_enabled_summary">Payagan ang mga website na mag-execute ng JavaScript</string>
+    <string name="javascript_enabled_summary">Payagan ang mga website na mag-run ng JavaScript</string>
     <string name="block_third_party_cookies">I-block ang mga third-party cookies</string>
     <string name="block_third_party_cookies_summary">Pigilan ang cross-site cookie tracking</string>
     <string name="custom_user_agent">Gumamit ng generic na User-Agent</string>
-    <string name="custom_user_agent_summary">Mag-report bilang standard na Chrome browser para bawasan ang fingerprinting</string>
+    <string name="custom_user_agent_summary">Magpakilala bilang karaniwang Chrome browser para mabawasan ang fingerprinting</string>
     <string name="search_engine">Search Engine</string>
     <string name="choose_search_engine">Piliin ang iyong default na search engine</string>
     <string name="engine_duckduckgo">DuckDuckGo</string>
     <string name="engine_duckduckgo_desc">Pribadong paghahanap na walang tracking</string>
     <string name="engine_brave">Brave</string>
-    <string name="engine_brave_desc">Independiyenteng index, privacy muna</string>
+    <string name="engine_brave_desc">Sariling search index, privacy ang priority</string>
     <string name="engine_ecosia">Ecosia</string>
-    <string name="engine_ecosia_desc">Paghahanap na nagtatanim ng puno</string>
+    <string name="engine_ecosia_desc">Nagtatanim ng puno sa bawat paghahanap</string>
     <string name="engine_google">Google</string>
-    <string name="engine_google_desc">Malawak na resulta, may pangongolekta ng data</string>
+    <string name="engine_google_desc">Maraming resulta, pero kumokolekta ng data</string>
     <string name="engine_custom">Custom</string>
     <string name="engine_custom_desc">Magdagdag ng sarili mong search engine</string>
     <string name="custom_search_engine_dialog_title">Custom na Search Engine</string>
     <string name="custom_search_engine_name_hint">Pangalan</string>
     <string name="custom_search_engine_name_required">Kailangan ng pangalan</string>
     <string name="custom_search_engine_url_hint">URL ng Paghahanap</string>
-    <string name="custom_search_engine_url_helper">Gamitin ang %1$s kung saan dapat ilagay ang hinahanap</string>
+    <string name="custom_search_engine_url_helper">Ilagay ang %1$s kung saan dapat pumasok ang hinahanap</string>
     <string name="custom_search_engine_url_example">Halimbawa: https://www.google.com/search?q=%1$s</string>
     <string name="custom_search_engine_url_error">Maglagay ng wastong URL na may kasamang %1$s</string>
     <string name="action_edit">I-edit</string>
     <string name="search_suggestions_api">Search Suggestions API</string>
     <string name="choose_search_suggestions_api">Piliin ang iyong provider ng search suggestions</string>
-    <string name="suggestions_api_duckduckgo_desc">Pribadong mga suggestion na walang tracking</string>
-    <string name="suggestions_api_google_desc">Mga suggestion mula sa Google, may pangongolekta ng data</string>
+    <string name="suggestions_api_duckduckgo_desc">Mga suggestion na private at walang tracking</string>
+    <string name="suggestions_api_google_desc">Mga suggestion mula sa Google, na kumokolekta ng data</string>
     <string name="suggestions_api_custom_desc">Magdagdag ng sarili mong suggestions API</string>
-    <string name="suggestions_google_warning_message">Matatanggap ng Google ang bawat titik na ita-type mo habang naghahanap, na naka-ugnay sa iyong account o IP address. Hindi ito mapipigilan ng Clint.\n\nPara sa mas mahusay na privacy, ipagpatuloy ang paggamit ng DuckDuckGo.</string>
+    <string name="suggestions_google_warning_message">Makikita ng Google ang bawat letrang tina-type mo habang naghahanap, at maiuugnay ito sa account o IP address mo. Hindi ito kayang pigilan ng Clint.\n\nPara mas protektado ang privacy mo, manatili na lang sa DuckDuckGo.</string>
     <string name="custom_search_suggestions_api_dialog_title">Custom na Search Suggestions API</string>
     <string name="custom_search_suggestions_api_name_hint">Pangalan</string>
     <string name="custom_search_suggestions_api_name_required">Kailangan ng pangalan</string>
     <string name="custom_search_suggestions_api_url_hint">URL ng Suggestions</string>
-    <string name="custom_search_suggestions_api_url_helper">Gamitin ang %1$s kung saan dapat ilagay ang hinahanap</string>
+    <string name="custom_search_suggestions_api_url_helper">Ilagay ang %1$s kung saan dapat pumasok ang hinahanap</string>
     <string name="custom_search_suggestions_api_url_example">Halimbawa: https://duckduckgo.com/ac/?q=%1$s&amp;type=list</string>
     <string name="custom_search_suggestions_api_url_error">Maglagay ng wastong URL na may kasamang %1$s</string>
     <string name="search_bar_hint">Maghanap sa %1$s o mag-type ng URL</string>
@@ -78,10 +78,10 @@
     <string name="get_started">Magsimula</string>
     <string name="setup_subtitle">Private browsing, sa paraan mo.\nWalang telemetry. Walang tracking.</string>
     <string name="js_warning_title">I-disable ang JavaScript?</string>
-    <string name="js_warning_message">Maraming feature ng app ang umaasa sa JavaScript, kasama na ang web notifications, desktop mode, at reader mode. Puwede ring masira o hindi maayos na lumabas ang mga website.\n\nSigurado ka bang gusto mong i-off ito?</string>
+    <string name="js_warning_message">Maraming feature ng app ang umaasa sa JavaScript, gaya ng web notifications, desktop mode, at reader mode. Puwede ring masira o hindi maayos na lumabas ang mga website.\n\nSigurado ka bang gusto mong i-off ito?</string>
     <string name="action_turn_off_anyway">I-off pa rin</string>
     <string name="google_warning_title">Paalala sa privacy</string>
-    <string name="google_warning_message">Kokolektahin ng Google ang iyong search data at iuugnay ito sa iyong account o IP address. Hindi ito mapipigilan ng Clint.\n\nPara sa mas mahusay na privacy, subukan na lang ang DuckDuckGo o Brave.</string>
+    <string name="google_warning_message">Kokolektahin ng Google ang search data mo at iuugnay ito sa account o IP address mo. Hindi ito kayang pigilan ng Clint.\n\nPara mas protektado ang privacy mo, subukan na lang ang DuckDuckGo o Brave.</string>
     <string name="use_google_anyway">Gamitin pa rin ang Google</string>
     <string name="choose_another">Pumili ng iba</string>
     <string name="new_tab">Bagong Tab</string>
@@ -89,7 +89,7 @@
     <string name="desktop_mode">Desktop Mode</string>
     <string name="close_tab">Isara ang tab</string>
     <string name="incognito">Incognito</string>
-    <string name="no_tabs">Walang tab</string>
+    <string name="no_tabs">Walang bukas na tab</string>
     <string name="about">Tungkol</string>
     <string name="about_summary">Bersyon %1$s</string>
     <string name="about_acronym">Customizable Layered Internet Navigation Tool</string>
@@ -98,27 +98,27 @@
     <string name="about_section_license">LISENSYA</string>
     <string name="about_section_repository">SOURCE CODE</string>
     <string name="about_created_by">Ginawa ni</string>
-    <string name="about_description">Ang Clint ay libre at open-source na Android browser na walang dedikadong backend infrastructure, ibig sabihin ay hindi nito kinokolekta ang anuman sa iyong data. Mayroon itong malinis at customizable na Material Design interface, ang built-in na Quiver Guard content blocker para sa mga ad at tracker, at isang advanced na download manager at Website Blocker.</string>
+    <string name="about_description">Ang Clint ay isang libre at open-source na Android browser na walang sariling backend server, kaya wala itong kinokolektang data mula sa iyo. May malinis at customizable na Material Design interface ito, built-in na Quiver Guard content blocker laban sa mga ad at tracker, at advanced na download manager at Website Blocker.</string>
     <string name="about_version_info">Bersyon: %1$s (build %2$d)\nDevice architecture: %3$s</string>
-    <string name="about_license_text">Ang source code ng proyektong ito ay lisensyado sa ilalim ng GNU General Public License v3.0 (GPLv3).\n\nAng mga pangalang \"Clint\" at \"Clint Browser,\" ang logo, mga screenshot, at lahat ng kaugnay na branding asset ay mga trademark o proprietary asset ng may-akda at hindi kasama sa lisensyang GPL. Kailangan ng tahasang pahintulot mula sa may-akda para magamit ang mga asset na ito.</string>
+    <string name="about_license_text">Ang source code ng proyektong ito ay lisensyado sa ilalim ng GNU General Public License v3.0 (GPLv3).\n\nAng mga pangalang \"Clint\" at \"Clint Browser,\" ang logo, mga screenshot, at lahat ng kaugnay na branding asset ay mga trademark o proprietary asset ng may-akda at hindi sakop ng GPL license. Kailangan ng malinaw na pahintulot mula sa may-akda para magamit ang mga asset na ito.</string>
     <string name="about_license_link_label">Tingnan ang GPL v3.0 license \u2197</string>
-    <string name="about_opensource_text">Bukas sa publiko ang kumpletong source code sa GitHub. Malugod na tinatanggap ang mga kontribusyon, ulat ng bug, at kahilingan ng feature.</string>
+    <string name="about_opensource_text">Nasa GitHub ang kumpletong source code. Welcome ang mga kontribusyon, bug report, at feature request.</string>
     <string name="about_github_url">github.com/jhaiian/ClintBrowser \u2197</string>
     <string name="about_section_keep_android_open">KEEP ANDROID OPEN</string>
-    <string name="about_keep_android_open_text">Nagpapatupad ang Google ng sapilitang pag-verify ng pagkakakilanlan ng developer na banta sa sideloading at malayang app ecosystem sa Android, kasama na ang mga app tulad nito. Alamin pa at ipahayag ang iyong boses.</string>
+    <string name="about_keep_android_open_text">Ipinapatupad ng Google ang sapilitang pag-verify ng pagkakakilanlan ng mga developer, na banta sa sideloading at sa malayang app ecosystem ng Android, pati na sa mga app na tulad nito. Alamin ang higit pa at iparinig ang boses mo.</string>
     <string name="about_keep_android_open_url">keepandroidopen.org \u2197</string>
     <string name="support_clint_title">Suportahan ang Clint</string>
-    <string name="support_clint_summary">Tulungang manatiling libre ang Clint magpakailanman. Isaalang-alang ang pagbibigay ng donasyon sa developer ng Clint.</string>
-    <string name="support_clint_view_supporters_title">Tingnan ang Kasalukuyang mga Supporter</string>
-    <string name="support_clint_view_supporters_summary">Tingnan ang lahat ng tumulong suportahan ang development ng Clint</string>
-    <string name="support_clint_markdown">## Mga Donasyon\n\nAyaw kong magtrabaho para sa isang korporasyon. Gusto kong ipagpatuloy ang mahal kong ginagawa: ang paggawa ng mga app tulad ng Clint at libreng ibinabahagi ito sa lahat.\n\nKung gusto ko, pwede kong gawing freemium ang Clint at ilagay sa likod ng paywall ang ilang feature. Sa halip, pinipili kong hindi gawin iyon dahil hindi iyon ang uri ng developer na gusto kong maging.\n\nKung gusto mo ang Clint at gusto mong suportahan ang development nito, isaalang-alang ang paggawa ng donasyon. Bawat kontribusyon, malaki man o maliit, tumutulong sa akin na ipagpatuloy ang pag-develop at pagpapabuti ng Clint habang nag-aaral pa ako sa kolehiyo.\n\nAnumang halaga ay nakakatulong, at kung gusto mo, maaari ka ring makakuha ng shoutout bilang isang supporter.\n\nSalamat sa pagtulong mong panatilihing libre at independent ang Clint.\n\n[![Patreon](https://img.shields.io/badge/Support%20me-Patreon-orange?style=for-the-badge&amp;logo=patreon)](https://patreon.com/Jhaiian)\n[![Ko-fi](https://img.shields.io/badge/Buy%20me%20a%20coffee-Ko--fi-red?style=for-the-badge&amp;logo=ko-fi)](https://ko-fi.com/jhaiian)\n[![PayPal](https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&amp;logo=paypal)](https://paypal.me/jhaiian)\n[![InstaPay QR](https://img.shields.io/badge/InstaPay%20QR-Philippines%20only-7C3AED?style=for-the-badge)](https://github.com/jhaiian/docs/Insta%20Pay.jpg)</string>
+    <string name="support_clint_summary">Tulungang manatiling libre ang Clint habambuhay. Pag-isipang mag-donate sa developer ng Clint.</string>
+    <string name="support_clint_view_supporters_title">Tingnan ang mga Kasalukuyang Supporter</string>
+    <string name="support_clint_view_supporters_summary">Tingnan ang lahat ng sumusuporta sa development ng Clint</string>
+    <string name="support_clint_markdown">## Mga Donasyon\n\nAyaw kong magtrabaho para sa isang korporasyon. Gusto kong ipagpatuloy ang mahal kong ginagawa: ang paggawa ng mga app tulad ng Clint at ang pagbabahagi nito nang libre sa lahat.\n\nKung gusto ko, puwede kong gawing freemium ang Clint at ilagay sa likod ng paywall ang ilang feature. Pero pinili kong huwag, dahil hindi ganoong developer ang gusto kong maging.\n\nKung gusto mo ang Clint at gusto mong suportahan ang development nito, pag-isipang mag-donate. Malaki man o maliit, malaking tulong ang bawat kontribusyon para maipagpatuloy ko ang pag-develop at pagpapabuti ng Clint habang nag-aaral pa ako sa kolehiyo.\n\nKung gusto mo, puwede ka ring ma-shoutout bilang supporter.\n\nSalamat sa pagtulong na manatiling libre at independent ang Clint.\n\n[![Patreon](https://img.shields.io/badge/Support%20me-Patreon-orange?style=for-the-badge&amp;logo=patreon)](https://patreon.com/Jhaiian)\n[![Ko-fi](https://img.shields.io/badge/Buy%20me%20a%20coffee-Ko--fi-red?style=for-the-badge&amp;logo=ko-fi)](https://ko-fi.com/jhaiian)\n[![PayPal](https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&amp;logo=paypal)](https://paypal.me/jhaiian)\n[![InstaPay QR](https://img.shields.io/badge/InstaPay%20QR-Philippines%20only-7C3AED?style=for-the-badge)](https://github.com/jhaiian/docs/Insta%20Pay.jpg)</string>
     <string name="default_browser_title">Default na Browser</string>
     <string name="default_browser_none">Wala</string>
     <string name="look_and_feel">Hitsura</string>
     <string name="look_and_feel_summary">Mga tema, kulay, display, at exit behavior</string>
     <string name="pref_language_title">Wika</string>
     <string name="language_system">Sistema</string>
-    <string name="language_system_desc">Itutugma ang wika ng iyong device, babalik sa English kung hindi ito suportado</string>
+    <string name="language_system_desc">Susundan ang wika ng device mo; English ang gagamitin kung hindi ito suportado</string>
     <string name="language_base_desc">Orihinal na wika</string>
     <string name="language_name_english">English</string>
     <string name="language_name_filipino">Filipino</string>
@@ -128,7 +128,7 @@
     <string name="theme_light">Maliwanag</string>
     <string name="theme_light_desc">Malinis na puting background</string>
     <string name="theme_dark">Madilim</string>
-    <string name="theme_dark_desc">Madilim na background </string>
+    <string name="theme_dark_desc">Madilim na background</string>
     <string name="theme_system">Sistema</string>
     <string name="theme_system_desc">Awtomatikong sumusunod sa tema ng iyong device</string>
     <string name="hide_status_bar">Itago ang status bar</string>
@@ -139,18 +139,18 @@
     <string name="menu_style_popup">Pop-up na Menu</string>
     <string name="menu_style_popup_desc">Compact na menu na lumulutang malapit sa toolbar</string>
     <string name="menu_style_bottom_sheet">Bottom Sheet</string>
-    <string name="menu_style_bottom_sheet_desc">Full-width na menu na dumudulas paitaas mula sa ibaba</string>
+    <string name="menu_style_bottom_sheet_desc">Full-width na menu na dumudulas pataas mula sa ibaba</string>
     <string name="pref_tab_menu_style_title">Menu ng Tab</string>
     <string name="tab_menu_style_grid">Grid ng Tab</string>
-    <string name="tab_menu_style_grid_desc">Tingnan ang mga bukas na tab bilang isang scrollable grid ng live na preview</string>
+    <string name="tab_menu_style_grid_desc">Tingnan ang mga bukas na tab bilang scrollable na grid ng mga live preview</string>
     <string name="tab_menu_style_sheet">Tab Sheet</string>
-    <string name="tab_menu_style_sheet_desc">Ang klasikong listahan na dumudulas paitaas mula sa ibaba</string>
+    <string name="tab_menu_style_sheet_desc">Ang klasikong listahan na lumalabas mula sa ibaba</string>
     <string name="menu_customization_title">I-customize ang Menu</string>
     <string name="menu_customization_settings_summary">Itago, ipakita, at ayusin muli ang mga item sa menu</string>
-    <string name="menu_customization_description">I-drag ang hawakan para muling ayusin. I-off ang mga item na hindi mo gustong makita sa menu.</string>
+    <string name="menu_customization_description">I-drag ang handle para ayusin ang pagkakasunod-sunod. I-off ang mga item na ayaw mong makita sa menu.</string>
     <string name="menu_customization_reset_desc">I-reset sa default</string>
     <string name="menu_customization_drag_handle_desc">I-drag para muling ayusin</string>
-    <string name="menu_customization_pinned_note">Palaging ipinapakita sa menu para hindi ka na ma-lock out sa mga setting na ito</string>
+    <string name="menu_customization_pinned_note">Laging nasa menu ito para hindi ka ma-lock out sa mga setting na ito</string>
     <string name="menu_customization_reset_confirm_title">I-reset ang menu?</string>
     <string name="menu_customization_reset_confirm_message">Ibabalik nito ang default na ayos at ipapakita muli ang lahat ng item sa menu.</string>
     <string name="menu_customization_reset_action">I-reset</string>
@@ -159,7 +159,7 @@
     <string name="download_settings_summary">Lokasyon ng download, notification, at behavior</string>
     <string name="download_section_manager">DOWNLOAD MANAGER</string>
     <string name="download_manager_title">Download Manager</string>
-    <string name="download_manager_summary">Piliin kung aling app ang mangangasiwa sa mga bagong download</string>
+    <string name="download_manager_summary">Piliin kung aling app ang hahawak sa mga bagong download</string>
     <string name="download_manager_dialog_title">Piliin ang download manager</string>
     <string name="download_manager_option_clint">Clint (Default)</string>
     <string name="download_manager_option_1dm">1DM</string>
@@ -183,22 +183,22 @@
     <string name="measurement_system_decimal_desc">1 GB = 1000 MB</string>
     <string name="download_section_network">NETWORK</string>
     <string name="download_unmetered_only_title">Unmetered lang</string>
-    <string name="download_unmetered_only_summary">Mag-download lang sa Wi-Fi o iba pang unmetered na koneksyon. Awtomatikong mapo-pause ang mga download sa mobile data.</string>
+    <string name="download_unmetered_only_summary">Mag-download lang sa Wi-Fi o iba pang unmetered na koneksyon. Awtomatikong mapo-pause ang mga download kapag naka-mobile data.</string>
     <string name="download_notification_waiting_unmetered">Naghihintay ng unmetered na network</string>
     <string name="download_notification_waiting_network">Naghihintay ng koneksyon sa internet</string>
     <string name="download_notification_waiting_schedule">Naghihintay ng naka-schedule na oras</string>
     <string name="download_notification_waiting_custom_schedule">Naka-schedule na magsimula sa %1$s</string>
     <string name="download_section_scheduling">SCHEDULING</string>
     <string name="download_schedule_enabled_title">Mga naka-schedule na download</string>
-    <string name="download_schedule_enabled_summary">Awtomatikong mag-download lang sa pagitan ng %1$s at %2$s.</string>
-    <string name="download_schedule_start_title">Oras ng simula</string>
+    <string name="download_schedule_enabled_summary">Awtomatikong magda-download lang sa pagitan ng %1$s at %2$s.</string>
+    <string name="download_schedule_start_title">Oras ng pagsisimula</string>
     <string name="download_schedule_end_title">Oras ng pagtatapos</string>
     <string name="download_schedule_picker_title">Pumili ng oras</string>
     <string name="download_section_retry">RETRY</string>
     <string name="download_retry_enabled_title">Retry</string>
     <string name="download_retry_enabled_summary">Mag-retry kapag nagka-error ang download</string>
-    <string name="download_retry_unrecoverable_title">Palaging mag-retry ng download kahit hindi na maayos ang server error</string>
-    <string name="download_retry_unrecoverable_summary">Ang pag-enable ng option na ito ay magreresulta sa sobrang pag-aaksaya ng data at mataas na paggamit ng baterya kaya mag-ingat</string>
+    <string name="download_retry_unrecoverable_title">Palaging mag-retry kahit hindi na maaayos ang server error</string>
+    <string name="download_retry_unrecoverable_summary">Kapag in-enable ito, maaaring masayang ang data at mabilis maubos ang baterya, kaya mag-ingat</string>
     <string name="download_retry_count_title">Bilang ng retry (0 para walang limitasyon)</string>
     <string name="download_retry_count_unlimited">Walang limitasyong retry</string>
     <string name="download_retry_count_value">%1$d na retry</string>
@@ -212,32 +212,32 @@
     <string name="download_retry_interval_dialog_message">Minimum: 1 segundo</string>
     <string name="download_section_permissions">PERMISSIONS</string>
     <string name="download_ignore_battery_opt_title">I-ignore ang Battery Optimization</string>
-    <string name="download_ignore_battery_opt_summary">Payagan ang mga download na magpatuloy sa background nang hindi nabibinbin ng system</string>
+    <string name="download_ignore_battery_opt_summary">Payagan ang mga download na magpatuloy sa background nang hindi pinapatigil ng system</string>
     <string name="download_ignore_battery_opt_granted">Naibigay na ang permission</string>
     <string name="download_grant_all_files_access_title">Bigyan ng All Files Access</string>
-    <string name="download_grant_all_files_access_summary">Pinapayagan ang app na direktang mag-write sa storage nang hindi ginagamit ang Storage Access Framework (SAF) kapag posible.</string>
+    <string name="download_grant_all_files_access_summary">Direktang makakapag-write ang app sa storage nang hindi dumadaan sa Storage Access Framework (SAF) kapag posible.</string>
     <string name="download_grant_all_files_access_granted">Naibigay na ang permission</string>
     <string name="download_section_notifications">NOTIFICATIONS</string>
     <string name="download_push_notifications_title">Push notifications</string>
-    <string name="download_push_notifications_summary">Ma-alerto kapag nakumpleto, nabigo, o nag-retry ang isang download</string>
+    <string name="download_push_notifications_summary">Makatanggap ng alerto kapag natapos, nabigo, o nag-retry ang isang download</string>
     <string name="download_section_general">PANGKALAHATAN</string>
     <string name="download_keep_screen_on_title">Panatilihing Bukas ang Screen</string>
-    <string name="download_keep_screen_on_summary">Panatilihing bukas ang screen sa pahina ng Downloads hanggang matapos ang lahat ng nakabinbing download. (Kapaki-pakinabang kung pinapatay ng iyong OS ang mga download habang natutulog ka.)</string>
+    <string name="download_keep_screen_on_summary">Mananatiling bukas ang screen sa Downloads page hanggang matapos ang lahat ng nakabinbing download. (Nakakatulong ito kung pinapatay ng OS ang mga download habang natutulog ka.)</string>
     <string name="download_status_connecting">Kumukonekta&#8230;</string>
     <string name="download_status_retrying">Nagre-retry&#8230;</string>
     <string name="download_status_retrying_in">Magre-retry sa loob ng %1$ds&#8230;</string>
-    <string name="download_retry_hint">Maaaring na-expire na ang download link  subukang i-update ito gamit ang opsyong &#8220;Update link&#8221; sa menu ng item, o gamitin ang &#8220;Update link in browser&#8221; para makakuha ng bago.</string>
-    <string name="pref_updates_summary">Suriin ang mga update, pamahalaan ang channel</string>
-    <string name="check_update_on_launch_title">Suriin ang mga update sa paglunsad</string>
-    <string name="check_update_on_launch_summary">Awtomatikong suriin ang bagong bersyon tuwing magsisimula ang app</string>
-    <string name="skip_update_on_metered_title">Laktawan ang pagsusuri ng update sa paglunsad kapag nasa mobile data o metered na koneksyon</string>
-    <string name="skip_update_on_metered_summary">Huwag suriin ang mga update sa paglunsad kapag gumagamit ng metered o mobile data na koneksyon</string>
-    <string name="check_for_updates_title">Suriin ang mga update</string>
-    <string name="check_for_updates_summary">Suriin ngayon para sa pinakabagong stable o beta release</string>
+    <string name="download_retry_hint">Maaaring nag-expire na ang download link. Subukang i-update ito gamit ang &#8220;I-update ang download link&#8221; sa menu ng item, o gamitin ang &#8220;I-update ang download link sa browser&#8221; para makakuha ng bago.</string>
+    <string name="pref_updates_summary">I-check ang mga update at pumili ng channel</string>
+    <string name="check_update_on_launch_title">I-check ang mga update sa pag-launch</string>
+    <string name="check_update_on_launch_summary">Awtomatikong maghanap ng bagong bersyon tuwing bubuksan ang app</string>
+    <string name="skip_update_on_metered_title">Laktawan ang pag-check ng update sa pag-launch kapag naka-mobile data o metered ang koneksyon</string>
+    <string name="skip_update_on_metered_summary">Hindi magche-check ng update sa pag-launch kapag metered o mobile data ang gamit na koneksyon</string>
+    <string name="check_for_updates_title">I-check ang mga update</string>
+    <string name="check_for_updates_summary">Tingnan ngayon kung may bagong stable o beta release</string>
     <string name="view_changelog_title">Tingnan ang Changelog</string>
     <string name="view_changelog_summary">Tingnan kung ano ang bago sa bawat release</string>
-    <string name="beta_channel_title">Mag-enrol sa Beta</string>
-    <string name="beta_channel_summary">Tumanggap ng maagang access na build bago ito maging stable. Maaaring may mga bug.</string>
+    <string name="beta_channel_title">Sumali sa Beta</string>
+    <string name="beta_channel_summary">Maagang access sa mga bagong build bago ito maging stable. Maaaring may mga bug.</string>
     <string name="debug_title">Debug &amp; Crash Reports</string>
     <string name="debug_summary">Tingnan ang crash log at gumawa ng bug report</string>
     <string name="crash_reports_title">CRASH LOGS</string>
@@ -252,12 +252,12 @@
     <string name="crash_copy">Kopyahin ang crash report</string>
     <string name="crash_delete">Burahin ang report</string>
     <string name="crash_report_title">MAGSUMITE NG BUG REPORT</string>
-    <string name="crash_report_instructions">Tulungang mapaganda ang Clint sa pamamagitan ng pag-report ng mga bug sa GitHub. Walang data na awtomatikong ipinapadala \u2014 ikaw ang pipili kung ano ang ibabahagi.</string>
+    <string name="crash_report_instructions">Tulungang pagandahin ang Clint sa pag-report ng mga bug sa GitHub. Walang data na awtomatikong ipinapadala \u2014 ikaw ang pipili kung ano ang ibabahagi.</string>
     <string name="crash_steps_title">Paano magsumite ng report</string>
     <string name="crash_step_reproduce">I-reproduce ang crash o bug</string>
     <string name="crash_step_expand">Buksan ang crash entry para i-expand ito</string>
     <string name="crash_step_copy">Kopyahin ang crash log</string>
-    <string name="crash_step_open_github">Pindutin ang \u201cOpen GitHub Issues\u201d</string>
+    <string name="crash_step_open_github">Pindutin ang \u201cBuksan ang GitHub Issues\u201d</string>
     <string name="crash_step_new_issue">Gumawa ng bagong issue</string>
     <string name="crash_step_attach">I-attach ang iyong crash log</string>
     <string name="crash_step_submit">Isumite ang report</string>
@@ -282,7 +282,7 @@
     <string name="about_library_material_usage">Mga bottom sheet, card, dialog, at iba pang UI element na sumusunod sa Material Design.</string>
     <string name="about_library_okhttp_label">OkHttp by Square</string>
     <string name="about_library_okhttp_license">Apache License 2.0 \u2197</string>
-    <string name="about_library_okhttp_usage">Humahawak ng mga network request sa buong app, kasama ang pagsusuri ng update, document viewer, pag-load ng larawan sa browser, mga download, at marami pa.</string>
+    <string name="about_library_okhttp_usage">Humahawak ng mga network request sa buong app, kasama ang pag-check ng update, document viewer, pag-load ng larawan sa browser, mga download, at marami pa.</string>
     <string name="about_library_simplemagic_label">SimpleMagic by j256</string>
     <string name="about_library_simplemagic_license">ISC License \u2197</string>
     <string name="about_library_simplemagic_usage">Nakakakita ng MIME type ng file mula sa content bytes kapag nagda-download ng mga file.</string>
@@ -325,7 +325,7 @@
     <string name="create_shortcut_unsupported">Hindi sinusuportahan ng launcher na ito ang mga shortcut</string>
     <string name="menu_downloads">Mga Download</string>
     <string name="menu_bookmarks">Mga Bookmark</string>
-    <string name="menu_history">Kasaysayan</string>
+    <string name="menu_history">History</string>
     <string name="reader_mode">Reader Mode</string>
 
     <string name="action_ok">OK</string>
@@ -348,16 +348,16 @@
     <string name="download_dialog_link_clip_label">URL ng Download</string>
     <string name="download_dialog_unmetered_summary">Mag-download lang sa Wi-Fi o iba pang unmetered na network</string>
     <string name="download_dialog_speed_limit_title">Speed Limit</string>
-    <string name="download_dialog_speed_limit_desc">Nililimitahan ang bilis ng download na ito. Nalalapat sa lahat ng split parts na pinagsama. Iwanang 0 para walang limitasyon.</string>
+    <string name="download_dialog_speed_limit_desc">Nililimitahan ang bilis ng download na ito. Sakop nito ang pinagsamang bilis ng lahat ng split part. Iwanang 0 kung walang limitasyon.</string>
     <string name="download_dialog_speed_limit_hint">Halaga</string>
     <string name="download_schedule_this_title">I-schedule ang Download na Ito</string>
-    <string name="download_schedule_this_summary">Magsimula sa tiyak na petsa at oras. Dini-override ang global na download schedule para sa download na ito lang.</string>
+    <string name="download_schedule_this_summary">Magsimula sa piniling petsa at oras. Hindi nito susundan ang global na download schedule \u2014 para lang ito sa download na ito.</string>
     <string name="download_schedule_date_title">Petsa</string>
     <string name="download_schedule_time_title">Oras</string>
     <string name="download_schedule_date_picker_title">Pumili ng petsa ng download</string>
     <string name="download_schedule_time_picker_title">Pumili ng oras ng download</string>
     <string name="download_schedule_past_time_error">Pumili ng petsa at oras sa hinaharap</string>
-    <string name="download_schedule_invalid_title">Invalid na Schedule</string>
+    <string name="download_schedule_invalid_title">Hindi Wastong Schedule</string>
     <string name="download_schedule_exact_alarm_title">Payagan ang Precise Scheduling</string>
     <string name="download_schedule_exact_alarm_message">Para magsimula ang download na ito sa eksaktong oras na pinili mo, payagan ang %1$s na mag-schedule ng eksaktong alarm. Kung wala ito, maaaring iantala ng system ang pagsisimula nang ilang minuto.</string>
     <string name="download_dialog_file_size_fetching">Laki ng File: Kinukuha\u2026</string>
@@ -368,23 +368,23 @@
     <string name="download_dialog_storage_unavailable">Storage: Hindi Available</string>
     <string name="download_error_storage_title">Kulang ang Storage</string>
     <string name="download_error_storage_direct">Kulang ang espasyo para i-download ang file na ito.\n\nKailangan: %1$s\nAvailable: %2$s</string>
-    <string name="download_error_storage_emulated">Kulang ang espasyo para i-download ang file na ito.\n\nKailangan: %1$s (na-doble ang laki ng file para sa temporary na download file)\nAvailable: %2$s</string>
-    <string name="download_error_storage_temp">Kulang ang internal storage para sa temporary na download file.\n\nKailangan: %1$s\nAvailable sa internal storage: %2$s</string>
+    <string name="download_error_storage_emulated">Kulang ang espasyo para i-download ang file na ito.\n\nKailangan: %1$s (doble ng laki ng file para sa pansamantalang download file)\nAvailable: %2$s</string>
+    <string name="download_error_storage_temp">Kulang ang internal storage para sa pansamantalang download file.\n\nKailangan: %1$s\nAvailable sa internal storage: %2$s</string>
     <string name="download_error_storage_dest">Kulang ang espasyo sa destinasyon ng download.\n\nKailangan: %1$s\nAvailable: %2$s</string>
     <string name="download_error_fat32_title">Masyadong Malaki ang File para sa SD Card</string>
-    <string name="download_error_fat32_message">Ang file na ito ay %1$s, pero hindi puwedeng mag-store ang mga FAT32-formatted na SD card ng iisang file na mas malaki sa 4 GB.\n\nI-reformat ang card bilang exFAT, o pumili ng ibang lokasyon ng download.</string>
+    <string name="download_error_fat32_message">%1$s ang laki ng file na ito, pero hindi kayang mag-store ng FAT32-formatted na SD card ng iisang file na mas malaki sa 4 GB.\n\nI-reformat ang card bilang exFAT, o pumili ng ibang lokasyon ng download.</string>
     <string name="download_error_disk_full">Naubusan ng espasyo sa storage habang nagda-download.</string>
     <string name="download_manual_url_hint">URL ng Download</string>
     <string name="download_manual_fetch">Kunin</string>
     <string name="download_manual_fetching">Kinukuha…</string>
     <string name="download_manual_error_invalid_url">Maglagay ng valid na URL</string>
-    <string name="download_manual_error_network">Hindi ma-reach ang URL. Subukang buksan muna ang link sa browser.</string>
+    <string name="download_manual_error_network">Hindi makakonekta sa URL. Subukang buksan muna ang link sa browser.</string>
     <string name="download_manual_fab_desc">Magdagdag ng download</string>
     <string name="download_menu_share">Ibahagi</string>
     <string name="download_menu_open_folder">Buksan ang folder</string>
     <string name="download_file_missing">Wala na ang file</string>
     <string name="open_folder_error_title">Hindi mabuksan ang folder</string>
-    <string name="open_folder_error_message">Walang app sa device na ito na makakabukas ng folder view. Naka-save ang file sa:\n\n%1$s</string>
+    <string name="open_folder_error_message">Walang app sa device na ito na makakapagbukas ng folder. Naka-save ang file sa:\n\n%1$s</string>
     <string name="download_menu_update_link">I-update ang download link</string>
     <string name="download_menu_update_link_in_browser">I-update ang download link sa browser</string>
     <string name="download_update_link_dialog_title">I-update ang download link</string>
@@ -419,8 +419,8 @@
     <string name="download_menu_filename_copied">Nakopya ang pangalan ng file</string>
     <string name="download_menu_path_copied">Nakopya ang path</string>
     <string name="refresh_link_dialog_title">May nakitang file!</string>
-    <string name="refresh_link_dialog_message">May nahanap na posibleng download link para sa hiniling na link. Pangalan ng file: %1$s</string>
-    <string name="refresh_link_option_update_existing">I-update ang umiiral na download link</string>
+    <string name="refresh_link_dialog_message">May nakitang posibleng download link para sa link na hiniling mo. Pangalan ng file: %1$s</string>
+    <string name="refresh_link_option_update_existing">I-update ang kasalukuyang download link</string>
     <string name="refresh_link_option_add_new">Magdagdag ng bagong download</string>
     <string name="refresh_link_updated_toast">Na-update ang link para sa %1$s</string>
     <string name="download_props_title">Detalye</string>
@@ -436,17 +436,17 @@
     <string name="download_props_label_url">Download link</string>
     <string name="download_props_label_page">Pahina ng download</string>
     <string name="download_props_label_avg_speed">Average na bilis</string>
-    <string name="download_props_label_active_time">Aktibong oras</string>
-    <string name="download_props_label_date_added">Petsa idinagdag</string>
-    <string name="download_props_label_date_completed">Petsa nakumpleto</string>
+    <string name="download_props_label_active_time">Tagal ng pag-download</string>
+    <string name="download_props_label_date_added">Idinagdag noong</string>
+    <string name="download_props_label_date_completed">Nakumpleto noong</string>
     <string name="download_props_label_unmetered">Unmetered lang</string>
     <string name="download_props_label_resumable">Puwedeng ituloy</string>
     <string name="download_props_label_md5">MD5</string>
     <string name="download_props_label_sha256">SHA-256</string>
     <string name="download_props_checksum_na">N/A</string>
     <string name="download_props_checksum_na_no_file">N/A (walang lokal na file)</string>
-    <string name="download_props_computing">Kinakalkula\u2026</string>
-    <string name="download_props_compute">Kalkulahin</string>
+    <string name="download_props_computing">Kino-compute\u2026</string>
+    <string name="download_props_compute">I-compute</string>
     <string name="download_props_size_format">%1$s (%2$d bytes)</string>
     <string name="download_props_dash">\u2014</string>
     <string name="download_props_yes">Oo</string>
@@ -500,18 +500,18 @@
     <string name="download_started_view_action">Tingnan</string>
 
     <string name="install_apk_dialog_title">I-install ang APK</string>
-    <string name="install_apk_dialog_message">Gusto mo bang i-install ang \"%1$s\"?\n\nMag-install lang ng APK mula sa mga pinagkukunang pinagkakatiwalaan mo.</string>
+    <string name="install_apk_dialog_message">Gusto mo bang i-install ang \"%1$s\"?\n\nMag-install lang ng APK mula sa mga source na pinagkakatiwalaan mo.</string>
     <string name="install_apk_dialog_confirm">I-install</string>
     <string name="install_apk_permission_title">Kailangan ng permission</string>
-    <string name="install_apk_permission_message">Para mag-install ng mga APK file, kailangan ng Clint ng permission na mag-install ng hindi kilalang app. Dadalhin ka sa Settings para i-enable ito.</string>
+    <string name="install_apk_permission_message">Para makapag-install ng APK, kailangan ng Clint ng permission na mag-install ng mga app mula sa hindi kilalang source. Dadalhin ka sa Settings para i-enable ito.</string>
 
     <string name="restart_required_title">Kailangan ng restart</string>
-    <string name="restart_required_message">Kailangan mag-restart ang app para maipatupad ang pagbabagong ito.</string>
+    <string name="restart_required_message">Kailangang mag-restart ang app para mailapat ang pagbabagong ito.</string>
     <string name="restart_required_confirm">I-restart na ngayon</string>
 
-    <string name="beta_enrol_title">Mag-enrol sa Beta</string>
-    <string name="beta_enrol_message">Ang mga beta release ay nagbibigay sa iyo ng maagang access sa mga bagong feature bago ito maging stable.\n\nMaaaring may mga bug, kulang na feature, o hindi inaasahang behavior ang mga beta build. Hindi ito rekomendado para sa araw-araw na paggamit sa iyong pangunahing device.\n\nMaaari kang bumalik sa stable anumang oras.</string>
-    <string name="beta_enrol_confirm">Mag-enrol</string>
+    <string name="beta_enrol_title">Sumali sa Beta</string>
+    <string name="beta_enrol_message">Sa beta release, mauuna mong magamit ang mga bagong feature bago maging stable.\n\nMaaaring may bug, kulang na feature, o kakaibang behavior ang mga beta build, kaya hindi ito inirerekomenda para sa araw-araw na gamit sa pangunahing device mo.\n\nPuwede kang bumalik sa stable anumang oras.</string>
+    <string name="beta_enrol_confirm">Sumali</string>
 
     <string name="update_dialog_title">Available na ang v%1$s%2$s</string>
     <string name="update_dialog_skip">Laktawan ang bersyong ito</string>
@@ -523,9 +523,9 @@
     <string name="update_download_progress_size_known">%1$s / %2$s (%3$d%%)</string>
     <string name="update_download_progress_size_unknown">%1$s na-download</string>
     <string name="update_up_to_date_title">Updated ka na</string>
-    <string name="update_up_to_date_message">Pinapatakbo ng Clint Browser ang pinakabagong bersyon.</string>
-    <string name="update_check_failed_title">Nabigo ang pagsusuri ng update</string>
-    <string name="update_check_failed_message">Hindi ma-reach ang update server. Paki-check ang iyong koneksyon at subukan ulit.</string>
+    <string name="update_up_to_date_message">Pinakabagong bersyon na ng Clint Browser ang gamit mo.</string>
+    <string name="update_check_failed_title">Nabigong mag-check ng update</string>
+    <string name="update_check_failed_message">Hindi makakonekta sa update server. Paki-check ang koneksyon mo at subukan ulit.</string>
 
     <string name="download_status_progress">%1$d%%  \u2022  %2$s / %3$s</string>
     <string name="download_status_progress_unknown_total">%1$d%%  \u2022  %2$s / ?</string>
@@ -539,14 +539,14 @@
     <string name="download_error_mux_failed">Hindi napagsama ang na-download na video at audio sa isang file.</string>
     <string name="download_error_mux_failed_detail">Hindi napagsama ang na-download na video at audio sa isang file: %1$s</string>
     <string name="download_error_saf_no_access">Hindi ma-access ang piniling download folder</string>
-    <string name="download_error_saf_not_writable">Hindi puwedeng i-write ang piniling download folder</string>
+    <string name="download_error_saf_not_writable">Hindi ma-write sa piniling download folder</string>
     <string name="download_location_invalid_title">Hindi available ang download folder</string>
-    <string name="download_location_invalid_message">Hindi na ma-access ang custom download folder. Maaaring nailipat, naburang, o na-revoke na ang pahintulot dito.</string>
+    <string name="download_location_invalid_message">Hindi na ma-access ang custom download folder. Maaaring nailipat o nabura ito, o na-revoke na ang permission.</string>
     <string name="download_location_use_default_action">Gamitin ang Default na Folder</string>
     <string name="download_error_saf_create_failed">Nabigong gumawa ng file sa download folder</string>
     <string name="download_error_saf_no_stream">Hindi mabuksan ang output stream para sa download folder</string>
     <string name="download_error_blob_expired">Hindi na available ang embedded na image data</string>
-    <string name="download_status_allocating">Naglalaan&#8230; %1$d%%</string>
+    <string name="download_status_allocating">Naglalaan ng espasyo&#8230; %1$d%%</string>
     <string name="download_status_segment_progress">Segment %1$d ng %2$d</string>
     <string name="download_status_decrypting">Dine-decrypt&#8230;</string>
     <string name="download_status_muxing">Tinatapos ang video&#8230; %1$d%%</string>
@@ -563,7 +563,7 @@
     <string name="download_notification_channel_name">Mga Download ng Clint</string>
     <string name="download_notification_channel_desc">Progress ng pag-download ng file</string>
     <string name="download_event_notification_channel_name">Mga Alerto sa Download</string>
-    <string name="download_event_notification_channel_desc">Mga notification para sa mga nakumpletong, nabigong, at nire-retry na download</string>
+    <string name="download_event_notification_channel_desc">Mga notification kapag natapos, nabigo, o nire-retry ang isang download</string>
     <string name="download_notification_complete">Kumpleto ang download</string>
     <string name="download_notification_failed">Nabigo ang download</string>
     <string name="download_notification_retrying">Nagre-retry ng download\u2026</string>
@@ -591,11 +591,11 @@
     <string name="download_speed_limit_value">%1$d %2$s</string>
     <string name="download_speed_limit_dialog_title">Speed limit</string>
     <string name="download_speed_limit_dialog_hint">Halaga</string>
-    <string name="download_speed_limit_dialog_message">Ilagay ang 0 para sa walang limitasyong bilis. Ang 1 KB/MB ay tutugma sa iyong setting ng measurement system.</string>
+    <string name="download_speed_limit_dialog_message">Ilagay ang 0 kung walang limitasyon. Susunod ang 1 KB/MB sa napili mong measurement system.</string>
     <string name="speed_limit_unit_kb">KB/s</string>
     <string name="speed_limit_unit_mb">MB/s</string>
     <string name="download_concurrent_title">Sabay-sabay na Download</string>
-    <string name="download_concurrent_desc">Ilang download ang puwedeng tumakbo nang sabay-sabay. Ang iba ay nasa queue at awtomatikong magsisimula kapag may nabakanteng slot.</string>
+    <string name="download_concurrent_desc">Ilang download ang puwedeng tumakbo nang sabay. Ang iba ay maghihintay sa queue at kusang magsisimula kapag may bakanteng slot.</string>
     <string name="download_concurrent_value_easter_egg">24 na sabay-sabay na download \uD83D\uDE08</string>
     <string name="action_pause">I-pause</string>
     <string name="action_resume">Ituloy</string>
@@ -615,7 +615,7 @@
     <string name="document_viewer_privacy_policy_title">Patakaran sa Privacy</string>
     <string name="document_viewer_terms_title">Mga Tuntunin ng Serbisyo</string>
     <string name="document_viewer_changelog_title">Changelog</string>
-    <string name="document_viewer_supporters_title">Kasalukuyang mga Supporter</string>
+    <string name="document_viewer_supporters_title">Mga Kasalukuyang Supporter</string>
     <string name="setup_theme_title">Piliin ang Iyong Tema</string>
     <string name="setup_theme_subtitle">Pumili ng hitsurang bagay sa iyo. Puwede mo itong baguhin anumang oras sa Settings.</string>
 
@@ -677,7 +677,7 @@
     <string name="accent_sepia">Sepia</string>
     <string name="accent_sepia_desc">Mainit na kayumangging tones, parang lumang papel, sa buong UI</string>
     <string name="accent_mustard">Mustard</string>
-    <string name="accent_mustard_desc">Lupang kulay ginto-kayumangging tones sa buong UI</string>
+    <string name="accent_mustard_desc">Earthy na dilaw-kayumangging tones sa buong UI</string>
     <string name="accent_forest">Forest</string>
     <string name="accent_forest_desc">Malalim at banayad na berdeng tones sa buong UI</string>
     <string name="accent_sage">Sage</string>
@@ -709,17 +709,17 @@
     <string name="accent_gold">Gold</string>
     <string name="accent_gold_desc">Mayaman at makintab na ginintuang tones sa buong UI</string>
     <string name="accent_red">Pula</string>
-    <string name="accent_red_desc">Matapang na crimson tones sa buong UI</string>
+    <string name="accent_red_desc">Matapang na pulang tones sa buong UI</string>
     <string name="accent_green">Berde</string>
-    <string name="accent_green_desc">Sariwang forest tones sa buong UI</string>
+    <string name="accent_green_desc">Sariwang berdeng tones sa buong UI</string>
     <string name="accent_scarlet">Scarlet</string>
-    <string name="accent_scarlet_desc">Matingkad na orange-red tones sa buong UI</string>
+    <string name="accent_scarlet_desc">Matingkad na kahel-pulang tones sa buong UI</string>
     <string name="accent_lime">Lime</string>
-    <string name="accent_lime_desc">Maliwanag na yellow-green tones sa buong UI</string>
+    <string name="accent_lime_desc">Maliwanag na dilaw-berdeng tones sa buong UI</string>
     <string name="accent_olive">Olive</string>
     <string name="accent_olive_desc">Banayad at earthy na berdeng tones sa buong UI</string>
     <string name="accent_orange">Kahel</string>
-    <string name="accent_orange_desc">Mainit na sunset tones sa buong UI</string>
+    <string name="accent_orange_desc">Mainit na kahel na tones, parang paglubog ng araw, sa buong UI</string>
     <string name="accent_deep_orange">Deep Orange</string>
     <string name="accent_deep_orange_desc">Mayaman at malalim na kahel na tones sa buong UI</string>
     <string name="accent_tangerine">Tangerine</string>
@@ -731,35 +731,35 @@
     <string name="pref_surface_intensity_title">Surface Intensity</string>
     <string name="pref_surface_intensity_disabled_summary">Available lang kapag may accent color sa Dark o Light theme</string>
     <string name="surface_intensity_no_tint">Walang Tint</string>
-    <string name="surface_intensity_no_tint_desc">Payak na background, accent color lang sa mga buton at icon</string>
+    <string name="surface_intensity_no_tint_desc">Payak na background, accent color lang sa mga button at icon</string>
     <string name="surface_intensity_soft">Soft Tint</string>
     <string name="surface_intensity_soft_desc">Banayad na background na may magaan na tint</string>
     <string name="surface_intensity_strong">Strong Tint</string>
     <string name="surface_intensity_strong_desc">Mas malalim na surface na may kapansin-pansing tint</string>
     <string name="surface_intensity_pure">AMOLED</string>
-    <string name="surface_intensity_pure_dark_desc">Purong itim na surface para sa maximum na contrast</string>
+    <string name="surface_intensity_pure_dark_desc">Purong itim na surface para sa pinakamataas na contrast</string>
     <string name="surface_intensity_pure_light_desc">Purong puting surface para sa malinis na hitsura</string>
     <string name="surface_intensity_amoled_no_tint">AMOLED (Walang Tint)</string>
-    <string name="surface_intensity_amoled_no_tint_dark_desc">Purong itim na surface, accent color lang sa mga buton at icon</string>
-    <string name="surface_intensity_amoled_no_tint_light_desc">Purong puting surface, accent color lang sa mga buton at icon</string>
+    <string name="surface_intensity_amoled_no_tint_dark_desc">Purong itim na surface, accent color lang sa mga button at icon</string>
+    <string name="surface_intensity_amoled_no_tint_light_desc">Purong puting surface, accent color lang sa mga button at icon</string>
     <string name="pref_misc_title">Miscellaneous</string>
     <string name="pref_misc_summary">Default na browser at iba pang utility</string>
     <string name="pref_rerun_setup_title">Ulitin ang Setup Wizard</string>
-    <string name="pref_rerun_setup_summary">I-restart ang unang proseso ng setup</string>
+    <string name="pref_rerun_setup_summary">Ulitin ang unang setup ng app</string>
     <string name="rerun_setup_confirm_title">Ulitin ang Setup Wizard?</string>
-    <string name="rerun_setup_confirm_message">Mag-restart ang setup wizard. Mapapanatili ang iyong kasalukuyang mga setting.</string>
+    <string name="rerun_setup_confirm_message">Magre-restart ang setup wizard. Hindi mabubura ang mga kasalukuyan mong setting.</string>
     <string name="action_rerun">Ulitin</string>
     <string name="pref_nested_scroll_title">Nested Scroll</string>
     <string name="nested_scroll_off">Off</string>
     <string name="nested_scroll_off_desc">Palaging nakikita ang mga bar</string>
     <string name="nested_scroll_search_bar">Search Bar</string>
-    <string name="nested_scroll_search_bar_desc">Nawawala ang address bar kapag nag-scroll pababa</string>
+    <string name="nested_scroll_search_bar_desc">Nagtatago ang address bar kapag nag-scroll pababa</string>
     <string name="nested_scroll_nav_bar">Navigation Bar</string>
-    <string name="nested_scroll_nav_bar_desc">Nawawala ang mga navigation button kapag nag-scroll pababa</string>
+    <string name="nested_scroll_nav_bar_desc">Nagtatago ang mga navigation button kapag nag-scroll pababa</string>
     <string name="nested_scroll_both">Pareho</string>
-    <string name="nested_scroll_both_desc">Nawawala ang parehong bar kapag nag-scroll pababa</string>
+    <string name="nested_scroll_both_desc">Nagtatago ang parehong bar kapag nag-scroll pababa</string>
     <string name="nested_scroll_warning_title">Babala sa Visual Glitch</string>
-    <string name="nested_scroll_warning_message">Ang nested scroll feature ay maaaring magdulot ng visual glitch sa WebView. Ito ay kilalang limitasyon ng mga app na base sa Android WebView.\n\nGusto mo pa rin bang i-enable ito?</string>
+    <string name="nested_scroll_warning_message">Maaaring magdulot ng visual glitch sa WebView ang nested scroll. Kilalang limitasyon ito ng mga app na gumagamit ng Android WebView.\n\nGusto mo pa rin bang i-enable ito?</string>
     <string name="action_enable_anyway">I-enable pa rin</string>
     <string name="pref_address_bar_position_title">Posisyon ng Address Bar</string>
     <string name="address_bar_position_top">Taas</string>
@@ -768,20 +768,20 @@
     <string name="address_bar_position_bottom_desc">Address bar sa ibabang bahagi ng screen</string>
     <string name="address_bar_position_split">Split</string>
     <string name="address_bar_position_split_desc">Address bar sa taas na may mga navigation button sa ibaba</string>
-    <string name="setup_status_bar_applied_later">Ilalapat ito sa sandaling matapos ang setup.</string>
+    <string name="setup_status_bar_applied_later">Ilalapat ito pagkatapos ng setup.</string>
 
-    <string name="setup_welcome_title">Maligayang Pagdating sa Clint</string>
-    <string name="setup_welcome_subtitle">Bago magsimula, paki-review muna ang aming mga tuntunin.</string>
+    <string name="setup_welcome_title">Welcome sa Clint</string>
+    <string name="setup_welcome_subtitle">Bago tayo magsimula, basahin muna ang aming mga tuntunin.</string>
     <string name="setup_terms_read">Basahin</string>
     <string name="setup_terms_agree">Nabasa ko at sumasang-ayon ako sa Patakaran sa Privacy at Mga Tuntunin ng Serbisyo</string>
-    <string name="setup_terms_continue">Sumang-ayon &amp; Magpatuloy</string>
+    <string name="setup_terms_continue">Sumang-ayon at Magpatuloy</string>
 
     <string name="setup_restore_title">I-restore mula sa Backup</string>
-    <string name="setup_restore_subtitle">May backup ka ba ng Clint? I-restore ito ngayon para maibalik ang iyong mga setting at data, o laktawan para mag-set up bilang bago.</string>
+    <string name="setup_restore_subtitle">May backup ka ba ng Clint? I-restore ito ngayon para maibalik ang mga setting at data mo, o laktawan para mag-set up mula sa simula.</string>
     <string name="setup_restore_card_title">I-restore ang Backup</string>
     <string name="setup_restore_card_desc">Pumili ng .clintbackup file mula sa iyong device</string>
     <string name="setup_restore_button">I-restore ang Backup</string>
-    <string name="setup_restore_skip">Mag-set Up bilang Bago</string>
+    <string name="setup_restore_skip">Mag-set Up Mula sa Simula</string>
 
     <string name="bookmarks_title">Mga Bookmark</string>
     <string name="content_desc_bookmark">Bookmark</string>
@@ -794,7 +794,7 @@
     <string name="bookmarks_delete_confirm_title">Burahin ang mga bookmark</string>
     <string name="bookmarks_delete_confirm_message">Burahin ang %d bookmark?</string>
     <string name="bookmarks_items_deleted">Nabura ang mga bookmark</string>
-    <string name="bookmarks_sort_by_date_added">Petsa Idinagdag</string>
+    <string name="bookmarks_sort_by_date_added">Kailan idinagdag</string>
     <string name="bookmarks_new_folder_desc">Bagong folder</string>
     <string name="bookmarks_new_folder_title">Bagong Folder</string>
     <string name="bookmarks_folder_name_hint">Pangalan ng folder</string>
@@ -834,7 +834,7 @@
     <string name="downloads_empty">Wala pang download</string>
     <string name="downloads_search">Maghanap</string>
     <string name="downloads_search_hint">Maghanap ng download…</string>
-    <string name="downloads_sort">Ayusin</string>
+    <string name="downloads_sort">I-sort</string>
     <string name="downloads_more_options">Higit pang opsyon</string>
     <string name="downloads_overflow_menu_desc">Higit pang aksyon</string>
     <string name="downloads_resume_all">Ituloy lahat</string>
@@ -867,7 +867,7 @@
     <string name="exit_confirmation_off">Off</string>
     <string name="exit_confirmation_off_desc">Agad na mag-exit kapag wala nang natitirang history</string>
     <string name="exit_confirmation_toast">Toast</string>
-    <string name="exit_confirmation_toast_desc">Magpapakita ng mensaheng hihilingin kang pindutin ulit para mag-exit</string>
+    <string name="exit_confirmation_toast_desc">Magpapakita ng mensaheng nagsasabing pindutin ulit para mag-exit</string>
     <string name="exit_confirmation_dialog">Dialog</string>
     <string name="exit_confirmation_dialog_desc">Magpapakita ng dialog ng kumpirmasyon bago mag-exit</string>
     <string name="exit_tap_again">Pindutin ulit para mag-exit</string>
@@ -898,15 +898,15 @@
     <string name="link_text_copied">Nakopya ang text ng link</string>
 
     <string name="https_only">HTTPS-Only Mode</string>
-    <string name="https_only_summary">I-redirect ang mga koneksyon ng HTTP papuntang HTTPS at i-block ang mga site na hindi ito suportado</string>
+    <string name="https_only_summary">I-redirect ang mga HTTP na koneksyon papuntang HTTPS at i-block ang mga site na hindi ito sinusuportahan</string>
 
     <string name="data_saver_title">Data Saver</string>
     <string name="data_saver_summary">Bawasan ang paggamit ng data gamit ang mas matalinong pag-load</string>
-    <string name="data_saver_settings_summary">I-disable ang Mga Larawan at autoplay controls</string>
-    <string name="data_saver_disable_images_title">I-disable ang Mga Larawan</string>
-    <string name="data_saver_disable_images_summary">Hindi mag-lo-load ang lahat ng larawan</string>
+    <string name="data_saver_settings_summary">I-disable ang mga larawan at autoplay</string>
+    <string name="data_saver_disable_images_title">I-disable ang mga Larawan</string>
+    <string name="data_saver_disable_images_summary">Hindi ilo-load ang lahat ng larawan</string>
     <string name="data_saver_disable_autoplay_title">I-disable ang Autoplay</string>
-    <string name="data_saver_disable_autoplay_summary">Hindi awtomatikong tutugtugin ang mga video at media. Maaaring hindi gumana sa lahat ng website</string>
+    <string name="data_saver_disable_autoplay_summary">Hindi awtomatikong magpi-play ang mga video at media. Maaaring hindi ito gumana sa lahat ng website</string>
     <string name="menu_data_saver">Data Saver</string>
     <string name="menu_quiver_guard">Quiver Guard</string>
     <string name="menu_website_blocker">Website Blocker</string>
@@ -918,31 +918,31 @@
     <string name="suggestion_fill_desc">Ilagay sa search bar</string>
     <string name="history_delete_desc">Alisin sa history</string>
     <string name="suggestion_url_desc">URL ng pahina</string>
-    <string name="history_title">Kasaysayan</string>
-    <string name="history_summary">Tingnan at pamahalaan ang kasaysayan ng pag-browse at paghahanap</string>
-    <string name="history_empty">Wala pang kasaysayan</string>
+    <string name="history_title">History</string>
+    <string name="history_summary">Tingnan at i-manage ang history ng pag-browse at paghahanap</string>
+    <string name="history_empty">Wala pang history</string>
     <string name="history_clear_all">Burahin lahat</string>
     <string name="history_selected_count">%d napili</string>
     <string name="history_select_all">Piliin Lahat</string>
     <string name="history_invert_selection">I-invert</string>
-    <string name="history_deselect_all">Alisin ang Lahat ng Pili</string>
+    <string name="history_deselect_all">Alisin ang Lahat ng Napili</string>
     <string name="history_delete_selected">Burahin</string>
     <string name="history_delete_selected_desc">Burahin ang mga piniling item</string>
-    <string name="history_sort">Ayusin</string>
+    <string name="history_sort">I-sort</string>
     <string name="history_sort_by_title">Pamagat</string>
-    <string name="history_sort_by_last_visit">Huling Bisita</string>
+    <string name="history_sort_by_last_visit">Huling Binisita</string>
     <string name="history_sort_ascending">Ascending</string>
     <string name="history_sort_descending">Descending</string>
     <string name="history_more_options">Higit pang opsyon</string>
     <string name="history_search">Maghanap</string>
-    <string name="history_search_hint">Maghanap sa kasaysayan…</string>
+    <string name="history_search_hint">Maghanap sa history…</string>
     <string name="history_cancel_selection_desc">Kanselahin ang pagpili</string>
     <string name="history_delete_confirm_title">Burahin ang mga item</string>
-    <string name="history_delete_confirm_message">Alisin ang %d item sa kasaysayan?</string>
-    <string name="history_items_deleted">Naalis sa kasaysayan</string>
-    <string name="history_actions_desc">Mga aksyon sa kasaysayan</string>
-    <string name="history_clear_all_confirm_message">Burahin ang lahat ng kasaysayan ng pag-browse at paghahanap? Hindi na ito mababawi.</string>
-    <string name="history_all_cleared">Nabura ang kasaysayan</string>
+    <string name="history_delete_confirm_message">Alisin ang %d item sa history?</string>
+    <string name="history_items_deleted">Naalis sa history</string>
+    <string name="history_actions_desc">Mga aksyon sa history</string>
+    <string name="history_clear_all_confirm_message">Burahin ang lahat ng history ng pag-browse at paghahanap? Hindi na ito mababawi.</string>
+    <string name="history_all_cleared">Nabura ang history</string>
 
     <string name="site_settings">Mga Setting ng Site</string>
     <string name="site_settings_summary">Camera, microphone, lokasyon, notification, at desktop mode</string>
@@ -951,10 +951,10 @@
     <string name="site_settings_location">Lokasyon</string>
     <string name="site_settings_notifications">Notifications</string>
     <string name="site_settings_desktop_mode">Desktop Mode</string>
-    <string name="desktop_mode_save_state">I-save ang Estado</string>
-    <string name="desktop_mode_save_state_desc">Tandaan ang Desktop Mode para sa site na ito at awtomatikong ilapat ito sa susunod na pagbisita</string>
-    <string name="desktop_mode_do_not_save_state">Huwag I-save ang Estado</string>
-    <string name="desktop_mode_do_not_save_state_desc">Ilalapat lang ang Desktop Mode para sa kasalukuyang session at hindi ito matatandaan</string>
+    <string name="desktop_mode_save_state">Tandaan sa Site na Ito</string>
+    <string name="desktop_mode_save_state_desc">Tatandaan ang Desktop Mode para sa site na ito at awtomatikong ilalapat sa susunod na pagbisita</string>
+    <string name="desktop_mode_do_not_save_state">Huwag Tandaan</string>
+    <string name="desktop_mode_do_not_save_state_desc">Sa kasalukuyang session lang ilalapat ang Desktop Mode at hindi ito tatandaan</string>
     <string name="desktop_mode_saved_sites">Mga naka-save na site</string>
     <string name="desktop_mode_no_saved_sites">Walang naka-save na site</string>
     <string name="desktop_mode_delete_confirm_title">Alisin ang mga naka-save na site</string>
@@ -995,14 +995,14 @@
     <string name="site_permission_delete_confirm_message">Alisin ang %d exception?</string>
     <string name="site_permission_items_deleted">Naalis ang mga exception</string>
 
-    <string name="battery_opt_rationale_title">Payagan ang background na download</string>
-    <string name="battery_opt_rationale_message">Para magpatuloy ang mga download kapag lumipat ka sa ibang app, payagan ang Clint na i-ignore ang battery optimization. Kung wala ito, maaaring i-pause o i-cancel ng system ang mga aktibong download habang nasa background ang app.</string>
+    <string name="battery_opt_rationale_title">Payagan ang pag-download sa background</string>
+    <string name="battery_opt_rationale_message">Para magpatuloy ang mga download kapag lumipat ka sa ibang app, payagan ang Clint na i-ignore ang battery optimization. Kung hindi, maaaring i-pause o i-cancel ng system ang mga aktibong download habang nasa background ang app.</string>
     <string name="download_metered_warning_title">May nakitang metered na network</string>
-    <string name="download_metered_warning_message">Naka-enable ang Unmetered Only, pero nakakonekta ka sa metered na network. Gusto mo bang gamitin ang metered na network para i-download ang file na ito?</string>
+    <string name="download_metered_warning_message">Naka-enable ang \u201cUnmetered lang\u201d, pero nakakonekta ka sa metered na network. Gusto mo bang gamitin ang metered na network para i-download ang file na ito?</string>
     <string name="action_download_anyway">I-download pa rin</string>
-    <string name="download_conflict_title">May umiiral nang file</string>
+    <string name="download_conflict_title">May file na may ganitong pangalan</string>
     <string name="download_conflict_add_duplicate">Magdagdag ng duplicate</string>
-    <string name="download_conflict_override">I-override ang umiiral na file</string>
+    <string name="download_conflict_override">I-overwrite ang kasalukuyang file</string>
     <string name="download_conflict_rename">Palitan ang pangalan</string>
     <string name="download_conflict_update_link">I-update ang Link</string>
     <string name="download_already_active_title">Dina-download na</string>
@@ -1040,7 +1040,7 @@
     <string name="tab_menu_select_tab_desc">Piliin ang tab</string>
 
     <string name="privacy_section_privacy">PRIVACY &amp; SEGURIDAD</string>
-    <string name="privacy_section_history">KASAYSAYAN</string>
+    <string name="privacy_section_history">HISTORY</string>
 
     <string name="site_section_permissions">PERMISSIONS</string>
     <string name="site_section_desktop_mode">DESKTOP MODE</string>
@@ -1061,7 +1061,7 @@
     <string name="document_viewer_attribution_title">Attribution</string>
 
     <string name="quiver_guard_master_switch_title">I-enable ang Quiver Guard</string>
-    <string name="quiver_guard_description">I-block ang mga ad, tracker, at abala gamit ang mga filter list</string>
+    <string name="quiver_guard_description">I-block ang mga ad, tracker, at iba pang nakakainis na content gamit ang mga filter list</string>
     <string name="quiver_guard_section_filter_lists">MGA FILTER LIST</string>
     <string name="filter_list_status_not_downloaded">Hindi pa Na-download</string>
     <string name="filter_list_status_downloading">Dina-download…</string>
@@ -1074,7 +1074,7 @@
     <string name="quiver_guard_download_error_toast">Nabigong i-download ang %1$s</string>
     <string name="quiver_guard_download_cancelled_toast">Kinansela ang download</string>
     <string name="quiver_guard_download_error_http">Nagbalik ng error ang server (code %1$d)</string>
-    <string name="quiver_guard_download_error_network">Hindi ma-reach ang URL. Suriin ang iyong koneksyon at subukan ulit.</string>
+    <string name="quiver_guard_download_error_network">Hindi makakonekta sa URL. I-check ang koneksyon mo at subukan ulit.</string>
 
     <string name="filter_list_add_fab_desc">Magdagdag ng custom na filter list</string>
     <string name="filter_list_add_menu_from_link">Magdagdag mula sa link</string>
@@ -1089,22 +1089,22 @@
     <string name="filter_list_add_file_dialog_title">Magdagdag ng Filter List Mula sa File</string>
     <string name="filter_list_add_file_summary">%1$d rules • %2$s</string>
     <string name="filter_list_add_file_error_read">Hindi mabasa ang piniling file. Subukan ulit.</string>
-    <string name="filter_list_item_local_no_update">Walang update na susuriin ang mga lokal na filter list</string>
+    <string name="filter_list_item_local_no_update">Walang mako-check na update para sa mga lokal na filter list</string>
     <string name="filter_list_search_hint">Maghanap ng filter list…</string>
     <string name="filter_list_delete_confirm_title">Burahin ang mga filter list</string>
     <string name="filter_list_delete_confirm_message">Alisin ang %d filter list?</string>
-    <string name="filter_list_update_check_title">Suriin ang mga Update</string>
-    <string name="filter_list_update_check_message">Suriin ang %1$d na-download na filter list para sa available na update?</string>
+    <string name="filter_list_update_check_title">I-check ang mga Update</string>
+    <string name="filter_list_update_check_message">I-check ang %1$d na-download na filter list para sa available na update?</string>
     <string name="filter_list_update_no_lists_message">Walang na-download na filter list para i-update. Mag-download muna ng filter list.</string>
-    <string name="filter_list_update_check_action">Suriin ang mga Update</string>
-    <string name="filter_list_update_progress_title">Sinusuri ang mga Update</string>
+    <string name="filter_list_update_check_action">I-check</string>
+    <string name="filter_list_update_progress_title">Tinitingnan ang mga Update</string>
     <string name="filter_list_update_progress_counter">%1$d ng %2$d</string>
-    <string name="filter_list_update_progress_checking">Sinusuri\u2026</string>
+    <string name="filter_list_update_progress_checking">Tinitingnan\u2026</string>
     <string name="filter_list_force_update_progress_preparing">Naghahanda para sa force update\u2026</string>
     <string name="filter_list_update_progress_downloading_known">Dina-download: %1$s ng %2$s</string>
     <string name="filter_list_update_progress_downloading_unknown">Dina-download: %1$s</string>
-    <string name="filter_list_update_cancelled">Kinansela ang pagsusuri ng update</string>
-    <string name="filter_list_update_error_generic">Nabigo ang pagsusuri ng update. Suriin ang iyong koneksyon.</string>
+    <string name="filter_list_update_cancelled">Kinansela ang pag-check ng update</string>
+    <string name="filter_list_update_error_generic">Nabigo ang pag-check ng update. I-check ang koneksyon mo.</string>
     <string name="filter_list_update_all_up_to_date">Updated na ang lahat ng filter list</string>
     <string name="filter_list_update_success_recompiling">%1$d filter list ang na-update. Kino-compile ulit\u2026</string>
     <string name="filter_list_update_result_title">Kumpleto ang Update</string>
@@ -1119,18 +1119,18 @@
     <string name="quiver_guard_no_active_lists_message">Kailangan ng Quiver Guard ng kahit isang aktibong filter list para gumana. Para magsimula:\n\n1. Pindutin ang isang filter list sa ibaba para i-download ito.\n2. Kapag na-download na, pindutin ang save button para i-compile ang iyong mga filter list.\n3. Pagkatapos mag-compile, i-enable ang Quiver Guard gamit ang switch sa itaas.</string>
 
     <string name="quiver_guard_experimental_title">Experimental na Feature</string>
-    <string name="quiver_guard_experimental_message">Nasa experimental testing pa rin ang Quiver Guard. Sa tulong mo, pinapaganda namin ang feature na ito. Kung may nakita kang sirang site o bug na may kaugnayan sa feature na ito, mangyaring i-report agad ito sa GitHub. Salamat.</string>
+    <string name="quiver_guard_experimental_message">Experimental pa ang Quiver Guard. Sa tulong mo, napapaganda namin ito. Kung may nakita kang site na hindi gumagana nang maayos o bug na kaugnay ng feature na ito, paki-report agad sa GitHub. Salamat!</string>
 
     <string name="quiver_guard_recompile_required_title">Kailangan ng Recompile</string>
     <string name="quiver_guard_recompile_required_button">I-recompile</string>
-    <string name="quiver_guard_recompile_reason_version_mismatch">Nabuo ang iyong mga na-compile na filter list gamit ang mas lumang bersyon ng filtering engine ng Quiver Guard at hindi na ito ma-load. Kailangan itong i-recompile bago makapag-filter ulit ng mga pahina ang Quiver Guard.</string>
-    <string name="quiver_guard_recompile_reason_bad_header">Nawawala o hindi mabasa ang na-compile mong filter database at kailangan itong muling buuin bago makapag-filter ulit ng mga pahina ang Quiver Guard.</string>
-    <string name="quiver_guard_recompile_reason_bad_checksum">Mukhang sira ang na-compile mong filter database at kailangan itong muling buuin bago makapag-filter ulit ng mga pahina ang Quiver Guard.</string>
-    <string name="quiver_guard_recompile_reason_flatbuffer_error">Sira ang na-compile mong filter database at kailangan itong muling buuin bago makapag-filter ulit ng mga pahina ang Quiver Guard.</string>
-    <string name="quiver_guard_recompile_reason_unknown">Hindi ma-load ang na-compile mong filter database at kailangan itong muling buuin bago makapag-filter ulit ng mga pahina ang Quiver Guard.</string>
+    <string name="quiver_guard_recompile_reason_version_mismatch">Ginawa ang mga na-compile mong filter list gamit ang mas lumang bersyon ng filtering engine ng Quiver Guard kaya hindi na ito ma-load. I-recompile ito para makapag-filter ulit ng mga page ang Quiver Guard.</string>
+    <string name="quiver_guard_recompile_reason_bad_header">Nawawala o hindi mabasa ang na-compile mong filter database. I-recompile ito para makapag-filter ulit ng mga page ang Quiver Guard.</string>
+    <string name="quiver_guard_recompile_reason_bad_checksum">Mukhang sira ang na-compile mong filter database. I-recompile ito para makapag-filter ulit ng mga page ang Quiver Guard.</string>
+    <string name="quiver_guard_recompile_reason_flatbuffer_error">Sira ang na-compile mong filter database. I-recompile ito para makapag-filter ulit ng mga page ang Quiver Guard.</string>
+    <string name="quiver_guard_recompile_reason_unknown">Hindi ma-load ang na-compile mong filter database. I-recompile ito para makapag-filter ulit ng mga page ang Quiver Guard.</string>
 
     <string name="quiver_guard_back_dialog_title">Kailangan ng Compilation</string>
-    <string name="quiver_guard_back_dialog_message">Nagbago ang configuration ng iyong filter list pero hindi pa ito na-compile. Hindi magiging aktibo ang mga pagbabagong ito hangga\'t hindi mo ito kino-compile.</string>
+    <string name="quiver_guard_back_dialog_message">Nagbago ang configuration ng mga filter list mo pero hindi pa ito na-compile. Hindi magiging aktibo ang mga pagbabago hangga\'t hindi mo ito kino-compile.</string>
     <string name="quiver_guard_back_dialog_compile">I-compile</string>
     <string name="quiver_guard_back_dialog_discard">Itapon ang mga Pagbabago</string>
 
@@ -1138,9 +1138,9 @@
     <string name="quiver_guard_compile_progress_list">%1$d ng %2$d</string>
     <string name="quiver_guard_compile_progress_stage_preparing">Naghahanda…</string>
     <string name="quiver_guard_compile_progress_stage_reading">Binabasa: %1$s</string>
-    <string name="quiver_guard_compile_progress_stage_parsing">Pinaparse: %1$s</string>
-    <string name="quiver_guard_compile_progress_stage_finalizing">Fina-finalize…</string>
-    <string name="quiver_guard_compile_progress_rules">%1$s rules na naproseso</string>
+    <string name="quiver_guard_compile_progress_stage_parsing">Pina-parse: %1$s</string>
+    <string name="quiver_guard_compile_progress_stage_finalizing">Tinatapos…</string>
+    <string name="quiver_guard_compile_progress_rules">%1$s rule ang na-process</string>
     <string name="quiver_guard_compile_progress_elapsed">%1$s ang lumipas</string>
 
     <string name="quiver_guard_compile_success_title">Kumpleto ang Compilation</string>
@@ -1155,40 +1155,40 @@
     <string name="quiver_guard_compile_failure_failed_list">Nabigo sa: %1$s</string>
     <string name="quiver_guard_compile_failure_details">Detalye: %1$s</string>
     <string name="quiver_guard_compile_failure_previous_active">Nananatiling aktibo ang naunang na-compile na database.</string>
-    <string name="quiver_guard_compile_action_retry">Retry</string>
-    <string name="quiver_guard_compile_action_dismiss">I-dismiss</string>
+    <string name="quiver_guard_compile_action_retry">Subukan ulit</string>
+    <string name="quiver_guard_compile_action_dismiss">Isara</string>
 
     <!-- Filter list actions overflow menu -->
-    <string name="filter_list_check_update_active">Suriin ang mga update (aktibong list)</string>
-    <string name="filter_list_check_update_all">Suriin ang mga update (lahat ng list)</string>
+    <string name="filter_list_check_update_active">I-check ang mga update (aktibong list)</string>
+    <string name="filter_list_check_update_all">I-check ang mga update (lahat ng list)</string>
     <string name="filter_list_force_update_active">Force update (aktibong list)</string>
     <string name="filter_list_force_update_all">Force update (lahat ng list)</string>
     <string name="filter_list_recompile">I-recompile ang mga filter list</string>
 
     <!-- Active filter list feedback (active = currently enabled lists) -->
     <string name="filter_list_no_active_selected">Walang nakitang enabled na filter list. Mag-enable muna ng kahit isang list.</string>
-    <string name="filter_list_operation_in_progress">May isa pang operation na isinasagawa na. Mangyaring maghintay.</string>
+    <string name="filter_list_operation_in_progress">May ibang operation na tumatakbo. Maghintay muna.</string>
 
     <!-- Check for updates on active (enabled) lists confirmation -->
-    <string name="filter_list_check_update_active_message">Susuriin ang %1$d enabled na filter list para sa mga update.</string>
+    <string name="filter_list_check_update_active_message">Titingnan ang %1$d enabled na filter list kung may update.</string>
 
     <!-- Force update confirmation dialogs -->
-    <string name="filter_list_force_update_active_confirm_title">I-force Update ang Mga Aktibong List</string>
-    <string name="filter_list_force_update_active_confirm_message">Ida-download ulit ang %1$d enabled na filter list nang walang kondisyon. Magpatuloy?</string>
+    <string name="filter_list_force_update_active_confirm_title">I-force Update ang mga Aktibong List</string>
+    <string name="filter_list_force_update_active_confirm_message">Ida-download ulit ang %1$d enabled na filter list kahit walang bagong update. Magpatuloy?</string>
     <string name="filter_list_force_update_all_confirm_title">I-force Update ang Lahat ng List</string>
-    <string name="filter_list_force_update_all_confirm_message">Ida-download ulit ang %1$d na-download na filter list nang walang kondisyon. Magpatuloy?</string>
+    <string name="filter_list_force_update_all_confirm_message">Ida-download ulit ang %1$d na-download na filter list kahit walang bagong update. Magpatuloy?</string>
     <string name="filter_list_force_update_action">Force Update</string>
     <string name="filter_list_force_update_no_lists_message">Walang na-download na filter list para i-force update. Mag-download muna ng filter list.</string>
 
     <!-- Force update progress dialogs -->
-    <string name="filter_list_force_update_progress_title">Fine-force Update ang Mga Filter List</string>
+    <string name="filter_list_force_update_progress_title">Nagfo-force Update ng mga Filter List</string>
 
     <!-- Recompile confirmation dialog -->
     <string name="filter_list_recompile_confirm_title">I-recompile ang Mga Filter List</string>
     <string name="filter_list_recompile_confirm_message">I-recompile na ngayon ang lahat ng enabled na filter list?</string>
 
     <!-- Per-row overflow menu (ellipsis on each filter list item) -->
-    <string name="filter_list_menu_check_update">Suriin ang mga Update</string>
+    <string name="filter_list_menu_check_update">I-check ang mga Update</string>
     <string name="filter_list_menu_force_update">Force Update</string>
     <string name="filter_list_menu_remove">Alisin</string>
     <string name="filter_list_menu_copy_name">Kopyahin ang Pangalan</string>
@@ -1197,10 +1197,10 @@
 
     <!-- Per-row check/force update confirmation and progress -->
     <string name="filter_list_item_not_downloaded">Hindi pa na-download ang %1$s.</string>
-    <string name="filter_list_item_check_update_confirm_message">Suriin ang %1$s para sa available na update?</string>
-    <string name="filter_list_item_force_update_confirm_message">Ida-download ulit ang %1$s anuman ang resulta kung may available na update. Magpatuloy?</string>
-    <string name="filter_list_item_check_update_progress_title">Sinusuri ang %1$s</string>
-    <string name="filter_list_item_force_update_progress_title">Fine-force Update ang %1$s</string>
+    <string name="filter_list_item_check_update_confirm_message">I-check ang %1$s para sa available na update?</string>
+    <string name="filter_list_item_force_update_confirm_message">Ida-download ulit ang %1$s kahit walang bagong update. Magpatuloy?</string>
+    <string name="filter_list_item_check_update_progress_title">Tinitingnan ang %1$s</string>
+    <string name="filter_list_item_force_update_progress_title">Nagfo-force Update ng %1$s</string>
 
     <!-- Per-row copy and share -->
     <string name="filter_list_name_clip_label">Pangalan ng Filter List</string>
@@ -1212,10 +1212,10 @@
     <!-- Selection (multi-item) overflow menu: shown in the toolbar once one or more
          filter lists are selected, reusing the per-row item options layout but
          scoped to every selected list instead of a single row. -->
-    <string name="filter_list_check_update_selected_message">Susuriin ang %1$d piniling filter list para sa mga update.</string>
-    <string name="filter_list_force_update_selected_confirm_title">I-force Update ang Mga Piniling List</string>
-    <string name="filter_list_force_update_selected_confirm_message">Ida-download ulit ang %1$d piniling filter list nang walang kondisyon. Magpatuloy?</string>
-    <string name="filter_list_selection_not_downloaded">Wala sa mga piniling filter list ang na-download pa.</string>
+    <string name="filter_list_check_update_selected_message">Titingnan ang %1$d piniling filter list kung may update.</string>
+    <string name="filter_list_force_update_selected_confirm_title">I-force Update ang mga Piniling List</string>
+    <string name="filter_list_force_update_selected_confirm_message">Ida-download ulit ang %1$d piniling filter list kahit walang bagong update. Magpatuloy?</string>
+    <string name="filter_list_selection_not_downloaded">Wala pang na-download sa mga piniling filter list.</string>
     <string name="filter_list_selection_names_copied">Nakopya ang mga pangalan</string>
     <string name="filter_list_selection_links_copied">Nakopya ang mga link</string>
 
@@ -1270,13 +1270,13 @@
     <string name="backup_category_bookmarks">Mga Bookmark</string>
     <string name="backup_category_bookmarks_desc">Mga naka-save na bookmark</string>
     <string name="backup_category_search_history">History ng Paghahanap</string>
-    <string name="backup_category_search_history_desc">Ang history ng iyong mga mungkahi sa paghahanap</string>
-    <string name="backup_category_site_permissions">Mga Permiso ng Site</string>
-    <string name="backup_category_site_permissions_desc">Mga pinili mong permiso kada site</string>
+    <string name="backup_category_search_history_desc">History ng mga suggestion sa paghahanap mo</string>
+    <string name="backup_category_site_permissions">Mga Permission ng Site</string>
+    <string name="backup_category_site_permissions_desc">Mga permission na pinili mo para sa bawat site</string>
     <string name="backup_category_update_settings">Mga Setting ng Update</string>
     <string name="backup_category_update_settings_desc">Mga preference sa pag-check ng update</string>
 
-    <string name="backup_select_categories_title">Piliin ang I-ba-back Up</string>
+    <string name="backup_select_categories_title">Piliin ang Isasama sa Backup</string>
     <string name="backup_select_all">Piliin Lahat</string>
     <string name="backup_deselect_all">Alisin ang Lahat</string>
     <string name="backup_protect_title">Protektahan ang Iyong Backup</string>
@@ -1284,14 +1284,14 @@
     <string name="backup_protect_with_password">I-encrypt gamit ang password</string>
     <string name="backup_password_label">Password</string>
     <string name="backup_password_confirm_label">Kumpirmahin ang password</string>
-    <string name="backup_password_hint">Kakailanganin ng password na ito ng sinumang may hawak ng file para ma-restore ito. Kung nakalimutan mo ito, hindi na maibabalik ang iyong backup.</string>
+    <string name="backup_password_hint">Kakailanganin ng sinumang magre-restore ng file na ito ang password na ito. Kapag nakalimutan mo ito, hindi na maibabalik ang backup mo.</string>
     <string name="backup_password_show">Ipakita ang password</string>
     <string name="backup_password_hide">Itago ang password</string>
     <string name="backup_password_mismatch">Hindi magkatugma ang mga password</string>
-    <string name="backup_password_too_short">Dapat hindi bababa sa 6 na character ang password</string>
+    <string name="backup_password_too_short">Dapat may kahit 6 na character ang password</string>
     <string name="backup_action_create">Gumawa ng Backup</string>
 
-    <string name="backup_auth_title">Kinakailangan ang Authentication</string>
+    <string name="backup_auth_title">Kailangan ng Authentication</string>
     <string name="backup_auth_subtitle_backup">Kumpirmahin na ikaw ito para gumawa ng backup</string>
     <string name="backup_auth_subtitle_restore">Kumpirmahin na ikaw ito para mag-restore ng backup</string>
     <string name="backup_auth_unavailable_title">Kailangan ng Screen Lock</string>
@@ -1301,7 +1301,7 @@
     <string name="backup_progress_reading">Binabasa ang backup file…</string>
     <string name="backup_progress_restoring">Ibinabalik ang data…</string>
     <string name="backup_progress_encrypting">Ini-encrypt ang backup…</string>
-    <string name="backup_progress_decrypting">Ide-decrypt ang backup…</string>
+    <string name="backup_progress_decrypting">Dine-decrypt ang backup…</string>
 
     <string name="backup_result_success_title">Kumpleto na ang Backup</string>
     <string name="backup_result_success_message">Na-save na ang iyong backup.</string>
@@ -1314,21 +1314,21 @@
     <string name="restore_password_wrong">Maling password. Pakisubukang muli.</string>
     <string name="restore_action_continue">Magpatuloy</string>
 
-    <string name="restore_invalid_title">Di-Wastong Backup File</string>
-    <string name="restore_invalid_message">Ang file na ito ay hindi suportadong Clint backup, o sira ito.</string>
+    <string name="restore_invalid_title">Hindi Wastong Backup File</string>
+    <string name="restore_invalid_message">Hindi ito wastong Clint backup file, o sira ito.</string>
     <string name="restore_unsupported_title">Hindi Suportadong Bersyon ng Backup</string>
     <string name="restore_unsupported_message">Ginawa ang backup na ito gamit ang mas bagong bersyon ng Clint at hindi ito maibabalik dito.</string>
     <string name="restore_generic_error_title">Hindi Mabuksan ang Backup</string>
     <string name="restore_generic_error_message">May naganap na error habang binabasa ang backup file.</string>
 
-    <string name="restore_select_categories_title">Piliin ang I-re-restore</string>
+    <string name="restore_select_categories_title">Piliin ang Ibabalik</string>
     <string name="restore_action_restore">I-restore</string>
 
     <string name="restore_confirm_title">I-restore ang Data?</string>
-    <string name="restore_confirm_message">Ang pag-restore ay magpapalit sa kasalukuyan mong data para sa mga napiling kategorya. Hindi na ito maibabalik pa.</string>
+    <string name="restore_confirm_message">Papalitan ng restore ang kasalukuyan mong data sa mga napiling kategorya. Hindi na ito mababawi.</string>
 
     <string name="restore_result_success_title">Kumpleto na ang Restore</string>
-    <string name="restore_result_success_message">Naibalik na ang iyong data. Kailangang mag-restart ng Clint para maipatupad ang mga pagbabago.</string>
+    <string name="restore_result_success_message">Naibalik na ang data mo. Kailangang mag-restart ng Clint para mailapat ang mga pagbabago.</string>
     <string name="restore_result_partial_note">Hindi nakita sa backup na ito: %1$s</string>
     <string name="restore_result_error_title">Nabigo ang Restore</string>
     <string name="restore_result_error_message">May naganap na error habang ibinabalik ang iyong data.</string>
@@ -1338,10 +1338,10 @@
 
     <string name="website_blocker_title">Website Blocker</string>
     <string name="website_blocker_settings_summary">Harangan ang pornograpiya, sugal, at iba pang website.</string>
-    <string name="website_blocker_status_working">Ginagawa…</string>
-    <string name="website_blocker_status_active">Pinoprotektahan ka mula sa %d kilalang domain</string>
+    <string name="website_blocker_status_working">Pinoproseso\u2026</string>
+    <string name="website_blocker_status_active">Protektado ka laban sa %d kilalang domain</string>
     <string name="website_blocker_fab_save_desc">I-save at i-apply ang mga pagbabago</string>
-    <string name="website_blocker_compile_failed">Hindi na-update ang listahan ng hinaharang. Pakisubukang muli.</string>
+    <string name="website_blocker_compile_failed">Hindi na-update ang blocklist. Pakisubukan ulit.</string>
     <string name="website_blocker_delete_confirm_title">I-reset ang kategorya?</string>
     <string name="website_blocker_delete_confirm_message">Aalisin nito ang na-download na data para sa %d napiling kategorya. Puwede mo itong i-download muli anumang oras.</string>
 
@@ -1375,27 +1375,27 @@
     <string name="website_blocker_category_social_desc">Humaharang sa mga sikat na social media site</string>
     <string name="website_blocker_category_torrent">Torrent</string>
     <string name="website_blocker_category_torrent_desc">Humaharang sa mga torrent site</string>
-    <string name="website_blocker_category_tracking">Pagsubaybay</string>
+    <string name="website_blocker_category_tracking">Tracking</string>
     <string name="website_blocker_category_tracking_desc">Humaharang sa mga tracking at analytics domain</string>
 
     <string name="website_blocker_search_hint">Maghanap ng kategorya…</string>
     <string name="website_blocker_master_switch_title">I-enable ang Website Blocker</string>
     <string name="website_blocker_section_categories">MGA KATEGORYA</string>
-    <string name="website_blocker_back_dialog_message">Nagbago ang website blocker configuration mo pero hindi pa ito na-compile. Hindi magiging aktibo ang mga pagbabagong ito hangga\'t hindi mo ito kino-compile.</string>
+    <string name="website_blocker_back_dialog_message">Nagbago ang configuration ng Website Blocker mo pero hindi pa ito na-compile. Hindi magiging aktibo ang mga pagbabago hangga\'t hindi mo ito kino-compile.</string>
     <string name="website_blocker_compile_progress_title">Kino-compile ang Blocklist</string>
     <string name="website_blocker_compile_result_label_domains">Na-block na domain</string>
     <string name="website_blocker_status_downloaded_with_domains">%1$s domain • %2$s • %3$s</string>
-    <string name="website_blocker_update_check_message">Suriin ang %1$d na-download na kategorya para sa available na update?</string>
+    <string name="website_blocker_update_check_message">I-check ang %1$d na-download na kategorya para sa available na update?</string>
     <string name="website_blocker_update_no_categories_message">Walang na-download na kategorya para i-update. Mag-download muna ng kategorya.</string>
     <string name="website_blocker_force_update_no_categories_message">Walang na-download na kategorya para i-force update. Mag-download muna ng kategorya.</string>
     <string name="website_blocker_no_active_selected">Walang nakitang enabled na kategorya. Mag-enable muna ng kahit isang kategorya.</string>
-    <string name="website_blocker_check_update_active_message">Susuriin ang %1$d enabled na kategorya para sa mga update.</string>
-    <string name="website_blocker_force_update_active_confirm_title">I-force Update ang Mga Aktibong Kategorya</string>
-    <string name="website_blocker_force_update_active_confirm_message">Ida-download ulit ang %1$d enabled na kategorya nang walang kondisyon. Magpatuloy?</string>
+    <string name="website_blocker_check_update_active_message">Titingnan ang %1$d enabled na kategorya kung may update.</string>
+    <string name="website_blocker_force_update_active_confirm_title">I-force Update ang mga Aktibong Kategorya</string>
+    <string name="website_blocker_force_update_active_confirm_message">Ida-download ulit ang %1$d enabled na kategorya kahit walang bagong update. Magpatuloy?</string>
     <string name="website_blocker_force_update_all_confirm_title">I-force Update ang Lahat ng Kategorya</string>
-    <string name="website_blocker_force_update_all_confirm_message">Ida-download ulit ang %1$d na-download na kategorya nang walang kondisyon. Magpatuloy?</string>
-    <string name="website_blocker_check_update_selected_message">Susuriin ang %1$d piniling kategorya para sa mga update.</string>
-    <string name="website_blocker_force_update_selected_confirm_message">Ida-download ulit ang %1$d piniling kategorya nang walang kondisyon. Magpatuloy?</string>
+    <string name="website_blocker_force_update_all_confirm_message">Ida-download ulit ang %1$d na-download na kategorya kahit walang bagong update. Magpatuloy?</string>
+    <string name="website_blocker_check_update_selected_message">Titingnan ang %1$d piniling kategorya kung may update.</string>
+    <string name="website_blocker_force_update_selected_confirm_message">Ida-download ulit ang %1$d piniling kategorya kahit walang bagong update. Magpatuloy?</string>
     <string name="website_blocker_selection_not_downloaded">Wala sa mga piniling kategorya ang na-download pa.</string>
     <string name="website_blocker_recompile_confirm_title">I-recompile ang Blocklist</string>
     <string name="website_blocker_recompile_confirm_message">I-recompile na ngayon ang blocklist gamit ang mga kasalukuyang enabled na kategorya?</string>
@@ -1404,12 +1404,12 @@
     <string name="website_blocker_link_clip_label">Download URL ng Kategorya</string>
     <string name="website_blocker_share_chooser_title">Ibahagi ang link ng kategorya</string>
 
-    <string name="website_blocked_title">Nakaharang ang Website na Ito</string>
-    <string name="website_blocked_message">Tumutugma ang site na ito sa isa sa iyong Website Blocker list, kaya hinarang ito bago mag-load.</string>
-    <string name="website_blocked_return_button">Bumalik sa Nakaraang URL</string>
+    <string name="website_blocked_title">Na-block ang Website na Ito</string>
+    <string name="website_blocked_message">Kasama ang site na ito sa isa sa mga Website Blocker list mo, kaya na-block ito bago pa mag-load.</string>
+    <string name="website_blocked_return_button">Bumalik sa Nakaraang Page</string>
 
-    <string name="additional_websites_title">Karagdagang Websites</string>
-    <string name="additional_websites_master_switch_title">I-enable ang Karagdagang Websites</string>
+    <string name="additional_websites_title">Mga Karagdagang Website</string>
+    <string name="additional_websites_master_switch_title">I-enable ang mga Karagdagang Website</string>
     <string name="additional_websites_master_switch_summary">I-block ang mga website na naidagdag mo sa ibaba</string>
     <string name="additional_websites_summary">Mga website na naidagdag: %d</string>
     <string name="additional_websites_search_hint">Maghanap ng karagdagang website</string>
@@ -1425,9 +1425,9 @@
     <string name="select_picker_default_title">Pumili ng opsyon</string>
 
     <string name="user_scripts_title">Mga User Script</string>
-    <string name="user_scripts_settings_summary">Gumawa o mag-upload ng sarili mong JavaScript na iiniksyon sa mga web page</string>
+    <string name="user_scripts_settings_summary">Gumawa o mag-upload ng sarili mong JavaScript na ita-run sa mga web page</string>
     <string name="user_scripts_master_switch_title">I-enable ang Mga User Script</string>
-    <string name="user_scripts_master_switch_summary">Iniksyon ang mga naka-save mong script sa mga pahinang binibisita mo</string>
+    <string name="user_scripts_master_switch_summary">Ita-run ang mga naka-save mong script sa mga pahinang binibisita mo</string>
     <string name="user_scripts_empty">Wala pang naidagdag na user script</string>
     <string name="user_scripts_search_hint">Maghanap ng user script</string>
     <string name="user_scripts_upload_fab_desc">Mag-upload ng script file</string>
@@ -1485,44 +1485,44 @@
     <string name="user_scripts_editor_info_author_label">May-akda</string>
     <string name="user_scripts_editor_info_runat_label">Tumatakbo</string>
     <string name="user_scripts_section_scripts">MGA SCRIPT</string>
-    <string name="user_scripts_item_local_no_update">Walang update na susuriin ang mga lokal na script</string>
-    <string name="user_scripts_update_check_message">Suriin ang %1$d script para sa available na update?</string>
-    <string name="user_scripts_update_no_scripts_message">Walang script na i-a-update. Magdagdag muna ng script mula sa link.</string>
+    <string name="user_scripts_item_local_no_update">Walang mako-check na update para sa mga lokal na script</string>
+    <string name="user_scripts_update_check_message">I-check ang %1$d script para sa available na update?</string>
+    <string name="user_scripts_update_no_scripts_message">Walang script na puwedeng i-update. Magdagdag muna ng script mula sa link.</string>
     <string name="user_scripts_update_all_up_to_date">Updated na ang lahat ng script</string>
     <string name="user_scripts_update_success">%1$d script ang na-update.</string>
     <string name="user_scripts_update_all_failed">%1$d script ang nabigong ma-update:\n\n%2$s</string>
     <string name="user_scripts_update_partial_result">%1$d script ang na-update.\n%2$d ang nabigo:\n\n%3$s</string>
-    <string name="user_scripts_check_update_active">Suriin ang mga update (aktibong script)</string>
-    <string name="user_scripts_check_update_all">Suriin ang mga update (lahat ng script)</string>
+    <string name="user_scripts_check_update_active">I-check ang mga update (aktibong script)</string>
+    <string name="user_scripts_check_update_all">I-check ang mga update (lahat ng script)</string>
     <string name="user_scripts_force_update_active">I-force update (aktibong script)</string>
     <string name="user_scripts_force_update_all">I-force update (lahat ng script)</string>
     <string name="user_scripts_no_active_selected">Walang nakitang enabled na script. Mag-enable muna ng kahit isang script.</string>
-    <string name="user_scripts_check_update_active_message">Susuriin ang %1$d enabled na script para sa mga update.</string>
-    <string name="user_scripts_force_update_active_confirm_title">I-force Update ang Mga Aktibong Script</string>
-    <string name="user_scripts_force_update_active_confirm_message">Ida-download ulit ang %1$d enabled na script nang walang kondisyon. Magpatuloy?</string>
+    <string name="user_scripts_check_update_active_message">Titingnan ang %1$d enabled na script kung may update.</string>
+    <string name="user_scripts_force_update_active_confirm_title">I-force Update ang mga Aktibong Script</string>
+    <string name="user_scripts_force_update_active_confirm_message">Ida-download ulit ang %1$d enabled na script kahit walang bagong update. Magpatuloy?</string>
     <string name="user_scripts_force_update_all_confirm_title">I-force Update ang Lahat ng Script</string>
-    <string name="user_scripts_force_update_all_confirm_message">Ida-download ulit ang %1$d script nang walang kondisyon. Magpatuloy?</string>
-    <string name="user_scripts_force_update_no_scripts_message">Walang script na i-fo-force update. Magdagdag muna ng script mula sa link.</string>
-    <string name="user_scripts_force_update_progress_title">Fine-force Update ang Mga Script</string>
+    <string name="user_scripts_force_update_all_confirm_message">Ida-download ulit ang %1$d script kahit walang bagong update. Magpatuloy?</string>
+    <string name="user_scripts_force_update_no_scripts_message">Walang script na puwedeng i-force update. Magdagdag muna ng script mula sa link.</string>
+    <string name="user_scripts_force_update_progress_title">Nagfo-force Update ng mga Script</string>
     <string name="user_scripts_menu_copy_link">Kopyahin ang Source Link</string>
     <string name="user_scripts_menu_share_link">Ibahagi ang Source Link</string>
     <string name="user_scripts_name_clip_label">Pangalan ng Script</string>
     <string name="user_scripts_link_clip_label">Source URL ng Script</string>
     <string name="user_scripts_share_chooser_title">Ibahagi ang link ng script</string>
-    <string name="user_scripts_check_update_selected_message">Susuriin ang %1$d piniling script para sa mga update.</string>
-    <string name="user_scripts_force_update_selected_confirm_title">I-force Update ang Mga Piniling Script</string>
-    <string name="user_scripts_force_update_selected_confirm_message">Ida-download ulit ang %1$d piniling script nang walang kondisyon. Magpatuloy?</string>
+    <string name="user_scripts_check_update_selected_message">Titingnan ang %1$d piniling script kung may update.</string>
+    <string name="user_scripts_force_update_selected_confirm_title">I-force Update ang mga Piniling Script</string>
+    <string name="user_scripts_force_update_selected_confirm_message">Ida-download ulit ang %1$d piniling script kahit walang bagong update. Magpatuloy?</string>
     <string name="user_scripts_selection_not_updatable">Wala sa mga piniling script ang may source link para i-update.</string>
     <string name="menu_media_capture">Media</string>
     <string name="media_capture_dialog_title">Na-detect na Media</string>
     <string name="media_capture_count_label">%1$d ang na-detect sa page na ito</string>
-    <string name="media_capture_scanning">Sinusuri ang page na ito para sa media\u2026</string>
+    <string name="media_capture_scanning">Hinahanap ang media sa page na ito\u2026</string>
     <string name="media_capture_close">Isara</string>
     <string name="media_capture_empty_state">Wala pang na-detect na media sa page na ito. I-play ang isang video o audio track para ma-detect ito rito.</string>
     <string name="media_capture_section_video">VIDEO</string>
     <string name="media_capture_section_audio">AUDIO</string>
     <string name="media_capture_section_subtitles">SUBTITLES</string>
-    <string name="media_capture_downloads_not_supported_yet">Hindi pa suportado ang pag-download ng mga na-detect na stream. Kopyahin ang link para buksan ito sa ibang app.</string>
+    <string name="media_capture_downloads_not_supported_yet">Hindi pa sinusuportahan ang pag-download ng mga na-detect na stream. Kopyahin ang link para buksan ito sa ibang app.</string>
     <string name="media_capture_live_badge">LIVE</string>
     <string name="media_capture_no_audio_badge">NO AUDIO</string>
     <string name="media_capture_copy_link">Kopyahin ang link</string>
