@@ -66,6 +66,8 @@ object HlsPlaylistFetcher {
             return null
         }
 
+        if (!text.trimStart('\uFEFF', ' ', '\t', '\r', '\n').startsWith("#EXTM3U")) return null
+
         val lines = text.lines()
         var sequenceNumber = 0L
         var lastByteRangeEnd = 0L

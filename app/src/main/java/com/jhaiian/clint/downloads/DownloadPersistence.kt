@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
+import org.json.JSONObject
 import java.io.File
 
 internal object DownloadPersistence {
@@ -140,7 +141,9 @@ internal object DownloadPersistence {
                     scheduledStartAtMillis = scheduledStartAtMillis,
                     waitingForCustomSchedule = waitingForCustomSchedule
                 )
-                loaded.add(item)
+                val streamJsonIdx = it.getColumnIndex(DownloadDatabase.COL_STREAM_JSON)
+                val streamJson = if (streamJsonIdx >= 0) it.getString(streamJsonIdx) else null
+                loaded.add(if (streamJson != null) applyStreamState(item, streamJson) else item)
             }
         }
         loaded
@@ -181,11 +184,71 @@ internal object DownloadPersistence {
                 put(DownloadDatabase.COL_PART_OFFSETS, item.partOffsets)
                 put(DownloadDatabase.COL_SCHEDULED_START_AT, item.scheduledStartAtMillis)
                 put(DownloadDatabase.COL_WAITING_CUSTOM_SCHEDULE, if (item.waitingForCustomSchedule) 1 else 0)
+                if (item.isStream) put(DownloadDatabase.COL_STREAM_JSON, encodeStreamState(item))
+                else putNull(DownloadDatabase.COL_STREAM_JSON)
             }
             db(context).writableDatabase.insertWithOnConflict(
                 DownloadDatabase.TABLE, null, values, SQLiteDatabase.CONFLICT_REPLACE
             )
         }
+    }
+
+    private fun encodeStreamState(item: DownloadItem): String = JSONObject().apply {
+        put("videoUrl", item.streamVideoUrl)
+        putOpt("audioUrl", item.streamAudioUrl)
+        putOpt("subtitleUrl", item.streamSubtitleUrl)
+        put("format", item.streamFormat)
+        put("pageUrl", item.streamPageUrl)
+        putOpt("videoWidth", item.streamVideoWidth)
+        putOpt("videoHeight", item.streamVideoHeight)
+        putOpt("videoBandwidth", item.streamVideoBandwidth)
+        putOpt("audioBandwidth", item.streamAudioBandwidth)
+        put("primaryIsAudio", item.streamPrimaryIsAudio)
+        put("noAudio", item.streamNoAudio)
+        put("headers", JSONObject(item.streamHeaders as Map<*, *>))
+        put("concurrentSegments", item.streamConcurrentSegments)
+        put("isLive", item.streamIsLive)
+        putOpt("videoRepresentationId", item.streamVideoRepresentationId)
+        putOpt("audioRepresentationId", item.streamAudioRepresentationId)
+        put("segmentsCompleted", item.segmentsCompleted)
+        put("segmentsTotal", item.segmentsTotal)
+    }.toString()
+
+    private fun JSONObject.optNullableString(key: String): String? =
+        if (has(key) && !isNull(key)) getString(key) else null
+
+    private fun JSONObject.optNullableInt(key: String): Int? =
+        if (has(key) && !isNull(key)) getInt(key) else null
+
+    private fun JSONObject.optNullableLong(key: String): Long? =
+        if (has(key) && !isNull(key)) getLong(key) else null
+
+    private fun applyStreamState(item: DownloadItem, json: String): DownloadItem {
+        val o = runCatching { JSONObject(json) }.getOrNull() ?: return item
+        val headers = o.optJSONObject("headers")?.let { h ->
+            h.keys().asSequence().associateWith { key -> h.optString(key) }
+        } ?: emptyMap()
+        return item.copy(
+            isStream = true,
+            streamVideoUrl = o.optString("videoUrl", ""),
+            streamAudioUrl = o.optNullableString("audioUrl"),
+            streamSubtitleUrl = o.optNullableString("subtitleUrl"),
+            streamFormat = o.optString("format", ""),
+            streamPageUrl = o.optString("pageUrl", ""),
+            streamVideoWidth = o.optNullableInt("videoWidth"),
+            streamVideoHeight = o.optNullableInt("videoHeight"),
+            streamVideoBandwidth = o.optNullableLong("videoBandwidth"),
+            streamAudioBandwidth = o.optNullableLong("audioBandwidth"),
+            streamPrimaryIsAudio = o.optBoolean("primaryIsAudio", false),
+            streamNoAudio = o.optBoolean("noAudio", false),
+            streamHeaders = headers,
+            streamConcurrentSegments = o.optInt("concurrentSegments", 6),
+            streamIsLive = o.optBoolean("isLive", false),
+            streamVideoRepresentationId = o.optNullableString("videoRepresentationId"),
+            streamAudioRepresentationId = o.optNullableString("audioRepresentationId"),
+            segmentsCompleted = o.optInt("segmentsCompleted", 0),
+            segmentsTotal = o.optInt("segmentsTotal", 0)
+        )
     }
 
     fun checkpointProgress(context: Context, id: Int, bytesDownloaded: Long, completedPartsMask: Long, partOffsets: String) {

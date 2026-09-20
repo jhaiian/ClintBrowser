@@ -6,6 +6,12 @@ enum class MediaKind { VIDEO, AUDIO, SUBTITLE }
 
 enum class ManifestType { HLS, DASH }
 
+data class HlsSegmentEstimate(
+    val segmentCount: Int,
+    val estimatedBytes: Long?,
+    val containerExtension: String?
+)
+
 data class DetectedMedia(
     val id: String,
     val url: String,
@@ -28,5 +34,6 @@ data class DetectedMedia(
     val audioGroupRef: String? = null,
     val language: String? = null,
     val isDefaultTrack: Boolean = false,
-    val representationId: String? = null
+    val representationId: String? = null,
+    val estimate: HlsSegmentEstimate? = null
 )

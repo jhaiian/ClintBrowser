@@ -15,6 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -114,6 +115,15 @@ object ClintDownloadManager {
         _downloads.update { loaded }
         loaded.maxOfOrNull { it.id }?.let { max ->
             if (max >= idCounter.get()) idCounter.set(max + 1)
+        }
+        val keepIds = loaded.filter { it.isStream }.map { it.id }.toSet()
+        withContext(Dispatchers.IO) { sweepStreamWorkDirs(context, keepIds) }
+    }
+
+    private fun sweepStreamWorkDirs(context: Context, keepIds: Set<Int>) {
+        File(context.filesDir, "stream_downloads").listFiles()?.forEach { dir ->
+            val id = dir.name.toIntOrNull()
+            if (id == null || id !in keepIds) runCatching { dir.deleteRecursively() }
         }
     }
 
@@ -218,6 +228,7 @@ object ClintDownloadManager {
         }
 
         val id = idCounter.getAndIncrement()
+        File(context.filesDir, "stream_downloads/$id").deleteRecursively()
         val queued = activeCount() >= concurrentLimit(context)
         val baseItem = DownloadItem(
             id = id,
@@ -592,9 +603,7 @@ object ClintDownloadManager {
             item?.filename?.let { name ->
                 File(tempDir, name).takeIf { it.exists() }?.delete()
             }
-            if (item?.isStream == true) {
-                appCtx?.let { File(it.filesDir, "stream_downloads/$id").deleteRecursively() }
-            }
+            appCtx?.let { File(it.filesDir, "stream_downloads/$id").deleteRecursively() }
             deletePersistedDownload(id)
             removedIds.remove(id)
         }
@@ -608,7 +617,10 @@ object ClintDownloadManager {
             keep
         }
         applicationScope.launch {
-            toDelete.forEach { deletePersistedDownload(it) }
+            toDelete.forEach { id ->
+                deletePersistedDownload(id)
+                appContext?.let { File(it.filesDir, "stream_downloads/$id").deleteRecursively() }
+            }
         }
     }
 

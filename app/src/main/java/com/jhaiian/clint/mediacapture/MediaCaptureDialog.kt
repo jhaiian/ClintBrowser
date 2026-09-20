@@ -42,7 +42,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -58,26 +57,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jhaiian.clint.R
-import com.jhaiian.clint.downloads.ClintDownloadManager
 import com.jhaiian.clint.downloads.formatElapsed
-import com.jhaiian.clint.mediacapture.download.HlsPlaylistFetcher
-import com.jhaiian.clint.mediacapture.download.SegmentSpec
-import com.jhaiian.clint.mediacapture.download.StreamRequestHeaders
-import com.jhaiian.clint.mediacapture.download.TrackKind
 import com.jhaiian.clint.ui.ClintDialogStatusBarEffect
 import com.jhaiian.clint.ui.listscreen.ListMenuItem
 import com.jhaiian.clint.ui.listscreen.PopupShape
 import com.jhaiian.clint.ui.theme.LocalClintColors
 import com.jhaiian.clint.util.formatFileSize
 import java.util.Locale
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaCaptureDialog(
     tabId: String,
-    pageUrl: String,
     hideStatusBar: Boolean,
     hideSystemNavigation: Boolean,
     onDismiss: () -> Unit,
@@ -117,19 +108,19 @@ fun MediaCaptureDialog(
                     if (video.isNotEmpty()) {
                         item(key = "header_video") { MediaCaptureSectionHeader(stringResource(R.string.media_capture_section_video)) }
                         items(video, key = { it.id }) { media ->
-                            MediaCaptureRow(media, pageUrl, onCopyLink) { estimatedBytes, containerExt -> onDownload(media, detectedItems, estimatedBytes, containerExt) }
+                            MediaCaptureRow(media, onCopyLink) { estimatedBytes, containerExt -> onDownload(media, detectedItems, estimatedBytes, containerExt) }
                         }
                     }
                     if (audio.isNotEmpty()) {
                         item(key = "header_audio") { MediaCaptureSectionHeader(stringResource(R.string.media_capture_section_audio)) }
                         items(audio, key = { it.id }) { media ->
-                            MediaCaptureRow(media, pageUrl, onCopyLink) { estimatedBytes, containerExt -> onDownload(media, detectedItems, estimatedBytes, containerExt) }
+                            MediaCaptureRow(media, onCopyLink) { estimatedBytes, containerExt -> onDownload(media, detectedItems, estimatedBytes, containerExt) }
                         }
                     }
                     if (subtitles.isNotEmpty()) {
                         item(key = "header_subtitles") { MediaCaptureSectionHeader(stringResource(R.string.media_capture_section_subtitles)) }
                         items(subtitles, key = { it.id }) { media ->
-                            MediaCaptureRow(media, pageUrl, onCopyLink) { estimatedBytes, containerExt -> onDownload(media, detectedItems, estimatedBytes, containerExt) }
+                            MediaCaptureRow(media, onCopyLink) { estimatedBytes, containerExt -> onDownload(media, detectedItems, estimatedBytes, containerExt) }
                         }
                     }
                 }
@@ -269,99 +260,6 @@ private fun mediaCaptureTitle(media: DetectedMedia): String {
     return name?.takeIf { it.isNotBlank() } ?: media.format
 }
 
-private fun isHlsManifestVariant(media: DetectedMedia): Boolean =
-    media.kind != MediaKind.SUBTITLE && !media.isLive && media.format.equals("HLS", true) && media.groupUrl != null
-
-private data class HlsSegmentEstimate(val segmentCount: Int, val estimatedBytes: Long?, val containerExtension: String?)
-
-private fun fetchSegmentContentLength(
-    url: String,
-    pageUrl: String,
-    userAgent: String,
-    extraHeaders: Map<String, String>
-): Long? = runCatching {
-    val builder = okhttp3.Request.Builder().url(url).head()
-    StreamRequestHeaders.apply(builder, url, pageUrl, "", userAgent, extraHeaders)
-    ClintDownloadManager.httpClient.newCall(builder.build()).execute().use { resp ->
-        if (!resp.isSuccessful) return@use null
-        resp.header("Content-Length")?.toLongOrNull()?.takeIf { it > 0L }
-    }
-}.getOrNull()
-
-private fun sumByteRangeLengths(segments: List<SegmentSpec>): Long? {
-    if (segments.isEmpty()) return null
-    var total = 0L
-    for (seg in segments) {
-        val length = seg.byteRangeLength ?: return null
-        total += length
-    }
-    return total
-}
-
-private fun sampleAverageContentLengthPerUrl(
-    urls: List<String>,
-    pageUrl: String,
-    userAgent: String,
-    extraHeaders: Map<String, String>
-): Long? {
-    if (urls.isEmpty()) return null
-    val sampleCount = minOf(3, urls.size)
-    val step = maxOf(1, urls.size / sampleCount)
-    val indices = (0 until urls.size step step).take(sampleCount)
-    var totalBytes = 0L
-    var counted = 0
-    for (idx in indices) {
-        val size = fetchSegmentContentLength(urls[idx], pageUrl, userAgent, extraHeaders) ?: continue
-        totalBytes += size
-        counted++
-    }
-    return if (counted > 0) totalBytes / counted else null
-}
-
-private suspend fun fetchHlsSegmentEstimate(
-    media: DetectedMedia,
-    pageUrl: String,
-    context: android.content.Context
-): HlsSegmentEstimate? = withContext(Dispatchers.IO) {
-    runCatching {
-        val userAgent = android.webkit.WebSettings.getDefaultUserAgent(context)
-        val kind = if (media.kind == MediaKind.AUDIO) TrackKind.AUDIO else TrackKind.VIDEO
-        val track = HlsPlaylistFetcher.fetch(media.url, pageUrl, "", userAgent, kind, media.requestHeaders)
-            ?: return@runCatching null
-        val segmentCount = track.segments.size + if (track.initSegment != null) 1 else 0
-        val duration = track.durationSeconds ?: media.durationSeconds
-        val bandwidth = media.bandwidthBitsPerSec
-        val byteRangeTotal = sumByteRangeLengths(track.segments)?.let { total ->
-            total + (track.initSegment?.byteRangeLength ?: 0L)
-        }
-        val distinctUrls = track.segments.map { it.url }.distinct()
-        val singleFileTotal = if (distinctUrls.size == 1 && byteRangeTotal != null) {
-            fetchSegmentContentLength(distinctUrls[0], pageUrl, userAgent, media.requestHeaders)
-        } else null
-        val estimatedBytes = singleFileTotal ?: byteRangeTotal ?: if (duration != null && duration > 0.0 && bandwidth != null && bandwidth > 0L) {
-            ((duration * bandwidth) / 8.0).toLong()
-        } else {
-            if (distinctUrls.size < track.segments.size) {
-                sampleAverageContentLengthPerUrl(distinctUrls, pageUrl, userAgent, media.requestHeaders)
-                    ?.let { it * distinctUrls.size }
-            } else {
-                sampleAverageContentLengthPerUrl(track.segments.map { it.url }, pageUrl, userAgent, media.requestHeaders)
-                    ?.let { it * segmentCount }
-            }
-        }
-        HlsSegmentEstimate(segmentCount, estimatedBytes, track.containerHintExtension)
-    }.getOrNull()
-}
-
-@Composable
-private fun hlsSegmentEstimate(media: DetectedMedia, pageUrl: String): HlsSegmentEstimate? {
-    val context = LocalContext.current
-    val state = produceState<HlsSegmentEstimate?>(initialValue = null, media.id, pageUrl) {
-        value = fetchHlsSegmentEstimate(media, pageUrl, context)
-    }
-    return state.value
-}
-
 @Composable
 private fun mediaCaptureSubtitle(media: DetectedMedia, estimate: HlsSegmentEstimate?): String {
     val parts = mutableListOf<String>()
@@ -403,10 +301,10 @@ private fun shareDownloadLink(context: android.content.Context, url: String) {
 }
 
 @Composable
-private fun MediaCaptureRow(media: DetectedMedia, pageUrl: String, onCopyLink: (String) -> Unit, onDownload: (Long?, String?) -> Unit) {
+private fun MediaCaptureRow(media: DetectedMedia, onCopyLink: (String) -> Unit, onDownload: (Long?, String?) -> Unit) {
     val colors = LocalClintColors.current
     val context = LocalContext.current
-    val estimate = if (isHlsManifestVariant(media)) hlsSegmentEstimate(media, pageUrl) else null
+    val estimate = media.estimate
     var menuExpanded by remember { mutableStateOf(false) }
     Row(
         Modifier

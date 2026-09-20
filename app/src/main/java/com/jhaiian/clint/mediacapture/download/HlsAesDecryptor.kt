@@ -55,4 +55,19 @@ object HlsAesDecryptor {
             null
         }
     }
+
+    fun decryptPrefix(data: ByteArray, key: HlsKeyInfo, referer: String, cookies: String, userAgent: String, extraHeaders: Map<String, String> = emptyMap()): ByteArray? {
+        if (!isSupported(key.method)) return null
+        val alignedLength = data.size - data.size % 16
+        if (alignedLength <= 0) return null
+        val keyBytes = fetchKey(key.keyUri, referer, cookies, userAgent, extraHeaders) ?: return null
+        val ivBytes = key.ivHex?.let(::hexToBytes) ?: return null
+        return try {
+            val cipher = Cipher.getInstance("AES/CBC/NoPadding")
+            cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(keyBytes, "AES"), IvParameterSpec(ivBytes))
+            cipher.doFinal(data, 0, alignedLength)
+        } catch (_: Exception) {
+            null
+        }
+    }
 }

@@ -40,7 +40,6 @@ internal fun MainActivity.mountMediaCaptureDialog() {
         ClintComposeTheme(theme = theme) {
             MediaCaptureDialog(
                 tabId = tabId,
-                pageUrl = pageUrl,
                 hideStatusBar = hideStatusBar,
                 hideSystemNavigation = hideSystemNavigation,
                 onDismiss = { overlayContent = null },
@@ -126,7 +125,10 @@ private fun MainActivity.showMediaCaptureDownloadDialog(
                         )
                     }
                     initiateDownload(
-                        media.url, submission.filename, userAgent, pageUrl, "",
+                        media.url, submission.filename,
+                        mediaCaptureRequestHeader(media, "User-Agent") ?: userAgent,
+                        mediaCaptureRequestHeader(media, "Referer") ?: pageUrl,
+                        mediaCaptureCookies(media.url),
                         submission.retryEnabled, submission.unmeteredOnly, submission.splitParts, submission.multithreadingParts, submission.speedLimitBytesPerSec,
                         submission.locationMode, submission.customLocationUri, submission.scheduledStartAtMillis,
                         onDismiss = dismiss,
@@ -211,3 +213,12 @@ private fun MainActivity.enqueueMediaCaptureStream(
         audioRepresentationId = audio?.representationId ?: (if (isAudioPrimary) media.representationId else null)
     )
 }
+
+private fun mediaCaptureRequestHeader(media: DetectedMedia, name: String): String? =
+    media.requestHeaders.entries
+        .firstOrNull { it.key.equals(name, ignoreCase = true) }
+        ?.value
+        ?.takeIf { it.isNotBlank() }
+
+private fun mediaCaptureCookies(url: String): String =
+    runCatching { android.webkit.CookieManager.getInstance().getCookie(url) }.getOrNull().orEmpty()

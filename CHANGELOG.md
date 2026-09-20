@@ -4,6 +4,35 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.1.6-beta-3
+
+---
+
+## What's New
+
+### Media Capture
+
+- Streams with no resolution in their playlist now get one by checking the video itself.
+- Duplicate rows for the same stream are now merged into one.
+- The tiny random-named video chunks are now hidden.
+- Playlists with hidden names are now found.
+- Normal videos like MP4 display their metadata.
+- Fixed 403 server error.
+- The Media Capture dialog now has smart loading. It will no longer show unpatched video unless it's been 12 seconds after a failed attempt to fetch it. This is just for debugging purposes, but now when you see something in Media Capture, it's ready to download — no waiting.
+- Fixed temp files not getting deleted. Now if you install this update, it should free up your storage. I'm sorry about that again.
+
+---
+
+## Other Changes
+
+- Improved Filipino translation.
+
+---
+
+> *To anybody requesting a feature outside of the downloader: next version, because right now I'm focusing on the downloader itself.*
+
+---
+
 # v1.1.6-beta-2
 
 ---
@@ -21,7 +50,32 @@ Fixed the following bugs:
 - Fixed some missing stats on stream downloads.
 
 This thing is still in beta, so don't expect it to be perfect. and report any issue you had encounter.
+# v1.1.6-beta-3
 
+---
+
+## What's New
+
+### Media Capture
+
+- Streams with no resolution in their playlist now get one by checking the video itself.
+- Duplicate rows for the same stream are now merged into one.
+- The tiny random-named video chunks are now hidden.
+- Playlists with hidden names are now found.
+- Normal videos like MP4 will no longer display their metadata.
+- Fixed 403 server error.
+- The Media Capture dialog now has smart loading. It will no longer show unpatched video unless it's been 12 seconds after a failed attempt to fetch it. This is just for debugging purposes, but now when you see something in Media Capture, it's ready to download — no waiting.
+- Fixed temp files not getting deleted. Now if you install this update, it should free up your storage. I'm sorry about that again.
+
+---
+
+## Other Changes
+
+- Improved Filipino translation.
+
+---
+
+> *To anybody requesting a feature outside of the downloader: next version, because right now I'm focusing on the downloader itself.*
 ---
 
 ## Download Changes

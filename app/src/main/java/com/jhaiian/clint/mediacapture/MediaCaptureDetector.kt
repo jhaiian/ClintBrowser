@@ -6,7 +6,14 @@ import android.webkit.WebResourceRequest
 import com.jhaiian.clint.downloads.ClintDownloadManager
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
+import com.jhaiian.clint.mediacapture.download.HlsPlaylistFetcher
+import com.jhaiian.clint.mediacapture.download.TrackKind
 import okhttp3.Request
 
 object MediaCaptureDetector {
@@ -19,6 +26,10 @@ object MediaCaptureDetector {
         "document", "iframe", "script", "style", "image", "font",
         "worker", "sharedworker", "manifest", "report", "object", "embed", "xslt"
     )
+    private const val ENRICHMENT_TIMEOUT_MILLIS = 12_000L
+    private val enrichmentPermits = Semaphore(3)
+    private val UNSUPPORTED_METADATA_FORMATS = setOf("AVI", "FLV", "WMV")
+    private val TRANSPORT_STREAM_CONTENT_TYPES = setOf("video/mp2t", "video/vnd.dlna.mpeg-tts")
     private const val MAX_MANIFEST_BYTES = 3L * 1024 * 1024
     private const val MAX_MANIFEST_CHARS = MAX_MANIFEST_BYTES.toInt()
     private const val MIN_EXTENSIONLESS_MEDIA_BYTES = 20_000L
@@ -231,6 +242,12 @@ object MediaCaptureDetector {
         return String(bytes, offset, length, Charsets.US_ASCII)
     }
 
+    private fun isHlsPlaylist(bytes: ByteArray): Boolean {
+        val hasBom = bytes.size >= 3 &&
+            bytes[0] == 0xEF.toByte() && bytes[1] == 0xBB.toByte() && bytes[2] == 0xBF.toByte()
+        return asciiAt(bytes, if (hasBom) 3 else 0, 7) == "#EXTM3U"
+    }
+
     private fun kindAndFormatFromMagicBytes(bytes: ByteArray): Pair<MediaKind, String>? {
         if (bytes.size >= 4 &&
             bytes[0] == 0x1A.toByte() && bytes[1] == 0x45.toByte() &&
@@ -265,6 +282,7 @@ object MediaCaptureDetector {
         extFormat: String?
     ) {
         ClintDownloadManager.applicationScope.launch {
+            val generation = MediaCaptureStore.beginGeneration(tabId)
             val head = performProbe(url, headers, pageUrl)
             val contentType = head?.contentType?.substringBefore(';')?.trim()?.lowercase()
             when {
@@ -273,11 +291,17 @@ object MediaCaptureDetector {
                 contentType == "application/dash+xml" ->
                     fetchAndParseManifest(tabId, pageUrl, url, ManifestType.DASH, headers)
                 else -> {
+                    if (extKind == null && contentType != null && contentType in TRANSPORT_STREAM_CONTENT_TYPES) return@launch
                     val cdExt = extensionFromContentDisposition(head?.contentDisposition)
                     var kind = extKind ?: kindFromContentType(contentType) ?: kindFromExtension(cdExt)
                     var format = extFormat ?: cdExt?.uppercase() ?: formatFromContentType(contentType)
                     if (kind == null) {
-                        val magic = sniffLeadingBytes(url, headers, pageUrl)?.let(::kindAndFormatFromMagicBytes)
+                        val leading = sniffLeadingBytes(url, headers, pageUrl)
+                        if (leading != null && isHlsPlaylist(leading)) {
+                            fetchAndParseManifest(tabId, pageUrl, url, ManifestType.HLS, headers)
+                            return@launch
+                        }
+                        val magic = leading?.let(::kindAndFormatFromMagicBytes)
                         if (magic != null) {
                             kind = magic.first
                             format = format ?: magic.second
@@ -288,20 +312,20 @@ object MediaCaptureDetector {
                         val size = head?.contentLength
                         if (size != null && size < MIN_EXTENSIONLESS_MEDIA_BYTES) return@launch
                     }
-                    MediaCaptureStore.add(
-                        tabId,
-                        DetectedMedia(
-                            id = UUID.randomUUID().toString(),
-                            url = url,
-                            kind = kind,
-                            format = format ?: "UNKNOWN",
-                            mimeType = head?.contentType,
-                            sizeBytes = head?.contentLength,
-                            pageUrl = pageUrl,
-                            detectedAtMillis = System.currentTimeMillis(),
-                            requestHeaders = sanitizeHeaders(headers)
-                        )
+                    val detected = DetectedMedia(
+                        id = UUID.randomUUID().toString(),
+                        url = url,
+                        kind = kind,
+                        format = format ?: "UNKNOWN",
+                        mimeType = head?.contentType,
+                        sizeBytes = head?.contentLength,
+                        pageUrl = pageUrl,
+                        detectedAtMillis = System.currentTimeMillis(),
+                        requestHeaders = sanitizeHeaders(headers)
                     )
+                    val ready = enrichFileMedia(detected, pageUrl)
+                    if (MediaCaptureStore.generation(tabId) != generation) return@launch
+                    MediaCaptureStore.add(tabId, ready)
                 }
             }
         }
@@ -343,6 +367,7 @@ object MediaCaptureDetector {
         headers: Map<String, String>?
     ) {
         ClintDownloadManager.applicationScope.launch {
+            val generation = MediaCaptureStore.beginGeneration(tabId)
             val text = requestManifestBody(manifestUrl, headers, pageUrl, useRange = true)
                 ?: requestManifestBody(manifestUrl, headers, pageUrl, useRange = false)
                 ?: return@launch
@@ -356,9 +381,87 @@ object MediaCaptureDetector {
             }
             val now = System.currentTimeMillis()
             val sanitized = sanitizeHeaders(headers)
-            entries.forEach { entry ->
-                MediaCaptureStore.add(tabId, entry.copy(pageUrl = pageUrl, detectedAtMillis = now, requestHeaders = sanitized))
+            val prepared = entries.map {
+                it.copy(pageUrl = pageUrl, detectedAtMillis = now, requestHeaders = sanitized)
             }
+            val ready = if (type == ManifestType.HLS) enrichHlsEntries(prepared, pageUrl) else prepared
+            if (MediaCaptureStore.generation(tabId) != generation) return@launch
+            ready.forEach { MediaCaptureStore.add(tabId, it) }
         }
     }
+
+    private suspend fun enrichFileMedia(media: DetectedMedia, pageUrl: String): DetectedMedia {
+        if (!needsFileMetadata(media)) return media
+        val job = ClintDownloadManager.applicationScope.async(Dispatchers.IO) {
+            enrichmentPermits.withPermit {
+                val info = runCatching { MediaFileMetadataProbe.probe(media, pageUrl) }.getOrNull()
+                if (info == null) {
+                    media
+                } else {
+                    media.copy(
+                        width = info.width,
+                        height = info.height,
+                        durationSeconds = media.durationSeconds ?: info.durationSeconds
+                    )
+                }
+            }
+        }
+        return withTimeoutOrNull(ENRICHMENT_TIMEOUT_MILLIS) { job.await() } ?: media
+    }
+
+    private fun needsFileMetadata(media: DetectedMedia): Boolean =
+        media.kind == MediaKind.VIDEO &&
+            media.groupUrl == null &&
+            media.width == null &&
+            media.height == null &&
+            media.format.uppercase() !in UNSUPPORTED_METADATA_FORMATS
+
+    private suspend fun enrichHlsEntries(entries: List<DetectedMedia>, pageUrl: String): List<DetectedMedia> {
+        val jobs = entries.map { entry ->
+            ClintDownloadManager.applicationScope.async(Dispatchers.IO) {
+                enrichmentPermits.withPermit { enrichHlsEntry(entry, pageUrl) }
+            }
+        }
+        val deadlineNanos = System.nanoTime() + ENRICHMENT_TIMEOUT_MILLIS * 1_000_000L
+        return entries.mapIndexed { index, entry ->
+            val remainingMillis = ((deadlineNanos - System.nanoTime()) / 1_000_000L).coerceAtLeast(1L)
+            withTimeoutOrNull(remainingMillis) { jobs[index].await() } ?: entry
+        }
+    }
+
+    private fun enrichHlsEntry(entry: DetectedMedia, pageUrl: String): DetectedMedia {
+        val wantsEstimate = needsSegmentEstimate(entry)
+        val wantsResolution = needsResolutionProbe(entry)
+        if (!wantsEstimate && !wantsResolution) return entry
+        val kind = if (entry.kind == MediaKind.AUDIO) TrackKind.AUDIO else TrackKind.VIDEO
+        val track = runCatching {
+            HlsPlaylistFetcher.fetch(entry.url, pageUrl, "", "", kind, entry.requestHeaders)
+        }.getOrNull() ?: return entry
+        var result = entry
+        if (wantsEstimate) {
+            runCatching { HlsSegmentEstimator.estimate(entry, track, pageUrl) }.getOrNull()?.let { estimate ->
+                result = result.copy(estimate = estimate)
+            }
+        }
+        if (wantsResolution) {
+            runCatching { HlsResolutionProbe.probe(track, pageUrl, entry.requestHeaders) }.getOrNull()?.let { size ->
+                result = result.copy(width = size.first, height = size.second)
+            }
+        }
+        return result
+    }
+
+    private fun needsSegmentEstimate(entry: DetectedMedia): Boolean =
+        entry.kind != MediaKind.SUBTITLE &&
+            !entry.isLive &&
+            entry.format.equals("HLS", ignoreCase = true) &&
+            entry.groupUrl != null &&
+            entry.estimate == null
+
+    private fun needsResolutionProbe(entry: DetectedMedia): Boolean =
+        entry.kind == MediaKind.VIDEO &&
+            entry.format.equals("HLS", ignoreCase = true) &&
+            entry.width == null &&
+            entry.height == null &&
+            (entry.url != entry.groupUrl || entry.durationSeconds != null)
 }

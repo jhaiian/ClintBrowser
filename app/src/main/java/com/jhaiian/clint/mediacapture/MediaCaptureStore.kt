@@ -2,6 +2,7 @@ package com.jhaiian.clint.mediacapture
 
 import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +19,7 @@ object MediaCaptureStore {
         val items = MutableStateFlow<List<DetectedMedia>>(emptyList())
         val seenUrls: MutableSet<String> = Collections.newSetFromMap(ConcurrentHashMap<String, Boolean>())
         val templateCounts = ConcurrentHashMap<String, TemplateWindow>()
+        val generation = AtomicInteger(0)
         @Volatile var pageUrl: String? = null
     }
 
@@ -59,18 +61,61 @@ object MediaCaptureStore {
             media.url
         }
 
-    fun add(tabId: String, media: DetectedMedia) {
+    fun add(tabId: String, media: DetectedMedia): Boolean {
         val state = stateFor(tabId)
         val key = dedupeKey(media)
+        var added = false
         state.items.update { current ->
-            if (current.any { dedupeKey(it) == key }) current else current + media
+            added = false
+            when {
+                current.any { dedupeKey(it) == key } -> current
+                isDirectHlsPlaylist(media) && current.any { isHlsVariant(it) && it.url == media.url } -> current
+                isHlsVariant(media) -> {
+                    added = true
+                    val direct = current.firstOrNull { isDirectHlsPlaylist(it) && it.url == media.url }
+                    if (direct == null) {
+                        current + media
+                    } else {
+                        val merged = media.copy(
+                            width = media.width ?: direct.width,
+                            height = media.height ?: direct.height,
+                            durationSeconds = media.durationSeconds ?: direct.durationSeconds,
+                            isLive = media.isLive || direct.isLive,
+                            estimate = media.estimate ?: direct.estimate
+                        )
+                        current.map { if (it.id == direct.id) merged else it }
+                    }
+                }
+                else -> {
+                    added = true
+                    current + media
+                }
+            }
         }
+        return added
     }
+
+    private fun isDirectHlsPlaylist(media: DetectedMedia): Boolean =
+        media.kind == MediaKind.VIDEO &&
+            media.format.equals("HLS", ignoreCase = true) &&
+            media.groupUrl != null &&
+            media.url == media.groupUrl
+
+    private fun isHlsVariant(media: DetectedMedia): Boolean =
+        media.kind == MediaKind.VIDEO &&
+            media.format.equals("HLS", ignoreCase = true) &&
+            media.groupUrl != null &&
+            media.url != media.groupUrl
+
+    fun generation(tabId: String): Int = tabs[tabId]?.generation?.get() ?: -1
+
+    fun beginGeneration(tabId: String): Int = stateFor(tabId).generation.get()
 
     fun clearForTab(tabId: String) {
         val state = tabs[tabId] ?: return
         state.seenUrls.clear()
         state.templateCounts.clear()
+        state.generation.incrementAndGet()
         state.items.value = emptyList()
     }
 
