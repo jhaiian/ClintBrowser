@@ -1,12 +1,12 @@
 {
-  "version": "1.1.6-beta-2",
-  "changelog": "# Clint Browser v1.1.6-beta-2\n\n---\n\n## What's New\n\n### Media Capture\n\nFixed the following bugs:\n\n- Way off estimated size. It doesn't mean it's accurate now — it's still an estimate, guys. (Thank you to @iHarryPotter178 for reporting this #54)\n- Fixed downloads going way beyond 100%. This was probably the worst bug I encountered in Clint. It's honestly pretty hilarious. I'm really sorry to y'all. The issue happened when a segment didn't match what the manifest expected. For example, the manifest might say a segment is supposed to be 1,500 bytes, but Clint only downloads 150 bytes. Basically, Clint would go, \"Huh, it doesn't match again. Let me download it again and check it again,\" and keep doing that over and over. It was pretty silly. Clint will now check the segment's actual Content-Length instead of relying only on the manifest. This check is required to make sure Clint doesn't remux a corrupted video. However, if the manifest reports incorrect information, it could trigger this bug. Hopefully, this is fixed now.\n- Fixed not being able to update the download link.\n- Fixed no duplicate handling.\n- Fixed some missing stats on stream downloads.\n\nThis thing is still in beta, so don't expect it to be perfect. and report any issue you had encounter.\n\n---\n\n## Download Changes\n\n- Added a rename function for completed downloads.\n- Refactored some of its code.\n\n---\n\n## Other Changes\n\n- Added system themes. (Thanks to @ran-some for suggesting this #48)\n- Made the language selector hard coded.\n- Added the language selector in setup.\n\n---",
+  "version": "1.1.6-beta-3",
+  "changelog": "# Clint Browser v1.1.6-beta-3\n\n---\n\n## What's New\n\n### Media Capture\n\n- Streams with no resolution in their playlist now get one by checking the video itself.\n- Duplicate rows for the same stream are now merged into one.\n- The tiny random-named video chunks are now hidden.\n- Playlists with hidden names are now found.\n- Normal videos like MP4 display their metadata.\n- Fixed 403 server error.\n- The Media Capture dialog now has smart loading. It will no longer show unpatched video unless it's been 12 seconds after a failed attempt to fetch it. This is just for debugging purposes, but now when you see something in Media Capture, it's ready to download — no waiting.\n- Fixed temp files not getting deleted. Now if you install this update, it should free up your storage. I'm sorry about that again.\n\n---\n\n## Other Changes\n\n- Improved Filipino translation.\n\n---\n\n> *To anybody requesting a feature outside of the downloader: next version, because right now I'm focusing on the downloader itself.*\n\n---",
   "downloads": {
-    "arm64-v8a": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.1.6-beta-2/ClintBrowser-1.1.6-beta-2-arm64-v8a.apk",
-    "armeabi-v7a": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.1.6-beta-2/ClintBrowser-1.1.6-beta-2-armeabi-v7a.apk",
-    "x86": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.1.6-beta-2/ClintBrowser-1.1.6-beta-2-x86.apk",
-    "x86_64": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.1.6-beta-2/ClintBrowser-1.1.6-beta-2-x86_64.apk",
-    "universal": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.1.6-beta-2/ClintBrowser-1.1.6-beta-2-universal.apk"
+    "arm64-v8a": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.1.6-beta-3/ClintBrowser-1.1.6-beta-3-arm64-v8a.apk",
+    "armeabi-v7a": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.1.6-beta-3/ClintBrowser-1.1.6-beta-3-armeabi-v7a.apk",
+    "x86": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.1.6-beta-3/ClintBrowser-1.1.6-beta-3-x86.apk",
+    "x86_64": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.1.6-beta-3/ClintBrowser-1.1.6-beta-3-x86_64.apk",
+    "universal": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.1.6-beta-3/ClintBrowser-1.1.6-beta-3-universal.apk"
   },
-  "versionCode": 31
+  "versionCode": 32
 }
