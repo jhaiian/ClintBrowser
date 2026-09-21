@@ -1,5 +1,10 @@
 package com.jhaiian.clint.mediacapture
 
+import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.filled.HighQuality
+import androidx.compose.material.icons.filled.FormatSize
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
@@ -96,19 +101,26 @@ fun MediaCaptureDialog(
     ) {
         ClintDialogStatusBarEffect(hideStatusBar, hideSystemNavigation)
         Column(Modifier.fillMaxWidth().heightIn(max = maxSheetHeight)) {
-            MediaCaptureHeader(detectedItems.size, onDismiss)
+            MediaCaptureHeader(
+                detectedItems.size,
+                MediaCaptureSortState.mode,
+                { MediaCaptureSortState.mode = it },
+                onDismiss
+            )
             HorizontalDivider(color = colors.popupStroke)
             if (detectedItems.isEmpty()) {
                 MediaCaptureEmptyState()
             } else {
-                val video = detectedItems.filter { it.kind == MediaKind.VIDEO }
-                val audio = detectedItems.filter { it.kind == MediaKind.AUDIO }
-                val subtitles = detectedItems.filter { it.kind == MediaKind.SUBTITLE }
+                val sortMode = MediaCaptureSortState.mode
+                val video = sortMediaCapture(detectedItems.filter { it.kind == MediaKind.VIDEO }, sortMode)
+                val bestIds = remember(detectedItems) { bestQualityIds(detectedItems) }
+                val audio = sortMediaCapture(detectedItems.filter { it.kind == MediaKind.AUDIO }, sortMode)
+                val subtitles = sortMediaCapture(detectedItems.filter { it.kind == MediaKind.SUBTITLE }, sortMode)
                 LazyColumn(Modifier.fillMaxWidth().weight(1f, fill = false).padding(bottom = 8.dp)) {
                     if (video.isNotEmpty()) {
                         item(key = "header_video") { MediaCaptureSectionHeader(stringResource(R.string.media_capture_section_video)) }
                         items(video, key = { it.id }) { media ->
-                            MediaCaptureRow(media, onCopyLink) { estimatedBytes, containerExt -> onDownload(media, detectedItems, estimatedBytes, containerExt) }
+                            MediaCaptureRow(media, onCopyLink, isBest = media.id in bestIds) { estimatedBytes, containerExt -> onDownload(media, detectedItems, estimatedBytes, containerExt) }
                         }
                     }
                     if (audio.isNotEmpty()) {
@@ -168,8 +180,14 @@ fun isMediaCaptureManifestBased(media: DetectedMedia): Boolean =
         (media.format.equals("HLS", true) || media.format.equals("DASH", true))
 
 @Composable
-private fun MediaCaptureHeader(count: Int, onDismiss: () -> Unit) {
+private fun MediaCaptureHeader(
+    count: Int,
+    sortMode: MediaCaptureSort,
+    onSortSelected: (MediaCaptureSort) -> Unit,
+    onDismiss: () -> Unit
+) {
     val colors = LocalClintColors.current
+    var sortMenuOpen by remember { mutableStateOf(false) }
     Row(
         Modifier.fillMaxWidth().padding(start = 20.dp, end = 8.dp, top = 4.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -191,6 +209,41 @@ private fun MediaCaptureHeader(count: Int, onDismiss: () -> Unit) {
                 fontSize = 12.sp,
                 modifier = Modifier.padding(top = 2.dp)
             )
+        }
+        if (count > 1) {
+            Box {
+                IconButton(onClick = { sortMenuOpen = true }) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.Sort,
+                        contentDescription = stringResource(R.string.downloads_sort),
+                        tint = colors.iconTint
+                    )
+                }
+                DropdownMenu(
+                    expanded = sortMenuOpen,
+                    onDismissRequest = { sortMenuOpen = false },
+                    shape = PopupShape,
+                    containerColor = colors.popupBackground,
+                    border = BorderStroke(1.dp, colors.popupStroke)
+                ) {
+                    ListMenuItem(Icons.Filled.HighQuality, stringResource(R.string.media_capture_sort_quality), sortMode == MediaCaptureSort.QUALITY) {
+                        sortMenuOpen = false
+                        onSortSelected(MediaCaptureSort.QUALITY)
+                    }
+                    ListMenuItem(Icons.Filled.FormatSize, stringResource(R.string.downloads_sort_by_size), sortMode == MediaCaptureSort.SIZE) {
+                        sortMenuOpen = false
+                        onSortSelected(MediaCaptureSort.SIZE)
+                    }
+                    ListMenuItem(Icons.Filled.ArrowDownward, stringResource(R.string.media_capture_sort_newest), sortMode == MediaCaptureSort.NEWEST) {
+                        sortMenuOpen = false
+                        onSortSelected(MediaCaptureSort.NEWEST)
+                    }
+                    ListMenuItem(Icons.Filled.ArrowUpward, stringResource(R.string.media_capture_sort_oldest), sortMode == MediaCaptureSort.OLDEST) {
+                        sortMenuOpen = false
+                        onSortSelected(MediaCaptureSort.OLDEST)
+                    }
+                }
+            }
         }
         IconButton(onClick = onDismiss) {
             Icon(
@@ -260,12 +313,40 @@ private fun mediaCaptureTitle(media: DetectedMedia): String {
     return name?.takeIf { it.isNotBlank() } ?: media.format
 }
 
+private fun bestQualityIds(items: List<DetectedMedia>): Set<String> =
+    items
+        .filter { it.kind == MediaKind.VIDEO && it.groupUrl != null && it.width != null && it.height != null }
+        .groupBy { it.groupUrl?.substringBefore('#')?.substringBefore('?') }
+        .values
+        .filter { group -> group.map { (it.width ?: 0) * (it.height ?: 0) }.distinct().size > 1 }
+        .mapNotNull { group ->
+            group.maxWithOrNull(
+                compareBy<DetectedMedia>({ (it.width ?: 0) * (it.height ?: 0) }, { it.bandwidthBitsPerSec ?: 0L })
+            )
+        }
+        .map { it.id }
+        .toSet()
+
+private fun mediaCaptureLanguage(media: DetectedMedia): String? {
+    if (media.kind == MediaKind.VIDEO) return null
+    val tag = media.language?.takeIf { it.isNotBlank() } ?: return null
+    val locale = Locale.forLanguageTag(tag.replace('_', '-'))
+    val localName = locale.getDisplayName(Locale.getDefault()).takeIf { it.isNotBlank() && !it.equals(tag, ignoreCase = true) }
+    val englishName = locale.getDisplayName(Locale.ENGLISH).takeIf { it.isNotBlank() && !it.equals(tag, ignoreCase = true) }
+    val name = localName ?: tag.uppercase(Locale.ROOT)
+    val label = media.label
+    if (label != null && listOfNotNull(localName, englishName).any { label.contains(it, ignoreCase = true) }) return null
+    return name
+}
+
 @Composable
 private fun mediaCaptureSubtitle(media: DetectedMedia, estimate: HlsSegmentEstimate?): String {
     val parts = mutableListOf<String>()
     parts += media.format
+    mediaCaptureLanguage(media)?.let { parts += it }
     media.bandwidthBitsPerSec?.takeIf { it > 0L }?.let { parts += formatBitrate(it) }
     media.durationSeconds?.takeIf { it > 0.0 }?.let { parts += formatElapsed(it.toLong()) }
+    media.cueCount?.takeIf { it > 0 }?.let { parts += stringResource(R.string.media_capture_cue_count, it) }
     if (estimate != null) {
         parts += stringResource(R.string.media_capture_segments_count, estimate.segmentCount)
         estimate.estimatedBytes?.takeIf { it > 0L }?.let {
@@ -301,7 +382,7 @@ private fun shareDownloadLink(context: android.content.Context, url: String) {
 }
 
 @Composable
-private fun MediaCaptureRow(media: DetectedMedia, onCopyLink: (String) -> Unit, onDownload: (Long?, String?) -> Unit) {
+private fun MediaCaptureRow(media: DetectedMedia, onCopyLink: (String) -> Unit, isBest: Boolean = false, onDownload: (Long?, String?) -> Unit) {
     val colors = LocalClintColors.current
     val context = LocalContext.current
     val estimate = media.estimate
@@ -342,14 +423,31 @@ private fun MediaCaptureRow(media: DetectedMedia, onCopyLink: (String) -> Unit, 
             }
         }
         Column(Modifier.weight(1f).padding(start = 10.dp)) {
-            Text(
-                mediaCaptureTitle(media),
-                color = colors.onSurface,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium,
-                maxLines = 1,
-                overflow = TextOverflow.MiddleEllipsis
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    mediaCaptureTitle(media),
+                    color = colors.onSurface,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = TextOverflow.MiddleEllipsis,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+                if (isBest) {
+                    Text(
+                        stringResource(R.string.media_capture_best_badge),
+                        color = colors.primary,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        modifier = Modifier
+                            .padding(start = 6.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(colors.primary.copy(alpha = 0.16f))
+                            .padding(horizontal = 5.dp, vertical = 1.dp)
+                    )
+                }
+            }
             Text(
                 mediaCaptureSubtitle(media, estimate),
                 color = colors.secondaryText,

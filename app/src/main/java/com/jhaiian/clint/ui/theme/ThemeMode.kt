@@ -36,6 +36,7 @@ object SystemDarkState {
                 dark = (newConfig.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
             }
 
+            @Suppress("OVERRIDE_DEPRECATION")
             override fun onLowMemory() {}
         })
     }

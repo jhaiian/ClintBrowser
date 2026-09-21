@@ -1525,12 +1525,17 @@
     <string name="media_capture_downloads_not_supported_yet">Hindi pa sinusuportahan ang pag-download ng mga na-detect na stream. Kopyahin ang link para buksan ito sa ibang app.</string>
     <string name="media_capture_live_badge">LIVE</string>
     <string name="media_capture_no_audio_badge">NO AUDIO</string>
+    <string name="media_capture_best_badge">BEST</string>
+    <string name="media_capture_sort_quality">Kalidad</string>
+    <string name="media_capture_sort_newest">Pinakabago muna</string>
+    <string name="media_capture_sort_oldest">Pinakaluma muna</string>
     <string name="media_capture_copy_link">Kopyahin ang link</string>
     <string name="media_capture_download">I-download</string>
     <string name="media_capture_duplicate_link_updated">Na-update ang download link</string>
     <string name="media_capture_link_clip_label">URL ng Media</string>
     <string name="media_capture_link_copied">Nakopya ang link sa clipboard</string>
     <string name="media_capture_segments_count">%1$d na segment</string>
+    <string name="media_capture_cue_count">%1$d na linya</string>
     <string name="media_capture_estimated_size">Tinatayang %1$s</string>
     <string name="media_capture_more_options">Higit pang opsyon</string>
     <string name="media_capture_menu_stream">I-stream</string>

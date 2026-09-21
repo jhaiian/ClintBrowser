@@ -4,6 +4,25 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.1.6-beta-4
+
+---
+
+## What's New
+
+### Media Capture
+
+- Subtitles and audio now have metadata display just like the video ones.
+- Added sorting options in Media Capture: Resolution, Size, Newest, Oldest.
+
+---
+
+## Dependency Updates
+
+- Bump `com.android.application` from 9.4.0 to 9.4.1 in
+
+---
+
 # v1.1.6-beta-3
 
 ---

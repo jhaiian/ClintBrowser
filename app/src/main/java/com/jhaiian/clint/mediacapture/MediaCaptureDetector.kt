@@ -394,27 +394,51 @@ object MediaCaptureDetector {
         if (!needsFileMetadata(media)) return media
         val job = ClintDownloadManager.applicationScope.async(Dispatchers.IO) {
             enrichmentPermits.withPermit {
-                val info = runCatching { MediaFileMetadataProbe.probe(media, pageUrl) }.getOrNull()
-                if (info == null) {
-                    media
-                } else {
-                    media.copy(
-                        width = info.width,
-                        height = info.height,
-                        durationSeconds = media.durationSeconds ?: info.durationSeconds
-                    )
-                }
+                runCatching { readFileMetadata(media, pageUrl) }.getOrNull() ?: media
             }
         }
         return withTimeoutOrNull(ENRICHMENT_TIMEOUT_MILLIS) { job.await() } ?: media
     }
 
-    private fun needsFileMetadata(media: DetectedMedia): Boolean =
-        media.kind == MediaKind.VIDEO &&
-            media.groupUrl == null &&
-            media.width == null &&
-            media.height == null &&
-            media.format.uppercase() !in UNSUPPORTED_METADATA_FORMATS
+    private fun readFileMetadata(media: DetectedMedia, pageUrl: String): DetectedMedia {
+        if (media.kind == MediaKind.SUBTITLE) {
+            val language = media.language ?: MediaLanguageGuess.fromUrl(media.url)
+            val info = SubtitleFileProbe.probe(media, pageUrl)
+                ?: return media.copy(language = language)
+            return media.copy(
+                cueCount = info.cueCount,
+                durationSeconds = media.durationSeconds ?: info.durationSeconds,
+                language = language
+            )
+        }
+        val info = MediaFileMetadataProbe.probe(media, pageUrl) ?: return media
+        val duration = media.durationSeconds ?: info.durationSeconds
+        val size = media.sizeBytes
+        val bitrate = media.bandwidthBitsPerSec
+            ?: info.bitrateBitsPerSec
+            ?: if (media.kind == MediaKind.AUDIO && duration != null && duration > 0.0 && size != null && size > 0L) {
+                ((size * 8) / duration).toLong()
+            } else null
+        return media.copy(
+            width = info.width ?: media.width,
+            height = info.height ?: media.height,
+            durationSeconds = duration,
+            bandwidthBitsPerSec = bitrate
+        )
+    }
+
+    private fun needsFileMetadata(media: DetectedMedia): Boolean {
+        if (media.groupUrl != null) return false
+        return when (media.kind) {
+            MediaKind.VIDEO ->
+                media.width == null && media.height == null &&
+                    media.format.uppercase() !in UNSUPPORTED_METADATA_FORMATS
+            MediaKind.AUDIO ->
+                media.durationSeconds == null &&
+                    media.format.uppercase() !in UNSUPPORTED_METADATA_FORMATS
+            MediaKind.SUBTITLE -> media.cueCount == null
+        }
+    }
 
     private suspend fun enrichHlsEntries(entries: List<DetectedMedia>, pageUrl: String): List<DetectedMedia> {
         val jobs = entries.map { entry ->
@@ -438,6 +462,9 @@ object MediaCaptureDetector {
             HlsPlaylistFetcher.fetch(entry.url, pageUrl, "", "", kind, entry.requestHeaders)
         }.getOrNull() ?: return entry
         var result = entry
+        if (entry.durationSeconds == null) {
+            track.durationSeconds?.takeIf { it > 0.0 }?.let { result = result.copy(durationSeconds = it) }
+        }
         if (wantsEstimate) {
             runCatching { HlsSegmentEstimator.estimate(entry, track, pageUrl) }.getOrNull()?.let { estimate ->
                 result = result.copy(estimate = estimate)

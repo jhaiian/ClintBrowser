@@ -12,7 +12,7 @@ import okhttp3.Request
 
 object MediaFileMetadataProbe {
 
-    data class Info(val width: Int, val height: Int, val durationSeconds: Double?)
+    data class Info(val width: Int?, val height: Int?, val durationSeconds: Double?, val bitrateBitsPerSec: Long?)
 
     private const val BLOCK_BYTES = 256 * 1024
     private const val MAX_CACHED_BLOCKS = 32
@@ -32,6 +32,7 @@ object MediaFileMetadataProbe {
             media.sizeBytes ?: -1L,
             System.nanoTime() + PROBE_DEADLINE_NANOS
         )
+        val wantVideo = media.kind == MediaKind.VIDEO
         val extractor = MediaExtractor()
         var result: Info? = null
         try {
@@ -39,21 +40,27 @@ object MediaFileMetadataProbe {
             for (i in 0 until extractor.trackCount) {
                 val format = extractor.getTrackFormat(i)
                 val mime = format.getString(MediaFormat.KEY_MIME) ?: continue
-                if (!mime.startsWith("video/")) continue
-                if (!format.containsKey(MediaFormat.KEY_WIDTH) || !format.containsKey(MediaFormat.KEY_HEIGHT)) continue
-                val width = format.getInteger(MediaFormat.KEY_WIDTH)
-                val height = format.getInteger(MediaFormat.KEY_HEIGHT)
-                if (width <= 0 || height <= 0) continue
-                val rotation = if (format.containsKey(MediaFormat.KEY_ROTATION)) format.getInteger(MediaFormat.KEY_ROTATION) else 0
-                val swapped = rotation == 90 || rotation == 270
-                val durationSeconds = if (format.containsKey(MediaFormat.KEY_DURATION)) {
-                    format.getLong(MediaFormat.KEY_DURATION).takeIf { it > 0L }?.let { it / 1_000_000.0 }
-                } else null
-                result = Info(
-                    if (swapped) height else width,
-                    if (swapped) width else height,
-                    durationSeconds
-                )
+                val durationSeconds = format.longOrNull(MediaFormat.KEY_DURATION)
+                    ?.takeIf { it > 0L }
+                    ?.let { it / 1_000_000.0 }
+                if (wantVideo) {
+                    if (!mime.startsWith("video/")) continue
+                    val width = format.intOrNull(MediaFormat.KEY_WIDTH) ?: continue
+                    val height = format.intOrNull(MediaFormat.KEY_HEIGHT) ?: continue
+                    if (width <= 0 || height <= 0) continue
+                    val rotation = format.intOrNull(MediaFormat.KEY_ROTATION) ?: 0
+                    val swapped = rotation == 90 || rotation == 270
+                    result = Info(
+                        if (swapped) height else width,
+                        if (swapped) width else height,
+                        durationSeconds,
+                        null
+                    )
+                } else {
+                    if (!mime.startsWith("audio/")) continue
+                    val bitrate = format.intOrNull(MediaFormat.KEY_BIT_RATE)?.takeIf { it > 0 }?.toLong()
+                    result = Info(null, null, durationSeconds, bitrate)
+                }
                 break
             }
         } catch (_: Exception) {
@@ -63,6 +70,12 @@ object MediaFileMetadataProbe {
         }
         return result
     }
+
+    private fun MediaFormat.intOrNull(key: String): Int? =
+        if (containsKey(key)) runCatching { getInteger(key) }.getOrNull() else null
+
+    private fun MediaFormat.longOrNull(key: String): Long? =
+        if (containsKey(key)) runCatching { getLong(key) }.getOrNull() else null
 
     private class HttpRangeDataSource(
         private val url: String,

@@ -1532,12 +1532,17 @@
     <string name="media_capture_downloads_not_supported_yet">Downloading detected streams isn\'t supported yet. Copy a link to open it elsewhere.</string>
     <string name="media_capture_live_badge">LIVE</string>
     <string name="media_capture_no_audio_badge">NO AUDIO</string>
+    <string name="media_capture_best_badge">BEST</string>
+    <string name="media_capture_sort_quality">Quality</string>
+    <string name="media_capture_sort_newest">Newest first</string>
+    <string name="media_capture_sort_oldest">Oldest first</string>
     <string name="media_capture_copy_link">Copy link</string>
     <string name="media_capture_download">Download</string>
     <string name="media_capture_duplicate_link_updated">Download link updated</string>
     <string name="media_capture_link_clip_label">Media URL</string>
     <string name="media_capture_link_copied">Link copied to clipboard</string>
     <string name="media_capture_segments_count">%1$d segments</string>
+    <string name="media_capture_cue_count">%1$d lines</string>
     <string name="media_capture_estimated_size">Est. %1$s</string>
     <string name="media_capture_more_options">More options</string>
     <string name="media_capture_menu_stream">Stream</string>

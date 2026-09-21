@@ -1535,11 +1535,16 @@
     <string name="media_capture_downloads_not_supported_yet">Загрузка обнаруженных потоков пока не поддерживается. Скопируйте ссылку, чтобы открыть её в другом месте.</string>
     <string name="media_capture_live_badge">В ЭФИРЕ</string>
     <string name="media_capture_no_audio_badge">БЕЗ ЗВУКА</string>
+    <string name="media_capture_best_badge">ЛУЧШЕЕ</string>
+    <string name="media_capture_sort_quality">Качество</string>
+    <string name="media_capture_sort_newest">Сначала новые</string>
+    <string name="media_capture_sort_oldest">Сначала старые</string>
     <string name="media_capture_copy_link">Скопировать ссылку</string>
     <string name="media_capture_download">Скачать</string>
     <string name="media_capture_link_clip_label">URL медиа</string>
     <string name="media_capture_link_copied">Ссылка скопирована в буфер обмена</string>
     <string name="media_capture_segments_count">Сегментов: %1$d</string>
+    <string name="media_capture_cue_count">Строк: %1$d</string>
     <string name="media_capture_estimated_size">Прибл. %1$s</string>
     <string name="media_capture_more_options">Дополнительные параметры</string>
     <string name="media_capture_menu_stream">Поток</string>
