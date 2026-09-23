@@ -24,7 +24,7 @@ class SupportClintActivity : ClintActivity(), OverlayHostActivity {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val theme = prefs.getString("app_theme", "dark") ?: "dark"
+        val theme = prefs.getString("app_theme", "system") ?: "system"
 
         setContent {
             ClintComposeTheme(theme = theme) {

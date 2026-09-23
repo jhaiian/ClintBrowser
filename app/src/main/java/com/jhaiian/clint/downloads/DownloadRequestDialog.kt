@@ -69,6 +69,7 @@ data class DownloadRequestSubmission(
     val speedLimitBytesPerSec: Long,
     val locationMode: String,
     val customLocationUri: String?,
+    val categorizeEnabled: Boolean,
     val scheduledStartAtMillis: Long,
     val concurrentSegments: Int
 )
@@ -92,6 +93,7 @@ fun DownloadRequestDialog(
     initialConcurrentSegments: Int = 6,
     initialLocationMode: String,
     initialCustomUri: Uri?,
+    initialCategorizeEnabled: Boolean? = null,
     initialRetryEnabled: Boolean = false,
     initialUnmeteredOnly: Boolean = false,
     initialSplitParts: Int = 1,
@@ -139,6 +141,13 @@ fun DownloadRequestDialog(
     var locationMenuOpen by remember { mutableStateOf(false) }
     val storageInfoText = remember(locationMode, customUri) {
         if (showStorageInfo) resolveStorageInfoText(context, locationMode, customUri) else ""
+    }
+    var categorizeEnabled by remember { mutableStateOf(initialCategorizeEnabled ?: DownloadCategories.isEnabled(context)) }
+    val destinationPreviewText = remember(locationMode, customUri, filename, extension, categorizeEnabled) {
+        if (!categorizeEnabled) return@remember null
+        val resolvedFilename = if (extension.isNotBlank()) "$filename.$extension" else filename
+        val basePath = if (locationMode == DownloadSettingsKeys.MODE_CUSTOM) customUri?.let { uriToDisplayPath(it) } else DEFAULT_DOWNLOAD_PATH
+        basePath?.let { it.trimEnd('/') + "/" + DownloadCategories.categorySubpathDisplay(categorizeEnabled, resolvedFilename) + resolvedFilename }
     }
 
     var retryEnabled by remember { mutableStateOf(initialRetryEnabled) }
@@ -217,6 +226,7 @@ fun DownloadRequestDialog(
                             speedLimitBytesPerSec = speedLimitBytesPerSec,
                             locationMode = locationMode,
                             customLocationUri = customUri?.toString(),
+                            categorizeEnabled = categorizeEnabled,
                             scheduledStartAtMillis = effectiveScheduledMillis,
                             concurrentSegments = concurrentSegments
                         )
@@ -315,6 +325,24 @@ fun DownloadRequestDialog(
                     }
                     if (showStorageInfo && storageInfoText.isNotEmpty()) {
                         Text(storageInfoText, color = colors.secondaryText, fontSize = 11.sp, modifier = Modifier.padding(top = 6.dp))
+                    }
+                    Row(
+                        Modifier.fillMaxWidth().clickable {
+                            categorizeEnabled = !categorizeEnabled
+                        }.padding(top = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text(stringResource(R.string.download_categorize_title), color = colors.onSurface, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                            Text(stringResource(R.string.download_categorize_summary), color = colors.secondaryText, fontSize = 12.sp, modifier = Modifier.padding(top = 2.dp))
+                        }
+                        ClintSwitch(checked = categorizeEnabled)
+                    }
+                    destinationPreviewText?.let {
+                        Text(
+                            it, color = colors.secondaryText, fontSize = 11.sp, fontFamily = FontFamily.Monospace,
+                            maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 6.dp)
+                        )
                     }
                 }
             }

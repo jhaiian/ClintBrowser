@@ -49,7 +49,7 @@ object UpdateChecker {
         val host = activity as? OverlayHostActivity
             ?: return UpdateFlowState(hideStatusBar = false, hideSystemNavigation = false)
         val prefs = PreferenceManager.getDefaultSharedPreferences(activity)
-        val theme = prefs.getString("app_theme", "dark") ?: "dark"
+        val theme = prefs.getString("app_theme", "system") ?: "system"
         val state = UpdateFlowState(hideStatusBar = prefs.getBoolean("hide_status_bar", false), hideSystemNavigation = prefs.getBoolean("hide_system_navigation", false))
 
         val dismiss: () -> Unit = {

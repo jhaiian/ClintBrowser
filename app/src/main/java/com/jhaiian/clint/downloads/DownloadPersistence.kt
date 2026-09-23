@@ -98,6 +98,8 @@ internal object DownloadPersistence {
                 val locationMode = if (locationModeIdx >= 0) it.getString(locationModeIdx) ?: "default" else "default"
                 val customLocUriIdx = it.getColumnIndex(DownloadDatabase.COL_CUSTOM_LOC_URI)
                 val customLocationUri = if (customLocUriIdx >= 0) it.getString(customLocUriIdx) else null
+                val categorizeEnabledIdx = it.getColumnIndex(DownloadDatabase.COL_CATEGORIZE_ENABLED)
+                val categorizeEnabled = if (categorizeEnabledIdx >= 0) it.getInt(categorizeEnabledIdx) != 0 else false
                 val completedMaskIdx = it.getColumnIndex(DownloadDatabase.COL_COMPLETED_PARTS_MASK)
                 val completedPartsMask = if (completedMaskIdx >= 0) it.getLong(completedMaskIdx) else 0L
                 val partOffsetsIdx = it.getColumnIndex(DownloadDatabase.COL_PART_OFFSETS)
@@ -136,6 +138,7 @@ internal object DownloadPersistence {
                     speedLimitBytesPerSec = speedLimitBytesPerSec,
                     locationMode = locationMode,
                     customLocationUri = customLocationUri,
+                    categorizeEnabled = categorizeEnabled,
                     completedPartsMask = completedPartsMask,
                     partOffsets = partOffsets,
                     scheduledStartAtMillis = scheduledStartAtMillis,
@@ -180,6 +183,7 @@ internal object DownloadPersistence {
                 put(DownloadDatabase.COL_LOCATION_MODE, item.locationMode)
                 if (item.customLocationUri != null) put(DownloadDatabase.COL_CUSTOM_LOC_URI, item.customLocationUri)
                 else putNull(DownloadDatabase.COL_CUSTOM_LOC_URI)
+                put(DownloadDatabase.COL_CATEGORIZE_ENABLED, if (item.categorizeEnabled) 1 else 0)
                 put(DownloadDatabase.COL_COMPLETED_PARTS_MASK, item.completedPartsMask)
                 put(DownloadDatabase.COL_PART_OFFSETS, item.partOffsets)
                 put(DownloadDatabase.COL_SCHEDULED_START_AT, item.scheduledStartAtMillis)

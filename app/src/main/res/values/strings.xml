@@ -172,6 +172,8 @@
     <string name="download_location_option_custom">Custom</string>
     <string name="download_location_tap_to_choose">Tap to choose a folder…</string>
     <string name="download_section_location">DOWNLOAD LOCATION</string>
+    <string name="download_categorize_title">Categorize Downloads</string>
+    <string name="download_categorize_summary">Sort downloads into folders like Videos, Images, Audio, and Documents</string>
     <string name="download_section_measurement">MEASUREMENT</string>
     <string name="measurement_system_title">Measurement System</string>
     <string name="measurement_system_summary_binary">Binary System</string>
@@ -487,6 +489,9 @@
     <string name="notification_web_request_origin_unknown">This website</string>
     <string name="notification_permission_title">Notification access</string>
     <string name="notification_permission_message">Notification access is needed so this website can send you notifications.</string>
+    <string name="clipboard_web_request_title">Clipboard access requested</string>
+    <string name="clipboard_web_request_message">%s wants to see text on your clipboard.</string>
+    <string name="clipboard_web_request_origin_unknown">This website</string>
     <string name="web_notification_channel_name">Website notifications</string>
     <string name="web_notification_channel_desc">Notifications sent by websites</string>
     <string name="download_storage_permission_title">Storage access</string>
@@ -549,7 +554,7 @@
     <string name="download_status_allocating">Allocating&#8230; %1$d%%</string>
     <string name="download_status_segment_progress">Segment %1$d of %2$d</string>
     <string name="download_status_decrypting">Decrypting&#8230;</string>
-    <string name="download_status_muxing">Finalizing video&#8230; %1$d%%</string>
+    <string name="download_status_muxing">Muxing&#8230;</string>
     <string name="download_status_converting">Converting&#8230; %1$d%%</string>
     <string name="download_status_copying_temp">Copying temp files&#8230; %1$d%%</string>
     <string name="download_copying_temp_notification">Copying temp files&#8230; %1$d%%</string>
@@ -950,6 +955,7 @@
     <string name="site_settings_mic">Microphone</string>
     <string name="site_settings_location">Location</string>
     <string name="site_settings_notifications">Notifications</string>
+    <string name="site_settings_clipboard">Clipboard</string>
     <string name="site_settings_desktop_mode">Desktop Mode</string>
     <string name="desktop_mode_save_state">Save State</string>
     <string name="desktop_mode_save_state_desc">Remember Desktop Mode for this site and apply it automatically on future visits</string>
@@ -1125,8 +1131,6 @@
     <string name="quiver_guard_no_active_lists_title">No Active Filter Lists</string>
     <string name="quiver_guard_no_active_lists_message">Quiver Guard needs at least one active filter list to work. To get started:\n\n1. Tap a filter list below to download it.\n2. Once downloaded, tap the save button to compile your filter lists.\n3. After compiling, enable Quiver Guard using the switch above.</string>
 
-    <string name="quiver_guard_experimental_title">Experimental Feature</string>
-    <string name="quiver_guard_experimental_message">Quiver Guard is still in experimental testing. With your help, we are improving this feature. If you find any broken sites or bugs related to this feature, please report them immediately on GitHub. Thank you.</string>
 
     <string name="quiver_guard_recompile_required_title">Recompile Required</string>
     <string name="quiver_guard_recompile_required_button">Recompile</string>

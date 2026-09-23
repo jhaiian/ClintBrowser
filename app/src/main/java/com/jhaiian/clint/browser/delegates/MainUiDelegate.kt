@@ -323,7 +323,7 @@ internal fun MainActivity.onPageFinished(url: String) {
         injectBottomNavDetector(wv)
         injectCanvasTouchDetector(wv)
         wv.evaluateJavascript(loadJsAsset("link_touch_tracker.js"), null)
-        val theme = prefs.getString("app_theme", "dark") ?: "dark"
+        val theme = prefs.getString("app_theme", "system") ?: "system"
         val darkWeb = !ThemeMode.isLight(theme)
         if (darkWeb
             && !WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)

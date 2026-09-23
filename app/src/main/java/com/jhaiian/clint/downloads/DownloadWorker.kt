@@ -185,8 +185,9 @@ internal object DownloadWorker {
                     if (existing != null && existing.exists() && item.totalBytes > 0 && existing.length() == item.totalBytes) {
                         existing
                     } else {
-                        val destDir = directCustomDir
+                        val rawDestDir = directCustomDir
                             ?: if (safMode) DownloadFileHelper.tempDownloadDir(context) else DownloadFileHelper.resolveDownloadDir()
+                        val destDir = if (safMode) rawDestDir else DownloadCategories.resolveDir(item.categorizeEnabled, rawDestDir, finalFilename)
                         destDir.mkdirs()
                         DownloadFileHelper.uniqueFile(destDir, finalFilename)
                     }
@@ -395,8 +396,9 @@ internal object DownloadWorker {
                         ?: throw IOException(context.getString(R.string.download_error_saf_no_access))
                     if (!docDir.canWrite()) throw IOException(context.getString(R.string.download_error_saf_not_writable))
 
-                    val finalName = DownloadFileHelper.uniqueSafName(docDir, item.filename)
-                    val docFile = docDir.createFile("application/octet-stream", finalName)
+                    val targetDir = DownloadCategories.resolveSafDir(item.categorizeEnabled, docDir, item.filename)
+                    val finalName = DownloadFileHelper.uniqueSafName(targetDir, item.filename)
+                    val docFile = targetDir.createFile("application/octet-stream", finalName)
                         ?: throw IOException(context.getString(R.string.download_error_saf_create_failed))
 
                     var working = item.copy(filename = docFile.name ?: item.filename)

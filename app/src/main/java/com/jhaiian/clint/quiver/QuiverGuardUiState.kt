@@ -88,7 +88,6 @@ class QuiverGuardUiState {
     var addFromLinkDialogOpen by mutableStateOf(false)
     var addLinkFetchStatus by mutableStateOf<AddLinkFetchStatus>(AddLinkFetchStatus.Idle)
     internal var addFromFileImport by mutableStateOf<LocalFilterListImportResult.Success?>(null)
-    var experimentalDialogOpen by mutableStateOf(false)
     var setupGuideDialogOpen by mutableStateOf(false)
 
     fun isConfigurationDirty(): Boolean =

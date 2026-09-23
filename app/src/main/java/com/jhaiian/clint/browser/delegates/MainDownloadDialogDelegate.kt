@@ -60,7 +60,7 @@ internal fun MainActivity.showDownloadDialog(
             initiateDownload(
                 url, submission.filename, userAgent, referer, cookies,
                 submission.retryEnabled, submission.unmeteredOnly, submission.splitParts, submission.multithreadingParts, submission.speedLimitBytesPerSec,
-                submission.locationMode, submission.customLocationUri, submission.scheduledStartAtMillis,
+                submission.locationMode, submission.customLocationUri, submission.categorizeEnabled, submission.scheduledStartAtMillis,
                 onDismiss = dismiss,
                 onRename = onRename
             )
@@ -137,7 +137,7 @@ internal fun MainActivity.mountDownloadRequestDialog(
     onSubmit: (DownloadRequestSubmission, dismiss: () -> Unit, onRename: () -> Unit) -> Unit
 ) {
     val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-    val theme = prefs.getString("app_theme", "dark") ?: "dark"
+    val theme = prefs.getString("app_theme", "system") ?: "system"
     val hideStatusBar = prefs.getBoolean("hide_status_bar", false)
     val hideSystemNavigation = prefs.getBoolean("hide_system_navigation", false)
 

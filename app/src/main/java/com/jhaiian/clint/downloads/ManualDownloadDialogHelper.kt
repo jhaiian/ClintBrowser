@@ -142,14 +142,16 @@ private fun DownloadsActivity.enqueueManualDownload(
             audioBandwidth = submission.streamAudioBandwidth,
             primaryIsAudio = submission.streamPrimaryIsAudio,
             locationMode = submission.locationMode,
-            customLocationUri = submission.customLocationUri
+            customLocationUri = submission.customLocationUri,
+            categorizeEnabled = submission.categorizeEnabled
         )
         return
     }
     ClintDownloadManager.enqueue(
         this, submission.url, submission.filename, userAgent, "", "",
         submission.retryEnabled, submission.unmeteredOnly, submission.splitParts, submission.multithreadingParts,
-        submission.speedLimitBytesPerSec, submission.locationMode, submission.customLocationUri, submission.scheduledStartAtMillis
+        submission.speedLimitBytesPerSec, submission.locationMode, submission.customLocationUri, submission.scheduledStartAtMillis,
+        submission.categorizeEnabled
     )
 }
 
@@ -162,9 +164,12 @@ private fun DownloadsActivity.checkFilenameConflictAndEnqueueManual(
     val isSaf = submission.locationMode == DownloadSettingsKeys.MODE_CUSTOM
     val fileExists = if (isSaf) {
         val treeUri = submission.customLocationUri?.let { Uri.parse(it) } ?: DownloadFileHelper.getSafTreeUri(this)
-        treeUri?.let { DocumentFile.fromTreeUri(this, it)?.findFile(submission.filename) } != null
+        val docDir = treeUri?.let { DocumentFile.fromTreeUri(this, it) }
+        val targetDir = docDir?.let { DownloadCategories.findExistingSafDir(submission.categorizeEnabled, it, submission.filename) }
+        targetDir?.findFile(submission.filename) != null
     } else {
-        File(DownloadFileHelper.resolveDownloadDir(), submission.filename).exists()
+        val targetDir = DownloadCategories.resolveDir(submission.categorizeEnabled, DownloadFileHelper.resolveDownloadDir(), submission.filename)
+        File(targetDir, submission.filename).exists()
     }
     if (!fileExists) {
         enqueueManualDownload(submission, userAgent, onDismiss)
@@ -175,7 +180,7 @@ private fun DownloadsActivity.checkFilenameConflictAndEnqueueManual(
             enqueueManualDownload(submission, userAgent, onDismiss)
         },
         onOverride = {
-            deleteExistingManual(submission.filename, submission.locationMode, submission.customLocationUri)
+            deleteExistingManual(submission.filename, submission.locationMode, submission.customLocationUri, submission.categorizeEnabled)
             enqueueManualDownload(submission, userAgent, onDismiss)
         },
         onRename = onRename
@@ -185,15 +190,19 @@ private fun DownloadsActivity.checkFilenameConflictAndEnqueueManual(
 private fun DownloadsActivity.deleteExistingManual(
     filename: String,
     locationMode: String,
-    customLocationUri: String?
+    customLocationUri: String?,
+    categorizeEnabled: Boolean
 ) {
     val matchingIds = ClintDownloadManager.downloadsFlow.value.filter { it.filename == filename }.map { it.id }
     matchingIds.forEach { ClintDownloadManager.remove(this, it, deleteFile = true) }
     val isSaf = locationMode == DownloadSettingsKeys.MODE_CUSTOM
     if (isSaf) {
         val treeUri = customLocationUri?.let { Uri.parse(it) } ?: DownloadFileHelper.getSafTreeUri(this)
-        treeUri?.let { DocumentFile.fromTreeUri(this, it)?.findFile(filename)?.delete() }
+        val docDir = treeUri?.let { DocumentFile.fromTreeUri(this, it) }
+        val targetDir = docDir?.let { DownloadCategories.findExistingSafDir(categorizeEnabled, it, filename) }
+        targetDir?.findFile(filename)?.delete()
     } else {
-        File(DownloadFileHelper.resolveDownloadDir(), filename).delete()
+        val targetDir = DownloadCategories.resolveDir(categorizeEnabled, DownloadFileHelper.resolveDownloadDir(), filename)
+        File(targetDir, filename).delete()
     }
 }

@@ -1,4 +1,5 @@
 package com.jhaiian.clint.settings.site
+import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.DesktopWindows
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Mic
@@ -28,6 +29,7 @@ fun SiteSettingsScreen(
     onMicClick: () -> Unit,
     onLocationClick: () -> Unit,
     onNotificationsClick: () -> Unit,
+    onClipboardClick: () -> Unit,
     onDesktopModeClick: () -> Unit,
     onQuiverGuardClick: () -> Unit
 ) {
@@ -66,6 +68,14 @@ fun SiteSettingsScreen(
                 summary = stringResource(permissionSummaryRes(state.notificationsBehavior)),
                 colors = colors,
                 onClick = onNotificationsClick
+            )
+            RowDivider(colors.divider)
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.ContentPaste,
+                title = stringResource(R.string.site_settings_clipboard),
+                summary = stringResource(permissionSummaryRes(state.clipboardBehavior)),
+                colors = colors,
+                onClick = onClipboardClick
             )
         }
 

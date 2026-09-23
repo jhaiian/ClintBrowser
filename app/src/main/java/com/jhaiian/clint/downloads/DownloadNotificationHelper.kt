@@ -16,6 +16,11 @@ import com.jhaiian.clint.settings.downloads.DownloadSettingsKeys
 internal object DownloadNotificationHelper {
 
     const val DOWNLOAD_GROUP_KEY = "com.jhaiian.clint.downloads.GROUP"
+    private const val COMPLETE_TAG = "com.jhaiian.clint.downloads.COMPLETE"
+
+    fun cancelCompleteNotification(context: Context, id: Int) {
+        context.getSystemService(NotificationManager::class.java).cancel(COMPLETE_TAG, id)
+    }
 
     fun createNotificationChannel(context: Context) {
         val nm = context.getSystemService(NotificationManager::class.java)
@@ -128,11 +133,10 @@ internal object DownloadNotificationHelper {
                 showPause = false
             }
             DownloadStatus.MUXING -> {
-                val pct = item.muxProgress
-                statusText = context.getString(R.string.download_status_muxing, pct)
+                statusText = context.getString(R.string.download_status_muxing)
                 metaText = null
-                indeterminate = pct <= 0
-                progress = pct
+                indeterminate = true
+                progress = 0
                 showPause = false
             }
             DownloadStatus.CONVERTING -> {
@@ -361,14 +365,14 @@ internal object DownloadNotificationHelper {
             .setSmallIcon(R.drawable.ic_notification_24)
             .setContentTitle(item.filename)
             .setContentText(context.getString(R.string.download_notification_complete))
-            .setGroup(DOWNLOAD_GROUP_KEY)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
+            .setAutoCancel(false)
             .setOngoing(false)
+            .setOnlyAlertOnce(true)
             .setContentIntent(downloadsPi)
             .addAction(0, context.getString(R.string.action_open), openPi)
             .build()
-            .let { nm.notify(item.id, it) }
+            .let { nm.notify(COMPLETE_TAG, item.id, it) }
     }
 
     fun showFailedNotification(context: Context, item: DownloadItem) {

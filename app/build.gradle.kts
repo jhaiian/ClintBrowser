@@ -21,8 +21,8 @@ android {
         applicationId = "com.jhaiian.clint"
         minSdk = 26
         targetSdk = 37
-        versionCode = 33
-        versionName = "v1.1.6-beta-4"
+        versionCode = 34
+        versionName = "v1.1.6-beta-5"
     }
 
     val hasSigningConfig = localProperties.getProperty("signingConfig.storePassword") != null

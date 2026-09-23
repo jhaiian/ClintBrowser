@@ -345,7 +345,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         lastUserScriptsDataVersion = com.jhaiian.clint.userscripts.UserScriptState.getDataVersion(this)
         applySystemUiVisibility()
 
-        val startTheme = prefs.getString("app_theme", "dark") ?: "dark"
+        val startTheme = prefs.getString("app_theme", "system") ?: "system"
         setContent {
             ClintComposeTheme(theme = startTheme) {
                 MainScreen(activity = this, state = uiState)
@@ -802,7 +802,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
             val title = json.optString("title", "")
             val content = json.optString("content", "")
             val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this)
-            val theme = prefs.getString("app_theme", "dark") ?: "dark"
+            val theme = prefs.getString("app_theme", "system") ?: "system"
             val isDark = !ThemeMode.isLight(theme)
             val bgColor = if (isDark) "#121212" else "#ffffff"
             val textColor = if (isDark) "#e0e0e0" else "#1a1a1a"
@@ -949,6 +949,52 @@ td,th{border:1px solid $secondaryColor;padding:6px 8px;}
             )
             if (stored != com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.STATE_ALLOW) return
             runOnUiThread { postWebNotification(title, body, tag, rawOrigin) }
+        }
+    }
+
+    inner class ClipboardBridge(private val webView: android.webkit.WebView) {
+        @android.webkit.JavascriptInterface
+        fun getPermissionState(origin: String): String {
+            val tab = tabManager.tabs.find { it.webView == webView }
+            if (tab?.isIncognito == true) return "denied"
+            val rawOrigin = origin.trim()
+            return when (com.jhaiian.clint.settings.sitepermissions.SitePermissionManager.getState(
+                this@MainActivity, rawOrigin,
+                com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.TYPE_CLIPBOARD
+            )) {
+                com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.STATE_ALLOW -> "granted"
+                com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase.STATE_DENY -> "denied"
+                else -> "default"
+            }
+        }
+
+        @android.webkit.JavascriptInterface
+        fun requestPermission(callbackId: String, origin: String) {
+            runOnUiThread {
+                val tab = tabManager.tabs.find { it.webView == webView }
+                val safeId = callbackId.replace("'", "")
+                if (tab?.isIncognito == true) {
+                    webView.evaluateJavascript("window._ClintResolvePermission('$safeId','denied')", null)
+                    return@runOnUiThread
+                }
+                showWebClipboardPermissionFromBridge(webView, safeId, origin.trim())
+            }
+        }
+
+        @android.webkit.JavascriptInterface
+        fun readClipboardText(): String {
+            val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager
+            val clip = clipboard?.primaryClip
+            if (clip == null || clip.itemCount == 0) return ""
+            return clip.getItemAt(0).coerceToText(this@MainActivity)?.toString() ?: ""
+        }
+
+        @android.webkit.JavascriptInterface
+        fun writeClipboardText(text: String) {
+            runOnUiThread {
+                val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager
+                clipboard?.setPrimaryClip(android.content.ClipData.newPlainText("", text))
+            }
         }
     }
 

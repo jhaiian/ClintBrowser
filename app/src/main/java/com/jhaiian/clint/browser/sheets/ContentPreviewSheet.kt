@@ -385,7 +385,7 @@ private fun buildDesktopHeaders(webView: WebView): Map<String, String> {
 @Suppress("DEPRECATION")
 private fun applyPreviewDarkMode(context: android.content.Context, webView: WebView, systemDark: Boolean) {
     val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-    val theme = prefs.getString("app_theme", "dark") ?: "dark"
+    val theme = prefs.getString("app_theme", "system") ?: "system"
     val enabled = when (theme) {
         "dark" -> true
         "light" -> false

@@ -38,7 +38,7 @@ class MenuCustomizationActivity : ClintActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val theme = prefs.getString("app_theme", "dark") ?: "dark"
+        val theme = prefs.getString("app_theme", "system") ?: "system"
         val hideStatusBar = prefs.getBoolean("hide_status_bar", false)
         val hideSystemNavigation = prefs.getBoolean("hide_system_navigation", false)
 

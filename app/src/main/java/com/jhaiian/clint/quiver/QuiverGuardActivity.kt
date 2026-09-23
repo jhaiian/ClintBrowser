@@ -24,7 +24,6 @@ class QuiverGuardActivity : ClintActivity() {
     companion object {
         const val EXTRA_SHOW_SETUP_GUIDE = "show_setup_guide"
         const val EXTRA_AUTO_RECOMPILE = "auto_recompile"
-        const val PREF_EXPERIMENTAL_SHOWN = "quiver_guard_experimental_shown"
     }
 
     internal lateinit var uiState: QuiverGuardUiState
@@ -61,7 +60,7 @@ class QuiverGuardActivity : ClintActivity() {
 
         uiState = QuiverGuardUiState()
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val theme = prefs.getString("app_theme", "dark") ?: "dark"
+        val theme = prefs.getString("app_theme", "system") ?: "system"
         val hideStatusBar = prefs.getBoolean("hide_status_bar", false)
         val hideSystemNavigation = prefs.getBoolean("hide_system_navigation", false)
 
@@ -151,7 +150,6 @@ class QuiverGuardActivity : ClintActivity() {
                     CompileProgressDialog(uiState.compileProgress, hideStatusBar, hideSystemNavigation)
                     CompileResultDialog(uiState.compileResult, hideStatusBar, hideSystemNavigation) { uiState.compileResult = null }
                     UpdateResultDialog(uiState.updateResult, hideStatusBar, hideSystemNavigation) { uiState.updateResult = null }
-                    ExperimentalDialog(uiState.experimentalDialogOpen, hideStatusBar, hideSystemNavigation) { uiState.experimentalDialogOpen = false }
 
                     if (uiState.addFromLinkDialogOpen) {
                         AddFilterListFromLinkDialog(

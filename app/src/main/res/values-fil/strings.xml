@@ -172,6 +172,8 @@
     <string name="download_location_option_custom">Custom</string>
     <string name="download_location_tap_to_choose">Pindutin para pumili ng folder…</string>
     <string name="download_section_location">LOKASYON NG DOWNLOAD</string>
+    <string name="download_categorize_title">I-categorize ang mga Download</string>
+    <string name="download_categorize_summary">Isaayos ang mga download sa mga folder tulad ng Videos, Images, Audio, at Documents</string>
     <string name="download_section_measurement">MEASUREMENT</string>
     <string name="measurement_system_title">Measurement System</string>
     <string name="measurement_system_summary_binary">Binary System</string>
@@ -487,6 +489,9 @@
     <string name="notification_web_request_origin_unknown">Ang website na ito</string>
     <string name="notification_permission_title">Access sa notification</string>
     <string name="notification_permission_message">Kailangan ang access sa notification para makapagpadala sa iyo ng notification ang website na ito.</string>
+    <string name="clipboard_web_request_title">Hiniling ang access sa clipboard</string>
+    <string name="clipboard_web_request_message">Gustong makita ng %s ang text sa iyong clipboard.</string>
+    <string name="clipboard_web_request_origin_unknown">Ang website na ito</string>
     <string name="web_notification_channel_name">Mga notification ng website</string>
     <string name="web_notification_channel_desc">Mga notification na ipinadala ng mga website</string>
     <string name="download_storage_permission_title">Access sa storage</string>
@@ -549,7 +554,7 @@
     <string name="download_status_allocating">Naglalaan ng espasyo&#8230; %1$d%%</string>
     <string name="download_status_segment_progress">Segment %1$d ng %2$d</string>
     <string name="download_status_decrypting">Dine-decrypt&#8230;</string>
-    <string name="download_status_muxing">Tinatapos ang video&#8230; %1$d%%</string>
+    <string name="download_status_muxing">Nagmu-mux&#8230;</string>
     <string name="download_status_converting">Nagko-convert&#8230; %1$d%%</string>
     <string name="download_status_copying_temp">Kinokopya ang mga temp file&#8230; %1$d%%</string>
     <string name="download_copying_temp_notification">Kinokopya ang mga temp file&#8230; %1$d%%</string>
@@ -950,6 +955,7 @@
     <string name="site_settings_mic">Microphone</string>
     <string name="site_settings_location">Lokasyon</string>
     <string name="site_settings_notifications">Notifications</string>
+    <string name="site_settings_clipboard">Clipboard</string>
     <string name="site_settings_desktop_mode">Desktop Mode</string>
     <string name="desktop_mode_save_state">Tandaan sa Site na Ito</string>
     <string name="desktop_mode_save_state_desc">Tatandaan ang Desktop Mode para sa site na ito at awtomatikong ilalapat sa susunod na pagbisita</string>
@@ -1118,8 +1124,6 @@
     <string name="quiver_guard_no_active_lists_title">Walang Aktibong Filter List</string>
     <string name="quiver_guard_no_active_lists_message">Kailangan ng Quiver Guard ng kahit isang aktibong filter list para gumana. Para magsimula:\n\n1. Pindutin ang isang filter list sa ibaba para i-download ito.\n2. Kapag na-download na, pindutin ang save button para i-compile ang iyong mga filter list.\n3. Pagkatapos mag-compile, i-enable ang Quiver Guard gamit ang switch sa itaas.</string>
 
-    <string name="quiver_guard_experimental_title">Experimental na Feature</string>
-    <string name="quiver_guard_experimental_message">Experimental pa ang Quiver Guard. Sa tulong mo, napapaganda namin ito. Kung may nakita kang site na hindi gumagana nang maayos o bug na kaugnay ng feature na ito, paki-report agad sa GitHub. Salamat!</string>
 
     <string name="quiver_guard_recompile_required_title">Kailangan ng Recompile</string>
     <string name="quiver_guard_recompile_required_button">I-recompile</string>

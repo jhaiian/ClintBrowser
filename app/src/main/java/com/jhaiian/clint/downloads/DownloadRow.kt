@@ -281,12 +281,11 @@ private fun downloadRowDisplay(
             )
         }
         DownloadStatus.MUXING -> {
-            val pct = item.muxProgress
             RowDisplay(
                 statusText = if (item.totalBytes > 0) formatFileSize(item.totalBytes) else "",
-                metaText = context.getString(R.string.download_status_muxing, pct),
+                metaText = context.getString(R.string.download_status_muxing),
                 retryHintText = null, resumableText = null,
-                cardProgress = if (pct > 0) DownloadCardProgress.Determinate(pct / 100f) else DownloadCardProgress.Indeterminate,
+                cardProgress = DownloadCardProgress.Indeterminate,
                 pauseIconRes = null, pauseContentDesc = "", pauseAction = null,
                 moreVisible = false
             )

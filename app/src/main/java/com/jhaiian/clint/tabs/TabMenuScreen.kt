@@ -90,9 +90,14 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
     val density = LocalDensity.current
     val uiState = remember { TabMenuUiState() }
     val tabs = remember { mutableStateListOf<TabPreview>().apply { addAll(activity.tabManager.previews()) } }
-    val gridState = rememberLazyGridState()
-    val dragState = remember { TabDragState(gridState) }
     val activeTabId = activity.tabManager.activeTab?.id
+    val initialIndex = remember {
+        buildRenderList(tabs)
+            .indexOfFirst { it is TabMenuItem.Tab && it.preview.id == activeTabId }
+            .coerceAtLeast(0)
+    }
+    val gridState = rememberLazyGridState(initialFirstVisibleItemIndex = initialIndex)
+    val dragState = remember { TabDragState(gridState) }
 
     fun syncFromManager() {
         tabs.clear(); tabs.addAll(activity.tabManager.previews())

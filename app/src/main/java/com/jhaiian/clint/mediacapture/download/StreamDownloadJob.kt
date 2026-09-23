@@ -2,6 +2,7 @@ package com.jhaiian.clint.mediacapture.download
 
 import android.content.Context
 import com.jhaiian.clint.downloads.ClintDownloadManager
+import com.jhaiian.clint.downloads.DownloadCategories
 import com.jhaiian.clint.downloads.DownloadFileHelper
 import com.jhaiian.clint.downloads.DownloadItem
 import com.jhaiian.clint.downloads.DownloadNotificationHelper
@@ -234,13 +235,27 @@ object StreamDownloadJob {
                 ) { _, _ -> onDecryptProgress() }
             }
 
+            publishProgress { it.copy(status = DownloadStatus.COPYING_TEMP, copyProgress = 0) }
+            DownloadNotificationHelper.showCopyingTempNotification(context, current)
+
+            var lastCopyNotifyAt = 0L
+            fun onCombineProgress(pct: Int) {
+                publishProgress { it.copy(copyProgress = pct) }
+                val now = System.currentTimeMillis()
+                if (now - lastCopyNotifyAt > 800) {
+                    lastCopyNotifyAt = now
+                    DownloadNotificationHelper.showCopyingTempNotification(context, current)
+                }
+            }
+
             val videoTrackFile = File(workDir, "video_track.${videoTrack.containerHintExtension}")
-            StreamTrackDownloader.concatenate(videoSegments, videoTrackFile)
+            StreamTrackDownloader.concatenate(videoSegments, videoTrackFile, ::onCombineProgress)
             val audioTrackFile = audioTrack?.let {
                 val f = File(workDir, "audio_track.${it.containerHintExtension}")
-                StreamTrackDownloader.concatenate(audioSegments, f)
+                StreamTrackDownloader.concatenate(audioSegments, f, ::onCombineProgress)
                 f
             }
+            publishProgress { it.copy(copyProgress = 100) }
 
             StreamTrackDownloader.cleanup(videoSegments)
             StreamTrackDownloader.cleanup(audioSegments)
@@ -270,16 +285,18 @@ object StreamDownloadJob {
             }
             val directCustomDir = DownloadFileHelper.resolveDirectCustomDir(context, current)
             val safMode = DownloadFileHelper.isSafCustomMode(context, current) && directCustomDir == null
-            val destDir = directCustomDir
+            val rawDestDir = directCustomDir
                 ?: if (safMode) DownloadFileHelper.tempDownloadDir(context) else DownloadFileHelper.resolveDownloadDir()
-            destDir.mkdirs()
 
             val userExtension = current.filename.substringAfterLast('.', "").trim().takeIf { it.isNotBlank() }
             val outExtension = userExtension ?: when {
                 needsMux || videoTrack.containerHintExtension == "mp4" -> "mp4"
                 else -> "ts"
             }
-            val finalFilename = DownloadFileHelper.uniqueFile(destDir, "${baseName(current.filename)}.$outExtension").name
+            val guessedFinalName = "${baseName(current.filename)}.$outExtension"
+            val destDir = if (safMode) rawDestDir else DownloadCategories.resolveDir(current.categorizeEnabled, rawDestDir, guessedFinalName)
+            destDir.mkdirs()
+            val finalFilename = DownloadFileHelper.uniqueFile(destDir, guessedFinalName).name
             val finalFile = File(destDir, finalFilename)
 
             if (needsMux) {
@@ -310,6 +327,8 @@ object StreamDownloadJob {
                 }
             }
 
+            publishProgress { it.copy(status = DownloadStatus.DELETING_TEMP) }
+            DownloadNotificationHelper.showDeletingTempNotification(context, current)
             workDir.deleteRecursively()
 
             current = current.withClockStopped().copy(

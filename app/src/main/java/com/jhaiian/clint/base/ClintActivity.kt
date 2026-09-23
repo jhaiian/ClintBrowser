@@ -40,7 +40,7 @@ abstract class ClintActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        appliedTheme = prefs.getString("app_theme", "dark") ?: "dark"
+        appliedTheme = prefs.getString("app_theme", "system") ?: "system"
         appliedAccent = prefs.getString("accent_color", "material_you") ?: "material_you"
         appliedIntensity = prefs.getString("surface_intensity", "soft_tint") ?: "soft_tint"
         appliedLanguage = prefs.getString(LocaleHelper.PREF_APP_LANGUAGE, LocaleHelper.LANGUAGE_SYSTEM) ?: LocaleHelper.LANGUAGE_SYSTEM
@@ -70,7 +70,7 @@ abstract class ClintActivity : AppCompatActivity() {
         super.onResume()
         openDialogCount = 0
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val currentTheme = prefs.getString("app_theme", "dark") ?: "dark"
+        val currentTheme = prefs.getString("app_theme", "system") ?: "system"
         val currentAccent = prefs.getString("accent_color", "material_you") ?: "material_you"
         val currentIntensity = prefs.getString("surface_intensity", "soft_tint") ?: "soft_tint"
         val currentLanguage = prefs.getString(LocaleHelper.PREF_APP_LANGUAGE, LocaleHelper.LANGUAGE_SYSTEM) ?: LocaleHelper.LANGUAGE_SYSTEM
@@ -90,7 +90,7 @@ abstract class ClintActivity : AppCompatActivity() {
 
     @Suppress("DEPRECATION")
     private fun applyWindowChrome() {
-        val theme = appliedTheme ?: "dark"
+        val theme = appliedTheme ?: "system"
         val accent = appliedAccent ?: "material_you"
         val intensity = appliedIntensity ?: "soft_tint"
         val resolved = resolveClintTheme(this, theme, accent, intensity)
@@ -104,7 +104,7 @@ abstract class ClintActivity : AppCompatActivity() {
 
     fun captureAndRecreate(newTheme: String) {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val current = prefs.getString("app_theme", "dark") ?: "dark"
+        val current = prefs.getString("app_theme", "system") ?: "system"
         if (current == newTheme) return
         captureScreenBitmap()
         prefs.edit().putString("app_theme", newTheme).commit()

@@ -32,6 +32,7 @@ internal class DownloadDatabase(context: Context) :
                 $COL_MULTITHREADING    INTEGER NOT NULL DEFAULT 4,
                 $COL_LOCATION_MODE     TEXT    NOT NULL DEFAULT 'default',
                 $COL_CUSTOM_LOC_URI    TEXT,
+                $COL_CATEGORIZE_ENABLED INTEGER NOT NULL DEFAULT 0,
                 $COL_COMPLETED_PARTS_MASK INTEGER NOT NULL DEFAULT 0,
                 $COL_PART_OFFSETS      TEXT    NOT NULL DEFAULT '',
                 $COL_SCHEDULED_START_AT INTEGER NOT NULL DEFAULT 0,
@@ -59,11 +60,14 @@ internal class DownloadDatabase(context: Context) :
         if (oldVersion < 6) {
             db.execSQL("ALTER TABLE $TABLE ADD COLUMN $COL_STREAM_JSON TEXT")
         }
+        if (oldVersion < 7) {
+            db.execSQL("ALTER TABLE $TABLE ADD COLUMN $COL_CATEGORIZE_ENABLED INTEGER NOT NULL DEFAULT 0")
+        }
     }
 
     companion object {
         const val DB_NAME                = "clint_downloads.db"
-        const val DB_VERSION             = 6
+        const val DB_VERSION             = 7
         const val TABLE                  = "downloads"
         const val COL_ID                 = "id"
         const val COL_URL                = "url"
@@ -87,6 +91,7 @@ internal class DownloadDatabase(context: Context) :
         const val COL_MULTITHREADING     = "multithreading_parts"
         const val COL_LOCATION_MODE      = "location_mode"
         const val COL_CUSTOM_LOC_URI     = "custom_location_uri"
+        const val COL_CATEGORIZE_ENABLED = "categorize_enabled"
         const val COL_COMPLETED_PARTS_MASK = "completed_parts_mask"
         const val COL_PART_OFFSETS       = "part_offsets"
         const val COL_SCHEDULED_START_AT = "scheduled_start_at"

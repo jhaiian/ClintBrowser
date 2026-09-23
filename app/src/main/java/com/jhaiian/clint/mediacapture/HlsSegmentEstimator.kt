@@ -20,9 +20,7 @@ object HlsSegmentEstimator {
         val singleFileTotal = if (distinctUrls.size == 1 && byteRangeTotal != null) {
             fetchSegmentContentLength(distinctUrls[0], pageUrl, headers)
         } else null
-        val estimatedBytes = singleFileTotal ?: byteRangeTotal ?: if (duration != null && duration > 0.0 && bandwidth != null && bandwidth > 0L) {
-            ((duration * bandwidth) / 8.0).toLong()
-        } else {
+        val sampledTotal = if (singleFileTotal == null && byteRangeTotal == null) {
             if (distinctUrls.size < track.segments.size) {
                 sampleAverageContentLengthPerUrl(distinctUrls, pageUrl, headers)
                     ?.let { it * distinctUrls.size }
@@ -30,7 +28,11 @@ object HlsSegmentEstimator {
                 sampleAverageContentLengthPerUrl(track.segments.map { it.url }, pageUrl, headers)
                     ?.let { it * segmentCount }
             }
-        }
+        } else null
+        val estimatedBytes = singleFileTotal ?: byteRangeTotal ?: sampledTotal
+            ?: if (duration != null && duration > 0.0 && bandwidth != null && bandwidth > 0L) {
+                ((duration * bandwidth) / 8.0).toLong()
+            } else null
         return HlsSegmentEstimate(segmentCount, estimatedBytes, track.containerHintExtension)
     }
 

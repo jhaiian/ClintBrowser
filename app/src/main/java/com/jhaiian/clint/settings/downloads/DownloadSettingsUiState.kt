@@ -13,6 +13,7 @@ class DownloadSettingsUiState(
     initialDownloadManagerApp: String,
     initialLocationMode: String,
     initialCustomUri: Uri?,
+    initialCategorizeDownloads: Boolean,
     initialMeasurementSystemDecimal: Boolean,
     initialUnmeteredOnly: Boolean,
     initialScheduleEnabled: Boolean,
@@ -39,6 +40,7 @@ initialHideSystemNavigation: Boolean
     var downloadManagerApp by mutableStateOf(initialDownloadManagerApp)
     var locationMode by mutableStateOf(initialLocationMode)
     var customUri by mutableStateOf(initialCustomUri)
+    var categorizeDownloads by mutableStateOf(initialCategorizeDownloads)
     var measurementSystemDecimal by mutableStateOf(initialMeasurementSystemDecimal)
     var unmeteredOnly by mutableStateOf(initialUnmeteredOnly)
 

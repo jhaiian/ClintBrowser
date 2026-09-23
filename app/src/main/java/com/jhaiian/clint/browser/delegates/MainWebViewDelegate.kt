@@ -57,6 +57,7 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
     webView.addJavascriptInterface(CanvasTouchBridge(), "CanvasTouchBridge")
     webView.addJavascriptInterface(BottomNavBridge(), "BottomNavBridge")
     webView.addJavascriptInterface(NotificationBridge(webView), "ClintNotificationBridge")
+    webView.addJavascriptInterface(ClipboardBridge(webView), "ClintClipboardBridge")
     webView.addJavascriptInterface(UserScriptBridge(webView), "ClintUserScriptBridge")
     webView.addJavascriptInterface(BlobDownloadBridge(), "BlobDownloadBridge")
     webView.addJavascriptInterface(SelectPickerBridge(webView), "SelectPickerBridge")
@@ -110,6 +111,7 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
     if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
         WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("link_touch_tracker.js"), setOf("*"))
         WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("web_notification_bridge.js"), setOf("*"))
+        WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("web_clipboard_bridge.js"), setOf("*"))
         WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("select_picker.js"), setOf("*"))
     }
     val dataSaverActive = prefs.getBoolean("data_saver_enabled", false)
@@ -165,7 +167,7 @@ internal fun MainActivity.buildUserAgent(): String {
 
 @Suppress("DEPRECATION")
 internal fun MainActivity.applyWebDarkMode(webView: WebView) {
-    val theme = prefs.getString("app_theme", "dark") ?: "dark"
+    val theme = prefs.getString("app_theme", "system") ?: "system"
     val enabled = !ThemeMode.isLight(theme)
     val settings = webView.settings
     when {

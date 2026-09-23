@@ -1,6 +1,5 @@
 package com.jhaiian.clint.quiver
 
-import androidx.preference.PreferenceManager
 import com.jhaiian.clint.R
 import com.jhaiian.clint.ui.listscreen.ConfirmDialogConfig
 import com.jhaiian.clint.quiver.engine.CompileEvent
@@ -21,26 +20,11 @@ import kotlinx.coroutines.launch
 import java.text.NumberFormat
 
 internal fun QuiverGuardActivity.showSetupGuideDialog() {
-    val prefs = PreferenceManager.getDefaultSharedPreferences(this)
     uiState.confirmDialog = ConfirmDialogConfig(
         title = getString(R.string.quiver_guard_no_active_lists_title),
         message = getString(R.string.quiver_guard_no_active_lists_message),
-        positiveLabel = getString(R.string.action_ok),
-        onPositive = {
-
-            if (!prefs.getBoolean(QuiverGuardActivity.PREF_EXPERIMENTAL_SHOWN, false)) {
-                showExperimentalDialog()
-            }
-        }
+        positiveLabel = getString(R.string.action_ok)
     )
-}
-
-internal fun QuiverGuardActivity.showExperimentalDialog() {
-    PreferenceManager.getDefaultSharedPreferences(this)
-        .edit()
-        .putBoolean(QuiverGuardActivity.PREF_EXPERIMENTAL_SHOWN, true)
-        .apply()
-    uiState.experimentalDialogOpen = true
 }
 
 internal fun QuiverGuardActivity.handleBackNavigation() {

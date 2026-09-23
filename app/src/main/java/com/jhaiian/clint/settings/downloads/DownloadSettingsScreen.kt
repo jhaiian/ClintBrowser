@@ -2,6 +2,7 @@ package com.jhaiian.clint.settings.downloads
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.BatterySaver
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.FormatSize
@@ -73,6 +74,7 @@ fun DownloadSettingsScreen(
     onDownloadManagerSelected: (String) -> Unit,
     onLocationModeSelected: (String) -> Unit,
     onFolderRowClick: () -> Unit,
+    onCategorizeDownloadsClick: () -> Unit,
     onMeasurementSystemSelected: (Boolean) -> Unit,
     onUnmeteredOnlyClick: () -> Unit,
     onScheduleEnabledClick: () -> Unit,
@@ -168,6 +170,15 @@ fun DownloadSettingsScreen(
                 }
                 Text(storageInfoText, color = colors.secondaryText, fontSize = 11.sp, modifier = Modifier.padding(top = 6.dp))
             }
+            RowDivider(colors.divider)
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.Category,
+                title = stringResource(R.string.download_categorize_title),
+                summary = stringResource(R.string.download_categorize_summary),
+                colors = colors,
+                onClick = onCategorizeDownloadsClick,
+                trailing = { ClintSwitch(checked = state.categorizeDownloads) }
+            )
         }
 
         SectionLabel(stringResource(R.string.download_section_measurement), colors.primary, Modifier.padding(start = 4.dp, bottom = 8.dp))

@@ -12,7 +12,7 @@ internal fun DownloadsActivity.showRedownloadDialog(item: DownloadItem) {
     val prefs = PreferenceManager.getDefaultSharedPreferences(this)
     val (initialSpeedLimitAmount, initialSpeedLimitUnit) = speedLimitBytesToAmountAndUnit(this, item.speedLimitBytesPerSec)
 
-    val theme = prefs.getString("app_theme", "dark") ?: "dark"
+    val theme = prefs.getString("app_theme", "system") ?: "system"
     val hideStatusBar = prefs.getBoolean("hide_status_bar", false)
     val hideSystemNavigation = prefs.getBoolean("hide_system_navigation", false)
 
@@ -34,6 +34,7 @@ internal fun DownloadsActivity.showRedownloadDialog(item: DownloadItem) {
                     prefs.getString(DownloadSettingsKeys.PREF_DOWNLOAD_LOCATION_MODE, DownloadSettingsKeys.MODE_DEFAULT) ?: DownloadSettingsKeys.MODE_DEFAULT
                 },
                 initialCustomUri = (item.customLocationUri ?: prefs.getString(DownloadSettingsKeys.PREF_DOWNLOAD_CUSTOM_URI, null))?.let { Uri.parse(it) },
+                initialCategorizeEnabled = item.categorizeEnabled,
                 initialRetryEnabled = item.retryEnabled,
                 initialUnmeteredOnly = item.unmeteredOnly,
                 initialSplitParts = item.splitParts,
@@ -54,6 +55,7 @@ internal fun DownloadsActivity.showRedownloadDialog(item: DownloadItem) {
                         speedLimitBytesPerSec = submission.speedLimitBytesPerSec,
                         locationMode = submission.locationMode,
                         customLocationUri = submission.customLocationUri,
+                        categorizeEnabled = submission.categorizeEnabled,
                         onDismiss = {
                             this@showRedownloadDialog.showClintSnackbar(
                                 message = getString(R.string.toast_downloading, submission.filename),
@@ -89,11 +91,12 @@ private fun DownloadsActivity.performRedownload(
     speedLimitBytesPerSec: Long,
     locationMode: String,
     customLocationUri: String?,
+    categorizeEnabled: Boolean,
     onDismiss: () -> Unit
 ) {
     fun startRedownload(effectiveUnmeteredOnly: Boolean) {
         if (DownloadFileHelper.isCustomLocationAccessible(this, locationMode, customLocationUri)) onDismiss()
-        ClintDownloadManager.enqueue(this, item.url, filename, item.userAgent, item.referer, item.cookies, retryEnabled, effectiveUnmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri)
+        ClintDownloadManager.enqueue(this, item.url, filename, item.userAgent, item.referer, item.cookies, retryEnabled, effectiveUnmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled = categorizeEnabled)
     }
     confirmMeteredWarningThenProceed(unmeteredOnly) { effectiveUnmeteredOnly ->
         startRedownload(effectiveUnmeteredOnly)

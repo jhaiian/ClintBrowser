@@ -98,7 +98,7 @@ class SetupActivity : ClintActivity(), OverlayHostActivity {
         uiState = SetupUiState(
             initialPage = initialPage,
             initialScrollY = initialScroll,
-            initialTheme = prefs.getString("app_theme", "dark") ?: "dark",
+            initialTheme = prefs.getString("app_theme", "system") ?: "system",
             initialAccent = prefs.getString("accent_color", "material_you") ?: "material_you",
             initialIntensity = prefs.getString("surface_intensity", "soft_tint") ?: "soft_tint",
             initialLanguage = prefs.getString(LocaleHelper.PREF_APP_LANGUAGE, LocaleHelper.LANGUAGE_SYSTEM) ?: LocaleHelper.LANGUAGE_SYSTEM,

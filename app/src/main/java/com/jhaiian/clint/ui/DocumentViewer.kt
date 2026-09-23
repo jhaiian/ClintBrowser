@@ -40,7 +40,7 @@ object DocumentViewer {
     fun show(context: Context, title: String, url: String) {
         val host = context.findActivity() as? OverlayHostActivity ?: return
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        val theme = prefs.getString("app_theme", "dark") ?: "dark"
+        val theme = prefs.getString("app_theme", "system") ?: "system"
         val hideStatusBar = prefs.getBoolean("hide_status_bar", false)
         val hideSystemNavigation = prefs.getBoolean("hide_system_navigation", false)
         val state = DocumentViewerUiState()

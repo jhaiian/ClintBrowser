@@ -9,11 +9,13 @@ class SiteSettingsUiState(
     initialMicBehavior: String,
     initialLocationBehavior: String,
     initialNotificationsBehavior: String,
+    initialClipboardBehavior: String,
     initialDesktopModeSaveState: String
 ) {
     var cameraBehavior by mutableStateOf(initialCameraBehavior)
     var micBehavior by mutableStateOf(initialMicBehavior)
     var locationBehavior by mutableStateOf(initialLocationBehavior)
     var notificationsBehavior by mutableStateOf(initialNotificationsBehavior)
+    var clipboardBehavior by mutableStateOf(initialClipboardBehavior)
     var desktopModeSaveState by mutableStateOf(initialDesktopModeSaveState)
 }

@@ -28,7 +28,7 @@ class QuiverGuardExceptionActivity : ClintActivity() {
 
         val type = SitePermissionDatabase.TYPE_QUIVER_GUARD_EXCEPTION
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val theme = prefs.getString("app_theme", "dark") ?: "dark"
+        val theme = prefs.getString("app_theme", "system") ?: "system"
         val hideStatusBar = prefs.getBoolean("hide_status_bar", false)
         val hideSystemNavigation = prefs.getBoolean("hide_system_navigation", false)
 

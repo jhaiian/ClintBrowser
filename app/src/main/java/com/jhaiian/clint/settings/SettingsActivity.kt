@@ -87,7 +87,7 @@ class SettingsActivity : ClintActivity(), OverlayHostActivity {
         hideStatusBarAtLaunch = prefs.getBoolean("hide_status_bar", false)
         hideSystemNavigationAtLaunch = prefs.getBoolean("hide_system_navigation", false)
         addressBarPositionAtLaunch = prefs.getString("address_bar_position", "top") ?: "top"
-        val theme = prefs.getString("app_theme", "dark") ?: "dark"
+        val theme = prefs.getString("app_theme", "system") ?: "system"
 
         val initialDestination = when (intent.getStringExtra(EXTRA_OPEN_FRAGMENT)) {
             "data_saver" -> DEST_DATA_SAVER

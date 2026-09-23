@@ -112,7 +112,7 @@ fun LookAndFeelPane(activity: SettingsActivity) {
     val prefs = remember { PreferenceManager.getDefaultSharedPreferences(activity) }
     val uiState = remember {
         LookAndFeelUiState(
-            initialTheme = prefs.getString("app_theme", "dark") ?: "dark",
+            initialTheme = prefs.getString("app_theme", "system") ?: "system",
             initialAccent = prefs.getString("accent_color", "material_you") ?: "material_you",
             initialIntensity = prefs.getString("surface_intensity", "soft_tint") ?: "soft_tint",
             initialLanguage = prefs.getString(LocaleHelper.PREF_APP_LANGUAGE, LocaleHelper.LANGUAGE_SYSTEM) ?: LocaleHelper.LANGUAGE_SYSTEM,
@@ -484,6 +484,7 @@ fun SiteSettingsPane(activity: SettingsActivity) {
             initialMicBehavior = behaviorFor(SitePermissionDatabase.TYPE_MIC),
             initialLocationBehavior = behaviorFor(SitePermissionDatabase.TYPE_LOCATION),
             initialNotificationsBehavior = behaviorFor(SitePermissionDatabase.TYPE_NOTIFICATION),
+            initialClipboardBehavior = behaviorFor(SitePermissionDatabase.TYPE_CLIPBOARD),
             initialDesktopModeSaveState = desktopModeSaveState()
         )
     }
@@ -497,6 +498,7 @@ fun SiteSettingsPane(activity: SettingsActivity) {
         uiState.micBehavior = behaviorFor(SitePermissionDatabase.TYPE_MIC)
         uiState.locationBehavior = behaviorFor(SitePermissionDatabase.TYPE_LOCATION)
         uiState.notificationsBehavior = behaviorFor(SitePermissionDatabase.TYPE_NOTIFICATION)
+        uiState.clipboardBehavior = behaviorFor(SitePermissionDatabase.TYPE_CLIPBOARD)
         uiState.desktopModeSaveState = desktopModeSaveState()
     }
 
@@ -506,6 +508,7 @@ fun SiteSettingsPane(activity: SettingsActivity) {
         onMicClick = { openPermission(SitePermissionDatabase.TYPE_MIC) },
         onLocationClick = { openPermission(SitePermissionDatabase.TYPE_LOCATION) },
         onNotificationsClick = { openPermission(SitePermissionDatabase.TYPE_NOTIFICATION) },
+        onClipboardClick = { openPermission(SitePermissionDatabase.TYPE_CLIPBOARD) },
         onDesktopModeClick = { activity.startActivity(Intent(activity, DesktopModeActivity::class.java)) },
         onQuiverGuardClick = { activity.startActivity(Intent(activity, QuiverGuardExceptionActivity::class.java)) }
     )
@@ -798,6 +801,7 @@ fun DownloadSettingsPane(activity: SettingsActivity) {
             initialDownloadManagerApp = prefs.getString(DownloadSettingsKeys.PREF_DOWNLOAD_MANAGER, DownloadSettingsKeys.DEFAULT_DOWNLOAD_MANAGER) ?: DownloadSettingsKeys.DEFAULT_DOWNLOAD_MANAGER,
             initialLocationMode = prefs.getString(DownloadSettingsKeys.PREF_DOWNLOAD_LOCATION_MODE, DownloadSettingsKeys.MODE_DEFAULT) ?: DownloadSettingsKeys.MODE_DEFAULT,
             initialCustomUri = prefs.getString(DownloadSettingsKeys.PREF_DOWNLOAD_CUSTOM_URI, null)?.let { Uri.parse(it) },
+            initialCategorizeDownloads = prefs.getBoolean(DownloadSettingsKeys.PREF_CATEGORIZE_DOWNLOADS, DownloadSettingsKeys.DEFAULT_CATEGORIZE_DOWNLOADS),
             initialMeasurementSystemDecimal = prefs.getString(PREF_MEASUREMENT_SYSTEM, DEFAULT_MEASUREMENT_SYSTEM) == MEASUREMENT_SYSTEM_DECIMAL,
             initialUnmeteredOnly = prefs.getBoolean(DownloadSettingsKeys.PREF_UNMETERED_ONLY, DownloadSettingsKeys.DEFAULT_UNMETERED_ONLY),
             initialScheduleEnabled = prefs.getBoolean(DownloadSettingsKeys.PREF_SCHEDULE_ENABLED, DownloadSettingsKeys.DEFAULT_SCHEDULE_ENABLED),
@@ -885,6 +889,11 @@ fun DownloadSettingsPane(activity: SettingsActivity) {
             if (newMode == DownloadSettingsKeys.MODE_CUSTOM) openFolderPicker()
         },
         onFolderRowClick = { openFolderPicker() },
+        onCategorizeDownloadsClick = {
+            val newValue = !uiState.categorizeDownloads
+            prefs.edit().putBoolean(DownloadSettingsKeys.PREF_CATEGORIZE_DOWNLOADS, newValue).apply()
+            uiState.categorizeDownloads = newValue
+        },
         onMeasurementSystemSelected = { decimal ->
             val value = if (decimal) MEASUREMENT_SYSTEM_DECIMAL else MEASUREMENT_SYSTEM_BINARY
             prefs.edit().putString(PREF_MEASUREMENT_SYSTEM, value).apply()

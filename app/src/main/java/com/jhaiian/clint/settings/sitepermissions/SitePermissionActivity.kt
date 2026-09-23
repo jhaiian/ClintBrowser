@@ -48,6 +48,7 @@ class SitePermissionActivity : ClintActivity() {
         SitePermissionDatabase.TYPE_MIC -> R.string.site_settings_mic
         SitePermissionDatabase.TYPE_LOCATION -> R.string.site_settings_location
         SitePermissionDatabase.TYPE_NOTIFICATION -> R.string.site_settings_notifications
+        SitePermissionDatabase.TYPE_CLIPBOARD -> R.string.site_settings_clipboard
         else -> R.string.site_settings_camera
     }
 
@@ -57,7 +58,7 @@ class SitePermissionActivity : ClintActivity() {
 
         val type = intent.getStringExtra(EXTRA_TYPE) ?: SitePermissionDatabase.TYPE_CAMERA
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val theme = prefs.getString("app_theme", "dark") ?: "dark"
+        val theme = prefs.getString("app_theme", "system") ?: "system"
         val hideStatusBar = prefs.getBoolean("hide_status_bar", false)
         val hideSystemNavigation = prefs.getBoolean("hide_system_navigation", false)
         val defaultBehaviorKey = "site_perm_default_$type"

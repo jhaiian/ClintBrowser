@@ -130,7 +130,7 @@ object MediaManifestParser {
                     val parts = resolution?.split("x")
                     val width = parts?.getOrNull(0)?.toIntOrNull()
                     val height = parts?.getOrNull(1)?.toIntOrNull()
-                    val bandwidth = attrs?.get("BANDWIDTH")?.toLongOrNull()
+                    val bandwidth = (attrs?.get("AVERAGE-BANDWIDTH") ?: attrs?.get("BANDWIDTH"))?.toLongOrNull()
                     val codecs = attrs?.get("CODECS")
                     val kind = when {
                         width != null || height != null -> MediaKind.VIDEO

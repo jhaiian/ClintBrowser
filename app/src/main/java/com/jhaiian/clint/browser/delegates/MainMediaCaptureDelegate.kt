@@ -32,7 +32,7 @@ internal fun MainActivity.mountMediaCaptureDialog() {
     val tabId = tabManager.activeTab?.id ?: return
     val pageUrl = tabManager.activeTab?.webView?.url ?: ""
     val pageTitle = tabManager.activeTab?.title?.takeIf { it.isNotBlank() } ?: pageUrl
-    val theme = prefs.getString("app_theme", "dark") ?: "dark"
+    val theme = prefs.getString("app_theme", "system") ?: "system"
     val hideStatusBar = prefs.getBoolean("hide_status_bar", false)
     val hideSystemNavigation = prefs.getBoolean("hide_system_navigation", false)
 
@@ -130,7 +130,7 @@ private fun MainActivity.showMediaCaptureDownloadDialog(
                         mediaCaptureRequestHeader(media, "Referer") ?: pageUrl,
                         mediaCaptureCookies(media.url),
                         submission.retryEnabled, submission.unmeteredOnly, submission.splitParts, submission.multithreadingParts, submission.speedLimitBytesPerSec,
-                        submission.locationMode, submission.customLocationUri, submission.scheduledStartAtMillis,
+                        submission.locationMode, submission.customLocationUri, submission.categorizeEnabled, submission.scheduledStartAtMillis,
                         onDismiss = dismiss,
                         onRename = onRename
                     )
@@ -209,6 +209,7 @@ private fun MainActivity.enqueueMediaCaptureStream(
         primaryIsAudio = isAudioPrimary,
         locationMode = submission.locationMode,
         customLocationUri = submission.customLocationUri,
+        categorizeEnabled = submission.categorizeEnabled,
         videoRepresentationId = if (!isAudioPrimary) media.representationId else null,
         audioRepresentationId = audio?.representationId ?: (if (isAudioPrimary) media.representationId else null)
     )

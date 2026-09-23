@@ -211,6 +211,7 @@ object ClintDownloadManager {
         primaryIsAudio: Boolean = false,
         locationMode: String? = null,
         customLocationUri: String? = null,
+        categorizeEnabled: Boolean? = null,
         videoRepresentationId: String? = null,
         audioRepresentationId: String? = null
     ) {
@@ -220,9 +221,10 @@ object ClintDownloadManager {
             ?: DownloadSettingsKeys.MODE_DEFAULT
         val effectiveCustomLocationUri = if (locationMode != null) customLocationUri
             else prefs.getString(DownloadSettingsKeys.PREF_DOWNLOAD_CUSTOM_URI, null)
+        val effectiveCategorizeEnabled = categorizeEnabled ?: DownloadCategories.isEnabled(context)
         if (!DownloadFileHelper.isCustomLocationAccessible(context, effectiveLocationMode, effectiveCustomLocationUri)) {
             promptInvalidLocation(context) {
-                enqueueStream(context, request, videoWidth, videoHeight, videoBandwidth, audioBandwidth, primaryIsAudio, locationMode, customLocationUri, videoRepresentationId, audioRepresentationId)
+                enqueueStream(context, request, videoWidth, videoHeight, videoBandwidth, audioBandwidth, primaryIsAudio, locationMode, customLocationUri, categorizeEnabled, videoRepresentationId, audioRepresentationId)
             }
             return
         }
@@ -239,6 +241,7 @@ object ClintDownloadManager {
             status = if (queued) DownloadStatus.QUEUED else DownloadStatus.CONNECTING,
             locationMode = effectiveLocationMode,
             customLocationUri = effectiveCustomLocationUri,
+            categorizeEnabled = effectiveCategorizeEnabled,
             resumable = true,
             isStream = true,
             totalBytes = request.estimatedTotalBytes.takeIf { it > 0L } ?: -1L,
@@ -261,15 +264,18 @@ object ClintDownloadManager {
             streamAudioRepresentationId = audioRepresentationId,
             speedLimitBytesPerSec = request.speedLimitBytesPerSec
         )
-        val destDir = DownloadFileHelper.resolveDirectCustomDir(context, baseItem)
-            ?: if (DownloadFileHelper.isSafCustomMode(context, baseItem)) DownloadFileHelper.tempDownloadDir(context) else DownloadFileHelper.resolveDownloadDir()
-        destDir.mkdirs()
+        val directCustomDir = DownloadFileHelper.resolveDirectCustomDir(context, baseItem)
+        val safMode = directCustomDir == null && DownloadFileHelper.isSafCustomMode(context, baseItem)
+        val rawDestDir = directCustomDir ?: if (safMode) DownloadFileHelper.tempDownloadDir(context) else DownloadFileHelper.resolveDownloadDir()
         val needsMuxGuess = request.videoUrl != null && request.audioUrl != null
         val userExt = request.filename.substringAfterLast('.', "").trim().takeIf { it.isNotBlank() }
         val guessedExt = userExt ?: if (needsMuxGuess) "mp4" else "ts"
         val dot = request.filename.lastIndexOf('.')
         val guessedBase = if (dot > 0) request.filename.substring(0, dot) else request.filename
-        val previewName = DownloadFileHelper.previewUniqueName(destDir, "$guessedBase.$guessedExt")
+        val guessedFilename = "$guessedBase.$guessedExt"
+        val destDir = if (safMode) rawDestDir else DownloadCategories.resolveDir(effectiveCategorizeEnabled, rawDestDir, guessedFilename)
+        destDir.mkdirs()
+        val previewName = DownloadFileHelper.previewUniqueName(destDir, guessedFilename)
         val item = baseItem.copy(filename = previewName)
         addNew(item)
 
@@ -362,8 +368,9 @@ object ClintDownloadManager {
                         ?: android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
                     if (ext != null) finalFilename = "${finalFilename.removeSuffix(".bin")}.$ext"
                 }
-                val destDir = directCustomDir
+                val rawDestDir = directCustomDir
                     ?: if (safMode) DownloadFileHelper.tempDownloadDir(context) else DownloadFileHelper.resolveDownloadDir()
+                val destDir = if (safMode) rawDestDir else DownloadCategories.resolveDir(DownloadCategories.isEnabled(context), rawDestDir, finalFilename)
                 destDir.mkdirs()
                 val destFile = DownloadFileHelper.uniqueFile(destDir, finalFilename)
                 java.io.FileOutputStream(destFile).use { it.write(bytes) }
@@ -469,14 +476,15 @@ object ClintDownloadManager {
         speedLimitBytesPerSec: Long = 0L,
         locationMode: String = "default",
         customLocationUri: String? = null,
-        scheduledStartAtMillis: Long = 0L
+        scheduledStartAtMillis: Long = 0L,
+        categorizeEnabled: Boolean = DownloadSettingsKeys.DEFAULT_CATEGORIZE_DOWNLOADS
     ) {
         if (!DownloadFileHelper.isCustomLocationAccessible(context, locationMode, customLocationUri)) {
             promptInvalidLocation(context) {
                 enqueue(
                     context, url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly,
                     splitParts, multithreadingParts, speedLimitBytesPerSec,
-                    DownloadSettingsKeys.MODE_DEFAULT, null, scheduledStartAtMillis
+                    DownloadSettingsKeys.MODE_DEFAULT, null, scheduledStartAtMillis, categorizeEnabled
                 )
             }
             return
@@ -487,11 +495,13 @@ object ClintDownloadManager {
             cookies = cookies, retryEnabled = retryEnabled, unmeteredOnly = unmeteredOnly,
             splitParts = splitParts, multithreadingParts = multithreadingParts,
             speedLimitBytesPerSec = speedLimitBytesPerSec,
-            locationMode = locationMode, customLocationUri = customLocationUri,
+            locationMode = locationMode, customLocationUri = customLocationUri, categorizeEnabled = categorizeEnabled,
             startedAt = System.currentTimeMillis(), scheduledStartAtMillis = scheduledStartAtMillis
         )
-        val destDir = DownloadFileHelper.resolveDirectCustomDir(context, baseItem)
-            ?: if (DownloadFileHelper.isSafCustomMode(context, baseItem)) DownloadFileHelper.tempDownloadDir(context) else DownloadFileHelper.resolveDownloadDir()
+        val directCustomDir = DownloadFileHelper.resolveDirectCustomDir(context, baseItem)
+        val safMode = directCustomDir == null && DownloadFileHelper.isSafCustomMode(context, baseItem)
+        val rawDestDir = directCustomDir ?: if (safMode) DownloadFileHelper.tempDownloadDir(context) else DownloadFileHelper.resolveDownloadDir()
+        val destDir = if (safMode) rawDestDir else DownloadCategories.resolveDir(categorizeEnabled, rawDestDir, filename)
         destDir.mkdirs()
         val previewName = DownloadFileHelper.previewUniqueName(destDir, filename)
         dispatchOrQueue(context, baseItem.copy(filename = previewName), ::addNew)
@@ -585,6 +595,7 @@ object ClintDownloadManager {
         val job = activeJobs[id]
         job?.cancel()
         context.getSystemService(NotificationManager::class.java).cancel(id)
+        DownloadNotificationHelper.cancelCompleteNotification(context, id)
         _downloads.update { list -> list.filterNot { it.id == id } }
         val appCtx = appContext
         applicationScope.launch {

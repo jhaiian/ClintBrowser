@@ -38,4 +38,6 @@ object DownloadSettingsKeys {
     const val DEFAULT_KEEP_SCREEN_ON       = false
     const val PREF_DOWNLOAD_MANAGER        = "download_manager_app"
     const val DEFAULT_DOWNLOAD_MANAGER     = com.jhaiian.clint.downloads.DownloadManagerAppIds.CLINT
+    const val PREF_CATEGORIZE_DOWNLOADS    = "download_categorize_downloads"
+    const val DEFAULT_CATEGORIZE_DOWNLOADS = false
 }

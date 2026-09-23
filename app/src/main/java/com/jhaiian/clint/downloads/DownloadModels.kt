@@ -58,6 +58,7 @@ data class DownloadItem(
     val speedLimitBytesPerSec: Long = 0L,
     val locationMode: String = "default",
     val customLocationUri: String? = null,
+    val categorizeEnabled: Boolean = false,
 
     val completedPartsMask: Long = 0L,
 

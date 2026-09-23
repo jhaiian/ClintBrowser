@@ -539,7 +539,7 @@
     <string name="download_status_allocating">Выделение места&#8230; %1$d%%</string>
     <string name="download_status_segment_progress">Сегмент %1$d из %2$d</string>
     <string name="download_status_decrypting">Расшифровка&#8230;</string>
-    <string name="download_status_muxing">Завершение обработки видео&#8230; %1$d%%</string>
+    <string name="download_status_muxing">Завершение обработки видео&#8230;</string>
     <string name="download_status_converting">Преобразование&#8230; %1$d%%</string>
     <string name="download_status_copying_temp">Копирование временных файлов&#8230; %1$d%%</string>
     <string name="download_copying_temp_notification">Копирование временных файлов&#8230; %1$d%%</string>
@@ -1128,8 +1128,6 @@
     <string name="quiver_guard_no_active_lists_title">Нет активных списков фильтров</string>
     <string name="quiver_guard_no_active_lists_message">Для работы Quiver Guard требуется хотя бы один активный список фильтров. Чтобы начать:\n\n1. Нажмите на список фильтров ниже, чтобы загрузить его.\n2. После загрузки нажмите кнопку сохранения, чтобы скомпилировать ваши списки фильтров.\n3. После компиляции включите Quiver Guard с помощью переключателя выше.</string>
 
-    <string name="quiver_guard_experimental_title">Экспериментальная функция</string>
-    <string name="quiver_guard_experimental_message">Quiver Guard всё ещё находится на экспериментальной стадии тестирования. С вашей помощью мы улучшаем эту функцию. Если вы обнаружите неработающие сайты или ошибки, связанные с этой функцией, пожалуйста, сообщите о них на GitHub. Спасибо.</string>
 
     <string name="quiver_guard_recompile_required_title">Требуется перекомпиляция</string>
     <string name="quiver_guard_recompile_required_button">Перекомпилировать</string>

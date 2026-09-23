@@ -4,6 +4,82 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.1.6-beta-5
+
+---
+
+## What's New
+
+### Download Status
+
+- Added more statuses in stream download.
+
+---
+
+### Download Categories
+
+Added download categories. This basically puts your downloads into subfolders to categorize them.
+
+**Videos**
+
+MP4, MKV, WebM, AVI, MOV, WMV, FLV, M4V, 3GP, TS, M2TS, MTS, MPEG, MPG, OGV, VOB, RMVB, F4V, ASF, M2V, MXF, OGM, DIVX, XVID
+
+**Images**
+
+JPG / JPEG, PNG, GIF, WebP, BMP, HEIC / HEIF, SVG, TIFF / TIF, ICO, AVIF, RAW, CR2, NEF, ORF, ARW, DNG, JFIF, JP2, TGA
+
+**Audio**
+
+MP3, M4A, AAC, WAV, FLAC, OGG, WMA, OPUS, MID / MIDI, AMR, AIFF / AIF, ALAC, APE, MKA, CAF, DSF, DFF, RA, RM, SPX, VOC
+
+**Documents**
+
+PDF, DOC / DOCX, XLS / XLSX, PPT / PPTX, TXT, RTF, ODT, ODS, ODP, CSV, EPUB, MOBI, MD, JSON, XML, TSV, NUMBERS, KEY, PAGES, AZW / AZW3 / AZW4, FB2, DJVU, CBZ, CBR, LOG
+
+**Archives**
+
+ZIP, RAR, 7Z, TAR, GZ, BZ2, XZ, ISO, LZ4, ZST, BR, CAB, TGZ, TBZ2, TXZ, Z, LZMA, LZH, ARJ, ACE, SIT, CPIO, XAR
+
+**Apps**
+
+APK, APKS, XAPK, APKM, APKZ, AAB, EXE, MSI, MSIX, DMG, PKG, DEB, RPM, APPIMAGE, JAR, BAT, COM, RUN
+
+**Others**
+
+Anything that doesn't match the categories above.
+
+---
+
+### Tab Grid
+
+- Tab Grid will now open at the current tab position instead of opening at the top.
+
+---
+
+### Quiver Guard
+
+- Removed experimental dialog.
+
+---
+
+### Site Permission / Site Settings
+
+- Added clipboard web permission. It's going to behave like the other existing web permissions.
+
+---
+
+### Theme
+
+- Set theme default value to System.
+
+---
+
+## Bug Fixes
+
+- Fixed download complete notification not persisting.
+
+---
+
 # v1.1.6-beta-4
 
 ---

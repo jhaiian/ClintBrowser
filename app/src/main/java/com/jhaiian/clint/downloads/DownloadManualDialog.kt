@@ -38,6 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -76,6 +77,7 @@ data class ManualDownloadSubmission(
     val speedLimitBytesPerSec: Long,
     val locationMode: String,
     val customLocationUri: String?,
+    val categorizeEnabled: Boolean,
     val scheduledStartAtMillis: Long,
     val isStream: Boolean = false,
     val streamFormat: StreamContainerFormat? = null,
@@ -260,6 +262,13 @@ fun DownloadManualDialog(
         mutableStateOf(prefs.getString(DownloadSettingsKeys.PREF_DOWNLOAD_CUSTOM_URI, null)?.let { Uri.parse(it) })
     }
     var locationMenuOpen by remember { mutableStateOf(false) }
+    var categorizeEnabled by remember { mutableStateOf(DownloadCategories.isEnabled(context)) }
+    val destinationPreviewText = remember(locationMode, customUri, filename, extension, categorizeEnabled) {
+        if (!categorizeEnabled) return@remember null
+        val resolvedFilename = if (extension.isNotBlank()) "$filename.$extension" else filename
+        val basePath = if (locationMode == DownloadSettingsKeys.MODE_CUSTOM) customUri?.let { uriToDisplayPath(it) } else DEFAULT_DOWNLOAD_PATH
+        basePath?.let { it.trimEnd('/') + "/" + DownloadCategories.categorySubpathDisplay(categorizeEnabled, resolvedFilename) + resolvedFilename }
+    }
 
     var retryEnabled by remember { mutableStateOf(prefs.getBoolean(DownloadSettingsKeys.PREF_RETRY_ENABLED, DownloadSettingsKeys.DEFAULT_RETRY_ENABLED)) }
     var unmeteredOnly by remember { mutableStateOf(prefs.getBoolean(DownloadSettingsKeys.PREF_UNMETERED_ONLY, DownloadSettingsKeys.DEFAULT_UNMETERED_ONLY)) }
@@ -414,6 +423,7 @@ fun DownloadManualDialog(
                             speedLimitBytesPerSec = speedLimitBytesPerSec,
                             locationMode = locationMode,
                             customLocationUri = customUri?.toString(),
+                            categorizeEnabled = categorizeEnabled,
                             scheduledStartAtMillis = effectiveScheduledMillis,
                             isStream = plan != null,
                             streamFormat = plan?.format,
@@ -531,6 +541,24 @@ fun DownloadManualDialog(
                                 color = colors.onSurface, fontSize = 13.sp, modifier = Modifier.padding(start = 10.dp)
                             )
                         }
+                    }
+                    Row(
+                        Modifier.fillMaxWidth().clickable {
+                            categorizeEnabled = !categorizeEnabled
+                        }.padding(top = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text(stringResource(R.string.download_categorize_title), color = colors.onSurface, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                            Text(stringResource(R.string.download_categorize_summary), color = colors.secondaryText, fontSize = 12.sp, modifier = Modifier.padding(top = 2.dp))
+                        }
+                        ClintSwitch(checked = categorizeEnabled)
+                    }
+                    destinationPreviewText?.let {
+                        Text(
+                            it, color = colors.secondaryText, fontSize = 11.sp, fontFamily = FontFamily.Monospace,
+                            maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 6.dp)
+                        )
                     }
                 }
             }
