@@ -1,12 +1,12 @@
 {
-  "version": "1.1.6-beta-4",
-  "changelog": "# Clint Browser v1.1.6-beta-4\n\n---\n\n## What's New\n\n### Media Capture\n\n- Subtitles and audio now have metadata display just like the video ones.\n- Added sorting options in Media Capture: Resolution, Size, Newest, Oldest.\n\n---\n\n## Dependency Updates\n\n- Bump `com.android.application` from 9.4.0 to 9.4.1 in\n\n---",
+  "version": "1.1.6-beta-5",
+  "changelog": "# Clint Browser v1.1.6-beta-5\n\n---\n\n## What's New\n\n### Download Status\n\n- Added more statuses in stream download.\n\n---\n\n### Download Categories\n\nAdded download categories. This basically puts your downloads into subfolders to categorize them.\n\n**Videos**\n\nMP4, MKV, WebM, AVI, MOV, WMV, FLV, M4V, 3GP, TS, M2TS, MTS, MPEG, MPG, OGV, VOB, RMVB, F4V, ASF, M2V, MXF, OGM, DIVX, XVID\n\n**Images**\n\nJPG / JPEG, PNG, GIF, WebP, BMP, HEIC / HEIF, SVG, TIFF / TIF, ICO, AVIF, RAW, CR2, NEF, ORF, ARW, DNG, JFIF, JP2, TGA\n\n**Audio**\n\nMP3, M4A, AAC, WAV, FLAC, OGG, WMA, OPUS, MID / MIDI, AMR, AIFF / AIF, ALAC, APE, MKA, CAF, DSF, DFF, RA, RM, SPX, VOC\n\n**Documents**\n\nPDF, DOC / DOCX, XLS / XLSX, PPT / PPTX, TXT, RTF, ODT, ODS, ODP, CSV, EPUB, MOBI, MD, JSON, XML, TSV, NUMBERS, KEY, PAGES, AZW / AZW3 / AZW4, FB2, DJVU, CBZ, CBR, LOG\n\n**Archives**\n\nZIP, RAR, 7Z, TAR, GZ, BZ2, XZ, ISO, LZ4, ZST, BR, CAB, TGZ, TBZ2, TXZ, Z, LZMA, LZH, ARJ, ACE, SIT, CPIO, XAR\n\n**Apps**\n\nAPK, APKS, XAPK, APKM, APKZ, AAB, EXE, MSI, MSIX, DMG, PKG, DEB, RPM, APPIMAGE, JAR, BAT, COM, RUN\n\n**Others**\n\nAnything that doesn't match the categories above.\n\n---\n\n### Tab Grid\n\n- Tab Grid will now open at the current tab position instead of opening at the top.\n\n---\n\n### Quiver Guard\n\n- Removed experimental dialog.\n\n---\n\n### Site Permission / Site Settings\n\n- Added clipboard web permission. It's going to behave like the other existing web permissions.\n\n---\n\n### Theme\n\n- Set theme default value to System.\n\n---\n\n## Bug Fixes\n\n- Fixed download complete notification not persisting.\n\n---",
   "downloads": {
-    "arm64-v8a": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.1.6-beta-4/ClintBrowser-1.1.6-beta-4-arm64-v8a.apk",
-    "armeabi-v7a": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.1.6-beta-4/ClintBrowser-1.1.6-beta-4-armeabi-v7a.apk",
-    "x86": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.1.6-beta-4/ClintBrowser-1.1.6-beta-4-x86.apk",
-    "x86_64": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.1.6-beta-4/ClintBrowser-1.1.6-beta-4-x86_64.apk",
-    "universal": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.1.6-beta-4/ClintBrowser-1.1.6-beta-4-universal.apk"
+    "arm64-v8a": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.1.6-beta-5/ClintBrowser-1.1.6-beta-5-arm64-v8a.apk",
+    "armeabi-v7a": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.1.6-beta-5/ClintBrowser-1.1.6-beta-5-armeabi-v7a.apk",
+    "x86": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.1.6-beta-5/ClintBrowser-1.1.6-beta-5-x86.apk",
+    "x86_64": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.1.6-beta-5/ClintBrowser-1.1.6-beta-5-x86_64.apk",
+    "universal": "https://github.com/jhaiian/ClintBrowser/releases/download/v1.1.6-beta-5/ClintBrowser-1.1.6-beta-5-universal.apk"
   },
-  "versionCode": 33
+  "versionCode": 34
 }
