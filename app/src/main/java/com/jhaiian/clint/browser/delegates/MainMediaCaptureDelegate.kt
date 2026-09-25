@@ -15,6 +15,8 @@ import com.jhaiian.clint.downloads.DownloadRequestSubmission
 import com.jhaiian.clint.downloads.DownloadStatus
 import com.jhaiian.clint.downloads.DownloadsActivity
 import com.jhaiian.clint.mediacapture.DetectedMedia
+import com.jhaiian.clint.mediacapture.MEDIA_CAPTURE_CONVERT_TS_TO_MP4_DEFAULT
+import com.jhaiian.clint.mediacapture.MEDIA_CAPTURE_CONVERT_TS_TO_MP4_PREF
 import com.jhaiian.clint.mediacapture.MediaCaptureDialog
 import com.jhaiian.clint.mediacapture.MediaKind
 import com.jhaiian.clint.mediacapture.download.StreamContainerFormat
@@ -72,9 +74,10 @@ private fun MainActivity.showMediaCaptureDownloadDialog(
     val userAgent = android.webkit.WebSettings.getDefaultUserAgent(this)
     val isManifestBased = isMediaCaptureManifestBased(media)
     val isAudioPrimary = media.kind == MediaKind.AUDIO
+    val convertTsToMp4 = prefs.getBoolean(MEDIA_CAPTURE_CONVERT_TS_TO_MP4_PREF, MEDIA_CAPTURE_CONVERT_TS_TO_MP4_DEFAULT) && !isAudioPrimary
     val pairedAudio = if (isManifestBased && !isAudioPrimary) pickPairedAudio(media, allItems) else null
     val realExtension = if (isManifestBased) {
-        if (pairedAudio != null || containerExtension == null || containerExtension == "mp4") "mp4" else containerExtension
+        if (pairedAudio != null || containerExtension == null || containerExtension == "mp4" || convertTsToMp4) "mp4" else containerExtension
     } else null
     val filename = suggestMediaCaptureFilename(media, pageTitle, realExtension)
     val knownLengthBytes = media.sizeBytes?.takeIf { it > 0L }
@@ -115,7 +118,7 @@ private fun MainActivity.showMediaCaptureDownloadDialog(
                         )
                     }
                     dismiss()
-                    enqueueMediaCaptureStream(media, allItems, pageUrl, userAgent, submission, knownLengthBytes ?: estimatedBytes ?: 0L)
+                    enqueueMediaCaptureStream(media, allItems, pageUrl, userAgent, submission, knownLengthBytes ?: estimatedBytes ?: 0L, convertTsToMp4)
                 } else {
                     if (DownloadFileHelper.isCustomLocationAccessible(this, submission.locationMode, submission.customLocationUri)) {
                         showClintSnackbar(
@@ -174,7 +177,8 @@ private fun MainActivity.enqueueMediaCaptureStream(
     pageUrl: String,
     userAgent: String,
     submission: DownloadRequestSubmission,
-    estimatedTotalBytes: Long
+    estimatedTotalBytes: Long,
+    convertTsToMp4: Boolean
 ) {
     val isDash = media.format.equals("DASH", true)
     val isAudioPrimary = media.kind == MediaKind.AUDIO
@@ -197,7 +201,8 @@ private fun MainActivity.enqueueMediaCaptureStream(
         speedLimitBytesPerSec = submission.speedLimitBytesPerSec,
         concurrentSegments = submission.concurrentSegments,
         noAudio = !isAudioPrimary && media.hasAudio == false,
-        isLive = media.isLive
+        isLive = media.isLive,
+        convertTsToMp4 = convertTsToMp4
     )
     ClintDownloadManager.enqueueStream(
         context = this,

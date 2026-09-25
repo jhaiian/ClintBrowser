@@ -46,7 +46,8 @@ data class StreamDownloadRequest(
     val speedLimitBytesPerSec: Long = 0L,
     val concurrentSegments: Int = 6,
     val noAudio: Boolean = false,
-    val isLive: Boolean = false
+    val isLive: Boolean = false,
+    val convertTsToMp4: Boolean = false
 )
 
 object StreamBackoff {

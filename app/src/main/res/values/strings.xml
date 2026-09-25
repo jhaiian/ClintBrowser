@@ -76,7 +76,7 @@
     <string name="default_label">Default</string>
     <string name="next">Next \u2192</string>
     <string name="get_started">Get Started</string>
-    <string name="setup_subtitle">Private browsing, your way.\nNo telemetry. No tracking.</string>
+    <string name="setup_subtitle">The Browser That Does More.</string>
     <string name="js_warning_title">Disable JavaScript?</string>
     <string name="js_warning_message">Many app features rely on JavaScript, including web notifications, desktop mode, and reader mode. Websites may also break or display incorrectly.\n\nAre you sure you want to turn it off?</string>
     <string name="action_turn_off_anyway">Turn off anyway</string>
@@ -98,7 +98,7 @@
     <string name="about_section_license">LICENSE</string>
     <string name="about_section_repository">SOURCE CODE</string>
     <string name="about_created_by">Created by</string>
-    <string name="about_description">Clint is a free and open-source Android browser with no dedicated backend infrastructure, meaning it does not collect any of your data. It features a clean, customizable Material Design interface, the built-in Quiver Guard content blocker for ads and trackers, and an advanced download manager and website blocker.</string>
+    <string name="about_description">An open source Android browser with no dedicated backend and tons of features that typical browsers have, while offering a modern UI built around Material 3.\n\nWe respect your privacy, so the app doesn\u2019t collect any kind of data. We don\u2019t even count how many active users there are. We collect zero data whatsoever.\n\nClint\u2019s goal is to create an Android browser that does more while being pleasant to look at and highly customizable, with no ads and no paywalls. Clint is completely free to use.</string>
     <string name="about_version_info">Version: %1$s (build %2$d)\nDevice architecture: %3$s</string>
     <string name="about_license_text">The source code of this project is licensed under the GNU General Public License v3.0 (GPLv3).\n\nThe names \"Clint\" and \"Clint Browser,\" the logo, screenshots, and all related branding assets are trademarks or proprietary assets of the author and are not licensed under the GPL. Use of these assets requires explicit permission from the author.</string>
     <string name="about_license_link_label">View GPL v3.0 license \u2197</string>
@@ -610,7 +610,7 @@
     <string name="download_resumable_no">Resume: No</string>
 
     <string name="setup_default_browser_title">Default Browser</string>
-    <string name="setup_default_browser_description">Make Clint your default browser so links from other apps open here automatically. This is completely optional \u2014 you can change it at any time in your device settings.</string>
+    <string name="setup_default_browser_description">Make Clint your default browser so links from other apps open here automatically. This is completely optional, you can change it at any time in your device settings.</string>
     <string name="setup_default_browser_card_title">Set as Default Browser</string>
     <string name="setup_default_browser_card_desc">Tap the button below to set Clint as your default browser</string>
     <string name="setup_default_browser_set_button">Set as Default Browser</string>
@@ -1358,8 +1358,6 @@
 
     <string name="website_blocker_category_abuse">Abuse</string>
     <string name="website_blocker_category_abuse_desc">Blocks deceptive and abusive sites</string>
-    <string name="website_blocker_category_ads">Ads</string>
-    <string name="website_blocker_category_ads_desc">Blocks ad-serving domains</string>
     <string name="website_blocker_category_crypto">Crypto</string>
     <string name="website_blocker_category_crypto_desc">Blocks cryptojacking and crypto scam sites</string>
     <string name="website_blocker_category_drugs">Drugs</string>
@@ -1552,4 +1550,8 @@
     <string name="media_capture_menu_stream">Stream</string>
     <string name="media_capture_menu_copy_link">Copy Download Link</string>
     <string name="media_capture_menu_share_link">Share Download Link</string>
+    <string name="media_capture_convert_ts_to_mp4">Convert TS to MP4</string>
+    <string name="media_capture_menu_preview">Preview</string>
+    <string name="media_capture_subtitle_preview_title">Subtitle Preview</string>
+    <string name="media_capture_subtitle_preview_error">Couldn\u2019t load subtitle.\nPlease check your connection and try again.</string>
 </resources>

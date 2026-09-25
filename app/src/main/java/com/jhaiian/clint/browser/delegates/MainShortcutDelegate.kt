@@ -68,8 +68,10 @@ internal fun MainActivity.openOrResumeShortcutTab(shortcutId: String, fallbackUr
     val record = ShortcutStore.get(this, shortcutId)
     val persistedTabs = ShortcutTabSessionManager.load(this, shortcutId)
     if (persistedTabs.isNotEmpty()) {
-        persistedTabs.forEach { saved -> openNewTabSilent(saved.url, saved.tabId, shortcutId) }
         val activeId = persistedTabs.firstOrNull { it.isActive }?.tabId ?: persistedTabs.first().tabId
+        persistedTabs.forEach { saved ->
+            openNewTabSilent(saved.url, saved.tabId, shortcutId, deferLoad = saved.tabId != activeId, title = saved.title)
+        }
         val index = tabManager.tabs.indexOfFirst { it.id == activeId }
         tabManager.switchTo(if (index != -1) index else tabManager.tabs.lastIndex)
         attachActiveWebView()

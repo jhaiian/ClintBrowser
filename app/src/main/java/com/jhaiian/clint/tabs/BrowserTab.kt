@@ -12,5 +12,6 @@ data class BrowserTab(
     val openerTabId: String? = null,
     val shortcutId: String? = null,
     val previousTabId: String? = null,
+    var pendingUrl: String? = null,
     val webView: WebView
 )

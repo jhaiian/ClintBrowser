@@ -101,6 +101,7 @@ private fun UpdateAvailableDialog(
     val colors = LocalClintColors.current
     val channelLabel = if (step.isBeta) " (Beta)" else ""
     val onSurfaceArgb = colors.onSurface.toArgb()
+    val linkArgb = colors.primary.toArgb()
     ClintDialog(
         title = stringResource(R.string.update_dialog_title, step.version, channelLabel),
         hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation,
@@ -141,6 +142,7 @@ private fun UpdateAvailableDialog(
             },
             update = { tv ->
                 tv.setTextColor(onSurfaceArgb)
+                tv.setLinkTextColor(linkArgb)
                 Markwon.create(tv.context).setMarkdown(tv, step.changelog)
             }
         )

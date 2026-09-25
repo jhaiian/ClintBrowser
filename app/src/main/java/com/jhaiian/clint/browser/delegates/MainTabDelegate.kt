@@ -43,7 +43,9 @@ internal fun MainActivity.restoreTabs(): Boolean {
     val savedTabs = TabSessionManager.load(this).filter { it.shortcutId == null }
     if (savedTabs.isEmpty()) return false
     val activeIndex = savedTabs.indexOfFirst { it.isActive }.coerceAtLeast(0)
-    savedTabs.forEach { openNewTabSilent(it.url, it.tabId, it.shortcutId) }
+    savedTabs.forEachIndexed { index, saved ->
+        openNewTabSilent(saved.url, saved.tabId, saved.shortcutId, deferLoad = index != activeIndex, title = saved.title)
+    }
     tabManager.switchTo(activeIndex)
     attachActiveWebView()
     TabThumbnailCache.pruneDisk(this, savedTabs.map { it.tabId }.toSet())
@@ -80,9 +82,16 @@ private fun MainActivity.migrateTabsFromPrefsIfNeeded() {
 }
 
 @SuppressLint("SetJavaScriptEnabled")
-internal fun MainActivity.openNewTabSilent(url: String, id: String = java.util.UUID.randomUUID().toString(), shortcutId: String? = null) {
+internal fun MainActivity.openNewTabSilent(
+    url: String,
+    id: String = java.util.UUID.randomUUID().toString(),
+    shortcutId: String? = null,
+    deferLoad: Boolean = false,
+    title: String? = null
+) {
     val webView = createWebView(false)
     val tab = BrowserTab(id = id, url = url, shortcutId = shortcutId, webView = webView)
+    if (!title.isNullOrBlank()) tab.title = title
     tabManager.add(tab)
     if (isDesktopMode) addDesktopScript(tab)
     addUserScripts(tab)
@@ -109,11 +118,12 @@ internal fun MainActivity.openNewTabSilent(url: String, id: String = java.util.U
         onFileChooser = { callback, params -> onShowFileChooser(callback, params) },
         onWebPermissionRequest = { request -> onWebPermissionRequest(request) },
         onGeolocationRequest = { origin, callback -> onWebGeolocationRequest(origin, callback) },
+        isFullscreenActive = { uiState.isFullscreen },
         onNewWindowRequest = { newUrl ->
             showPopupAlertDialog(newUrl, tab.isIncognito, tab.id)
         }
     )
-    webView.loadUrl(url)
+    if (deferLoad) tab.pendingUrl = url else webView.loadUrl(url)
 }
 
 internal fun MainActivity.openNewTabInBackground(url: String, openerTabId: String? = null) {
@@ -145,6 +155,7 @@ internal fun MainActivity.openNewTabInBackground(url: String, openerTabId: Strin
         onFileChooser = { callback, params -> onShowFileChooser(callback, params) },
         onWebPermissionRequest = { request -> onWebPermissionRequest(request) },
         onGeolocationRequest = { origin, callback -> onWebGeolocationRequest(origin, callback) },
+        isFullscreenActive = { uiState.isFullscreen },
         onNewWindowRequest = { newUrl ->
             showPopupAlertDialog(newUrl, false, tab.id)
         }
@@ -183,6 +194,7 @@ internal fun MainActivity.openNewTab(isIncognito: Boolean, url: String = getSear
         onFileChooser = { callback, params -> onShowFileChooser(callback, params) },
         onWebPermissionRequest = { request -> onWebPermissionRequest(request) },
         onGeolocationRequest = { origin, callback -> onWebGeolocationRequest(origin, callback) },
+        isFullscreenActive = { uiState.isFullscreen },
         onNewWindowRequest = { newUrl ->
             showPopupAlertDialog(newUrl, isIncognito, tab.id)
         }
@@ -200,11 +212,15 @@ internal fun MainActivity.attachActiveWebView() {
         android.view.ViewGroup.LayoutParams.MATCH_PARENT,
         android.view.ViewGroup.LayoutParams.MATCH_PARENT
     ))
+    tab.pendingUrl?.let { pending ->
+        tab.pendingUrl = null
+        tab.webView.loadUrl(pending)
+    }
     updateIncognitoState(tab.isIncognito)
     uiState.activeTabId = tab.id
     updateSwipeRefreshColors(tab.isIncognito)
     updateTabCount()
-    updateAddressBar(tab.webView.url ?: "")
+    updateAddressBar(tab.webView.url ?: tab.url)
     uiState.pageLoadProgress = tab.webView.progress
     uiState.isPageLoading = tab.webView.progress < 100
     updateNavigationState()
@@ -223,6 +239,19 @@ internal fun MainActivity.attachActiveWebView() {
     animateBottomBarTo(0f, animated = false)
     attachScrollListener(tab.webView)
     injectScrollTracker(tab.webView)
+    syncTabPlayback()
+}
+
+internal fun MainActivity.syncTabPlayback() {
+    val activeId = tabManager.activeTab?.id
+    tabManager.tabs.forEach { tab ->
+        if (tab.id == activeId) {
+            tab.webView.onResume()
+        } else if (tab.pendingUrl == null) {
+            tab.webView.evaluateJavascript(com.jhaiian.clint.browser.webview.TabMediaControl.PAUSE_SCRIPT, null)
+            tab.webView.onPause()
+        }
+    }
 }
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -256,6 +285,7 @@ internal fun MainActivity.openRefreshLinkTab(url: String) {
         onFileChooser = { callback, params -> onShowFileChooser(callback, params) },
         onWebPermissionRequest = { request -> onWebPermissionRequest(request) },
         onGeolocationRequest = { origin, callback -> onWebGeolocationRequest(origin, callback) },
+        isFullscreenActive = { uiState.isFullscreen },
         onNewWindowRequest = { newUrl ->
             showPopupAlertDialog(newUrl, false, tab.id)
         }

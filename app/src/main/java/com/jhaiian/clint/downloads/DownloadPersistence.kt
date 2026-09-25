@@ -212,6 +212,7 @@ internal object DownloadPersistence {
         put("headers", JSONObject(item.streamHeaders as Map<*, *>))
         put("concurrentSegments", item.streamConcurrentSegments)
         put("isLive", item.streamIsLive)
+        put("convertTsToMp4", item.streamConvertTsToMp4)
         putOpt("videoRepresentationId", item.streamVideoRepresentationId)
         putOpt("audioRepresentationId", item.streamAudioRepresentationId)
         put("segmentsCompleted", item.segmentsCompleted)
@@ -248,6 +249,7 @@ internal object DownloadPersistence {
             streamHeaders = headers,
             streamConcurrentSegments = o.optInt("concurrentSegments", 6),
             streamIsLive = o.optBoolean("isLive", false),
+            streamConvertTsToMp4 = o.optBoolean("convertTsToMp4", false),
             streamVideoRepresentationId = o.optNullableString("videoRepresentationId"),
             streamAudioRepresentationId = o.optNullableString("audioRepresentationId"),
             segmentsCompleted = o.optInt("segmentsCompleted", 0),

@@ -113,6 +113,7 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
         WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("web_notification_bridge.js"), setOf("*"))
         WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("web_clipboard_bridge.js"), setOf("*"))
         WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("select_picker.js"), setOf("*"))
+        WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("fullscreen_popup_guard.js"), setOf("*"))
     }
     val dataSaverActive = prefs.getBoolean("data_saver_enabled", false)
         && prefs.getBoolean("data_saver_disable_autoplay", true)

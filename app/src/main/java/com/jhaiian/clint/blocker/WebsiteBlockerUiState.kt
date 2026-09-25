@@ -63,7 +63,9 @@ class WebsiteBlockerUiState {
     var compiledAdditionalCount by mutableStateOf(0)
 
     fun isConfigurationDirty(): Boolean =
-        pendingEnabledOverrides.isNotEmpty() || additionalWebsitesCount != compiledAdditionalCount
+        pendingEnabledOverrides.isNotEmpty() ||
+            additionalWebsitesCount != compiledAdditionalCount ||
+            compiledEnabledIds.any { id -> categories.none { it.id == id } }
 
     fun toggleSelection(id: String) {
         selectedIds = if (selectedIds.contains(id)) selectedIds - id else selectedIds + id

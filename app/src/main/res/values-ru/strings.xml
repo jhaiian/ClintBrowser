@@ -595,7 +595,7 @@
     <string name="download_resumable_no">Возобновляемая: Нет</string>
 
     <string name="setup_default_browser_title">Браузер по умолчанию</string>
-    <string name="setup_default_browser_description">Сделайте Clint браузером по умолчанию, чтобы ссылки из других приложений открывались в нём автоматически. Это полностью необязательно \u2014 вы можете изменить это в любой момент в настройках устройства.</string>
+    <string name="setup_default_browser_description">Сделайте Clint браузером по умолчанию, чтобы ссылки из других приложений открывались в нём автоматически. Это полностью необязательно, вы можете изменить это в любой момент в настройках устройства.</string>
     <string name="setup_default_browser_card_title">Сделать браузером по умолчанию</string>
     <string name="setup_default_browser_card_desc">Нажмите кнопку ниже, чтобы сделать Clint браузером по умолчанию</string>
     <string name="setup_default_browser_set_button">Сделать браузером по умолчанию</string>
@@ -1355,8 +1355,6 @@
 
     <string name="website_blocker_category_abuse">Злоупотребления</string>
     <string name="website_blocker_category_abuse_desc">Блокирует сайты с обманными и злоупотребляющими практиками</string>
-    <string name="website_blocker_category_ads">Реклама</string>
-    <string name="website_blocker_category_ads_desc">Блокирует рекламные домены</string>
     <string name="website_blocker_category_crypto">Крипто</string>
     <string name="website_blocker_category_crypto_desc">Блокирует сайты криптоджекинга и криптомошенничества</string>
     <string name="website_blocker_category_drugs">Наркотики</string>

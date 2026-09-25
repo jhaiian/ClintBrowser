@@ -43,6 +43,7 @@ private fun DocumentViewerContent(state: DocumentViewerUiState) {
         )
         else -> {
             val onSurfaceArgb = colors.onSurface.toArgb()
+            val linkArgb = colors.primary.toArgb()
             AndroidView(
                 modifier = Modifier.fillMaxWidth(),
                 factory = { ctx ->
@@ -54,6 +55,7 @@ private fun DocumentViewerContent(state: DocumentViewerUiState) {
                 },
                 update = { tv ->
                     tv.setTextColor(onSurfaceArgb)
+                    tv.setLinkTextColor(linkArgb)
                     Markwon.create(tv.context).setMarkdown(tv, state.markdown.orEmpty())
                 }
             )

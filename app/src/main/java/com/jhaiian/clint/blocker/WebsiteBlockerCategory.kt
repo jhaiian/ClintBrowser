@@ -14,7 +14,6 @@ data class WebsiteBlockerCategory(
 
 object WebsiteBlockerCategoryIds {
     const val ABUSE = "abuse"
-    const val ADS = "ads"
     const val CRYPTO = "crypto"
     const val DRUGS = "drugs"
     const val FRAUD = "fraud"
@@ -36,10 +35,6 @@ object WebsiteBlockerDefaults {
         WebsiteBlockerCategory(
             id = WebsiteBlockerCategoryIds.ABUSE,
             downloadUrl = "https://blocklistproject.github.io/Lists/alt-version/abuse-nl.txt"
-        ),
-        WebsiteBlockerCategory(
-            id = WebsiteBlockerCategoryIds.ADS,
-            downloadUrl = "https://blocklistproject.github.io/Lists/alt-version/ads-nl.txt"
         ),
         WebsiteBlockerCategory(
             id = WebsiteBlockerCategoryIds.CRYPTO,

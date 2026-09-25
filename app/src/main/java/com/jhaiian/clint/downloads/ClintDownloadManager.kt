@@ -260,6 +260,7 @@ object ClintDownloadManager {
             streamHeaders = request.headers,
             streamConcurrentSegments = request.concurrentSegments,
             streamIsLive = request.isLive,
+            streamConvertTsToMp4 = request.convertTsToMp4,
             streamVideoRepresentationId = videoRepresentationId,
             streamAudioRepresentationId = audioRepresentationId,
             speedLimitBytesPerSec = request.speedLimitBytesPerSec
@@ -268,8 +269,9 @@ object ClintDownloadManager {
         val safMode = directCustomDir == null && DownloadFileHelper.isSafCustomMode(context, baseItem)
         val rawDestDir = directCustomDir ?: if (safMode) DownloadFileHelper.tempDownloadDir(context) else DownloadFileHelper.resolveDownloadDir()
         val needsMuxGuess = request.videoUrl != null && request.audioUrl != null
+        val convertsTsGuess = request.convertTsToMp4 && !primaryIsAudio
         val userExt = request.filename.substringAfterLast('.', "").trim().takeIf { it.isNotBlank() }
-        val guessedExt = userExt ?: if (needsMuxGuess) "mp4" else "ts"
+        val guessedExt = userExt ?: if (needsMuxGuess || convertsTsGuess) "mp4" else "ts"
         val dot = request.filename.lastIndexOf('.')
         val guessedBase = if (dot > 0) request.filename.substring(0, dot) else request.filename
         val guessedFilename = "$guessedBase.$guessedExt"

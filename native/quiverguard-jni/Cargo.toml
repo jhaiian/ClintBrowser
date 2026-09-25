@@ -15,7 +15,7 @@ crate-type = ["cdylib"]
 [dependencies]
 # Pinned to the exact version reviewed while writing this crate. Bump deliberately -
 # adblock-rust's resource/engine API has shifted across versions in the past.
-adblock = { version = "=0.13.2", default-features = false, features = ["embedded-domain-resolver", "full-regex-handling"] }
+adblock = { version = "=0.13.3", default-features = false, features = ["embedded-domain-resolver", "full-regex-handling"] }
 jni = "0.21"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

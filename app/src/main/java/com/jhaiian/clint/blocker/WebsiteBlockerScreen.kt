@@ -76,7 +76,6 @@ import java.util.Date
 
 fun categoryTitleRes(id: String): Int = when (id) {
     WebsiteBlockerCategoryIds.ABUSE -> R.string.website_blocker_category_abuse
-    WebsiteBlockerCategoryIds.ADS -> R.string.website_blocker_category_ads
     WebsiteBlockerCategoryIds.CRYPTO -> R.string.website_blocker_category_crypto
     WebsiteBlockerCategoryIds.DRUGS -> R.string.website_blocker_category_drugs
     WebsiteBlockerCategoryIds.FRAUD -> R.string.website_blocker_category_fraud
@@ -96,7 +95,6 @@ fun categoryTitleRes(id: String): Int = when (id) {
 
 fun categoryDescriptionRes(id: String): Int = when (id) {
     WebsiteBlockerCategoryIds.ABUSE -> R.string.website_blocker_category_abuse_desc
-    WebsiteBlockerCategoryIds.ADS -> R.string.website_blocker_category_ads_desc
     WebsiteBlockerCategoryIds.CRYPTO -> R.string.website_blocker_category_crypto_desc
     WebsiteBlockerCategoryIds.DRUGS -> R.string.website_blocker_category_drugs_desc
     WebsiteBlockerCategoryIds.FRAUD -> R.string.website_blocker_category_fraud_desc

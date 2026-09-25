@@ -96,7 +96,7 @@ class ClintWebViewClient(
         cachedPageUrl = url
         MediaCaptureStore.updatePageUrl(getTabId(), url)
         onTabUrlUpdatedCallback(view, url)
-        if (isActive()) onPageFinishedCallback(url)
+        if (isActive()) onPageFinishedCallback(url) else view.evaluateJavascript(TabMediaControl.PAUSE_SCRIPT, null)
     }
 
     override fun doUpdateVisitedHistory(view: WebView, url: String, isReload: Boolean) {

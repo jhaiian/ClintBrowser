@@ -13,6 +13,7 @@ object MediaCaptureSortState {
 private val qualityComparator = compareByDescending<DetectedMedia> {
     if (it.kind == MediaKind.VIDEO) (it.width ?: 0) * (it.height ?: 0) else 0
 }
+    .thenByDescending { if (it.hasAudio == false) 0 else 1 }
     .thenByDescending { it.bandwidthBitsPerSec ?: -1L }
     .thenByDescending { it.sizeBytes ?: it.estimate?.estimatedBytes ?: -1L }
 

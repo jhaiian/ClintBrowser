@@ -10,8 +10,11 @@ import com.jhaiian.clint.downloads.DownloadStatus
 import com.jhaiian.clint.downloads.DownloadWorker
 import com.jhaiian.clint.R
 import java.io.File
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.withContext
 
 object StreamDownloadJob {
 
@@ -260,7 +263,19 @@ object StreamDownloadJob {
             StreamTrackDownloader.cleanup(videoSegments)
             StreamTrackDownloader.cleanup(audioSegments)
 
-            publishProgress { it.copy(status = DownloadStatus.MUXING, muxProgress = 0) }
+            val needsMux = audioTrackFile != null
+            val userExtension = current.filename.substringAfterLast('.', "").trim().takeIf { it.isNotBlank() }
+            val wantsTsConversion = current.streamConvertTsToMp4 && !needsMux && !current.streamPrimaryIsAudio &&
+                videoTrack.containerHintExtension.equals("ts", ignoreCase = true)
+            val outExtension = userExtension ?: when {
+                needsMux || wantsTsConversion || videoTrack.containerHintExtension == "mp4" -> "mp4"
+                else -> "ts"
+            }
+            val convertTsToMp4 = wantsTsConversion && !outExtension.equals("ts", ignoreCase = true)
+
+            publishProgress {
+                it.copy(status = if (convertTsToMp4) DownloadStatus.CONVERTING else DownloadStatus.MUXING, muxProgress = 0)
+            }
             DownloadNotificationHelper.showProgressNotification(context, current)
 
             var lastTransformNotifyAt = 0L
@@ -274,7 +289,6 @@ object StreamDownloadJob {
             }
 
             val inputFiles = listOfNotNull(videoTrackFile, audioTrackFile)
-            val needsMux = audioTrackFile != null
 
             val locationMode = current.locationMode
             val customLocationUri = current.customLocationUri
@@ -288,16 +302,11 @@ object StreamDownloadJob {
             val rawDestDir = directCustomDir
                 ?: if (safMode) DownloadFileHelper.tempDownloadDir(context) else DownloadFileHelper.resolveDownloadDir()
 
-            val userExtension = current.filename.substringAfterLast('.', "").trim().takeIf { it.isNotBlank() }
-            val outExtension = userExtension ?: when {
-                needsMux || videoTrack.containerHintExtension == "mp4" -> "mp4"
-                else -> "ts"
-            }
             val guessedFinalName = "${baseName(current.filename)}.$outExtension"
             val destDir = if (safMode) rawDestDir else DownloadCategories.resolveDir(current.categorizeEnabled, rawDestDir, guessedFinalName)
             destDir.mkdirs()
             val finalFilename = DownloadFileHelper.uniqueFile(destDir, guessedFinalName).name
-            val finalFile = File(destDir, finalFilename)
+            var finalFile = File(destDir, finalFilename)
 
             if (needsMux) {
                 val result = MediaRemuxer.remux(
@@ -312,6 +321,16 @@ object StreamDownloadJob {
                     DownloadWorker.fail(context, current.withClockStopped(), message)
                     workDir.deleteRecursively()
                     return
+                }
+            } else if (convertTsToMp4) {
+                val conversionTarget = finalFile
+                val converted = withContext(Dispatchers.IO) {
+                    TsToMp4Converter.convert(videoTrackFile, conversionTarget, { isActive }) { pct -> onTransformProgress(pct) }
+                }
+                if (!converted) {
+                    runCatching { finalFile.delete() }
+                    finalFile = DownloadFileHelper.uniqueFile(destDir, "${baseName(finalFilename)}.ts")
+                    videoTrackFile.copyTo(finalFile, overwrite = true)
                 }
             } else {
                 videoTrackFile.copyTo(finalFile, overwrite = true)

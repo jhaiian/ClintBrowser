@@ -76,7 +76,7 @@
     <string name="default_label">Default</string>
     <string name="next">Susunod \u2192</string>
     <string name="get_started">Magsimula</string>
-    <string name="setup_subtitle">Private browsing, sa paraan mo.\nWalang telemetry. Walang tracking.</string>
+    <string name="setup_subtitle">Ang Browser na Gumagawa ng Higit Pa.</string>
     <string name="js_warning_title">I-disable ang JavaScript?</string>
     <string name="js_warning_message">Maraming feature ng app ang umaasa sa JavaScript, gaya ng web notifications, desktop mode, at reader mode. Puwede ring masira o hindi maayos na lumabas ang mga website.\n\nSigurado ka bang gusto mong i-off ito?</string>
     <string name="action_turn_off_anyway">I-off pa rin</string>
@@ -98,7 +98,7 @@
     <string name="about_section_license">LISENSYA</string>
     <string name="about_section_repository">SOURCE CODE</string>
     <string name="about_created_by">Ginawa ni</string>
-    <string name="about_description">Ang Clint ay isang libre at open-source na Android browser na walang sariling backend server, kaya wala itong kinokolektang data mula sa iyo. May malinis at customizable na Material Design interface ito, built-in na Quiver Guard content blocker laban sa mga ad at tracker, at advanced na download manager at Website Blocker.</string>
+    <string name="about_description">Open source na Android browser ang Clint na walang sariling backend, pero punong-puno ng features na katulad ng mga karaniwang browser \\u2014 kasabay ng modernong UI na nakabase sa Material 3.\n\nIginagalang namin ang iyong privacy kaya walang anumang data na kinokolekta ang app. Wala man lang kaming binibilang na active users. Talagang zero data ang kinokolekta namin.\n\nLayunin ng Clint na gumawa ng Android browser na mas marami ang kayang gawin, maganda pang tingnan, at lubos na customizable \\u2014 walang ads, walang paywall. Ganap na libre ang Clint.</string>
     <string name="about_version_info">Bersyon: %1$s (build %2$d)\nDevice architecture: %3$s</string>
     <string name="about_license_text">Ang source code ng proyektong ito ay lisensyado sa ilalim ng GNU General Public License v3.0 (GPLv3).\n\nAng mga pangalang \"Clint\" at \"Clint Browser,\" ang logo, mga screenshot, at lahat ng kaugnay na branding asset ay mga trademark o proprietary asset ng may-akda at hindi sakop ng GPL license. Kailangan ng malinaw na pahintulot mula sa may-akda para magamit ang mga asset na ito.</string>
     <string name="about_license_link_label">Tingnan ang GPL v3.0 license \u2197</string>
@@ -610,7 +610,7 @@
     <string name="download_resumable_no">Puwedeng ituloy: Hindi</string>
 
     <string name="setup_default_browser_title">Default na Browser</string>
-    <string name="setup_default_browser_description">Gawing default browser mo ang Clint para awtomatikong dito magbukas ang mga link mula sa ibang app. Opsyonal lang ito \u2014 puwede mo itong baguhin anumang oras sa settings ng iyong device.</string>
+    <string name="setup_default_browser_description">Gawing default browser mo ang Clint para awtomatikong dito magbukas ang mga link mula sa ibang app. Opsyonal lang ito, puwede mo itong baguhin anumang oras sa settings ng iyong device.</string>
     <string name="setup_default_browser_card_title">Itakda bilang Default na Browser</string>
     <string name="setup_default_browser_card_desc">Pindutin ang button sa ibaba para itakda ang Clint bilang default mong browser</string>
     <string name="setup_default_browser_set_button">Itakda bilang Default na Browser</string>
@@ -1351,8 +1351,6 @@
 
     <string name="website_blocker_category_abuse">Pang-aabuso</string>
     <string name="website_blocker_category_abuse_desc">Humaharang sa mga mapanlinlang at abusadong site</string>
-    <string name="website_blocker_category_ads">Mga Ad</string>
-    <string name="website_blocker_category_ads_desc">Humaharang sa mga ad server</string>
     <string name="website_blocker_category_crypto">Crypto</string>
     <string name="website_blocker_category_crypto_desc">Humaharang sa cryptojacking at crypto scam</string>
     <string name="website_blocker_category_drugs">Droga</string>
@@ -1545,4 +1543,8 @@
     <string name="media_capture_menu_stream">I-stream</string>
     <string name="media_capture_menu_copy_link">Kopyahin ang Download Link</string>
     <string name="media_capture_menu_share_link">Ibahagi ang Download Link</string>
+    <string name="media_capture_convert_ts_to_mp4">I-convert ang TS sa MP4</string>
+    <string name="media_capture_menu_preview">I-preview</string>
+    <string name="media_capture_subtitle_preview_title">Preview ng Subtitle</string>
+    <string name="media_capture_subtitle_preview_error">Hindi na-load ang subtitle.\nPaki-check ang iyong koneksyon at subukan ulit.</string>
 </resources>

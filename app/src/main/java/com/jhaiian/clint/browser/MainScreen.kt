@@ -60,7 +60,7 @@ internal fun MainScreen(activity: MainActivity, state: MainUiState) {
     val density = LocalDensity.current
     val colors = LocalClintColors.current
     var tabSwitcherOpen by remember { mutableStateOf(false) }
-    var tabMenuStyle by remember { mutableStateOf("sheet") }
+    var tabMenuStyle by remember { mutableStateOf("grid") }
     val hideStatusBar = state.hideStatusBar
     val hideSystemNavigation = state.hideSystemNavigation
     val rawStatusBarPx = WindowInsets.statusBars.getTop(density)
@@ -96,7 +96,7 @@ internal fun MainScreen(activity: MainActivity, state: MainUiState) {
 
         val openTabSwitcher: () -> Unit = {
             activity.captureActiveTabThumbnail()
-            tabMenuStyle = activity.prefs.getString("tab_menu_style", "sheet") ?: "sheet"
+            tabMenuStyle = activity.prefs.getString("tab_menu_style", "grid") ?: "grid"
             tabSwitcherOpen = true
         }
 
@@ -205,8 +205,10 @@ internal fun MainScreen(activity: MainActivity, state: MainUiState) {
         state.selectPickerRequest?.let { req ->
             com.jhaiian.clint.browser.dialogs.SelectPickerDialog(req, hideStatusBarPref, hideSystemNavigationPref) { state.selectPickerRequest = null }
         }
-        state.popupAlertRequest?.let { req ->
-            com.jhaiian.clint.browser.dialogs.PopupAlertDialog(req, hideStatusBarPref, hideSystemNavigationPref) { state.popupAlertRequest = null }
+        if (!state.isFullscreen) {
+            state.popupAlertRequest?.let { req ->
+                com.jhaiian.clint.browser.dialogs.PopupAlertDialog(req, hideStatusBarPref, hideSystemNavigationPref) { state.popupAlertRequest = null }
+            }
         }
         state.refreshLinkDialogRequest?.let { req ->
             com.jhaiian.clint.browser.dialogs.RefreshLinkDialog(req, hideStatusBarPref, hideSystemNavigationPref) { state.refreshLinkDialogRequest = null }
@@ -291,12 +293,20 @@ private fun TopToolbar(
             onMediaCaptureClick = { activity.mountMediaCaptureDialog() },
             onSwipeTabChange = { direction -> activity.onSwipeTabChange(direction) }
         )
+        PageLoadProgress(state)
+    }
+}
+
+@Composable
+private fun PageLoadProgress(state: MainUiState) {
+    val colors = LocalClintColors.current
+    Box(modifier = Modifier.fillMaxWidth().height(4.dp)) {
         if (state.isPageLoading) {
             LinearProgressIndicator(
                 progress = { state.pageLoadProgress / 100f },
                 color = colors.primary,
                 trackColor = colors.surface,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().height(4.dp)
             )
         }
     }
@@ -326,14 +336,7 @@ private fun BottomToolbar(
             .background(colors.surface)
             .padding(bottom = with(density) { bottomPaddingPx.toDp() })
     ) {
-        if (state.isPageLoading) {
-            LinearProgressIndicator(
-                progress = { state.pageLoadProgress / 100f },
-                color = colors.primary,
-                trackColor = colors.surface,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
+        PageLoadProgress(state)
         AddressBarRow(
             activity = activity,
             isIncognito = state.isIncognito,

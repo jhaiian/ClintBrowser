@@ -11,6 +11,7 @@ object SubtitleFileProbe {
     data class Info(val cueCount: Int, val durationSeconds: Double?)
 
     private const val MAX_BYTES = 1024 * 1024
+    private const val PREVIEW_MAX_BYTES = 512 * 1024
     private const val READ_CHUNK_BYTES = 16 * 1024
 
     private val timingRegex = Regex(
@@ -48,6 +49,27 @@ object SubtitleFileProbe {
             return null
         }
         return parse(String(bytes, Charsets.UTF_8))
+    }
+
+    fun fetchText(media: DetectedMedia): String? {
+        val builder = Request.Builder().url(media.url)
+        StreamRequestHeaders.apply(builder, media.url, media.pageUrl, "", "", media.requestHeaders)
+        return try {
+            httpClient.newCall(builder.build()).execute().use { resp ->
+                if (!resp.isSuccessful) return null
+                val out = ByteArrayOutputStream()
+                val chunk = ByteArray(READ_CHUNK_BYTES)
+                val stream = resp.body.byteStream()
+                while (out.size() < PREVIEW_MAX_BYTES) {
+                    val read = stream.read(chunk)
+                    if (read <= 0) break
+                    out.write(chunk, 0, read)
+                }
+                String(out.toByteArray(), Charsets.UTF_8).removePrefix("\uFEFF")
+            }
+        } catch (_: Exception) {
+            null
+        }
     }
 
     private fun parse(text: String): Info? {

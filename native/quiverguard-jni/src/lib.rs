@@ -227,9 +227,6 @@ pub extern "system" fn Java_com_jhaiian_clint_quiver_engine_QuiverGuardNative_na
             Err(DeserializationError::BadChecksum { .. }) => return -3,
             // Checksum passed, but the payload itself isn't valid flatbuffer data.
             Err(DeserializationError::FlatBufferParsingError(_)) => return -4,
-            // Defensive: covers any variant adblock-rust adds in a future version that this
-            // match isn't already handling explicitly.
-            Err(_) => return -5,
         }
         engine.use_resources(bundled_resources::bundled_resources());
 

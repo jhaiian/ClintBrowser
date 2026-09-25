@@ -35,6 +35,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -223,14 +224,20 @@ fun DownloadsScreen(
         DownloadsDeleteProgressDialog(progress, hideStatusBar, hideSystemNavigation)
     }
 
-    state.propertiesItem?.let { item ->
-        DownloadPropertiesDialog(
-            item = item,
-            hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation,
-            onDismiss = { state.propertiesItem = null },
-            onShare = { itemActions.onShare(it) },
-            onOpen = { itemActions.onOpen(it) }
-        )
+    state.propertiesItem?.let { snapshot ->
+        val liveItem = allItems.firstOrNull { it.id == snapshot.id }
+        if (liveItem == null) {
+            LaunchedEffect(snapshot.id) { state.propertiesItem = null }
+        } else {
+            DownloadPropertiesDialog(
+                item = liveItem,
+                tick = tick,
+                hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation,
+                onDismiss = { state.propertiesItem = null },
+                onShare = { itemActions.onShare(it) },
+                onOpen = { itemActions.onOpen(it) }
+            )
+        }
     }
     state.renameItem?.let { item ->
         DownloadRenameDialog(item = item, hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation, onDismiss = { state.renameItem = null })

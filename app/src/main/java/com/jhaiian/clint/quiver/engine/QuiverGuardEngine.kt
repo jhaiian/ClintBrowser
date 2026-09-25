@@ -30,9 +30,7 @@ object QuiverGuardEngine {
 
         BAD_CHECKSUM,
 
-        FLATBUFFER_PARSING_ERROR,
-
-        UNKNOWN_DESERIALIZATION_ERROR;
+        FLATBUFFER_PARSING_ERROR;
 
         val requiresRecompile: Boolean
             get() = this != LOADED && this != NO_DATABASE && this != FAILED
@@ -49,7 +47,6 @@ object QuiverGuardEngine {
             -2L -> PreloadResult.BAD_HEADER
             -3L -> PreloadResult.BAD_CHECKSUM
             -4L -> PreloadResult.FLATBUFFER_PARSING_ERROR
-            -5L -> PreloadResult.UNKNOWN_DESERIALIZATION_ERROR
             else -> null
         }
         if (failure != null) return failure

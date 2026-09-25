@@ -3,6 +3,7 @@ package com.jhaiian.clint.browser.webview
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Message
+import android.os.SystemClock
 import android.view.View
 import android.webkit.GeolocationPermissions
 import android.webkit.PermissionRequest
@@ -21,9 +22,12 @@ class ClintWebChromeClient(
     private val onFullscreenHide: () -> Unit = {},
     private val onFileChooser: (ValueCallback<Array<Uri>>, FileChooserParams) -> Boolean = { _, _ -> false },
     private val onNewWindowRequest: (String) -> Unit = {},
+    private val isFullscreenActive: () -> Boolean = { false },
     private val onWebPermissionRequest: (PermissionRequest) -> Unit = { it.deny() },
     private val onGeolocationRequest: (String, GeolocationPermissions.Callback) -> Unit = { _, cb -> cb.invoke("", false, false) }
 ) : WebChromeClient() {
+
+    private var fullscreenExitedAtMs = 0L
 
     override fun onProgressChanged(view: WebView, newProgress: Int) {
         super.onProgressChanged(view, newProgress)
@@ -41,6 +45,7 @@ class ClintWebChromeClient(
     }
 
     override fun onHideCustomView() {
+        fullscreenExitedAtMs = SystemClock.elapsedRealtime()
         onFullscreenHide()
     }
 
@@ -66,7 +71,8 @@ class ClintWebChromeClient(
         isUserGesture: Boolean,
         resultMsg: Message?
     ): Boolean {
-        if (resultMsg == null) return false
+        val hijackedFullscreenExit = SystemClock.elapsedRealtime() - fullscreenExitedAtMs < FULLSCREEN_EXIT_POPUP_GUARD_MS
+        if (resultMsg == null || isFullscreenActive() || hijackedFullscreenExit) return false
         val helperWebView = WebView(view.context)
         helperWebView.settings.javaScriptEnabled = false
         helperWebView.webViewClient = object : WebViewClient() {
@@ -88,5 +94,9 @@ class ClintWebChromeClient(
         transport.webView = helperWebView
         resultMsg.sendToTarget()
         return true
+    }
+
+    companion object {
+        private const val FULLSCREEN_EXIT_POPUP_GUARD_MS = 700L
     }
 }

@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.material.icons.filled.VideoFile
@@ -61,8 +62,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.preference.PreferenceManager
 import com.jhaiian.clint.R
 import com.jhaiian.clint.downloads.formatElapsed
+import com.jhaiian.clint.ui.ClintCheckbox
 import com.jhaiian.clint.ui.ClintDialogStatusBarEffect
 import com.jhaiian.clint.ui.listscreen.ListMenuItem
 import com.jhaiian.clint.ui.listscreen.PopupShape
@@ -84,6 +87,10 @@ fun MediaCaptureDialog(
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val detectedItems by MediaCaptureStore.observe(tabId).collectAsState()
+    val prefs = remember { PreferenceManager.getDefaultSharedPreferences(context) }
+    var convertTsToMp4 by remember { mutableStateOf(prefs.getBoolean(MEDIA_CAPTURE_CONVERT_TS_TO_MP4_PREF, MEDIA_CAPTURE_CONVERT_TS_TO_MP4_DEFAULT)) }
+
+    var previewMedia by remember { mutableStateOf<DetectedMedia?>(null) }
 
     val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
     val maxSheetHeight = if (isPortrait) {
@@ -108,6 +115,10 @@ fun MediaCaptureDialog(
                 onDismiss
             )
             HorizontalDivider(color = colors.popupStroke)
+            MediaCaptureConvertTsRow(convertTsToMp4) { checked ->
+                convertTsToMp4 = checked
+                prefs.edit().putBoolean(MEDIA_CAPTURE_CONVERT_TS_TO_MP4_PREF, checked).apply()
+            }
             if (detectedItems.isEmpty()) {
                 MediaCaptureEmptyState()
             } else {
@@ -132,12 +143,20 @@ fun MediaCaptureDialog(
                     if (subtitles.isNotEmpty()) {
                         item(key = "header_subtitles") { MediaCaptureSectionHeader(stringResource(R.string.media_capture_section_subtitles)) }
                         items(subtitles, key = { it.id }) { media ->
-                            MediaCaptureRow(media, onCopyLink) { estimatedBytes, containerExt -> onDownload(media, detectedItems, estimatedBytes, containerExt) }
+                            MediaCaptureRow(media, onCopyLink, onPreview = { previewMedia = media }) { estimatedBytes, containerExt -> onDownload(media, detectedItems, estimatedBytes, containerExt) }
                         }
                     }
                 }
             }
         }
+    }
+    previewMedia?.let { target ->
+        SubtitlePreviewDialog(
+            media = target,
+            hideStatusBar = hideStatusBar,
+            hideSystemNavigation = hideSystemNavigation,
+            onDismiss = { previewMedia = null }
+        )
     }
 }
 
@@ -256,6 +275,26 @@ private fun MediaCaptureHeader(
 }
 
 @Composable
+private fun MediaCaptureConvertTsRow(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    val colors = LocalClintColors.current
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange(!checked) }
+            .padding(start = 5.dp, end = 20.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        ClintCheckbox(checked = checked, onCheckedChange = onCheckedChange)
+        Text(
+            stringResource(R.string.media_capture_convert_ts_to_mp4),
+            color = colors.onSurface,
+            fontSize = 13.sp,
+            modifier = Modifier.weight(1f).padding(start = 4.dp)
+        )
+    }
+}
+
+@Composable
 private fun MediaCaptureEmptyState() {
     val colors = LocalClintColors.current
     Column(
@@ -321,7 +360,11 @@ private fun bestQualityIds(items: List<DetectedMedia>): Set<String> =
         .filter { group -> group.map { (it.width ?: 0) * (it.height ?: 0) }.distinct().size > 1 }
         .mapNotNull { group ->
             group.maxWithOrNull(
-                compareBy<DetectedMedia>({ (it.width ?: 0) * (it.height ?: 0) }, { it.bandwidthBitsPerSec ?: 0L })
+                compareBy<DetectedMedia>(
+                    { (it.width ?: 0) * (it.height ?: 0) },
+                    { if (it.hasAudio == false) 0 else 1 },
+                    { it.bandwidthBitsPerSec ?: 0L }
+                )
             )
         }
         .map { it.id }
@@ -382,7 +425,7 @@ private fun shareDownloadLink(context: android.content.Context, url: String) {
 }
 
 @Composable
-private fun MediaCaptureRow(media: DetectedMedia, onCopyLink: (String) -> Unit, isBest: Boolean = false, onDownload: (Long?, String?) -> Unit) {
+private fun MediaCaptureRow(media: DetectedMedia, onCopyLink: (String) -> Unit, isBest: Boolean = false, onPreview: (() -> Unit)? = null, onDownload: (Long?, String?) -> Unit) {
     val colors = LocalClintColors.current
     val context = LocalContext.current
     val estimate = media.estimate
@@ -401,7 +444,7 @@ private fun MediaCaptureRow(media: DetectedMedia, onCopyLink: (String) -> Unit, 
             Icon(
                 mediaKindIcon(media.kind),
                 contentDescription = null,
-                tint = colors.secondaryText,
+                tint = colors.iconTint,
                 modifier = Modifier.size(22.dp)
             )
             if (media.kind == MediaKind.VIDEO && media.hasAudio == false) {
@@ -416,7 +459,7 @@ private fun MediaCaptureRow(media: DetectedMedia, onCopyLink: (String) -> Unit, 
                     Icon(
                         Icons.AutoMirrored.Filled.VolumeOff,
                         contentDescription = stringResource(R.string.media_capture_no_audio_badge),
-                        tint = colors.secondaryText,
+                        tint = colors.colorError,
                         modifier = Modifier.size(12.dp)
                     )
                 }
@@ -476,6 +519,12 @@ private fun MediaCaptureRow(media: DetectedMedia, onCopyLink: (String) -> Unit, 
                 ListMenuItem(Icons.Filled.PlayCircle, stringResource(R.string.media_capture_menu_stream), checked = false) {
                     menuExpanded = false
                     startExternalStream(context, media)
+                }
+                if (onPreview != null) {
+                    ListMenuItem(Icons.Filled.Visibility, stringResource(R.string.media_capture_menu_preview), checked = false) {
+                        menuExpanded = false
+                        onPreview()
+                    }
                 }
                 ListMenuItem(Icons.Filled.Download, stringResource(R.string.media_capture_download), checked = false) {
                     menuExpanded = false

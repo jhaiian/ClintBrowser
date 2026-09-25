@@ -119,7 +119,7 @@ fun LookAndFeelPane(activity: SettingsActivity) {
             initialScrollHideMode = prefs.getString("scroll_hide_mode", "off") ?: "off",
             initialAddressBarPosition = prefs.getString("address_bar_position", "top") ?: "top",
             initialMenuStyle = prefs.getString("menu_style", "popup") ?: "popup",
-            initialTabMenuStyle = prefs.getString("tab_menu_style", "sheet") ?: "sheet",
+            initialTabMenuStyle = prefs.getString("tab_menu_style", "grid") ?: "grid",
             initialHideStatusBar = prefs.getBoolean("hide_status_bar", false),
             initialHideSystemNavigation = prefs.getBoolean("hide_system_navigation", false),
             initialExitConfirmation = prefs.getString("exit_confirmation", "toast") ?: "toast"
@@ -131,7 +131,7 @@ fun LookAndFeelPane(activity: SettingsActivity) {
         uiState.scrollHideMode = prefs.getString("scroll_hide_mode", "off") ?: "off"
         uiState.addressBarPosition = prefs.getString("address_bar_position", "top") ?: "top"
         uiState.menuStyle = prefs.getString("menu_style", "popup") ?: "popup"
-        uiState.tabMenuStyle = prefs.getString("tab_menu_style", "sheet") ?: "sheet"
+        uiState.tabMenuStyle = prefs.getString("tab_menu_style", "grid") ?: "grid"
         uiState.hideStatusBar = prefs.getBoolean("hide_status_bar", false)
         uiState.hideSystemNavigation = prefs.getBoolean("hide_system_navigation", false)
         uiState.exitConfirmation = prefs.getString("exit_confirmation", "toast") ?: "toast"

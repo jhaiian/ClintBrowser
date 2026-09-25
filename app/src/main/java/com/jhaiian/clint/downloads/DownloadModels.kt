@@ -79,6 +79,7 @@ data class DownloadItem(
     val streamHeaders: Map<String, String> = emptyMap(),
     val streamConcurrentSegments: Int = 6,
     val streamIsLive: Boolean = false,
+    val streamConvertTsToMp4: Boolean = false,
     val streamVideoRepresentationId: String? = null,
     val streamAudioRepresentationId: String? = null,
     val segmentsCompleted: Int = 0,

@@ -37,6 +37,7 @@ class WebsiteBlockerActivity : ClintActivity() {
     internal var activeJob: Job? = null
 
     internal fun reload() {
+        WebsiteBlockerPaths.categoryFile(this, "ads").delete()
         refreshCategoryDisplay()
         uiState.additionalWebsitesCount = additionalDb.getAll().size
         val manifest = CompiledWebsiteBlockerManifest.read(WebsiteBlockerPaths.manifestFile(this))

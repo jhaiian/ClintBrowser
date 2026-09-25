@@ -49,6 +49,7 @@ import java.util.Locale
 @Composable
 fun DownloadPropertiesDialog(
     item: DownloadItem,
+    tick: Long,
     hideStatusBar: Boolean, hideSystemNavigation: Boolean,
     onDismiss: () -> Unit,
     onShare: (DownloadItem) -> Unit,
@@ -59,15 +60,16 @@ fun DownloadPropertiesDialog(
     val scope = rememberCoroutineScope()
 
     val dash = stringResource(R.string.download_props_dash)
-    val resolvedPath = remember(item.id) { resolvePropertiesPath(context, item, dash) }
+    val resolvedPath = remember(item.id, item.filename, item.contentUri, item.locationMode, item.customLocationUri, item.file) { resolvePropertiesPath(context, item, dash) }
     val totalBytesStr = if (item.totalBytes > 0) stringResource(R.string.download_props_size_format, formatFileSize(item.totalBytes), item.totalBytes) else dash
     val downloadedStr = if (item.bytesDownloaded > 0) stringResource(R.string.download_props_size_format, formatFileSize(item.bytesDownloaded), item.bytesDownloaded) else dash
-    val activeElapsedSec = remember(item.id) {
+    val activeElapsedSec = remember(item, tick) {
         val inProgress = if (item.activeStartedAt > 0L) System.currentTimeMillis() - item.activeStartedAt else 0L
         (item.activeElapsedMs + inProgress) / 1000L
     }
     val activeTimeStr = if (activeElapsedSec > 0) formatElapsed(activeElapsedSec) else dash
-    val avgSpeedStr = if (activeElapsedSec > 0 && item.bytesDownloaded > 0) stringResource(R.string.download_speed_only, formatFileSize(item.averageSpeedBytesPerSec())) else dash
+    val avgSpeedBytes = remember(item, tick) { item.averageSpeedBytesPerSec() }
+    val avgSpeedStr = if (activeElapsedSec > 0 && item.bytesDownloaded > 0) stringResource(R.string.download_speed_only, formatFileSize(avgSpeedBytes)) else dash
     val dateAddedStr = if (item.startedAt > 0L) formatPropTimestamp(item.startedAt) else dash
     val completedAtResolved = remember(item.id, item.completedAt, item.status) {
         when {
@@ -79,7 +81,7 @@ fun DownloadPropertiesDialog(
     val dateCompletedStr = if (completedAtResolved > 0L) formatPropTimestamp(completedAtResolved) else dash
     val yes = stringResource(R.string.download_props_yes)
     val no = stringResource(R.string.download_props_no)
-    val canComputeHash = item.file != null && item.file.exists()
+    val canComputeHash = remember(item.file, item.status, tick) { item.file != null && item.file.exists() }
     val isComplete = item.status == DownloadStatus.COMPLETE
 
     fun copy(value: String) {
@@ -90,10 +92,10 @@ fun DownloadPropertiesDialog(
         }
     }
 
-    var md5 by remember(item.id) { mutableStateOf<String?>(null) }
-    var sha256 by remember(item.id) { mutableStateOf<String?>(null) }
-    var md5Computing by remember(item.id) { mutableStateOf(false) }
-    var sha256Computing by remember(item.id) { mutableStateOf(false) }
+    var md5 by remember(item.id, item.status, item.filename, item.file) { mutableStateOf<String?>(null) }
+    var sha256 by remember(item.id, item.status, item.filename, item.file) { mutableStateOf<String?>(null) }
+    var md5Computing by remember(item.id, item.status, item.filename, item.file) { mutableStateOf(false) }
+    var sha256Computing by remember(item.id, item.status, item.filename, item.file) { mutableStateOf(false) }
     val checksumNa = stringResource(R.string.download_props_checksum_na)
 
     fun computeHash(algorithm: String, onDone: (String?) -> Unit) {
