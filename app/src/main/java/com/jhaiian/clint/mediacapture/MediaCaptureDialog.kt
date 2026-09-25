@@ -353,22 +353,7 @@ private fun mediaCaptureTitle(media: DetectedMedia): String {
 }
 
 private fun bestQualityIds(items: List<DetectedMedia>): Set<String> =
-    items
-        .filter { it.kind == MediaKind.VIDEO && it.groupUrl != null && it.width != null && it.height != null }
-        .groupBy { it.groupUrl?.substringBefore('#')?.substringBefore('?') }
-        .values
-        .filter { group -> group.map { (it.width ?: 0) * (it.height ?: 0) }.distinct().size > 1 }
-        .mapNotNull { group ->
-            group.maxWithOrNull(
-                compareBy<DetectedMedia>(
-                    { (it.width ?: 0) * (it.height ?: 0) },
-                    { if (it.hasAudio == false) 0 else 1 },
-                    { it.bandwidthBitsPerSec ?: 0L }
-                )
-            )
-        }
-        .map { it.id }
-        .toSet()
+    setOfNotNull(sortMediaCapture(items.filter { it.kind == MediaKind.VIDEO }, MediaCaptureSort.QUALITY).firstOrNull()?.id)
 
 private fun mediaCaptureLanguage(media: DetectedMedia): String? {
     if (media.kind == MediaKind.VIDEO) return null

@@ -4,6 +4,69 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.1.6-beta-6
+
+*The last beta for 1.1.6???*
+
+## Media Capture
+
+- Added **Convert TS to MP4**. (H.264 and AAC audio supported only, which covers the majority of pirated sites.)
+- Added a **Preview** button for subtitles.
+- The video, audio, and subtitle titles are now tinted with the accent color, and the mute icon uses the error color.
+- Videos with sound will now be favored over videos with no sound in terms of best tags and quality sort.
+
+## Changes
+
+### Download Manager
+
+- The Properties dialog in Downloads will now update in real time, even while the dialog is open. You guys don't need to reopen it every time anymore.
+
+### Website Blocker
+
+- Removed the **Ads** option. It was misleading, it looked like a way to block ads on a website. Remember, guys, the Website Blocker blocks the entire website from loading.
+
+If you guys are looking for an adblocker, it's **Quiver Guard**.
+
+### Browser
+
+- The popup dialog will no longer trigger while in full screen viewing.
+
+### Tab Grid
+
+- Tab Grid is now the default instead of the tab sheet. I swear, guys, I did this before I released, but I made some coding mistakes and didn't realize until I cleared Clint's data to test everything again.
+
+It's bad because, for new users, I don't update the Tab Sheet anymore. I might update it in the future, but I don't know, there's just a lot to do right now.
+
+### Branding
+
+- Changed some branding strings.
+
+### Android Manifest
+
+- Declared large heap support.
+
+## Bug Fixes
+
+- Fixed the bug where, if you reopen the app, video/audio is playing in the background from another tab.
+- Fixed the bug where the WebView shifted when the site progress bar appeared. I don't know, this bug keeps coming back, maybe I touched it again, I don't remember, but it's fixed again.
+
+## Dependency Updates
+
+### Quiver Guard
+
+- Bumped adblock-rust version from 0.13.2 to 0.13.3.
+- Regenerated `src/bundled_resources.rs` from the uBlock Origin 1.75.0 checkout via `tools/generate_resources.py`.
+
+Result: 47 redirect resources, 151 scriptlets (up from 46/148).
+
+Added: `google-ima-dai.js`, `json-edit.fn`, `modify-xhr-response.fn`, `mpegdash-prune.js`, `proxy-tostring.fn`
+
+Removed: `remove-cache-storage-item.fn` (dropped upstream)
+
+So you guys need to recompile Quiver Guard in order to make it run again.
+
+---
+
 # v1.1.6-beta-5
 
 ---
