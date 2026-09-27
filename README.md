@@ -6,7 +6,7 @@
 
 **Customizable Layered Internet Navigation Tool**
 
-Material Design Android Browser with ADM and a Content Blocker
+The Browser That Does More
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blueviolet.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B-blueviolet.svg)](https://developer.android.com)
