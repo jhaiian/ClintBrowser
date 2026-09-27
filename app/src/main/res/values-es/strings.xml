@@ -111,7 +111,7 @@
     <string name="support_clint_summary">Ayuda a que Clint siga siendo gratis para siempre. Considera hacer una donación al desarrollador de Clint.</string>
     <string name="support_clint_view_supporters_title">Ver colaboradores actuales</string>
     <string name="support_clint_view_supporters_summary">Consulta a todas las personas que han ayudado a financiar el desarrollo de Clint</string>
-    <string name="support_clint_markdown">## Donaciones\n\nNo quiero trabajar para una corporación. Quiero seguir haciendo lo que amo: crear apps como Clint y ponerlas a disposición de todos de forma gratuita.\n\nSi quisiera, podría convertir a Clint en una app freemium y dejar algunas funciones detrás de un muro de pago. Pero elijo no hacerlo, porque simplemente no es el tipo de desarrollador que quiero ser.\n\nSi disfrutas Clint y quieres apoyar su desarrollo, considera hacer una donación. Cada aporte, grande o pequeño, me ayuda a seguir desarrollando y mejorando Clint mientras todavía estoy en la universidad.\n\nCualquier monto ayuda y, si quieres, también puedes recibir una mención como colaborador.\n\nGracias por ayudarme a mantener a Clint libre e independiente.\n\n[![Patreon](https://img.shields.io/badge/Support%20me-Patreon-orange?style=for-the-badge&amp;logo=patreon)](https://patreon.com/Jhaiian)\n[![Ko-fi](https://img.shields.io/badge/Buy%20me%20a%20coffee-Ko--fi-red?style=for-the-badge&amp;logo=ko-fi)](https://ko-fi.com/jhaiian)\n[![PayPal](https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&amp;logo=paypal)](https://paypal.me/jhaiian)\n[![InstaPay QR](https://img.shields.io/badge/InstaPay%20QR-Philippines%20only-7C3AED?style=for-the-badge)](https://github.com/jhaiian/docs/Insta%20Pay.jpg)</string>
+    <string name="support_clint_markdown">## Donaciones\n\nNo quiero trabajar para una corporación. Quiero seguir haciendo lo que amo: crear apps como Clint y ponerlas a disposición de todos de forma gratuita.\n\nSi quisiera, podría convertir a Clint en una app freemium y dejar algunas funciones detrás de un muro de pago. Pero elijo no hacerlo, porque simplemente no es el tipo de desarrollador que quiero ser.\n\nSi disfrutas Clint y quieres apoyar su desarrollo, considera hacer una donación. Cada aporte, grande o pequeño, me ayuda a seguir desarrollando y mejorando Clint mientras todavía estoy en la universidad.\n\nCualquier monto ayuda y, si quieres, también puedes recibir una mención como colaborador.\n\nGracias por ayudarme a mantener a Clint libre e independiente.\n\n[![Patreon](https://img.shields.io/badge/Support%20me-Patreon-orange?style=for-the-badge&amp;logo=patreon)](https://patreon.com/Jhaiian)\n[![Ko-fi](https://img.shields.io/badge/Buy%20me%20a%20coffee-Ko--fi-red?style=for-the-badge&amp;logo=ko-fi)](https://ko-fi.com/jhaiian)\n[![PayPal](https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&amp;logo=paypal)](https://paypal.me/jhaiian)\n[![InstaPay QR](https://img.shields.io/badge/InstaPay%20QR-Philippines%20only-7C3AED?style=for-the-badge)](https://github.com/jhaiian/jhaiian/blob/main/docs/Insta%20Pay.jpg)</string>
     <string name="default_browser_title">Navegador predeterminado</string>
     <string name="default_browser_none">Ninguno</string>
     <string name="look_and_feel">Aspecto</string>
@@ -602,6 +602,7 @@
     <string name="download_concurrent_title">Descargas simultáneas</string>
     <string name="download_concurrent_desc">Cuántas descargas pueden ejecutarse a la vez. Las demás quedan en cola y empiezan automáticamente cuando se libera un espacio.</string>
     <string name="download_concurrent_value_easter_egg">24 descargas simultáneas \uD83D\uDE08</string>
+    <string name="action_play">Reproducir</string>
     <string name="action_pause">Pausar</string>
     <string name="action_resume">Reanudar</string>
     <string name="download_pause_desc">Pausar descarga</string>
@@ -1554,4 +1555,8 @@
     <string name="media_capture_menu_preview">Vista previa</string>
     <string name="media_capture_subtitle_preview_title">Vista previa de subtítulos</string>
     <string name="media_capture_subtitle_preview_error">No se pudo cargar el subtítulo.\nRevisa tu conexión e inténtalo de nuevo.</string>
+    <string name="media_capture_video_preview_title">Vista previa de video</string>
+    <string name="media_capture_video_preview_error">No se pudo reproducir el video.\nRevisa tu conexión e inténtalo de nuevo.</string>
+    <string name="media_capture_audio_preview_title">Vista previa de audio</string>
+    <string name="media_capture_audio_preview_error">No se pudo reproducir el audio.\nRevisa tu conexión e inténtalo de nuevo.</string>
 </resources>

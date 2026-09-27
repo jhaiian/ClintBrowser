@@ -700,69 +700,84 @@ internal object DownloadWorker {
                     }
                     .build()
 
-                val response = withContext(Dispatchers.IO) {
-                    runInterruptible { ClintDownloadManager.httpClient.newCall(request).execute() }
-                }
-
-                if (response.code == 429) {
-                    val retryAfter = response.header("Retry-After")?.toLongOrNull()
-                    val backoffSeconds = retryAfter ?: (5L shl attempt).coerceIn(1L, 300L)
-                    rateLimitUntilMs.updateAndGet { current -> maxOf(current, System.currentTimeMillis() + backoffSeconds * 1000L) }
-                    response.close()
-                    if (currentCeiling.get() > 1) {
-                        val shrunk = currentCeiling.updateAndGet { (it - 1).coerceAtLeast(1) }
-                        maxSafeConcurrency.updateAndGet { minOf(it, shrunk) }
-                        attempt++
-                        continue
-                    } else {
-                        rateLimitDetected.set(true)
-                        return
+                val call = ClintDownloadManager.httpClient.newCall(request)
+                val callWatcher = ClintDownloadManager.applicationScope.launch(Dispatchers.IO) {
+                    while (isActive) {
+                        if (firstError.get() != null || ClintDownloadManager.pauseRequested.contains(item.id) || rateLimitDetected.get()) {
+                            call.cancel()
+                            break
+                        }
+                        delay(MONITOR_TICK_MS)
                     }
                 }
-
-                if (!response.isSuccessful || response.code != 206) {
-                    response.close()
-                    attempt++
-                    if (attempt >= MAX_PART_RETRIES) {
-                        firstError.compareAndSet(null, "Server error ${response.code}")
-                    } else {
-                        delay(attempt * 500L)
-                    }
-                    continue
-                }
-
-                val body = response.body
 
                 try {
-                    withContext(Dispatchers.IO) {
-                        runInterruptible {
-                            body.byteStream().use { input ->
-                                RandomAccessFile(outputFile, "rw").use { raf ->
-                                    raf.seek(resumeStart)
-                                    val buffer = ByteArray(32768)
-                                    while (true) {
-                                        if (firstError.get() != null
-                                            || Thread.currentThread().isInterrupted
-                                            || ClintDownloadManager.pauseRequested.contains(item.id)
-                                            || rateLimitDetected.get()
-                                        ) break
-                                        val read = input.read(buffer)
-                                        if (read == -1) {
-                                            partCompleted[partIndex].set(true)
-                                            break
+                    val response = withContext(Dispatchers.IO) {
+                        runInterruptible { call.execute() }
+                    }
+
+                    if (response.code == 429) {
+                        val retryAfter = response.header("Retry-After")?.toLongOrNull()
+                        val backoffSeconds = retryAfter ?: (5L shl attempt).coerceIn(1L, 300L)
+                        rateLimitUntilMs.updateAndGet { current -> maxOf(current, System.currentTimeMillis() + backoffSeconds * 1000L) }
+                        response.close()
+                        if (currentCeiling.get() > 1) {
+                            val shrunk = currentCeiling.updateAndGet { (it - 1).coerceAtLeast(1) }
+                            maxSafeConcurrency.updateAndGet { minOf(it, shrunk) }
+                            attempt++
+                            continue
+                        } else {
+                            rateLimitDetected.set(true)
+                            return
+                        }
+                    }
+
+                    if (!response.isSuccessful || response.code != 206) {
+                        response.close()
+                        attempt++
+                        if (attempt >= MAX_PART_RETRIES) {
+                            firstError.compareAndSet(null, "Server error ${response.code}")
+                        } else {
+                            delay(attempt * 500L)
+                        }
+                        continue
+                    }
+
+                    val body = response.body
+
+                    try {
+                        withContext(Dispatchers.IO) {
+                            runInterruptible {
+                                body.byteStream().use { input ->
+                                    RandomAccessFile(outputFile, "rw").use { raf ->
+                                        raf.seek(resumeStart)
+                                        val buffer = ByteArray(32768)
+                                        while (true) {
+                                            if (firstError.get() != null
+                                                || Thread.currentThread().isInterrupted
+                                                || ClintDownloadManager.pauseRequested.contains(item.id)
+                                                || rateLimitDetected.get()
+                                            ) break
+                                            val read = input.read(buffer)
+                                            if (read == -1) {
+                                                partCompleted[partIndex].set(true)
+                                                break
+                                            }
+                                            raf.write(buffer, 0, read)
+                                            speedLimiter.acquire(read)
+                                            partBytesDownloaded[partIndex].addAndGet(read.toLong())
                                         }
-                                        raf.write(buffer, 0, read)
-                                        speedLimiter.acquire(read)
-                                        partBytesDownloaded[partIndex].addAndGet(read.toLong())
                                     }
                                 }
                             }
                         }
+                    } finally {
+                        response.close()
                     }
+                    return
                 } finally {
-                    response.close()
+                    callWatcher.cancel()
                 }
-                return
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Throwable) {

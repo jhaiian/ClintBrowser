@@ -68,12 +68,26 @@ object StreamRequestHeaders {
         userAgent: String,
         extraHeaders: Map<String, String>
     ) {
-        if (userAgent.isNotBlank()) builder.header("User-Agent", userAgent)
-        if (referer.isNotBlank()) builder.header("Referer", referer)
+        buildMap(url, referer, cookies, userAgent, extraHeaders).forEach { (key, value) ->
+            runCatching { builder.header(key, value) }
+        }
+    }
+
+    fun buildMap(
+        url: String,
+        referer: String,
+        cookies: String,
+        userAgent: String,
+        extraHeaders: Map<String, String>
+    ): Map<String, String> {
+        val result = LinkedHashMap<String, String>()
+        if (userAgent.isNotBlank()) result["User-Agent"] = userAgent
+        if (referer.isNotBlank()) result["Referer"] = referer
         val cookieHeader = cookies.ifBlank {
             runCatching { CookieManager.getInstance().getCookie(url) }.getOrNull() ?: ""
         }
-        if (cookieHeader.isNotBlank()) builder.header("Cookie", cookieHeader)
-        extraHeaders.forEach { (key, value) -> runCatching { builder.header(key, value) } }
+        if (cookieHeader.isNotBlank()) result["Cookie"] = cookieHeader
+        extraHeaders.forEach { (key, value) -> result[key] = value }
+        return result
     }
 }

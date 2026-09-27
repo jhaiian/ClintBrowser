@@ -178,7 +178,7 @@ fun DownloadRequestDialog(
         hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation,
         onDismiss = onDismiss,
         footer = {
-            Row(Modifier.fillMaxWidth().padding(end = 12.dp, bottom = 8.dp), horizontalArrangement = Arrangement.End) {
+            Row(Modifier.fillMaxWidth().padding(end = 12.dp, bottom = 4.dp), horizontalArrangement = Arrangement.End) {
                 TextButton(onClick = onDismiss) {
                     Text(stringResource(R.string.action_cancel), color = colors.primary, fontWeight = FontWeight.Medium)
                 }
@@ -241,10 +241,10 @@ fun DownloadRequestDialog(
             }
         }
     ) {
-        Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+        Column(Modifier.padding(horizontal = 14.dp, vertical = 2.dp)) {
             DialogSectionLabel(stringResource(R.string.download_dialog_section_link))
-            SettingsSection(colors.dialogSectionBackground) {
-                Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            SettingsSection(colors.dialogSectionBackground, bottomSpacing = 8.dp) {
+                Row(Modifier.fillMaxWidth().padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         androidx.compose.material.icons.Icons.Filled.Link,
                         contentDescription = stringResource(R.string.download_dialog_link_clip_label),
@@ -260,8 +260,8 @@ fun DownloadRequestDialog(
             }
 
             DialogSectionLabel(stringResource(R.string.download_dialog_section_file))
-            SettingsSection(colors.dialogSectionBackground) {
-                Column(Modifier.padding(16.dp)) {
+            SettingsSection(colors.dialogSectionBackground, bottomSpacing = 8.dp) {
+                Column(Modifier.padding(12.dp)) {
                     Row(Modifier.fillMaxWidth()) {
                         ClintOutlinedTextField(
                             value = filename, onValueChange = { filename = it },
@@ -274,18 +274,18 @@ fun DownloadRequestDialog(
                             label = { Text(stringResource(R.string.download_dialog_extension_hint), maxLines = 1, overflow = TextOverflow.Ellipsis) }, singleLine = true
                         )
                     }
-                    Text(fileSizeText, color = colors.secondaryText, fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp))
+                    Text(fileSizeText, color = colors.secondaryText, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
                 }
             }
 
             DialogSectionLabel(stringResource(R.string.download_dialog_section_location))
-            SettingsSection(colors.dialogSectionBackground) {
-                Column(Modifier.padding(16.dp)) {
+            SettingsSection(colors.dialogSectionBackground, bottomSpacing = 8.dp) {
+                Column(Modifier.padding(12.dp)) {
                     var locationAnchorWidthPx by remember { mutableStateOf(0) }
                     val density = LocalDensity.current
                     Box(Modifier.onGloballyPositioned { coordinates -> locationAnchorWidthPx = coordinates.size.width }) {
                         Row(
-                            Modifier.fillMaxWidth().clickable { locationMenuOpen = true }.padding(vertical = 12.dp),
+                            Modifier.fillMaxWidth().clickable { locationMenuOpen = true }.padding(vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(Modifier.weight(1f)) {
@@ -313,7 +313,7 @@ fun DownloadRequestDialog(
                     }
                     if (locationMode == DownloadSettingsKeys.MODE_CUSTOM) {
                         Row(
-                            Modifier.fillMaxWidth().clickable { pickCustomFolder() }.padding(vertical = 8.dp),
+                            Modifier.fillMaxWidth().clickable { pickCustomFolder() }.padding(vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(androidx.compose.material.icons.Icons.Filled.Folder, contentDescription = null, tint = colors.iconTint, modifier = Modifier.size(20.dp))
@@ -324,12 +324,12 @@ fun DownloadRequestDialog(
                         }
                     }
                     if (showStorageInfo && storageInfoText.isNotEmpty()) {
-                        Text(storageInfoText, color = colors.secondaryText, fontSize = 11.sp, modifier = Modifier.padding(top = 6.dp))
+                        Text(storageInfoText, color = colors.secondaryText, fontSize = 11.sp, modifier = Modifier.padding(top = 4.dp))
                     }
                     Row(
                         Modifier.fillMaxWidth().clickable {
                             categorizeEnabled = !categorizeEnabled
-                        }.padding(top = 10.dp),
+                        }.padding(top = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(Modifier.weight(1f)) {
@@ -341,7 +341,7 @@ fun DownloadRequestDialog(
                     destinationPreviewText?.let {
                         Text(
                             it, color = colors.secondaryText, fontSize = 11.sp, fontFamily = FontFamily.Monospace,
-                            maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 6.dp)
+                            maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 4.dp)
                         )
                     }
                 }
@@ -349,10 +349,10 @@ fun DownloadRequestDialog(
 
             if (showOptions) {
                 DialogSectionLabel(stringResource(R.string.download_dialog_section_options))
-                SettingsSection(colors.dialogSectionBackground) {
-                    Column(Modifier.padding(16.dp)) {
+                SettingsSection(colors.dialogSectionBackground, bottomSpacing = 8.dp) {
+                    Column(Modifier.padding(12.dp)) {
                         Row(
-                            Modifier.fillMaxWidth().clickable { retryEnabled = !retryEnabled }.padding(vertical = 10.dp),
+                            Modifier.fillMaxWidth().clickable { retryEnabled = !retryEnabled }.padding(vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(Modifier.weight(1f)) {
@@ -362,7 +362,7 @@ fun DownloadRequestDialog(
                             ClintSwitch(checked = retryEnabled)
                         }
                         Row(
-                            Modifier.fillMaxWidth().clickable { unmeteredOnly = !unmeteredOnly }.padding(vertical = 10.dp),
+                            Modifier.fillMaxWidth().clickable { unmeteredOnly = !unmeteredOnly }.padding(vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(Modifier.weight(1f)) {
@@ -375,7 +375,7 @@ fun DownloadRequestDialog(
                         if (showSplitAndMultithreading) {
                             Text(
                                 stringResource(R.string.download_split_parts_title), color = colors.onSurface,
-                                fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 12.dp)
+                                fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 8.dp)
                             )
                             Text(
                                 pluralStringResource(R.plurals.download_split_parts_value, splitParts, splitParts),
@@ -389,7 +389,7 @@ fun DownloadRequestDialog(
 
                             Text(
                                 stringResource(R.string.download_multithreading_title), color = colors.onSurface,
-                                fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 8.dp)
+                                fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 6.dp)
                             )
                             Text(
                                 pluralStringResource(R.plurals.download_multithreading_value, multithreadingParts, multithreadingParts),
@@ -405,7 +405,7 @@ fun DownloadRequestDialog(
                         if (showConcurrentSegments) {
                             Text(
                                 stringResource(R.string.download_concurrent_segments_title), color = colors.onSurface,
-                                fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 12.dp)
+                                fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 8.dp)
                             )
                             Text(
                                 pluralStringResource(R.plurals.download_concurrent_segments_value, concurrentSegments, concurrentSegments),
@@ -420,11 +420,11 @@ fun DownloadRequestDialog(
 
                         Text(
                             stringResource(R.string.download_dialog_speed_limit_title), color = colors.onSurface,
-                            fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 12.dp)
+                            fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 8.dp)
                         )
                         Text(
                             stringResource(R.string.download_dialog_speed_limit_desc), color = colors.secondaryText,
-                            fontSize = 12.sp, modifier = Modifier.padding(top = 2.dp, bottom = 8.dp)
+                            fontSize = 12.sp, modifier = Modifier.padding(top = 2.dp, bottom = 6.dp)
                         )
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             ClintOutlinedTextField(
@@ -461,7 +461,7 @@ fun DownloadRequestDialog(
                                         scheduledMillis = Calendar.getInstance().apply { add(Calendar.MINUTE, 1) }.timeInMillis
                                         if (needsExactAlarmPermissionRationale(context)) blockingError = exactAlarmPermissionDialogConfig(context)
                                     }
-                                }.padding(vertical = 10.dp).padding(top = 8.dp),
+                                }.padding(vertical = 6.dp).padding(top = 6.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column(Modifier.weight(1f)) {
@@ -481,7 +481,7 @@ fun DownloadRequestDialog(
                                                 set(Calendar.YEAR, year); set(Calendar.MONTH, month); set(Calendar.DAY_OF_MONTH, day)
                                             }.timeInMillis
                                         }
-                                    }.padding(vertical = 10.dp),
+                                    }.padding(vertical = 6.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(stringResource(R.string.download_schedule_date_title), color = colors.onSurface, fontSize = 14.sp, modifier = Modifier.weight(1f))
@@ -495,7 +495,7 @@ fun DownloadRequestDialog(
                                                 set(Calendar.HOUR_OF_DAY, hour); set(Calendar.MINUTE, minute); set(Calendar.SECOND, 0)
                                             }.timeInMillis
                                         }
-                                    }.padding(vertical = 10.dp),
+                                    }.padding(vertical = 6.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(stringResource(R.string.download_schedule_time_title), color = colors.onSurface, fontSize = 14.sp, modifier = Modifier.weight(1f))
@@ -515,7 +515,7 @@ fun DownloadRequestDialog(
 @Composable
 private fun DialogSectionLabel(text: String) {
     val colors = LocalClintColors.current
-    Text(text, color = colors.primary, fontSize = 12.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 14.dp, bottom = 6.dp))
+    Text(text, color = colors.primary, fontSize = 12.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 10.dp, bottom = 4.dp))
 }
 
 private fun tryHeadForSize(url: String, userAgent: String): Long {

@@ -61,9 +61,9 @@ val ClintColors.dialogSectionBackground: Color
     get() = lerp(popupBackground, Color.White, 0.08f)
 
 @Composable
-fun SettingsSection(background: Color, modifier: Modifier = Modifier, elevation: Dp = 0.dp, content: @Composable ColumnScope.() -> Unit) {
+fun SettingsSection(background: Color, modifier: Modifier = Modifier, elevation: Dp = 0.dp, bottomSpacing: Dp = 24.dp, content: @Composable ColumnScope.() -> Unit) {
     Card(
-        modifier.fillMaxWidth().padding(bottom = 24.dp),
+        modifier.fillMaxWidth().padding(bottom = bottomSpacing),
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = background),
         elevation = CardDefaults.cardElevation(defaultElevation = elevation)

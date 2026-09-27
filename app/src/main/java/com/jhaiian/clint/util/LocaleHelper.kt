@@ -12,9 +12,10 @@ object LocaleHelper {
     const val LANGUAGE_ENGLISH = "en"
     const val LANGUAGE_FILIPINO = "fil"
     const val LANGUAGE_RUSSIAN = "ru"
+    const val LANGUAGE_SPANISH = "es"
     const val BASE_LANGUAGE_TAG = LANGUAGE_ENGLISH
 
-    private val SUPPORTED_LANGUAGE_TAGS = listOf(LANGUAGE_ENGLISH, LANGUAGE_FILIPINO, LANGUAGE_RUSSIAN)
+    private val SUPPORTED_LANGUAGE_TAGS = listOf(LANGUAGE_ENGLISH, LANGUAGE_FILIPINO, LANGUAGE_RUSSIAN, LANGUAGE_SPANISH)
 
     fun wrapContext(context: Context): Context {
         val locale = resolveEffectiveLocale(context)

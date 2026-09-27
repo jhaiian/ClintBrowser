@@ -81,6 +81,7 @@ fun MediaCaptureDialog(
     hideSystemNavigation: Boolean,
     onDismiss: () -> Unit,
     onCopyLink: (String) -> Unit,
+    onPreviewMediaStarted: () -> Unit,
     onDownload: (DetectedMedia, List<DetectedMedia>, Long?, String?) -> Unit
 ) {
     val colors = LocalClintColors.current
@@ -131,13 +132,13 @@ fun MediaCaptureDialog(
                     if (video.isNotEmpty()) {
                         item(key = "header_video") { MediaCaptureSectionHeader(stringResource(R.string.media_capture_section_video)) }
                         items(video, key = { it.id }) { media ->
-                            MediaCaptureRow(media, onCopyLink, isBest = media.id in bestIds) { estimatedBytes, containerExt -> onDownload(media, detectedItems, estimatedBytes, containerExt) }
+                            MediaCaptureRow(media, onCopyLink, isBest = media.id in bestIds, onPreview = { onPreviewMediaStarted(); VideoPreviewActivity.start(context, tabId, media.id) }) { estimatedBytes, containerExt -> onDownload(media, detectedItems, estimatedBytes, containerExt) }
                         }
                     }
                     if (audio.isNotEmpty()) {
                         item(key = "header_audio") { MediaCaptureSectionHeader(stringResource(R.string.media_capture_section_audio)) }
                         items(audio, key = { it.id }) { media ->
-                            MediaCaptureRow(media, onCopyLink) { estimatedBytes, containerExt -> onDownload(media, detectedItems, estimatedBytes, containerExt) }
+                            MediaCaptureRow(media, onCopyLink, onPreview = { onPreviewMediaStarted(); previewMedia = media }) { estimatedBytes, containerExt -> onDownload(media, detectedItems, estimatedBytes, containerExt) }
                         }
                     }
                     if (subtitles.isNotEmpty()) {
@@ -151,12 +152,20 @@ fun MediaCaptureDialog(
         }
     }
     previewMedia?.let { target ->
-        SubtitlePreviewDialog(
-            media = target,
-            hideStatusBar = hideStatusBar,
-            hideSystemNavigation = hideSystemNavigation,
-            onDismiss = { previewMedia = null }
-        )
+        when (target.kind) {
+            MediaKind.AUDIO -> AudioPreviewDialog(
+                media = target,
+                hideStatusBar = hideStatusBar,
+                hideSystemNavigation = hideSystemNavigation,
+                onDismiss = { previewMedia = null }
+            )
+            else -> SubtitlePreviewDialog(
+                media = target,
+                hideStatusBar = hideStatusBar,
+                hideSystemNavigation = hideSystemNavigation,
+                onDismiss = { previewMedia = null }
+            )
+        }
     }
 }
 
@@ -345,7 +354,7 @@ private fun formatBitrate(bitsPerSec: Long): String {
 }
 
 @Composable
-private fun mediaCaptureTitle(media: DetectedMedia): String {
+internal fun mediaCaptureTitle(media: DetectedMedia): String {
     media.label?.takeIf { it.isNotBlank() }?.let { return it }
     if (media.width != null && media.height != null) return "${media.width}\u00D7${media.height}"
     val name = remember(media.url) { runCatching { Uri.parse(media.url).lastPathSegment }.getOrNull() }

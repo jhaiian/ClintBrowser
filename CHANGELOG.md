@@ -4,6 +4,203 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.1.6
+
+> This changelog compiles everything from 1.1.6 beta plus.
+
+---
+
+## What's New
+
+### Media Capture
+
+You can now download media directly from webpages using Clint's new Media Capture feature.
+
+It works with normal video and audio files and also supports streaming media such as HLS/M3U8 streams. When Clint detects downloadable media on a webpage, you can easily download it, convert it to MP4, preview video, image, subtitles, and all of that.
+
+You guys already know how this works, so I'm not going to explain it further.
+
+(Thanks to @reviewlord for suggesting #43)
+
+---
+
+### Download Categories
+
+Added download categories. This basically puts your downloads into subfolders to categorize them.
+
+**Videos**
+
+MP4, MKV, WebM, AVI, MOV, WMV, FLV, M4V, 3GP, TS, M2TS, MTS, MPEG, MPG, OGV, VOB, RMVB, F4V, ASF, M2V, MXF, OGM, DIVX, XVID
+
+**Images**
+
+JPG / JPEG, PNG, GIF, WebP, BMP, HEIC / HEIF, SVG, TIFF / TIF, ICO, AVIF, RAW, CR2, NEF, ORF, ARW, DNG, JFIF, JP2, TGA
+
+**Audio**
+
+MP3, M4A, AAC, WAV, FLAC, OGG, WMA, OPUS, MID / MIDI, AMR, AIFF / AIF, ALAC, APE, MKA, CAF, DSF, DFF, RA, RM, SPX, VOC
+
+**Documents**
+
+PDF, DOC / DOCX, XLS / XLSX, PPT / PPTX, TXT, RTF, ODT, ODS, ODP, CSV, EPUB, MOBI, MD, JSON, XML, TSV, NUMBERS, KEY, PAGES, AZW / AZW3 / AZW4, FB2, DJVU, CBZ, CBR, LOG
+
+**Archives**
+
+ZIP, RAR, 7Z, TAR, GZ, BZ2, XZ, ISO, LZ4, ZST, BR, CAB, TGZ, TBZ2, TXZ, Z, LZMA, LZH, ARJ, ACE, SIT, CPIO, XAR
+
+**Apps**
+
+APK, APKS, XAPK, APKM, APKZ, AAB, EXE, MSI, MSIX, DMG, PKG, DEB, RPM, APPIMAGE, JAR, BAT, COM, RUN
+
+**Others**
+
+Anything that doesn't match the categories above.
+
+---
+
+### New: Keep Screen On
+
+Added a new setting in **Download Settings**:
+
+**Keep Screen On**
+
+Keep the screen on while you're on the Downloads page until all pending downloads are finished.
+
+This can be useful if your OS tends to kill downloads while you're sleeping.
+
+---
+
+### New: Expanded File Type Icons
+
+Downloads now have more specific file type icons.
+
+The file type system has been expanded from 6 icon categories covering around 140 extensions to 19 categories. New dedicated icons have been added for PDFs, spreadsheets, presentations, ebooks, subtitles, source code, fonts, design files, databases, installers and executables, certificates, calendars and contacts, torrents, and more.
+
+---
+
+### Downloads
+
+- Added a rename function for completed downloads.
+- Refactored some of its code.
+- The Properties dialog in Downloads will now update in real time, even while the dialog is open. You guys don't need to reopen it every time anymore.
+- Added more statuses in stream download.
+- When a download gets stuck, the app will now try to fix itself by pausing and resuming it.
+
+---
+
+### Website Blocker
+
+- Removed the **Ads** option. It was misleading, it looked like a way to block ads on a website. Remember, guys, the Website Blocker blocks the entire website from loading.
+
+If you guys are looking for an adblocker, it's **Quiver Guard**.
+
+---
+
+### Quiver Guard
+
+- Removed the experimental dialog.
+
+---
+
+### Site Permission / Site Settings
+
+- Added clipboard web permission. It's going to behave like the other existing web permissions.
+
+---
+
+### Browser
+
+- Added a new setting under **Browser Settings**: **Custom Select Menus**. Use Clint's custom picker for `<select>` dropdowns instead of the WebView default. This feature has actually been in Clint for a while, but there was previously no way to turn it off. You can now disable it from Browser Settings. More options for overriding the ugly default WebView UI will be added in the future.
+- The popup dialog will no longer trigger while in full screen viewing.
+
+---
+
+### Tab Grid
+
+- Tab Grid is now the default instead of the tab sheet. I swear, guys, I did this before I released, but I made some coding mistakes and didn't realize until I cleared Clint's data to test everything again.
+- Tab Grid will now open at the current tab position instead of opening at the top.
+
+It's bad because, for new users, I don't update the Tab Sheet anymore. I might update it in the future, but I don't know, there's just a lot to do right now.
+
+---
+
+### Theme
+
+- Added system themes. (Thanks to @ran-some for suggesting this #48)
+- Set theme default value to System.
+
+---
+
+### Translation
+
+- Added Russian translation. (Thank you so much to @mirr1184-ctrl #52)
+- Added Spanish translation. (Thank you so much to my friend @snashyturner and his sister for adding this #58)
+- Made the language selector hard coded.
+- Added the language selector in setup.
+- Improved Filipino translation.
+
+---
+
+### Branding
+
+- Changed some branding strings.
+
+---
+
+### Android Manifest
+
+- Declared large heap support.
+
+---
+
+### Legal
+
+- Updated Terms of Service and Privacy Policy regarding Media Capture and clipboard web permission.
+
+---
+
+## Bug Fixes
+
+- Fixed `SelectPickerDialog.kt` breaking on some websites. The title and description have now been removed from the picker to prevent this issue from happening again.
+- Fixed the bug where, if you reopen the app, video/audio is playing in the background from another tab.
+- Fixed the bug where the WebView shifted when the site progress bar appeared. I don't know, this bug keeps coming back, maybe I touched it again, I don't remember, but it's fixed again.
+- Fixed download complete notification not persisting.
+- Fixed a race condition where concurrent calls to the download dequeue logic could launch two workers on the same download simultaneously, potentially corrupting the file.
+- Fixed the speed limiter holding its lock while sleeping, which was causing parallel download parts to become serialized whenever a speed limit was set. Parallel downloads now actually run in parallel while still respecting the speed limit.
+- Sanitized destination filenames to prevent path traversal through Content-Disposition headers. Also fixed a race condition where two downloads could claim the same filename at the same time.
+- Fixed custom scheduled downloads permanently bypassing the daily download window after their first run. They now bypass the window only for the specific scheduled start.
+- Fixed downloads with "Unmetered only" enabled never automatically resuming after being paused due to switching to a metered network. They now resume automatically when the network becomes unmetered again.
+- Wrapped progress checkpoint writes so a temporary database error no longer causes the entire download to fail.
+- Cleaned up a small memory leak where `removedIds` was never shrinking. Delete cleanup now also waits for the download job to fully stop before modifying the file or database.
+- Converted unused `var` fields in `DownloadItem` to `val` after verifying that there were no direct mutations anywhere in the project.
+- Fixed InstaPay link in the donation page.
+
+---
+
+## Dependency Updates
+
+### Quiver Guard
+
+- Bumped adblock-rust version from 0.13.2 to 0.13.3.
+- Regenerated `src/bundled_resources.rs` from the uBlock Origin 1.75.0 checkout via `tools/generate_resources.py`.
+
+Result: 47 redirect resources, 151 scriptlets (up from 46/148).
+
+Added: `google-ima-dai.js`, `json-edit.fn`, `modify-xhr-response.fn`, `mpegdash-prune.js`, `proxy-tostring.fn`
+
+Removed: `remove-cache-storage-item.fn` (dropped upstream)
+
+So you guys need to recompile Quiver Guard in order to make it run again.
+
+### Other
+
+- Bump `androidx.compose:compose-bom` from 2026.08.00 to 2026.09.00 by @dependabot[bot] in #51
+- Bump `org.bouncycastle:bcprov-jdk18on` from 1.85.2 to 1.86 by @dependabot[bot] in #50
+- Bump `org.jetbrains.kotlin.plugin.compose` from 2.4.10 to 2.4.20 by @dependabot[bot] in #49
+- Bump `com.android.application` from 9.4.0 to 9.4.1 in #8
+
+---
+
 # v1.1.6-beta-6
 
 *The last beta for 1.1.6???*
@@ -2022,7 +2219,7 @@ Controls how strong background and surface colors appear. Three modes are availa
 
 ---
 
-## 🧭 Address Bar Position
+## ?? Address Bar Position
 
 Choose the location of the address bar / toolbar:
 

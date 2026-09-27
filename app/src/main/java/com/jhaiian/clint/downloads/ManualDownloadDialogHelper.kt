@@ -131,7 +131,8 @@ private fun DownloadsActivity.enqueueManualDownload(
             filename = submission.filename,
             estimatedTotalBytes = submission.estimatedTotalBytes,
             speedLimitBytesPerSec = submission.speedLimitBytesPerSec,
-            concurrentSegments = submission.concurrentSegments
+            concurrentSegments = submission.concurrentSegments,
+            convertTsToMp4 = submission.convertTsToMp4
         )
         ClintDownloadManager.enqueueStream(
             context = this,

@@ -1,6 +1,6 @@
 # Terms of Service for Clint Browser
 
-*Last updated: September 2, 2026*
+*Last updated: September 28, 2026*
 
 ## 1. What These Terms Cover
 
@@ -62,7 +62,15 @@ These features send your data (search queries, suggestion text, or whatever a sc
 
 User scripts run with access to the pages you visit and, depending on what a script does, can read or modify page content and make network requests of their own. Only install scripts from sources you trust. The developer is not responsible for anything a user script does, including data loss, privacy exposure, or harm caused by a malicious or buggy script.
 
-## 8. No Warranty
+## 8. Media Capture
+
+Clint Browser includes Media Capture, a feature that detects media resources used by websites, such as video, audio, subtitles, and streaming formats like HLS/M3U8 and DASH, and lets you download them directly. Where a website provides video and audio as separate streams, Media Capture can, where supported, combine them.
+
+Media Capture works by inspecting webpage content and network requests, and by interacting with Android, WebView, and other components outside the developer's control. Websites may use their own tracking, DRM, authentication, or other technologies that affect how Media Capture behaves. Media Capture is provided **"as is"**, and the developer does not guarantee that it will detect every type of media, prevent websites from tracking you, or provide complete privacy or security while using the feature.
+
+You are responsible for making sure your use of Media Capture, including any content you download with it, complies with the terms of the websites you visit and any applicable copyright or other laws.
+
+## 9. No Warranty
 
 Clint Browser is provided **"as is"** and **"as available"**. To the maximum extent permitted by law, the developer disclaims all warranties, express or implied, including:
 
@@ -73,7 +81,7 @@ Clint Browser is provided **"as is"** and **"as available"**. To the maximum ext
 
 You use the app entirely at your own risk.
 
-## 9. Limitation of Liability
+## 10. Limitation of Liability
 
 In no event shall the developer be liable for any damages arising from your use of Clint Browser, including but not limited to:
 
@@ -85,7 +93,7 @@ In no event shall the developer be liable for any damages arising from your use 
 
 Some jurisdictions do not allow certain liability exclusions. In those cases, this limitation applies to the fullest extent permitted by law.
 
-## 10. Third‑Party Content
+## 11. Third‑Party Content
 
 Clint Browser is a **browser**, it renders content from websites, search engines, and online services that are completely outside the developer's control. We do not:
 
@@ -94,15 +102,15 @@ Clint Browser is a **browser**, it renders content from websites, search engines
 
 You are responsible for your own browsing choices.
 
-## 11. Changes to These Terms
+## 12. Changes to These Terms
 
 These Terms may be updated occasionally. Changes will be posted on the GitHub repository. The app will always link to the latest version. If you continue using Clint Browser after an update, you accept the new Terms.
 
-## 12. Governing Law
+## 13. Governing Law
 
 These Terms are governed by the laws of the Philippines. If you live elsewhere, your local consumer rights may also apply.
 
-## 13. Contact
+## 14. Contact
 
 For questions or permission requests:
 

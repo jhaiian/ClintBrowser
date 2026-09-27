@@ -95,6 +95,7 @@ object ClintDownloadManager {
             DownloadNetworkMonitor.register(appCtx)
             DownloadScheduleMonitor.scheduleNextCheck(appCtx)
             DownloadCustomScheduleMonitor.rearmAll(appCtx)
+            DownloadStallMonitor.register(appCtx)
             tryDequeueNext(appCtx)
         }
     }

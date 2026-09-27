@@ -111,7 +111,7 @@
     <string name="support_clint_summary">Tulungang manatiling libre ang Clint habambuhay. Pag-isipang mag-donate sa developer ng Clint.</string>
     <string name="support_clint_view_supporters_title">Tingnan ang mga Kasalukuyang Supporter</string>
     <string name="support_clint_view_supporters_summary">Tingnan ang lahat ng sumusuporta sa development ng Clint</string>
-    <string name="support_clint_markdown">## Mga Donasyon\n\nAyaw kong magtrabaho para sa isang korporasyon. Gusto kong ipagpatuloy ang mahal kong ginagawa: ang paggawa ng mga app tulad ng Clint at ang pagbabahagi nito nang libre sa lahat.\n\nKung gusto ko, puwede kong gawing freemium ang Clint at ilagay sa likod ng paywall ang ilang feature. Pero pinili kong huwag, dahil hindi ganoong developer ang gusto kong maging.\n\nKung gusto mo ang Clint at gusto mong suportahan ang development nito, pag-isipang mag-donate. Malaki man o maliit, malaking tulong ang bawat kontribusyon para maipagpatuloy ko ang pag-develop at pagpapabuti ng Clint habang nag-aaral pa ako sa kolehiyo.\n\nKung gusto mo, puwede ka ring ma-shoutout bilang supporter.\n\nSalamat sa pagtulong na manatiling libre at independent ang Clint.\n\n[![Patreon](https://img.shields.io/badge/Support%20me-Patreon-orange?style=for-the-badge&amp;logo=patreon)](https://patreon.com/Jhaiian)\n[![Ko-fi](https://img.shields.io/badge/Buy%20me%20a%20coffee-Ko--fi-red?style=for-the-badge&amp;logo=ko-fi)](https://ko-fi.com/jhaiian)\n[![PayPal](https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&amp;logo=paypal)](https://paypal.me/jhaiian)\n[![InstaPay QR](https://img.shields.io/badge/InstaPay%20QR-Philippines%20only-7C3AED?style=for-the-badge)](https://github.com/jhaiian/docs/Insta%20Pay.jpg)</string>
+    <string name="support_clint_markdown">## Mga Donasyon\n\nAyaw kong magtrabaho para sa isang korporasyon. Gusto kong ipagpatuloy ang mahal kong ginagawa: ang paggawa ng mga app tulad ng Clint at ang pagbabahagi nito nang libre sa lahat.\n\nKung gusto ko, puwede kong gawing freemium ang Clint at ilagay sa likod ng paywall ang ilang feature. Pero pinili kong huwag, dahil hindi ganoong developer ang gusto kong maging.\n\nKung gusto mo ang Clint at gusto mong suportahan ang development nito, pag-isipang mag-donate. Malaki man o maliit, malaking tulong ang bawat kontribusyon para maipagpatuloy ko ang pag-develop at pagpapabuti ng Clint habang nag-aaral pa ako sa kolehiyo.\n\nKung gusto mo, puwede ka ring ma-shoutout bilang supporter.\n\nSalamat sa pagtulong na manatiling libre at independent ang Clint.\n\n[![Patreon](https://img.shields.io/badge/Support%20me-Patreon-orange?style=for-the-badge&amp;logo=patreon)](https://patreon.com/Jhaiian)\n[![Ko-fi](https://img.shields.io/badge/Buy%20me%20a%20coffee-Ko--fi-red?style=for-the-badge&amp;logo=ko-fi)](https://ko-fi.com/jhaiian)\n[![PayPal](https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&amp;logo=paypal)](https://paypal.me/jhaiian)\n[![InstaPay QR](https://img.shields.io/badge/InstaPay%20QR-Philippines%20only-7C3AED?style=for-the-badge)](https://github.com/jhaiian/jhaiian/blob/main/docs/Insta%20Pay.jpg)</string>
     <string name="default_browser_title">Default na Browser</string>
     <string name="default_browser_none">Wala</string>
     <string name="look_and_feel">Hitsura</string>
@@ -602,6 +602,7 @@
     <string name="download_concurrent_title">Sabay-sabay na Download</string>
     <string name="download_concurrent_desc">Ilang download ang puwedeng tumakbo nang sabay. Ang iba ay maghihintay sa queue at kusang magsisimula kapag may bakanteng slot.</string>
     <string name="download_concurrent_value_easter_egg">24 na sabay-sabay na download \uD83D\uDE08</string>
+    <string name="action_play">I-play</string>
     <string name="action_pause">I-pause</string>
     <string name="action_resume">Ituloy</string>
     <string name="download_pause_desc">I-pause ang download</string>
@@ -1547,4 +1548,8 @@
     <string name="media_capture_menu_preview">I-preview</string>
     <string name="media_capture_subtitle_preview_title">Preview ng Subtitle</string>
     <string name="media_capture_subtitle_preview_error">Hindi na-load ang subtitle.\nPaki-check ang iyong koneksyon at subukan ulit.</string>
+    <string name="media_capture_video_preview_title">Preview ng Video</string>
+    <string name="media_capture_video_preview_error">Hindi ma-play ang video.\nPaki-check ang iyong koneksyon at subukan ulit.</string>
+    <string name="media_capture_audio_preview_title">Preview ng Audio</string>
+    <string name="media_capture_audio_preview_error">Hindi ma-play ang audio.\nPaki-check ang iyong koneksyon at subukan ulit.</string>
 </resources>

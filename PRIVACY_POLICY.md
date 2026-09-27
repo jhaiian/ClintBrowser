@@ -1,6 +1,6 @@
 # Privacy Policy for Clint Browser
 
-*Last updated: September 2, 2026*
+*Last updated: September 28, 2026*
 
 ## Overview
 
@@ -118,6 +118,16 @@ Files you download are saved directly to your device. Clint Browser does not upl
 
 ---
 
+## Media Capture
+
+Media Capture detects media resources used by websites, such as video, audio, subtitles, and streaming formats like HLS/M3U8 and DASH, and lets you download them directly. For example, when a page plays a video, Media Capture inspects the page and its network requests to find available media streams and lists them as downloadable options. Some sites serve video and audio as separate streams, and where supported, Media Capture can combine them into a single file.
+
+All of this detection happens locally on your device. Clint Browser does not intentionally upload captured media, browsing data, or any information about detected media to an external server.
+
+That said, this privacy statement is not an absolute guarantee of privacy or security. Media Capture works by interacting with webpage content, network requests, Android, WebView, and other components outside Clint Browser's control. Websites may use their own tracking, DRM, authentication, or other technologies that affect how Media Capture behaves. Media Capture is provided as-is, and Clint Browser does not guarantee that it will detect every type of media, prevent websites from tracking you, or provide complete privacy or security while using the feature.
+
+---
+
 ## Website Blocker
 
 Website Blocker lets you block entire categories of sites (ads, malware, piracy, tracking, and more) at the domain level.
@@ -167,6 +177,7 @@ Websites may request access to:
 - **Microphone** — Used for voice input, calls, or audio recording features on websites  
 - **Location** — Used for location-based services such as maps or nearby results  
 - **Notifications** — Used by websites to send push notifications if you allow them  
+- **Clipboard** — Used when a website wants to read text from your clipboard, for example to let you paste into a form with one tap
 
 ### Site Exceptions
 

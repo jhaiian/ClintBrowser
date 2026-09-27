@@ -111,7 +111,7 @@
     <string name="support_clint_summary">Помогите сохранить Clint бесплатным навсегда. Рассмотрите возможность пожертвования разработчику Clint.</string>
     <string name="support_clint_view_supporters_title">Посмотреть текущих спонсоров</string>
     <string name="support_clint_view_supporters_summary">Посмотрите всех, кто помог поддержать разработку Clint</string>
-    <string name="support_clint_markdown">## Пожертвования\n\nЯ не хочу работать на корпорацию. Я хочу продолжать заниматься тем, что люблю: создавать такие приложения, как Clint, и делать их бесплатно доступными для всех.\n\nЕсли бы я захотел, я мог бы сделать Clint условно-бесплатным и спрятать часть функций за платной подпиской. Вместо этого я решил не делать этого, потому что просто не хочу быть таким разработчиком.\n\nЕсли вам нравится Clint и вы хотите поддержать его разработку, рассмотрите возможность пожертвования. Любой вклад, большой или маленький, помогает мне продолжать разрабатывать и улучшать Clint, пока я ещё учусь в колледже.\n\nЛюбая сумма поможет, и, если хотите, вы также можете получить упоминание как спонсор.\n\nСпасибо, что помогаете мне сохранять Clint бесплатным и независимым.\n\n[![Patreon](https://img.shields.io/badge/Support%20me-Patreon-orange?style=for-the-badge&amp;logo=patreon)](https://patreon.com/Jhaiian)\n[![Ko-fi](https://img.shields.io/badge/Buy%20me%20a%20coffee-Ko--fi-red?style=for-the-badge&amp;logo=ko-fi)](https://ko-fi.com/jhaiian)\n[![PayPal](https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&amp;logo=paypal)](https://paypal.me/jhaiian)\n[![InstaPay QR](https://img.shields.io/badge/InstaPay%20QR-Philippines%20only-7C3AED?style=for-the-badge)](https://github.com/jhaiian/docs/Insta%20Pay.jpg)</string>
+    <string name="support_clint_markdown">## Пожертвования\n\nЯ не хочу работать на корпорацию. Я хочу продолжать заниматься тем, что люблю: создавать такие приложения, как Clint, и делать их бесплатно доступными для всех.\n\nЕсли бы я захотел, я мог бы сделать Clint условно-бесплатным и спрятать часть функций за платной подпиской. Вместо этого я решил не делать этого, потому что просто не хочу быть таким разработчиком.\n\nЕсли вам нравится Clint и вы хотите поддержать его разработку, рассмотрите возможность пожертвования. Любой вклад, большой или маленький, помогает мне продолжать разрабатывать и улучшать Clint, пока я ещё учусь в колледже.\n\nЛюбая сумма поможет, и, если хотите, вы также можете получить упоминание как спонсор.\n\nСпасибо, что помогаете мне сохранять Clint бесплатным и независимым.\n\n[![Patreon](https://img.shields.io/badge/Support%20me-Patreon-orange?style=for-the-badge&amp;logo=patreon)](https://patreon.com/Jhaiian)\n[![Ko-fi](https://img.shields.io/badge/Buy%20me%20a%20coffee-Ko--fi-red?style=for-the-badge&amp;logo=ko-fi)](https://ko-fi.com/jhaiian)\n[![PayPal](https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&amp;logo=paypal)](https://paypal.me/jhaiian)\n[![InstaPay QR](https://img.shields.io/badge/InstaPay%20QR-Philippines%20only-7C3AED?style=for-the-badge)](https://github.com/jhaiian/jhaiian/blob/main/docs/Insta%20Pay.jpg)</string>
     <string name="default_browser_title">Браузер по умолчанию</string>
     <string name="default_browser_none">Нет</string>
     <string name="look_and_feel">Внешний вид</string>
@@ -120,6 +120,10 @@
     <string name="language_system">Системный</string>
     <string name="language_system_desc">Соответствует языку устройства, с переходом на английский, если он не поддерживается</string>
     <string name="language_base_desc">Исходный язык</string>
+    <string name="language_name_english">English</string>
+    <string name="language_name_filipino">Filipino</string>
+    <string name="language_name_russian">Русский</string>
+    <string name="language_name_spanish">Español</string>
     <string name="pref_app_theme_title">Тема приложения</string>
     <string name="pref_app_theme_summary">Выберите визуальную тему приложения</string>
     <string name="theme_light">Светлая</string>
@@ -169,6 +173,8 @@
     <string name="download_location_option_custom">Другое</string>
     <string name="download_location_tap_to_choose">Нажмите, чтобы выбрать папку…</string>
     <string name="download_section_location">МЕСТО СОХРАНЕНИЯ</string>
+    <string name="download_categorize_title">Сортировать загрузки</string>
+    <string name="download_categorize_summary">Распределять загрузки по папкам: видео, изображения, аудио и документы</string>
     <string name="download_section_measurement">ЕДИНИЦЫ ИЗМЕРЕНИЯ</string>
     <string name="measurement_system_title">Система измерения</string>
     <string name="measurement_system_summary_binary">Двоичная система</string>
@@ -379,6 +385,7 @@
     <string name="download_manual_fab_desc">Добавить загрузку</string>
     <string name="download_menu_share">Поделиться</string>
     <string name="download_menu_open_folder">Открыть папку</string>
+    <string name="download_file_missing">Файл больше не существует</string>
     <string name="open_folder_error_title">Не удалось открыть папку</string>
     <string name="open_folder_error_message">Ни одно приложение на этом устройстве не может открыть просмотр папки. Файл сохранён по пути:\n\n%1$s</string>
     <string name="download_menu_update_link">Обновить ссылку загрузки</string>
@@ -387,6 +394,7 @@
     <string name="download_update_link_dialog_fetch_failed">Не удалось получить ссылку</string>
     <string name="download_update_link_dialog_size_unverifiable">Не удалось проверить размер файла</string>
     <string name="download_update_link_dialog_size_mismatch">Размер файла не совпадает (%1$s против %2$s байт)</string>
+    <string name="download_update_link_dialog_not_a_manifest">Эта ссылка не ведёт на корректный плейлист потока</string>
     <string name="download_update_link_dialog_positive">Обновить</string>
     <string name="download_menu_redownload">Загрузить заново</string>
     <string name="download_menu_redownload_options">Загрузить заново с дополнительными параметрами</string>
@@ -398,6 +406,10 @@
     <string name="redownload_confirm_title">Загрузить заново?</string>
     <string name="redownload_confirm_message">Существующий файл будет удалён и загружен заново. Продолжить?</string>
     <string name="redownload_confirm_action">Загрузить заново</string>
+    <string name="download_menu_rename">Переименовать файл</string>
+    <string name="download_rename_positive">Переименовать</string>
+    <string name="download_rename_exists">Файл с таким именем уже существует</string>
+    <string name="download_rename_failed">Не удалось переименовать файл</string>
     <string name="download_menu_remove">Удалить</string>
     <string name="download_menu_copy_link">Скопировать ссылку загрузки</string>
     <string name="download_menu_copy_filename">Скопировать имя файла</string>
@@ -478,6 +490,9 @@
     <string name="notification_web_request_origin_unknown">Этот сайт</string>
     <string name="notification_permission_title">Доступ к уведомлениям</string>
     <string name="notification_permission_message">Доступ к уведомлениям нужен, чтобы этот сайт мог отправлять вам уведомления.</string>
+    <string name="clipboard_web_request_title">Запрошен доступ к буферу обмена</string>
+    <string name="clipboard_web_request_message">%s хочет увидеть текст из вашего буфера обмена.</string>
+    <string name="clipboard_web_request_origin_unknown">Этот сайт</string>
     <string name="web_notification_channel_name">Уведомления сайтов</string>
     <string name="web_notification_channel_desc">Уведомления, отправляемые сайтами</string>
     <string name="download_storage_permission_title">Доступ к хранилищу</string>
@@ -526,6 +541,7 @@
     <string name="download_info_with_time">%1$s  \u2022  %2$s</string>
     <string name="download_error_unknown">Неизвестная ошибка</string>
     <string name="download_error_playlist_unavailable">Не удалось получить плейлист видео. Возможно, он устарел — попробуйте определить медиа заново.</string>
+    <string name="download_error_link_expired">Ссылка на загрузку истекла, пока файл был на паузе. Перезапустите загрузку, чтобы получить новую ссылку.</string>
     <string name="download_error_mux_failed">Не удалось объединить загруженное видео и аудио в один файл.</string>
     <string name="download_error_mux_failed_detail">Не удалось объединить загруженное видео и аудио в один файл: %1$s</string>
     <string name="download_error_saf_no_access">Нет доступа к выбранной папке загрузок</string>
@@ -587,6 +603,7 @@
     <string name="download_concurrent_title">Одновременные загрузки</string>
     <string name="download_concurrent_desc">Сколько загрузок может выполняться одновременно. Остальные становятся в очередь и запускаются автоматически при освобождении слота.</string>
     <string name="download_concurrent_value_easter_egg">24 одновременные загрузки \uD83D\uDE08</string>
+    <string name="action_play">Воспроизвести</string>
     <string name="action_pause">Пауза</string>
     <string name="action_resume">Продолжить</string>
     <string name="download_pause_desc">Приостановить загрузку</string>
@@ -940,6 +957,7 @@
     <string name="site_settings_mic">Микрофон</string>
     <string name="site_settings_location">Геолокация</string>
     <string name="site_settings_notifications">Уведомления</string>
+    <string name="site_settings_clipboard">Буфер обмена</string>
     <string name="site_settings_desktop_mode">Режим ПК</string>
     <string name="desktop_mode_save_state">Запомнить состояние</string>
     <string name="desktop_mode_save_state_desc">Запомнить режим ПК для этого сайта и применять его автоматически при следующих посещениях</string>
@@ -994,6 +1012,7 @@
     <string name="download_conflict_add_duplicate">Добавить дубликат</string>
     <string name="download_conflict_override">Заменить существующий файл</string>
     <string name="download_conflict_rename">Переименовать</string>
+    <string name="download_conflict_update_link">Обновить ссылку</string>
     <string name="download_already_active_title">Уже загружается</string>
     <string name="download_already_active_message">Файл \"%1$s\" уже загружается. Загрузить его снова как отдельный файл?</string>
     <string name="download_foreground_notification_title">Загрузки Clint</string>
@@ -1537,6 +1556,7 @@
     <string name="media_capture_sort_oldest">Сначала старые</string>
     <string name="media_capture_copy_link">Скопировать ссылку</string>
     <string name="media_capture_download">Скачать</string>
+    <string name="media_capture_duplicate_link_updated">Ссылка на загрузку обновлена</string>
     <string name="media_capture_link_clip_label">URL медиа</string>
     <string name="media_capture_link_copied">Ссылка скопирована в буфер обмена</string>
     <string name="media_capture_segments_count">Сегментов: %1$d</string>
@@ -1546,4 +1566,12 @@
     <string name="media_capture_menu_stream">Поток</string>
     <string name="media_capture_menu_copy_link">Скопировать ссылку загрузки</string>
     <string name="media_capture_menu_share_link">Поделиться ссылкой загрузки</string>
+    <string name="media_capture_convert_ts_to_mp4">Конвертировать TS в MP4</string>
+    <string name="media_capture_menu_preview">Предпросмотр</string>
+    <string name="media_capture_subtitle_preview_title">Предпросмотр субтитров</string>
+    <string name="media_capture_subtitle_preview_error">Не удалось загрузить субтитры.\nПроверьте подключение к интернету и повторите попытку.</string>
+    <string name="media_capture_video_preview_title">Просмотр видео</string>
+    <string name="media_capture_video_preview_error">Не удалось воспроизвести видео.\nПроверьте подключение к интернету и повторите попытку.</string>
+    <string name="media_capture_audio_preview_title">Просмотр аудио</string>
+    <string name="media_capture_audio_preview_error">Не удалось воспроизвести аудио.\nПроверьте подключение к интернету и повторите попытку.</string>
 </resources>

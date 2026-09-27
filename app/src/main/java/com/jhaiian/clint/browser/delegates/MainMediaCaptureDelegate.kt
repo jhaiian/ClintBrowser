@@ -46,6 +46,9 @@ internal fun MainActivity.mountMediaCaptureDialog() {
                 hideSystemNavigation = hideSystemNavigation,
                 onDismiss = { overlayContent = null },
                 onCopyLink = { text -> copyMediaCaptureLink(text) },
+                onPreviewMediaStarted = {
+                    tabManager.activeTab?.webView?.evaluateJavascript(com.jhaiian.clint.browser.webview.TabMediaControl.PAUSE_SCRIPT, null)
+                },
                 onDownload = { media, allItems, estimatedBytes, containerExtension ->
                     showMediaCaptureDownloadDialog(media, pageUrl, pageTitle, allItems, estimatedBytes, containerExtension)
                 }

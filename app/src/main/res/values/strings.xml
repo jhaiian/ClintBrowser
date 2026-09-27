@@ -111,7 +111,7 @@
     <string name="support_clint_summary">Help keep Clint free forever. Consider making a donation to the Clint developer.</string>
     <string name="support_clint_view_supporters_title">View Current Supporters</string>
     <string name="support_clint_view_supporters_summary">See everyone who has helped support Clint\u2019s development</string>
-    <string name="support_clint_markdown">## Donations\n\nI don\u2019t want to work for a corporation. I want to keep doing what I love: building apps like Clint and making them freely available to everyone.\n\nIf I wanted to, I could make Clint freemium and put some features behind a paywall. Instead, I choose not to because that\u2019s simply not the kind of developer I want to be.\n\nIf you enjoy Clint and want to support its development, consider making a donation. Every contribution, big or small, helps me continue developing and improving Clint while I\u2019m still in college.\n\nAny amount helps, and if you\u2019d like, you can also get a shoutout as a supporter.\n\nThanks for helping me keep Clint free and independent.\n\n[![Patreon](https://img.shields.io/badge/Support%20me-Patreon-orange?style=for-the-badge&amp;logo=patreon)](https://patreon.com/Jhaiian)\n[![Ko-fi](https://img.shields.io/badge/Buy%20me%20a%20coffee-Ko--fi-red?style=for-the-badge&amp;logo=ko-fi)](https://ko-fi.com/jhaiian)\n[![PayPal](https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&amp;logo=paypal)](https://paypal.me/jhaiian)\n[![InstaPay QR](https://img.shields.io/badge/InstaPay%20QR-Philippines%20only-7C3AED?style=for-the-badge)](https://github.com/jhaiian/docs/Insta%20Pay.jpg)</string>
+    <string name="support_clint_markdown">## Donations\n\nI don\u2019t want to work for a corporation. I want to keep doing what I love: building apps like Clint and making them freely available to everyone.\n\nIf I wanted to, I could make Clint freemium and put some features behind a paywall. Instead, I choose not to because that\u2019s simply not the kind of developer I want to be.\n\nIf you enjoy Clint and want to support its development, consider making a donation. Every contribution, big or small, helps me continue developing and improving Clint while I\u2019m still in college.\n\nAny amount helps, and if you\u2019d like, you can also get a shoutout as a supporter.\n\nThanks for helping me keep Clint free and independent.\n\n[![Patreon](https://img.shields.io/badge/Support%20me-Patreon-orange?style=for-the-badge&amp;logo=patreon)](https://patreon.com/Jhaiian)\n[![Ko-fi](https://img.shields.io/badge/Buy%20me%20a%20coffee-Ko--fi-red?style=for-the-badge&amp;logo=ko-fi)](https://ko-fi.com/jhaiian)\n[![PayPal](https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&amp;logo=paypal)](https://paypal.me/jhaiian)\n[![InstaPay QR](https://img.shields.io/badge/InstaPay%20QR-Philippines%20only-7C3AED?style=for-the-badge)](https://github.com/jhaiian/jhaiian/blob/main/docs/Insta%20Pay.jpg)</string>
     <string name="default_browser_title">Default Browser</string>
     <string name="default_browser_none">None</string>
     <string name="look_and_feel">Look &amp; Feel</string>
@@ -123,6 +123,7 @@
     <string name="language_name_english">English</string>
     <string name="language_name_filipino">Filipino</string>
     <string name="language_name_russian">Русский</string>
+    <string name="language_name_spanish">Español</string>
     <string name="pref_app_theme_title">App Theme</string>
     <string name="pref_app_theme_summary">Choose the app&#8217;s visual theme</string>
     <string name="theme_light">Light</string>
@@ -602,6 +603,7 @@
     <string name="download_concurrent_title">Concurrent Downloads</string>
     <string name="download_concurrent_desc">How many downloads can run at once. Others are queued and start automatically when a slot opens up.</string>
     <string name="download_concurrent_value_easter_egg">24 simultaneous downloads \uD83D\uDE08</string>
+    <string name="action_play">Play</string>
     <string name="action_pause">Pause</string>
     <string name="action_resume">Resume</string>
     <string name="download_pause_desc">Pause download</string>
@@ -1554,4 +1556,8 @@
     <string name="media_capture_menu_preview">Preview</string>
     <string name="media_capture_subtitle_preview_title">Subtitle Preview</string>
     <string name="media_capture_subtitle_preview_error">Couldn\u2019t load subtitle.\nPlease check your connection and try again.</string>
+    <string name="media_capture_video_preview_title">Video Preview</string>
+    <string name="media_capture_video_preview_error">Couldn\u2019t play video.\nPlease check your connection and try again.</string>
+    <string name="media_capture_audio_preview_title">Audio Preview</string>
+    <string name="media_capture_audio_preview_error">Couldn\u2019t play audio.\nPlease check your connection and try again.</string>
 </resources>

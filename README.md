@@ -10,8 +10,8 @@ Material Design Android Browser with ADM and a Content Blocker
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blueviolet.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B-blueviolet.svg)](https://developer.android.com)
-[![Stable](https://img.shields.io/badge/Stable-1.1.5-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.1.5)
-[![Beta](https://img.shields.io/badge/Beta-1.1.6--beta--5-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.1.6-beta-5)
+[![Stable](https://img.shields.io/badge/Stable-1.1.6-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.1.6)
+[![Beta](https://img.shields.io/badge/Beta-1.1.6-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.1.6)
 [![Downloads](https://img.shields.io/github/downloads/jhaiian/ClintBrowser/total?color=blueviolet)](https://github.com/jhaiian/ClintBrowser/releases)
 [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser)
 
@@ -21,7 +21,11 @@ Material Design Android Browser with ADM and a Content Blocker
 
 ## What is Clint?
 
-Clint is a free and open-source Android browser with no dedicated backend infrastructure, meaning it does not collect any of your data. It features a clean, customizable Material Design interface, the built-in Quiver Guard content blocker for ads and trackers, and an advanced download manager and website blocker.
+An open source Android browser with no dedicated backend and tons of features that typical browsers have, while offering a modern UI built around Material 3.
+
+We respect your privacy, so the app doesn't collect any kind of data. We don't even count how many active users there are. We collect zero data whatsoever.
+
+Clint's goal is to create an Android browser that does more while being pleasant to look at and highly customizable, with no ads and no paywalls. Clint is completely free to use.
 
 Built and maintained by **[@jhaiian](https://github.com/jhaiian)** — a solo developer from the Philippines 🇵🇭
 
@@ -46,14 +50,37 @@ Built and maintained by **[@jhaiian](https://github.com/jhaiian)** — a solo de
 
 ## Features
 
-### 🌐 Browser
+### 🎬 Media Capture
 
-- Multi-tab browsing
-- Incognito mode
-- Reader Mode
-- Desktop Mode
-- Popup protection
-- Data Saver
+- Detects video, audio, and subtitle streams on webpages you visit
+- Supports normal video, HLS/M3U8, and DASH streams
+- Download detected media directly from the browser
+
+### ⬇️ Download Manager
+
+- Multi-threaded and multi-part downloads
+- Pause and resume
+- Download scheduler
+- Speed limiter
+- Custom download locations
+- Automatically pauses and resumes stuck downloads on its own
+
+### 📜 User Scripts
+
+- Install userscripts from a URL or write your own with a built-in code editor
+- Tampermonkey-style metadata support (`@match`, `@include`, `@exclude`, `@require`, `@resource`, `@grant`)
+- GM API support, including `GM.setValue`/`GM.getValue`, `GM.xmlHttpRequest`, and `GM.notification`
+- Automatic update checks for scripts installed from a URL
+- Enable or disable individual scripts at any time
+
+### 🎨 UI & Customization
+
+Clint is built with **Material 3** and **Jetpack Compose**, with a highly customizable interface.
+
+- 50 accent colors
+- Light and Dark themes
+- 5 surface intensities
+- **In total, 500 possible theme combinations**
 
 ### 🛡️ Quiver Guard
 
@@ -68,41 +95,14 @@ Built and maintained by **[@jhaiian](https://github.com/jhaiian)** — a solo de
 - Category-based filter lists (abuse, ads, crypto, drugs, fraud, gambling, and more)
 - Add your own custom websites to block
 
-### 📜 User Scripts
+### 🌐 Browser
 
-- Install userscripts from a URL or write your own with a built-in code editor
-- Tampermonkey-style metadata support (`@match`, `@include`, `@exclude`, `@require`, `@resource`, `@grant`)
-- GM API support, including `GM.setValue`/`GM.getValue`, `GM.xmlHttpRequest`, and `GM.notification`
-- Automatic update checks for scripts installed from a URL
-- Enable or disable individual scripts at any time
-
-### ⬇️ Download Manager
-
-- Multi-threaded and multi-part downloads
-- Pause and resume
-- Download scheduler
-- Speed limiter
-- Custom download locations
-
-### 🎨 UI & Customization
-
-Clint is built with **Material 3** and **Jetpack Compose**, with a highly customizable interface.
-
-- 50 accent colors
-- Light and Dark themes
-- 5 surface intensities
-- **In total, 500 possible theme combinations**
-
-### 🔖 Bookmarks & History
-
-- Local bookmarks and browsing history
-- Sorting and management options
-- Automatic favicons
-
-### 🔐 Site Settings
-
-- Camera, microphone, location, and notification controls
-- Per-site permission settings
+- Multi-tab browsing
+- Incognito mode
+- Reader Mode
+- Desktop Mode
+- Popup protection
+- Data Saver
 
 > Just download the app and explore it yourself.
 

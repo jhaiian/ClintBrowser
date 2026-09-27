@@ -43,6 +43,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jhaiian.clint.mediacapture.DetectedMedia
+import com.jhaiian.clint.mediacapture.HlsSegmentEstimator
+import com.jhaiian.clint.mediacapture.MEDIA_CAPTURE_CONVERT_TS_TO_MP4_DEFAULT
+import com.jhaiian.clint.mediacapture.MEDIA_CAPTURE_CONVERT_TS_TO_MP4_PREF
 import com.jhaiian.clint.mediacapture.ManifestType
 import com.jhaiian.clint.mediacapture.MediaKind
 import com.jhaiian.clint.mediacapture.MediaManifestParser
@@ -89,7 +92,8 @@ data class ManualDownloadSubmission(
     val streamAudioBandwidth: Long? = null,
     val streamPrimaryIsAudio: Boolean = false,
     val estimatedTotalBytes: Long = 0L,
-    val concurrentSegments: Int = 6
+    val concurrentSegments: Int = 6,
+    val convertTsToMp4: Boolean = false
 )
 
 private data class ManualStreamPlan(
@@ -102,7 +106,8 @@ private data class ManualStreamPlan(
     val audioBandwidth: Long?,
     val primaryIsAudio: Boolean,
     val estimatedTotalBytes: Long,
-    val containerExtension: String
+    val containerExtension: String,
+    val convertTsToMp4: Boolean = false
 )
 
 private const val MANUAL_MANIFEST_MAX_CHARS = 3 * 1024 * 1024
@@ -151,7 +156,7 @@ private fun fetchManualManifestText(url: String, userAgent: String): String? = t
     }
 } catch (_: Exception) { null }
 
-private fun resolveManualHlsPlan(url: String, userAgent: String): ManualStreamPlan? {
+private fun resolveManualHlsPlan(url: String, userAgent: String, convertTsToMp4Pref: Boolean): ManualStreamPlan? {
     val text = fetchManualManifestText(url, userAgent) ?: return null
     val entries = MediaManifestParser.parseHls(text, url)
     if (entries.isEmpty()) return null
@@ -170,13 +175,10 @@ private fun resolveManualHlsPlan(url: String, userAgent: String): ManualStreamPl
     val primaryIsAudio = chosen.kind == MediaKind.AUDIO
     val trackKind = if (primaryIsAudio) TrackKind.AUDIO else TrackKind.VIDEO
     val track = HlsPlaylistFetcher.fetch(chosen.url, "", "", userAgent, trackKind) ?: return null
-    val bandwidth = chosen.bandwidthBitsPerSec
-    val duration = track.durationSeconds
-    val estimatedBytes = if (duration != null && duration > 0.0 && bandwidth != null && bandwidth > 0L) {
-        ((duration * bandwidth) / 8.0).toLong()
-    } else 0L
+    val estimatedBytes = HlsSegmentEstimator.estimate(chosen, track, url).estimatedBytes ?: 0L
     val hasAudio = pairedAudio != null
-    val finalExtension = if (hasAudio || track.containerHintExtension == "mp4") "mp4" else track.containerHintExtension
+    val convertTsToMp4 = convertTsToMp4Pref && !primaryIsAudio
+    val finalExtension = if (hasAudio || track.containerHintExtension == "mp4" || convertTsToMp4) "mp4" else track.containerHintExtension
     return ManualStreamPlan(
         format = StreamContainerFormat.HLS,
         videoUrl = if (!primaryIsAudio) chosen.url else null,
@@ -187,7 +189,8 @@ private fun resolveManualHlsPlan(url: String, userAgent: String): ManualStreamPl
         audioBandwidth = pairedAudio?.bandwidthBitsPerSec,
         primaryIsAudio = primaryIsAudio,
         estimatedTotalBytes = estimatedBytes,
-        containerExtension = finalExtension
+        containerExtension = finalExtension,
+        convertTsToMp4 = convertTsToMp4
     )
 }
 
@@ -220,10 +223,10 @@ private fun resolveManualDashPlan(url: String, userAgent: String): ManualStreamP
     )
 }
 
-private fun resolveManualStreamPlan(url: String, userAgent: String): ManualStreamPlan? {
+private fun resolveManualStreamPlan(url: String, userAgent: String, convertTsToMp4Pref: Boolean): ManualStreamPlan? {
     val type = manualManifestTypeFromExtension(url) ?: manualManifestTypeFromContentType(manualHeadContentType(url, userAgent))
     return when (type) {
-        ManifestType.HLS -> resolveManualHlsPlan(url, userAgent)
+        ManifestType.HLS -> resolveManualHlsPlan(url, userAgent, convertTsToMp4Pref)
         ManifestType.DASH -> resolveManualDashPlan(url, userAgent)
         null -> null
     }
@@ -297,7 +300,8 @@ fun DownloadManualDialog(
         isFetching = true
         scope.launch {
             val ua = android.webkit.WebSettings.getDefaultUserAgent(context)
-            val plan = withContext(Dispatchers.IO) { resolveManualStreamPlan(typed, ua) }
+            val convertTsToMp4Pref = prefs.getBoolean(MEDIA_CAPTURE_CONVERT_TS_TO_MP4_PREF, MEDIA_CAPTURE_CONVERT_TS_TO_MP4_DEFAULT)
+            val plan = withContext(Dispatchers.IO) { resolveManualStreamPlan(typed, ua, convertTsToMp4Pref) }
             if (plan != null) {
                 isFetching = false
                 isFetched = true
@@ -371,7 +375,7 @@ fun DownloadManualDialog(
         hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation,
         onDismiss = onDismiss,
         footer = {
-            Row(Modifier.fillMaxWidth().padding(end = 12.dp, bottom = 8.dp), horizontalArrangement = Arrangement.End) {
+            Row(Modifier.fillMaxWidth().padding(end = 12.dp, bottom = 4.dp), horizontalArrangement = Arrangement.End) {
                 TextButton(onClick = onDismiss) {
                     Text(stringResource(R.string.action_cancel), color = colors.primary, fontWeight = FontWeight.Medium)
                 }
@@ -435,7 +439,8 @@ fun DownloadManualDialog(
                             streamAudioBandwidth = plan?.audioBandwidth,
                             streamPrimaryIsAudio = plan?.primaryIsAudio ?: false,
                             estimatedTotalBytes = plan?.estimatedTotalBytes ?: 0L,
-                            concurrentSegments = concurrentSegments
+                            concurrentSegments = concurrentSegments,
+                            convertTsToMp4 = plan?.convertTsToMp4 ?: false
                         )
                         onSubmit(submission, onDismiss) {
 
@@ -453,10 +458,10 @@ fun DownloadManualDialog(
             }
         }
     ) {
-        Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+        Column(Modifier.padding(horizontal = 14.dp, vertical = 2.dp)) {
             DialogSectionLabel(stringResource(R.string.download_dialog_section_link))
-            SettingsSection(colors.dialogSectionBackground) {
-                Column(Modifier.padding(16.dp)) {
+            SettingsSection(colors.dialogSectionBackground, bottomSpacing = 8.dp) {
+                Column(Modifier.padding(12.dp)) {
                     ClintOutlinedTextField(
                         value = url,
                         onValueChange = { url = it; urlError = null; resetFetchState() },
@@ -471,8 +476,8 @@ fun DownloadManualDialog(
             }
 
             DialogSectionLabel(stringResource(R.string.download_dialog_section_file))
-            SettingsSection(colors.dialogSectionBackground) {
-                Column(Modifier.padding(16.dp)) {
+            SettingsSection(colors.dialogSectionBackground, bottomSpacing = 8.dp) {
+                Column(Modifier.padding(12.dp)) {
                     Row(Modifier.fillMaxWidth()) {
                         ClintOutlinedTextField(
                             value = filename, onValueChange = { filename = it },
@@ -485,18 +490,18 @@ fun DownloadManualDialog(
                             label = { Text(stringResource(R.string.download_dialog_extension_hint), maxLines = 1, overflow = TextOverflow.Ellipsis) }, singleLine = true
                         )
                     }
-                    fileSizeText?.let { Text(it, color = colors.secondaryText, fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp)) }
+                    fileSizeText?.let { Text(it, color = colors.secondaryText, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp)) }
                 }
             }
 
             DialogSectionLabel(stringResource(R.string.download_dialog_section_location))
-            SettingsSection(colors.dialogSectionBackground) {
-                Column(Modifier.padding(16.dp)) {
+            SettingsSection(colors.dialogSectionBackground, bottomSpacing = 8.dp) {
+                Column(Modifier.padding(12.dp)) {
                     var locationAnchorWidthPx by remember { mutableStateOf(0) }
                     val density = LocalDensity.current
                     Box(Modifier.onGloballyPositioned { coordinates -> locationAnchorWidthPx = coordinates.size.width }) {
                         Row(
-                            Modifier.fillMaxWidth().clickable { locationMenuOpen = true }.padding(vertical = 12.dp),
+                            Modifier.fillMaxWidth().clickable { locationMenuOpen = true }.padding(vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(Modifier.weight(1f)) {
@@ -532,7 +537,7 @@ fun DownloadManualDialog(
                                     prefs.edit().putString(DownloadSettingsKeys.PREF_DOWNLOAD_CUSTOM_URI, uri.toString()).apply()
                                     customUri = uri
                                 }
-                            }.padding(vertical = 8.dp),
+                            }.padding(vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(androidx.compose.material.icons.Icons.Filled.Folder, contentDescription = null, tint = colors.iconTint, modifier = Modifier.size(20.dp))
@@ -545,7 +550,7 @@ fun DownloadManualDialog(
                     Row(
                         Modifier.fillMaxWidth().clickable {
                             categorizeEnabled = !categorizeEnabled
-                        }.padding(top = 10.dp),
+                        }.padding(top = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(Modifier.weight(1f)) {
@@ -557,17 +562,17 @@ fun DownloadManualDialog(
                     destinationPreviewText?.let {
                         Text(
                             it, color = colors.secondaryText, fontSize = 11.sp, fontFamily = FontFamily.Monospace,
-                            maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 6.dp)
+                            maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 4.dp)
                         )
                     }
                 }
             }
 
             DialogSectionLabel(stringResource(R.string.download_dialog_section_options))
-            SettingsSection(colors.dialogSectionBackground) {
-                Column(Modifier.padding(16.dp)) {
+            SettingsSection(colors.dialogSectionBackground, bottomSpacing = 8.dp) {
+                Column(Modifier.padding(12.dp)) {
                     Row(
-                        Modifier.fillMaxWidth().clickable { retryEnabled = !retryEnabled }.padding(vertical = 10.dp),
+                        Modifier.fillMaxWidth().clickable { retryEnabled = !retryEnabled }.padding(vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(Modifier.weight(1f)) {
@@ -577,7 +582,7 @@ fun DownloadManualDialog(
                         ClintSwitch(checked = retryEnabled)
                     }
                     Row(
-                        Modifier.fillMaxWidth().clickable { unmeteredOnly = !unmeteredOnly }.padding(vertical = 10.dp),
+                        Modifier.fillMaxWidth().clickable { unmeteredOnly = !unmeteredOnly }.padding(vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(Modifier.weight(1f)) {
@@ -590,7 +595,7 @@ fun DownloadManualDialog(
                     if (streamPlan == null) {
                         Text(
                             stringResource(R.string.download_split_parts_title), color = colors.onSurface,
-                            fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 12.dp)
+                            fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 8.dp)
                         )
                         Text(
                             pluralStringResource(R.plurals.download_split_parts_value, splitParts, splitParts),
@@ -604,7 +609,7 @@ fun DownloadManualDialog(
 
                         Text(
                             stringResource(R.string.download_multithreading_title), color = colors.onSurface,
-                            fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 8.dp)
+                            fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 6.dp)
                         )
                         Text(
                             pluralStringResource(R.plurals.download_multithreading_value, multithreadingParts, multithreadingParts),
@@ -618,7 +623,7 @@ fun DownloadManualDialog(
                     } else {
                         Text(
                             stringResource(R.string.download_concurrent_segments_title), color = colors.onSurface,
-                            fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 12.dp)
+                            fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 8.dp)
                         )
                         Text(
                             pluralStringResource(R.plurals.download_concurrent_segments_value, concurrentSegments, concurrentSegments),
@@ -633,11 +638,11 @@ fun DownloadManualDialog(
 
                     Text(
                         stringResource(R.string.download_dialog_speed_limit_title), color = colors.onSurface,
-                        fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 12.dp)
+                        fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 8.dp)
                     )
                     Text(
                         stringResource(R.string.download_dialog_speed_limit_desc), color = colors.secondaryText,
-                        fontSize = 12.sp, modifier = Modifier.padding(top = 2.dp, bottom = 8.dp)
+                        fontSize = 12.sp, modifier = Modifier.padding(top = 2.dp, bottom = 6.dp)
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         ClintOutlinedTextField(
@@ -673,7 +678,7 @@ fun DownloadManualDialog(
                                 scheduledMillis = Calendar.getInstance().apply { add(Calendar.MINUTE, 1) }.timeInMillis
                                 if (needsExactAlarmPermissionRationale(context)) blockingError = exactAlarmPermissionDialogConfig(context)
                             }
-                        }.padding(vertical = 10.dp).padding(top = 8.dp),
+                        }.padding(vertical = 6.dp).padding(top = 6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(Modifier.weight(1f)) {
@@ -693,7 +698,7 @@ fun DownloadManualDialog(
                                         set(Calendar.YEAR, year); set(Calendar.MONTH, month); set(Calendar.DAY_OF_MONTH, day)
                                     }.timeInMillis
                                 }
-                            }.padding(vertical = 10.dp),
+                            }.padding(vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(stringResource(R.string.download_schedule_date_title), color = colors.onSurface, fontSize = 14.sp, modifier = Modifier.weight(1f))
@@ -707,7 +712,7 @@ fun DownloadManualDialog(
                                         set(Calendar.HOUR_OF_DAY, hour); set(Calendar.MINUTE, minute); set(Calendar.SECOND, 0)
                                     }.timeInMillis
                                 }
-                            }.padding(vertical = 10.dp),
+                            }.padding(vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(stringResource(R.string.download_schedule_time_title), color = colors.onSurface, fontSize = 14.sp, modifier = Modifier.weight(1f))
@@ -725,5 +730,5 @@ fun DownloadManualDialog(
 @Composable
 private fun DialogSectionLabel(text: String) {
     val colors = LocalClintColors.current
-    Text(text, color = colors.primary, fontSize = 12.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 14.dp, bottom = 6.dp))
+    Text(text, color = colors.primary, fontSize = 12.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 10.dp, bottom = 4.dp))
 }
