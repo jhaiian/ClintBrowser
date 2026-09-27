@@ -12,6 +12,7 @@
 ## Translator
 
 - [mirr1184-ctrl](https://github.com/mirr1184-ctrl)
+- [@snashyturner](https://github.com/snashyturner)
 
 ## Issues
 > People who open issues to report bugs and suggestions
@@ -21,3 +22,4 @@
 - [@ncgjbr-ai](https://github.com/ncgjbr-ai)
 - [@deniganda](https://github.com/deniganda)
 - [@iHarryPotter178](https://github.com/iHarryPotter178)
+- [@reviewlord](https://github.com/reviewlord)
