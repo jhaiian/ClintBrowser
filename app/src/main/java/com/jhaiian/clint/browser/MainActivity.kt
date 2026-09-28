@@ -650,7 +650,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
                 .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
             runCatching { startActivity(intent) }
         } else {
-            webClient.tryOpenInApp(tabManager.activeTab?.webView ?: return, currentUri)
+            webClient.tryOpenInApp(tabManager.activeTab?.webView ?: return, currentUri, force = true)
         }
     }
     fun onMenuCreateShortcut() {

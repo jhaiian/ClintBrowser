@@ -1,6 +1,6 @@
 # Terms of Service for Clint Browser
 
-*Last updated: September 28, 2026*
+*Last updated: September 29, 2026*
 
 ## 1. What These Terms Cover
 
@@ -38,7 +38,7 @@ A copy of the license is available at [gnu.org/licenses/gpl-3.0.html](https://ww
 
 The name **"Clint Browser"**, the word "Clint", the logo, icons, screenshots, and all related branding assets are **trademarks and proprietary assets** of the developer. They are **not** covered by the GPL.
 
-You may **not** use, copy, modify, or redistribute these assets without explicit written permission. For example, you cannot create a modified version of Clint Browser and still call it "Clint Browser" or use the original logo. Contact `jhaiianbetter@duck.com` for permission.
+You may **not** use, copy, modify, or redistribute these assets without explicit written permission. For example, you cannot create a modified version of Clint Browser and still call it "Clint Browser" or use the original logo. Contact `jhaiian@proton.me` for permission.
 
 ## 5. Privacy: No Data Collection
 
@@ -114,5 +114,5 @@ These Terms are governed by the laws of the Philippines. If you live elsewhere, 
 
 For questions or permission requests:
 
-- Email: `jhaiianbetter@duck.com`
+- Email: `jhaiian@proton.me`
 - Discord: [discord.gg/4kUe4yPQ32](https://discord.gg/4kUe4yPQ32)

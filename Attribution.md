@@ -128,6 +128,12 @@ SOFTWARE.
 - **URL:** https://developer.android.com/guide/topics/media/media3
 - Used (`media3-muxer`, `media3-common`) alongside the platform `MediaExtractor` to remux downloaded video and audio tracks into a single file, entirely in the JVM with no native code.
 
+### ColorPicker Compose
+- **Author:** Jaewoong Eum (skydoves)
+- **License:** [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+- **URL:** https://github.com/skydoves/colorpicker-compose
+- Powers the HSV color wheel and brightness slider in the custom color picker (`com.github.skydoves:colorpicker-compose`).
+
 ---
 
 ## Bundled Resources & Derived Content

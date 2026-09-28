@@ -33,7 +33,7 @@ private const val KEEP_ANDROID_OPEN_URL = "https://keepandroidopen.org"
 private const val DISCORD_URL = "https://discord.gg/4kUe4yPQ32"
 private const val REDDIT_URL = "https://www.reddit.com/r/ClintBrowser"
 private const val LICENSE_URL = "https://www.gnu.org/licenses/gpl-3.0.html"
-private const val CONTACT_EMAIL_URL = "mailto:jhaiianbetter@duck.com"
+private const val CONTACT_EMAIL_URL = "mailto:jhaiian@proton.me"
 private const val CONTRIBUTORS_URL = "https://github.com/jhaiian/ClintBrowser/blob/main/Contributors.md"
 private const val APACHE_2_LICENSE_URL = "https://www.apache.org/licenses/LICENSE-2.0.txt"
 private const val MARKWON_URL = "https://github.com/noties/Markwon"
@@ -51,6 +51,7 @@ private const val BOUNCYCASTLE_LICENSE_URL = "https://www.bouncycastle.org/licen
 private const val CODEVIEW_URL = "https://github.com/AmrDeveloper/CodeView"
 private const val CODEVIEW_LICENSE_URL = "https://opensource.org/licenses/MIT"
 private const val MEDIA3_URL = "https://developer.android.com/guide/topics/media/media3"
+private const val COLORPICKER_URL = "https://github.com/skydoves/colorpicker-compose"
 
 @Composable
 private fun AboutCard(label: String, colors: ClintColors, content: @Composable () -> Unit) {
@@ -336,6 +337,12 @@ fun AboutScreen(
                 stringResource(R.string.about_library_media3_label), stringResource(R.string.about_library_media3_license),
                 stringResource(R.string.about_library_media3_usage), colors,
                 { onLinkClick(MEDIA3_URL) }, { onLinkClick(APACHE_2_LICENSE_URL) }
+            )
+            AboutThinDivider(colors.surfaceVariant)
+            AboutLibraryEntry(
+                stringResource(R.string.about_library_colorpicker_label), stringResource(R.string.about_library_colorpicker_license),
+                stringResource(R.string.about_library_colorpicker_usage), colors,
+                { onLinkClick(COLORPICKER_URL) }, { onLinkClick(APACHE_2_LICENSE_URL) }
             )
         }
 

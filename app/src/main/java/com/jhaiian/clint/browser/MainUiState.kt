@@ -71,6 +71,11 @@ internal class MainUiState {
     var linkLongPressRequest by mutableStateOf<com.jhaiian.clint.browser.sheets.LinkLongPressRequest?>(null)
     var contentPreviewRequest by mutableStateOf<com.jhaiian.clint.browser.sheets.ContentPreviewRequest?>(null)
     var selectPickerRequest by mutableStateOf<com.jhaiian.clint.browser.dialogs.SelectPickerRequest?>(null)
+    var jsDialogRequest by mutableStateOf<com.jhaiian.clint.browser.dialogs.JsDialogRequest?>(null)
+    var dateTimePickerRequest by mutableStateOf<com.jhaiian.clint.browser.dialogs.DateTimePickerRequest?>(null)
+    var colorPickerRequest by mutableStateOf<com.jhaiian.clint.browser.dialogs.ColorPickerRequest?>(null)
+    var httpAuthRequest by mutableStateOf<com.jhaiian.clint.browser.dialogs.HttpAuthRequest?>(null)
+    var sslWarningRequest by mutableStateOf<com.jhaiian.clint.browser.dialogs.SslWarningRequest?>(null)
 
     var confirmDialogConfig by mutableStateOf<com.jhaiian.clint.ui.listscreen.ConfirmDialogConfig?>(null)
     var conflictDialogRequest by mutableStateOf<com.jhaiian.clint.downloads.DownloadConflictDialogRequest?>(null)

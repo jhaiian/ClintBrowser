@@ -48,6 +48,7 @@ import com.jhaiian.clint.settings.common.dialogSectionBackground
 import com.jhaiian.clint.settings.common.SettingsSection
 import com.jhaiian.clint.settings.downloads.DownloadSettingsKeys
 import com.jhaiian.clint.ui.ClintDialog
+import com.jhaiian.clint.ui.ClintScheduleDateTimeRows
 import com.jhaiian.clint.ui.ClintOutlinedTextField
 import com.jhaiian.clint.ui.ClintSlider
 import com.jhaiian.clint.ui.ClintSwitch
@@ -471,36 +472,12 @@ fun DownloadRequestDialog(
                                 ClintSwitch(checked = scheduleEnabled)
                             }
                             if (scheduleEnabled) {
-                                val dateFmt = remember { android.text.format.DateFormat.getMediumDateFormat(context) }
-                                val timeFmt = remember { android.text.format.DateFormat.getTimeFormat(context) }
-                                Row(
-                                    Modifier.fillMaxWidth().clickable {
-                                        showScheduleDatePicker(fragmentManager, scheduledMillis) { year, month, day ->
-                                            scheduledMillis = Calendar.getInstance().apply {
-                                                timeInMillis = scheduledMillis
-                                                set(Calendar.YEAR, year); set(Calendar.MONTH, month); set(Calendar.DAY_OF_MONTH, day)
-                                            }.timeInMillis
-                                        }
-                                    }.padding(vertical = 6.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(stringResource(R.string.download_schedule_date_title), color = colors.onSurface, fontSize = 14.sp, modifier = Modifier.weight(1f))
-                                    Text(dateFmt.format(java.util.Date(scheduledMillis)), color = colors.secondaryText, fontSize = 13.sp)
-                                }
-                                Row(
-                                    Modifier.fillMaxWidth().clickable {
-                                        showScheduleTimePicker(context, fragmentManager, scheduledMillis) { hour, minute ->
-                                            scheduledMillis = Calendar.getInstance().apply {
-                                                timeInMillis = scheduledMillis
-                                                set(Calendar.HOUR_OF_DAY, hour); set(Calendar.MINUTE, minute); set(Calendar.SECOND, 0)
-                                            }.timeInMillis
-                                        }
-                                    }.padding(vertical = 6.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(stringResource(R.string.download_schedule_time_title), color = colors.onSurface, fontSize = 14.sp, modifier = Modifier.weight(1f))
-                                    Text(timeFmt.format(java.util.Date(scheduledMillis)), color = colors.secondaryText, fontSize = 13.sp)
-                                }
+                                ClintScheduleDateTimeRows(
+                                    scheduledMillis = scheduledMillis,
+                                    onScheduledMillisChange = { scheduledMillis = it },
+                                    hideStatusBar = hideStatusBar,
+                                    hideSystemNavigation = hideSystemNavigation
+                                )
                             }
                         }
                     }

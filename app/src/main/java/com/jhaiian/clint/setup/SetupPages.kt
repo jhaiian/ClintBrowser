@@ -1,4 +1,7 @@
 package com.jhaiian.clint.setup
+import androidx.compose.material.icons.filled.BrightnessMedium
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Opacity
 import com.jhaiian.clint.ui.theme.rememberIsLightTheme
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
@@ -6,10 +9,12 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Shield
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -77,20 +82,20 @@ fun SetupWelcomePage(
         Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(28.dp),
+            .padding(horizontal = 28.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
             painter = painterResource(R.drawable.ic_clint_logo),
             contentDescription = stringResource(R.string.app_name),
-            modifier = Modifier.padding(top = 32.dp).size(100.dp)
+            modifier = Modifier.padding(top = 40.dp).size(104.dp)
         )
         Text(
             stringResource(R.string.setup_welcome_title),
             color = colors.onSurface,
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(top = 16.dp)
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(top = 24.dp)
         )
         Text(
             stringResource(R.string.setup_welcome_subtitle),
@@ -126,54 +131,41 @@ fun SetupWelcomePage(
             }
         }
         Card(
-            Modifier.fillMaxWidth().padding(bottom = 12.dp),
+            Modifier.fillMaxWidth().padding(bottom = 20.dp),
             shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(containerColor = colors.cardBackground)
         ) {
-            Column(Modifier.padding(16.dp)) {
-                Row(
-                    Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(androidx.compose.material.icons.Icons.Filled.Shield, null, tint = colors.primary, modifier = Modifier.size(20.dp))
-                    Text(
-                        stringResource(R.string.document_viewer_privacy_policy_title),
-                        color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Medium,
-                        modifier = Modifier.weight(1f).padding(start = 12.dp)
-                    )
-                    Text(
-                        stringResource(R.string.setup_terms_read),
-                        color = colors.primary, fontSize = 13.sp, fontWeight = FontWeight.Medium,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .clickable(onClick = onPrivacyClick)
-                            .padding(4.dp)
-                    )
-                }
-                androidx.compose.foundation.layout.Box(Modifier.fillMaxWidth().height(1.dp).background(colors.surfaceVariant))
-                Row(
-                    Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(androidx.compose.material.icons.Icons.Filled.Info, null, tint = colors.primary, modifier = Modifier.size(20.dp))
-                    Text(
-                        stringResource(R.string.document_viewer_terms_title),
-                        color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Medium,
-                        modifier = Modifier.weight(1f).padding(start = 12.dp)
-                    )
-                    Text(
-                        stringResource(R.string.setup_terms_read),
-                        color = colors.primary, fontSize = 13.sp, fontWeight = FontWeight.Medium,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .clickable(onClick = onTermsClick)
-                            .padding(4.dp)
-                    )
-                }
+            Row(
+                Modifier.fillMaxWidth().padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(androidx.compose.material.icons.Icons.Filled.Shield, null, tint = colors.primary, modifier = Modifier.size(20.dp))
+                Text(
+                    stringResource(R.string.document_viewer_privacy_policy_title),
+                    color = colors.primary, fontSize = 13.sp, fontWeight = FontWeight.Medium,
+                    modifier = Modifier
+                        .padding(start = 12.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .clickable(onClick = onPrivacyClick)
+                        .padding(4.dp)
+                )
+                Text(
+                    "\u2022",
+                    color = colors.secondaryText, fontSize = 13.sp,
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                )
+                Text(
+                    stringResource(R.string.document_viewer_terms_title),
+                    color = colors.primary, fontSize = 13.sp, fontWeight = FontWeight.Medium,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp))
+                        .clickable(onClick = onTermsClick)
+                        .padding(4.dp)
+                )
             }
         }
         Row(
-            Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 24.dp),
+            Modifier.fillMaxWidth().padding(bottom = 24.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Checkbox(
@@ -242,32 +234,45 @@ fun SetupThemePage(
     val context = LocalContext.current
 
     Column(
-        Modifier.fillMaxSize().verticalScroll(scrollState).padding(28.dp),
+        Modifier.fillMaxSize().verticalScroll(scrollState).padding(horizontal = 28.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(stringResource(R.string.setup_theme_title), color = colors.onSurface, fontSize = 26.sp, fontWeight = FontWeight.Medium, modifier = Modifier.fillMaxWidth().padding(top = 16.dp))
-        Text(stringResource(R.string.setup_theme_subtitle), color = colors.secondaryText, fontSize = 13.sp, lineHeight = 19.5.sp, modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 28.dp))
+        SetupPageHeader(
+            title = stringResource(R.string.setup_theme_title),
+            subtitle = stringResource(R.string.setup_theme_subtitle)
+        )
 
         data class ThemeOption(val key: String, val titleRes: Int, val descRes: Int, val drawableRes: Int)
-        listOf(
+        val themeOptions = listOf(
             ThemeOption("system", R.string.theme_system, R.string.theme_system_desc, R.drawable.theme_swatch_system),
             ThemeOption("dark", R.string.theme_dark, R.string.theme_dark_desc, R.drawable.theme_swatch_dark),
             ThemeOption("light", R.string.theme_light, R.string.theme_light_desc, R.drawable.theme_swatch_light)
-        ).forEach { option ->
-            SelectableCard(selected = theme == option.key, onClick = { onThemeSelected(option.key) }, cardBackground = colors.cardBackground, primary = colors.primary) {
-                DrawableImage(option.drawableRes, modifier = Modifier.size(44.dp))
-                Column(Modifier.weight(1f).padding(start = 16.dp, end = 8.dp)) {
-                    Text(stringResource(option.titleRes), color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                    Text(stringResource(option.descRes), color = colors.secondaryText, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp))
+        )
+        SetupSectionHeading(
+            androidx.compose.material.icons.Icons.Filled.BrightnessMedium,
+            stringResource(R.string.pref_category_appearance).uppercase(),
+            colors.primary, Modifier.fillMaxWidth().padding(bottom = 12.dp)
+        )
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            themeOptions.forEach { option ->
+                OptionTile(
+                    selected = theme == option.key,
+                    onClick = { onThemeSelected(option.key) },
+                    label = stringResource(option.titleRes),
+                    cardBackground = colors.cardBackground,
+                    primary = colors.primary,
+                    onPrimary = colors.onPrimary
+                ) {
+                    DrawableImage(option.drawableRes, modifier = Modifier.size(40.dp))
                 }
-                CheckSlot(theme == option.key, colors.primary)
             }
         }
-
-        SectionLabel(stringResource(R.string.setup_accent_section_label), colors.primary, Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 10.dp))
+        Crossfade(targetState = theme, label = "themeCaption") { key ->
+            themeOptions.firstOrNull { it.key == key }?.let { SetupCaption(stringResource(it.descRes)) }
+        }
 
         data class AccentOption(val key: String, val titleRes: Int, val descRes: Int)
-        listOf(
+        val accentOptions = listOf(
             AccentOption("material_you", R.string.accent_material_you, R.string.accent_material_you_desc),
             AccentOption("purple", R.string.accent_purple, R.string.accent_purple_desc),
             AccentOption("deep_purple", R.string.accent_deep_purple, R.string.accent_deep_purple_desc),
@@ -318,74 +323,84 @@ fun SetupThemePage(
             AccentOption("sage", R.string.accent_sage, R.string.accent_sage_desc),
             AccentOption("lime", R.string.accent_lime, R.string.accent_lime_desc),
             AccentOption("olive", R.string.accent_olive, R.string.accent_olive_desc)
-        ).forEach { option ->
-            val swatch = remember(theme, option.key, colors.isLight) {
-                ThemeSwatchUtils.resolveSwatchColors(context, theme, option.key)
-            }
-            SelectableCard(selected = accent == option.key, onClick = { onAccentSelected(option.key) }, cardBackground = colors.cardBackground, primary = colors.primary) {
-                AccentSwatch(Color(swatch.bg), Color(swatch.surface), Color(swatch.accent))
-                Column(Modifier.weight(1f).padding(start = 16.dp, end = 8.dp)) {
-                    Text(stringResource(option.titleRes), color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                    Text(stringResource(option.descRes), color = colors.secondaryText, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp))
+        )
+
+        SetupSectionHeading(
+            androidx.compose.material.icons.Icons.Filled.Palette,
+            stringResource(R.string.setup_accent_section_label),
+            colors.primary, Modifier.fillMaxWidth().padding(top = 28.dp, bottom = 14.dp)
+        )
+        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            accentOptions.chunked(5).forEach { rowItems ->
+                Row(
+                    Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
+                ) {
+                    rowItems.forEach { option ->
+                        val dotColor = remember(theme, option.key, colors.isLight) {
+                            Color(ThemeSwatchUtils.resolveSwatchColors(context, theme, option.key).accent)
+                        }
+                        AccentDot(
+                            color = dotColor,
+                            selected = accent == option.key,
+                            ringColor = colors.onSurface,
+                            onClick = { onAccentSelected(option.key) }
+                        )
+                    }
                 }
-                CheckSlot(accent == option.key, colors.primary)
+            }
+        }
+        Crossfade(targetState = accent, label = "accentCaption") { key ->
+            accentOptions.firstOrNull { it.key == key }?.let { opt ->
+                Column(Modifier.fillMaxWidth().padding(top = 6.dp)) {
+                    Text(stringResource(opt.titleRes), color = colors.onSurface, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    SetupCaption(stringResource(opt.descRes))
+                }
             }
         }
 
         val strongVisible = accent in setOf("purple", "deep_purple", "royal_purple", "amethyst", "lavender", "teal", "pink", "indigo", "cyan", "amber", "mint", "crimson", "slate", "graphite", "obsidian", "onyx", "coral", "midnight", "sepia", "forest", "plum", "sand", "ruby", "sky", "charcoal", "peach", "emerald", "blue", "yellow", "lemon", "gold", "red", "green", "orange", "deep_orange", "tangerine", "apricot", "copper", "scarlet", "lime", "olive", "default", "material_you", "violet", "titanium", "azure", "mustard", "burgundy", "terracotta", "sage")
         val swatches = rememberIntensitySwatchColors(theme, accent)
-        SectionLabel(stringResource(R.string.setup_intensity_section_label), colors.primary, Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 10.dp))
 
-        SelectableCard(selected = intensity == "no_tint", onClick = { onIntensitySelected("no_tint") }, cardBackground = colors.cardBackground, primary = colors.primary) {
-            AccentSwatch(swatches.noTintBg, swatches.noTintSurface, swatches.accent)
-            Column(Modifier.weight(1f).padding(start = 16.dp, end = 8.dp)) {
-                Text(stringResource(R.string.surface_intensity_no_tint), color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                Text(stringResource(R.string.surface_intensity_no_tint_desc), color = colors.secondaryText, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp))
+        data class IntensityOption(val key: String, val titleRes: Int, val descRes: Int, val bg: Color, val surface: Color)
+        val intensityOptions = buildList {
+            add(IntensityOption("no_tint", R.string.surface_intensity_no_tint, R.string.surface_intensity_no_tint_desc, swatches.noTintBg, swatches.noTintSurface))
+            add(IntensityOption("soft_tint", R.string.surface_intensity_soft, R.string.surface_intensity_soft_desc, swatches.softBg, swatches.softSurface))
+            if (strongVisible) {
+                add(IntensityOption("strong_tint", R.string.surface_intensity_strong, R.string.surface_intensity_strong_desc, swatches.strongBg, swatches.strongSurface))
             }
-            CheckSlot(intensity == "no_tint", colors.primary)
+            add(IntensityOption("pure_mode", R.string.surface_intensity_pure, if (colors.isLight) R.string.surface_intensity_pure_light_desc else R.string.surface_intensity_pure_dark_desc, swatches.pureBg, swatches.pureSurface))
+            add(IntensityOption("amoled_no_tint", R.string.surface_intensity_amoled_no_tint, if (colors.isLight) R.string.surface_intensity_amoled_no_tint_light_desc else R.string.surface_intensity_amoled_no_tint_dark_desc, swatches.pureBg, swatches.pureSurface))
         }
-        SelectableCard(selected = intensity == "soft_tint", onClick = { onIntensitySelected("soft_tint") }, cardBackground = colors.cardBackground, primary = colors.primary) {
-            AccentSwatch(swatches.softBg, swatches.softSurface, swatches.accent)
-            Column(Modifier.weight(1f).padding(start = 16.dp, end = 8.dp)) {
-                Text(stringResource(R.string.surface_intensity_soft), color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                Text(stringResource(R.string.surface_intensity_soft_desc), color = colors.secondaryText, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp))
-            }
-            CheckSlot(intensity == "soft_tint", colors.primary)
-        }
-        if (strongVisible) {
-            SelectableCard(selected = intensity == "strong_tint", onClick = { onIntensitySelected("strong_tint") }, cardBackground = colors.cardBackground, primary = colors.primary) {
-                AccentSwatch(swatches.strongBg, swatches.strongSurface, swatches.accent)
-                Column(Modifier.weight(1f).padding(start = 16.dp, end = 8.dp)) {
-                    Text(stringResource(R.string.surface_intensity_strong), color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                    Text(stringResource(R.string.surface_intensity_strong_desc), color = colors.secondaryText, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp))
+
+        SetupSectionHeading(
+            androidx.compose.material.icons.Icons.Filled.Opacity,
+            stringResource(R.string.setup_intensity_section_label),
+            colors.primary, Modifier.fillMaxWidth().padding(top = 28.dp, bottom = 12.dp)
+        )
+        Column(Modifier.fillMaxWidth()) {
+            intensityOptions.chunked(2).forEach { rowItems ->
+                Row(Modifier.fillMaxWidth().padding(bottom = 10.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    rowItems.forEach { option ->
+                        OptionTile(
+                            selected = intensity == option.key,
+                            onClick = { onIntensitySelected(option.key) },
+                            label = stringResource(option.titleRes),
+                            cardBackground = colors.cardBackground,
+                            primary = colors.primary,
+                            onPrimary = colors.onPrimary
+                        ) {
+                            AccentSwatch(option.bg, option.surface, swatches.accent)
+                        }
+                    }
                 }
-                CheckSlot(intensity == "strong_tint", colors.primary)
             }
         }
-        SelectableCard(selected = intensity == "pure_mode", onClick = { onIntensitySelected("pure_mode") }, cardBackground = colors.cardBackground, primary = colors.primary) {
-            AccentSwatch(swatches.pureBg, swatches.pureSurface, swatches.accent)
-            Column(Modifier.weight(1f).padding(start = 16.dp, end = 8.dp)) {
-                Text(stringResource(R.string.surface_intensity_pure), color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                Text(
-                    stringResource(if (colors.isLight) R.string.surface_intensity_pure_light_desc else R.string.surface_intensity_pure_dark_desc),
-                    color = colors.secondaryText, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp)
-                )
-            }
-            CheckSlot(intensity == "pure_mode", colors.primary)
-        }
-        SelectableCard(selected = intensity == "amoled_no_tint", onClick = { onIntensitySelected("amoled_no_tint") }, cardBackground = colors.cardBackground, primary = colors.primary) {
-            AccentSwatch(swatches.pureBg, swatches.pureSurface, swatches.accent)
-            Column(Modifier.weight(1f).padding(start = 16.dp, end = 8.dp)) {
-                Text(stringResource(R.string.surface_intensity_amoled_no_tint), color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                Text(
-                    stringResource(if (colors.isLight) R.string.surface_intensity_amoled_no_tint_light_desc else R.string.surface_intensity_amoled_no_tint_dark_desc),
-                    color = colors.secondaryText, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp)
-                )
-            }
-            CheckSlot(intensity == "amoled_no_tint", colors.primary)
+        Crossfade(targetState = intensity, label = "intensityCaption") { key ->
+            intensityOptions.firstOrNull { it.key == key }?.let { SetupCaption(stringResource(it.descRes)) }
         }
 
-        SetupPrimaryButton(stringResource(R.string.next), onNext, colors.buttonBackground, Modifier.padding(top = 24.dp, bottom = 24.dp))
+        SetupPrimaryButton(stringResource(R.string.next), onNext, colors.buttonBackground, Modifier.padding(top = 28.dp, bottom = 24.dp))
     }
 }
 
@@ -417,13 +432,13 @@ fun SetupEnginePage(
     }
 
     Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(28.dp),
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 28.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(painterResource(R.drawable.ic_clint_logo), stringResource(R.string.app_name), modifier = Modifier.padding(top = 24.dp).size(140.dp))
-        Text(stringResource(R.string.app_name), color = colors.onSurface, fontSize = 32.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 20.dp))
-        Text(stringResource(R.string.setup_subtitle), color = colors.secondaryText, fontSize = 14.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center, lineHeight = 19.6.sp, modifier = Modifier.padding(top = 8.dp))
-        Text(stringResource(R.string.choose_search_engine), color = colors.primary, fontSize = 12.sp, letterSpacing = 0.1.sp, fontWeight = FontWeight.Medium, modifier = Modifier.fillMaxWidth().padding(top = 36.dp, bottom = 12.dp))
+        SetupPageHeader(
+            title = stringResource(R.string.choose_search_engine),
+            subtitle = stringResource(R.string.setup_subtitle)
+        )
 
         data class EngineOption(val key: String, val titleRes: Int, val descRes: Int, val showDefault: Boolean)
         listOf(
@@ -482,11 +497,13 @@ fun SetupDefaultBrowserPage(
 ) {
     val colors = LocalClintColors.current
     Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(28.dp),
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 28.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(stringResource(R.string.setup_default_browser_title), color = colors.onSurface, fontSize = 26.sp, fontWeight = FontWeight.Medium, modifier = Modifier.fillMaxWidth().padding(top = 16.dp))
-        Text(stringResource(R.string.setup_default_browser_description), color = colors.secondaryText, fontSize = 13.sp, lineHeight = 19.5.sp, modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 28.dp))
+        SetupPageHeader(
+            title = stringResource(R.string.setup_default_browser_title),
+            subtitle = stringResource(R.string.setup_default_browser_description)
+        )
 
         Card(Modifier.fillMaxWidth().padding(bottom = 24.dp), shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = colors.cardBackground)) {
             Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {

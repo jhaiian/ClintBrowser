@@ -1,13 +1,18 @@
 package com.jhaiian.clint.setup
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.runtime.getValue
 
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.InfiniteRepeatableSpec
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -19,7 +24,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.PI
@@ -303,5 +311,36 @@ fun ScrollHidePreview(
                 .background(bottomColor)
         )
         if (navDotsVisible) NavDotsRow(onSurface, translationFraction = dotsFraction)
+    }
+}
+
+@Composable
+fun AccentDot(
+    color: Color,
+    selected: Boolean,
+    ringColor: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val scale by animateFloatAsState(targetValue = if (selected) 1.1f else 1f, label = "accentDotScale")
+    val checkTint = if (color.luminance() > 0.5f) Color.Black else Color.White
+    Box(
+        modifier
+            .size(40.dp)
+            .graphicsLayer { scaleX = scale; scaleY = scale }
+            .clip(CircleShape)
+            .background(color)
+            .then(if (selected) Modifier.border(2.5.dp, ringColor, CircleShape) else Modifier)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        if (selected) {
+            Icon(
+                imageVector = androidx.compose.material.icons.Icons.Filled.Check,
+                contentDescription = null,
+                tint = checkTint,
+                modifier = Modifier.size(18.dp)
+            )
+        }
     }
 }

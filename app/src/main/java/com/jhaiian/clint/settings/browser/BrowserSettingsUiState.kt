@@ -16,7 +16,12 @@ class BrowserSettingsUiState(
     initialHideStatusBar: Boolean,
     initialHideSystemNavigation: Boolean,
     initialIncognitoSearchHistory: Boolean,
-    initialCustomSelectMenus: Boolean
+    initialCustomSelectMenus: Boolean,
+    initialCustomJsDialogs: Boolean,
+    initialCustomHttpAuth: Boolean,
+    initialCustomSslWarnings: Boolean,
+    initialCustomDateTimePickers: Boolean,
+    initialCustomColorPicker: Boolean
 ) {
     var searchEngine by mutableStateOf(initialSearchEngine)
     var customSearchEngineName by mutableStateOf(initialCustomSearchEngineName)
@@ -30,6 +35,11 @@ class BrowserSettingsUiState(
     var hideSystemNavigation by mutableStateOf(initialHideSystemNavigation)
     var incognitoSearchHistory by mutableStateOf(initialIncognitoSearchHistory)
     var customSelectMenus by mutableStateOf(initialCustomSelectMenus)
+    var customJsDialogs by mutableStateOf(initialCustomJsDialogs)
+    var customHttpAuth by mutableStateOf(initialCustomHttpAuth)
+    var customSslWarnings by mutableStateOf(initialCustomSslWarnings)
+    var customDateTimePickers by mutableStateOf(initialCustomDateTimePickers)
+    var customColorPicker by mutableStateOf(initialCustomColorPicker)
     var searchEngineDialogOpen by mutableStateOf(false)
     var searchSuggestionsApiDialogOpen by mutableStateOf(false)
 }

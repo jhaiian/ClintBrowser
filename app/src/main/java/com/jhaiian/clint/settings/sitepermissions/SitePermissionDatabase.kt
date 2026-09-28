@@ -36,7 +36,11 @@ internal class SitePermissionDatabase(context: Context) :
         const val TYPE_CLIPBOARD     = "clipboard"
         const val TYPE_DESKTOP_MODE            = "desktop_mode"
         const val TYPE_QUIVER_GUARD_EXCEPTION  = "quiver_guard_exception"
+        const val TYPE_OPEN_IN_APP             = "open_in_app"
         const val STATE_ALLOW        = "allow"
         const val STATE_DENY         = "deny"
+        const val STATE_ASK          = "ask"
+        const val STATE_STAY         = "stay"
+        const val STATE_OPEN         = "open"
     }
 }

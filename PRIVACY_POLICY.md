@@ -1,6 +1,6 @@
 # Privacy Policy for Clint Browser
 
-*Last updated: September 28, 2026*
+*Last updated: September 29, 2026*
 
 ## Overview
 
@@ -264,4 +264,4 @@ https://github.com/jhaiian/ClintBrowser
 
 ## Contact
 
-If you have questions about this privacy policy, you can reach the developer at `jhaiianbetter@duck.com` or through the community Discord at https://discord.gg/4kUe4yPQ32
+If you have questions about this privacy policy, you can reach the developer at `jhaiian@proton.me` or through the community Discord at https://discord.gg/4kUe4yPQ32

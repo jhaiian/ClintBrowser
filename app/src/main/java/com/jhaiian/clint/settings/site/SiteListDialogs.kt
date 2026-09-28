@@ -87,6 +87,57 @@ fun AddSiteDialog(
 }
 
 @Composable
+fun AddSiteModeDialog(
+    title: String,
+    hideStatusBar: Boolean, hideSystemNavigation: Boolean,
+    options: List<Pair<String, Int>>,
+    onConfirm: (origin: String, state: String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val colors = LocalClintColors.current
+    var origin by remember { mutableStateOf("") }
+    var selected by remember { mutableStateOf(options.first().first) }
+
+    ClintDialog(
+        title = title,
+        hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation,
+        onDismiss = onDismiss,
+        footer = {
+            Row(Modifier.fillMaxWidth().padding(end = 12.dp, bottom = 8.dp), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(android.R.string.cancel), color = colors.primary, fontWeight = FontWeight.Medium)
+                }
+                TextButton(onClick = { if (origin.isNotBlank()) onConfirm(origin.trim(), selected) }) {
+                    Text(stringResource(R.string.site_permission_add), color = colors.primary, fontWeight = FontWeight.Medium)
+                }
+            }
+        }
+    ) {
+        ClintOutlinedTextField(
+            value = origin,
+            onValueChange = { origin = it },
+            label = { Text(stringResource(R.string.site_permission_website_hint)) },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+        Column(Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
+            options.forEach { (value, labelRes) ->
+                Row(
+                    Modifier.fillMaxWidth().clickable { selected = value }.padding(vertical = 10.dp, horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ClintRadioButton(selected = selected == value)
+                    Text(
+                        stringResource(labelRes),
+                        color = colors.onSurface, fontSize = 14.sp, modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun SiteListDeleteConfirmDialog(
     title: String,
     message: String,

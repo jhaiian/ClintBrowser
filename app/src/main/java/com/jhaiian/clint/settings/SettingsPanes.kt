@@ -21,13 +21,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.preference.PreferenceManager
-import com.google.android.material.timepicker.MaterialTimePicker
-import com.google.android.material.timepicker.TimeFormat
 import com.jhaiian.clint.BuildConfig
 import com.jhaiian.clint.R
 import com.jhaiian.clint.crash.CrashHandler
@@ -62,6 +61,7 @@ import com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase
 import com.jhaiian.clint.settings.update.UpdateSettingsScreen
 import com.jhaiian.clint.settings.update.UpdateSettingsUiState
 import com.jhaiian.clint.setup.SetupActivity
+import com.jhaiian.clint.ui.ClintTimePickerDialog
 import com.jhaiian.clint.ui.DocumentViewer
 import com.jhaiian.clint.ui.listscreen.ConfirmDialogConfig
 import com.jhaiian.clint.ui.listscreen.ConfirmDialogHost
@@ -302,7 +302,12 @@ fun BrowserSettingsPane(activity: SettingsActivity) {
             initialHideStatusBar = prefs.getBoolean("hide_status_bar", false),
             initialHideSystemNavigation = prefs.getBoolean("hide_system_navigation", false),
             initialIncognitoSearchHistory = prefs.getBoolean("incognito_search_history_enabled", false),
-            initialCustomSelectMenus = prefs.getBoolean("custom_select_menus_enabled", true)
+            initialCustomSelectMenus = prefs.getBoolean("custom_select_menus_enabled", true),
+            initialCustomJsDialogs = prefs.getBoolean("custom_js_dialogs_enabled", true),
+            initialCustomHttpAuth = prefs.getBoolean("custom_http_auth_enabled", true),
+            initialCustomSslWarnings = prefs.getBoolean("custom_ssl_warnings_enabled", true),
+            initialCustomDateTimePickers = prefs.getBoolean("custom_date_time_pickers_enabled", true),
+            initialCustomColorPicker = prefs.getBoolean("custom_color_picker_enabled", true)
         )
     }
     var confirmDialog by remember { mutableStateOf<ConfirmDialogConfig?>(null) }
@@ -320,6 +325,11 @@ fun BrowserSettingsPane(activity: SettingsActivity) {
         uiState.hideSystemNavigation = prefs.getBoolean("hide_system_navigation", false)
         uiState.incognitoSearchHistory = prefs.getBoolean("incognito_search_history_enabled", false)
         uiState.customSelectMenus = prefs.getBoolean("custom_select_menus_enabled", true)
+        uiState.customJsDialogs = prefs.getBoolean("custom_js_dialogs_enabled", true)
+        uiState.customHttpAuth = prefs.getBoolean("custom_http_auth_enabled", true)
+        uiState.customSslWarnings = prefs.getBoolean("custom_ssl_warnings_enabled", true)
+        uiState.customDateTimePickers = prefs.getBoolean("custom_date_time_pickers_enabled", true)
+        uiState.customColorPicker = prefs.getBoolean("custom_color_picker_enabled", true)
     }
 
     fun confirmEngine(engine: String) {
@@ -419,6 +429,36 @@ fun BrowserSettingsPane(activity: SettingsActivity) {
         uiState.customSelectMenus = newValue
     }
 
+    fun onCustomJsDialogsRowClicked() {
+        val newValue = !uiState.customJsDialogs
+        prefs.edit().putBoolean("custom_js_dialogs_enabled", newValue).apply()
+        uiState.customJsDialogs = newValue
+    }
+
+    fun onCustomHttpAuthRowClicked() {
+        val newValue = !uiState.customHttpAuth
+        prefs.edit().putBoolean("custom_http_auth_enabled", newValue).apply()
+        uiState.customHttpAuth = newValue
+    }
+
+    fun onCustomSslWarningsRowClicked() {
+        val newValue = !uiState.customSslWarnings
+        prefs.edit().putBoolean("custom_ssl_warnings_enabled", newValue).apply()
+        uiState.customSslWarnings = newValue
+    }
+
+    fun onCustomDateTimePickersRowClicked() {
+        val newValue = !uiState.customDateTimePickers
+        prefs.edit().putBoolean("custom_date_time_pickers_enabled", newValue).apply()
+        uiState.customDateTimePickers = newValue
+    }
+
+    fun onCustomColorPickerRowClicked() {
+        val newValue = !uiState.customColorPicker
+        prefs.edit().putBoolean("custom_color_picker_enabled", newValue).apply()
+        uiState.customColorPicker = newValue
+    }
+
     BrowserSettingsScreen(
         state = uiState,
         onSearchEngineConfirmed = ::onSearchEngineConfirmed,
@@ -437,7 +477,12 @@ fun BrowserSettingsPane(activity: SettingsActivity) {
         onUserScriptsRowClicked = {
             activity.startActivity(android.content.Intent(activity, com.jhaiian.clint.userscripts.UserScriptsActivity::class.java))
         },
-        onCustomSelectMenusRowClicked = ::onCustomSelectMenusRowClicked
+        onCustomSelectMenusRowClicked = ::onCustomSelectMenusRowClicked,
+        onCustomJsDialogsRowClicked = ::onCustomJsDialogsRowClicked,
+        onCustomHttpAuthRowClicked = ::onCustomHttpAuthRowClicked,
+        onCustomSslWarningsRowClicked = ::onCustomSslWarningsRowClicked,
+        onCustomDateTimePickersRowClicked = ::onCustomDateTimePickersRowClicked,
+        onCustomColorPickerRowClicked = ::onCustomColorPickerRowClicked
     )
     ConfirmDialogHost(confirmDialog, uiState.hideStatusBar, uiState.hideSystemNavigation) { confirmDialog = null }
 }
@@ -485,7 +530,8 @@ fun SiteSettingsPane(activity: SettingsActivity) {
             initialLocationBehavior = behaviorFor(SitePermissionDatabase.TYPE_LOCATION),
             initialNotificationsBehavior = behaviorFor(SitePermissionDatabase.TYPE_NOTIFICATION),
             initialClipboardBehavior = behaviorFor(SitePermissionDatabase.TYPE_CLIPBOARD),
-            initialDesktopModeSaveState = desktopModeSaveState()
+            initialDesktopModeSaveState = desktopModeSaveState(),
+            initialOpenInAppBehavior = behaviorFor(SitePermissionDatabase.TYPE_OPEN_IN_APP)
         )
     }
 
@@ -500,6 +546,7 @@ fun SiteSettingsPane(activity: SettingsActivity) {
         uiState.notificationsBehavior = behaviorFor(SitePermissionDatabase.TYPE_NOTIFICATION)
         uiState.clipboardBehavior = behaviorFor(SitePermissionDatabase.TYPE_CLIPBOARD)
         uiState.desktopModeSaveState = desktopModeSaveState()
+        uiState.openInAppBehavior = behaviorFor(SitePermissionDatabase.TYPE_OPEN_IN_APP)
     }
 
     SiteSettingsScreen(
@@ -509,6 +556,7 @@ fun SiteSettingsPane(activity: SettingsActivity) {
         onLocationClick = { openPermission(SitePermissionDatabase.TYPE_LOCATION) },
         onNotificationsClick = { openPermission(SitePermissionDatabase.TYPE_NOTIFICATION) },
         onClipboardClick = { openPermission(SitePermissionDatabase.TYPE_CLIPBOARD) },
+        onOpenInAppClick = { openPermission(SitePermissionDatabase.TYPE_OPEN_IN_APP) },
         onDesktopModeClick = { activity.startActivity(Intent(activity, DesktopModeActivity::class.java)) },
         onQuiverGuardClick = { activity.startActivity(Intent(activity, QuiverGuardExceptionActivity::class.java)) }
     )
@@ -862,18 +910,28 @@ fun DownloadSettingsPane(activity: SettingsActivity) {
         uiState.hideSystemNavigation = prefs.getBoolean("hide_system_navigation", false)
     }
 
-    fun showSchedulePicker(currentMinutes: Int, onPicked: (Int) -> Unit) {
-        val is24Hour = android.text.format.DateFormat.is24HourFormat(activity)
-        val picker = MaterialTimePicker.Builder()
-            .setTimeFormat(if (is24Hour) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H)
-            .setHour(currentMinutes / 60)
-            .setMinute(currentMinutes % 60)
-            .setTitleText(R.string.download_schedule_picker_title)
-            .build()
-        picker.addOnPositiveButtonClickListener {
-            onPicked(picker.hour * 60 + picker.minute)
+    var timePickerTarget by remember { mutableStateOf<Boolean?>(null) }
+
+    timePickerTarget?.let { isStart ->
+        val initialMinutes = if (isStart) uiState.scheduleStartMinutes else uiState.scheduleEndMinutes
+        ClintTimePickerDialog(
+            title = stringResource(R.string.download_schedule_picker_title),
+            initialHour = initialMinutes / 60,
+            initialMinute = initialMinutes % 60,
+            hideStatusBar = uiState.hideStatusBar,
+            hideSystemNavigation = uiState.hideSystemNavigation,
+            onDismiss = { timePickerTarget = null }
+        ) { hour, minute ->
+            val minutes = hour * 60 + minute
+            if (isStart) {
+                prefs.edit().putInt(DownloadSettingsKeys.PREF_SCHEDULE_START_MINUTES, minutes).apply()
+                uiState.scheduleStartMinutes = minutes
+            } else {
+                prefs.edit().putInt(DownloadSettingsKeys.PREF_SCHEDULE_END_MINUTES, minutes).apply()
+                uiState.scheduleEndMinutes = minutes
+            }
+            DownloadScheduleMonitor.onScheduleChanged(activity)
         }
-        picker.show(activity.supportFragmentManager, "schedule_time_picker")
     }
 
     DownloadSettingsScreen(
@@ -913,20 +971,8 @@ fun DownloadSettingsPane(activity: SettingsActivity) {
             uiState.scheduleEnabled = newValue
             DownloadScheduleMonitor.onScheduleChanged(activity)
         },
-        onScheduleStartClick = {
-            showSchedulePicker(uiState.scheduleStartMinutes) { minutes ->
-                prefs.edit().putInt(DownloadSettingsKeys.PREF_SCHEDULE_START_MINUTES, minutes).apply()
-                uiState.scheduleStartMinutes = minutes
-                DownloadScheduleMonitor.onScheduleChanged(activity)
-            }
-        },
-        onScheduleEndClick = {
-            showSchedulePicker(uiState.scheduleEndMinutes) { minutes ->
-                prefs.edit().putInt(DownloadSettingsKeys.PREF_SCHEDULE_END_MINUTES, minutes).apply()
-                uiState.scheduleEndMinutes = minutes
-                DownloadScheduleMonitor.onScheduleChanged(activity)
-            }
-        },
+        onScheduleStartClick = { timePickerTarget = true },
+        onScheduleEndClick = { timePickerTarget = false },
         onConcurrentDownloadsChange = { value ->
             prefs.edit().putInt(DownloadSettingsKeys.PREF_CONCURRENT_DOWNLOADS, value).apply()
             uiState.concurrentDownloads = value

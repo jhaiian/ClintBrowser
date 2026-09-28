@@ -4,6 +4,73 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.1.7
+
+---
+
+## What's New
+
+### Reworked Setup
+
+I reworked the setup because it took too much scrolling when selecting a theme. So yeah, I reworked it.
+
+---
+
+### Custom Browser Prompts
+
+Just like I promised, we will replace those ugly default UIs with custom themes. So now I added a bunch of them. It starts from:
+
+- **Custom Date & Time Pickers**
+
+  This covers:
+  - `<input type="date">`
+  - `<input type="time">`
+  - `<input type="datetime-local">`
+  - `<input type="month">`
+  - `<input type="week">`
+
+- **Custom Color Picker**
+
+  `<input type="color">`
+
+- **Custom JavaScript Dialogs**
+
+  `alert()`, `confirm()`, `prompt()`, `beforeunload`
+
+- **Custom Login Dialogs**
+
+- **Custom Security Warnings**
+
+---
+
+### Open in App
+
+I added **Open in App** in Site Settings with 3 modes:
+
+- **Always ask** — Ask before opening a link in another app.
+- **Always stay** — Keep links in the browser without asking.
+- **Always open** — Open links in their app without asking.
+
+Because of that, I added a **Don't ask again** option in the Open in App dialog.
+
+It works like the other site settings. If you check that, it will remember that site, and whatever you click, it will remember it. Yeah.
+
+(Thanks to @reviewlord for suggesting this #59)
+
+---
+
+### Menu
+
+- Renamed **Incognito** to **New Incognito Tab**. (Thanks to @reviewlord for suggesting this #55)
+
+---
+
+### Contact Email
+
+- Updated contact email to **jhaiian@proton.me**. As a result, the Terms of Service and Privacy Policy have been updated.
+
+---
+
 # v1.1.6
 
 > This changelog compiles everything from 1.1.6 beta plus.

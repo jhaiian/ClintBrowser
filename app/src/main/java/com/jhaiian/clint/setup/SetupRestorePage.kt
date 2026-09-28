@@ -243,22 +243,12 @@ fun SetupRestorePage(
     }
 
     Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(28.dp),
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 28.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            stringResource(R.string.setup_restore_title),
-            color = colors.onSurface,
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
-        )
-        Text(
-            stringResource(R.string.setup_restore_subtitle),
-            color = colors.secondaryText,
-            fontSize = 13.sp,
-            lineHeight = 19.5.sp,
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 28.dp)
+        SetupPageHeader(
+            title = stringResource(R.string.setup_restore_title),
+            subtitle = stringResource(R.string.setup_restore_subtitle)
         )
 
         Card(

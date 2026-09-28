@@ -9,17 +9,22 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.net.http.SslError
 import android.os.Build
+import android.webkit.HttpAuthHandler
 import android.webkit.SslErrorHandler
+import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.jhaiian.clint.R
+import com.jhaiian.clint.browser.dialogs.HttpAuthRequest
+import com.jhaiian.clint.browser.dialogs.SslWarningRequest
 import com.jhaiian.clint.blocker.engine.WebsiteBlockerEngine
 import com.jhaiian.clint.blocker.engine.WebsiteBlockerWebIntegration
 import com.jhaiian.clint.mediacapture.MediaCaptureDetector
 import com.jhaiian.clint.mediacapture.MediaCaptureStore
 import com.jhaiian.clint.quiver.engine.QuiverGuardWebIntegration
+import com.jhaiian.clint.settings.sitepermissions.SitePermissionActivity
 import com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase
 import com.jhaiian.clint.settings.sitepermissions.SitePermissionManager
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -32,13 +37,22 @@ class ClintWebViewClient(
     private val onTabUrlUpdatedCallback: (WebView, String) -> Unit = { _, _ -> },
     private val onWebsiteBlockedCallback: (String) -> Unit = {},
     private val getDesktopHeaders: () -> Map<String, String>? = { null },
-    private val getTabId: () -> String = { "" }
+    private val getTabId: () -> String = { "" },
+    private val isCustomHttpAuthEnabled: () -> Boolean = { false },
+    private val onHttpAuthRequest: (HttpAuthRequest) -> Unit = {},
+    private val isCustomSslWarningEnabled: () -> Boolean = { false },
+    private val onSslWarning: (SslWarningRequest) -> Unit = {},
+    private val isIncognito: () -> Boolean = { false }
 ) : WebViewClient() {
+
+    private val allowedSslErrors = mutableSetOf<String>()
 
     @Volatile private var cachedPageUrl: String? = null
 
     private val cooldownDomains = mutableMapOf<String, Long>()
     private var pendingHeaderLoad: String? = null
+    private val httpFallbackHosts = mutableSetOf<String>()
+    private val upgradedHostOrigins = mutableMapOf<String, String>()
 
     @Volatile private var exceptionCacheHost: String? = null
     @Volatile private var exceptionCacheValid: Boolean = false
@@ -92,6 +106,7 @@ class ClintWebViewClient(
     }
 
     override fun onPageFinished(view: WebView, url: String) {
+        Uri.parse(url).host?.lowercase()?.let { upgradedHostOrigins.remove(it) }
         super.onPageFinished(view, url)
         cachedPageUrl = url
         MediaCaptureStore.updatePageUrl(getTabId(), url)
@@ -122,8 +137,10 @@ class ClintWebViewClient(
         if (scheme == "http" && request.isForMainFrame && prefs.getBoolean("https_only", true)) {
             val host = uri.host ?: ""
             val isIpAddress = host.matches(Regex("""^(\d{1,3}\.){3}\d{1,3}$"""))
-            if (!isIpAddress) {
+            val hostKey = host.lowercase()
+            if (!isIpAddress && hostKey !in httpFallbackHosts) {
                 val httpsUri = uri.buildUpon().scheme("https").build()
+                upgradedHostOrigins[hostKey] = uri.toString()
                 view.loadUrl(httpsUri.toString())
                 return true
             }
@@ -148,6 +165,64 @@ class ClintWebViewClient(
         return false
     }
 
+    private fun resolveOpenInAppMode(context: android.content.Context, host: String?): String {
+        if (isIncognito()) return SitePermissionActivity.PREF_VALUE_ASK
+        if (!host.isNullOrEmpty()) {
+            val stored = SitePermissionManager.getState(context, host, SitePermissionDatabase.TYPE_OPEN_IN_APP)
+            if (stored == SitePermissionDatabase.STATE_STAY || stored == SitePermissionDatabase.STATE_OPEN || stored == SitePermissionDatabase.STATE_ASK) return stored
+        }
+        return prefs.getString("site_perm_default_${SitePermissionDatabase.TYPE_OPEN_IN_APP}", SitePermissionActivity.PREF_VALUE_ASK)
+            ?: SitePermissionActivity.PREF_VALUE_ASK
+    }
+
+    private fun rememberOpenInApp(context: android.content.Context, host: String?, state: String) {
+        if (isIncognito() || host.isNullOrEmpty()) return
+        SitePermissionManager.setState(context, host, SitePermissionDatabase.TYPE_OPEN_IN_APP, state)
+    }
+
+    private fun launchOrPromptExternalApp(
+        view: WebView,
+        activity: android.app.Activity,
+        intent: Intent,
+        resolveInfo: ResolveInfo,
+        sourceHost: String,
+        pageHost: String?
+    ) {
+        val open: () -> Unit = { try { activity.startActivity(intent) } catch (_: ActivityNotFoundException) {} }
+        when (resolveOpenInAppMode(activity, pageHost)) {
+            SitePermissionDatabase.STATE_OPEN -> activity.runOnUiThread { open() }
+            SitePermissionDatabase.STATE_STAY -> Unit
+            else -> {
+                val pm = activity.packageManager
+                val appName = resolveInfo.loadLabel(pm).toString()
+                val appIcon = runCatching { resolveInfo.loadIcon(pm) }.getOrNull()
+                activity.runOnUiThread {
+                    view.pauseTimers()
+                    val mainActivity = activity as? com.jhaiian.clint.browser.MainActivity
+                    if (mainActivity == null) {
+                        open()
+                        view.resumeTimers()
+                    } else {
+                        mainActivity.uiState.openInAppRequest = com.jhaiian.clint.browser.webview.OpenInAppRequest(
+                            host = sourceHost,
+                            matches = listOf(com.jhaiian.clint.browser.webview.OpenInAppMatch(appName, appIcon, resolveInfo.activityInfo.packageName)),
+                            showRemember = !isIncognito() && !pageHost.isNullOrEmpty(),
+                            onStayHere = { remember ->
+                                view.resumeTimers()
+                                if (remember) rememberOpenInApp(activity, pageHost, SitePermissionDatabase.STATE_STAY)
+                            },
+                            onOpenApp = { _, remember ->
+                                view.resumeTimers()
+                                if (remember) rememberOpenInApp(activity, pageHost, SitePermissionDatabase.STATE_OPEN)
+                                open()
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     private fun handleIntentScheme(view: WebView, uriString: String): Boolean {
         return try {
             val intent = Intent.parseUri(uriString, Intent.URI_INTENT_SCHEME).apply {
@@ -158,30 +233,9 @@ class ClintWebViewClient(
             val activity = view.context as? android.app.Activity
 
             if (resolveInfo != null && activity != null) {
-                val appName = resolveInfo.loadLabel(pm).toString()
-                val appIcon = runCatching { resolveInfo.loadIcon(pm) }.getOrNull()
-                val sourceHost = view.url
-                    ?.let { runCatching { Uri.parse(it).host }.getOrNull() }
-                    ?:activity.getString(R.string.open_in_app_dialog_source_fallback)
-
-                activity.runOnUiThread {
-                    view.pauseTimers()
-                    val mainActivity = activity as? com.jhaiian.clint.browser.MainActivity
-                    if (mainActivity == null) {
-                        try { activity.startActivity(intent) } catch (_: ActivityNotFoundException) {}
-                        view.resumeTimers()
-                    } else {
-                        mainActivity.uiState.openInAppRequest = com.jhaiian.clint.browser.webview.OpenInAppRequest(
-                            host = sourceHost,
-                            matches = listOf(com.jhaiian.clint.browser.webview.OpenInAppMatch(appName, appIcon, resolveInfo.activityInfo.packageName)),
-                            onStayHere = { view.resumeTimers() },
-                            onOpenApp = {
-                                view.resumeTimers()
-                                try { activity.startActivity(intent) } catch (_: ActivityNotFoundException) {}
-                            }
-                        )
-                    }
-                }
+                val pageHost = view.url?.let { runCatching { Uri.parse(it).host }.getOrNull() }
+                val sourceHost = pageHost ?: activity.getString(R.string.open_in_app_dialog_source_fallback)
+                launchOrPromptExternalApp(view, activity, intent, resolveInfo, sourceHost, pageHost)
             } else {
                 val fallbackUrl = intent.getStringExtra("browser_fallback_url")
                 if (!fallbackUrl.isNullOrEmpty()) view.loadUrl(fallbackUrl)
@@ -202,31 +256,11 @@ class ClintWebViewClient(
         val activity = context as? android.app.Activity
 
         if (resolveInfo != null && activity != null) {
-            val appName = resolveInfo.loadLabel(pm).toString()
-            val appIcon = runCatching { resolveInfo.loadIcon(pm) }.getOrNull()
-            val sourceHost = view.url
-                ?.let { runCatching { Uri.parse(it).host }.getOrNull() }
+            val pageHost = view.url?.let { runCatching { Uri.parse(it).host }.getOrNull() }
+            val sourceHost = pageHost
                 ?: uri.scheme
-                ?:activity.getString(R.string.open_in_app_dialog_source_fallback)
-
-            activity.runOnUiThread {
-                view.pauseTimers()
-                val mainActivity = activity as? com.jhaiian.clint.browser.MainActivity
-                if (mainActivity == null) {
-                    try { context.startActivity(intent) } catch (_: ActivityNotFoundException) {}
-                    view.resumeTimers()
-                } else {
-                    mainActivity.uiState.openInAppRequest = com.jhaiian.clint.browser.webview.OpenInAppRequest(
-                        host = sourceHost,
-                        matches = listOf(com.jhaiian.clint.browser.webview.OpenInAppMatch(appName, appIcon, resolveInfo.activityInfo.packageName)),
-                        onStayHere = { view.resumeTimers() },
-                        onOpenApp = {
-                            view.resumeTimers()
-                            try { context.startActivity(intent) } catch (_: ActivityNotFoundException) {}
-                        }
-                    )
-                }
-            }
+                ?: activity.getString(R.string.open_in_app_dialog_source_fallback)
+            launchOrPromptExternalApp(view, activity, intent, resolveInfo, sourceHost, pageHost)
             return true
         }
 
@@ -278,13 +312,16 @@ class ClintWebViewClient(
         }
     }
 
-    fun tryOpenInApp(view: WebView, uri: Uri): Boolean {
+    fun tryOpenInApp(view: WebView, uri: Uri, force: Boolean = false): Boolean {
         val uriStr = uri.toString()
         val host = uri.host ?: uriStr
 
-        if (isInCooldown(host)) return false
+        if (!force && isInCooldown(host)) return false
 
         val context = view.context
+        val mode = if (force) SitePermissionActivity.PREF_VALUE_ASK else resolveOpenInAppMode(context, uri.host)
+        if (mode == SitePermissionDatabase.STATE_STAY) return false
+
         val pm = context.packageManager
 
         val browserPackages = (
@@ -310,6 +347,18 @@ class ClintWebViewClient(
 
         val activity = context as? com.jhaiian.clint.browser.MainActivity ?: return false
 
+        if (mode == SitePermissionDatabase.STATE_OPEN && appMatches.size == 1) {
+            val directIntent = Intent(Intent.ACTION_VIEW, uri)
+                .setPackage(appMatches[0].activityInfo.packageName)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            activity.runOnUiThread {
+                try { context.startActivity(directIntent) } catch (_: ActivityNotFoundException) {}
+            }
+            return true
+        }
+
+        val canRemember = !force && !isIncognito() && mode == SitePermissionDatabase.STATE_ASK && !uri.host.isNullOrEmpty()
+
         activity.runOnUiThread {
             val matches = appMatches.map { ri ->
                 com.jhaiian.clint.browser.webview.OpenInAppMatch(
@@ -321,12 +370,15 @@ class ClintWebViewClient(
             activity.uiState.openInAppRequest = com.jhaiian.clint.browser.webview.OpenInAppRequest(
                 host = host,
                 matches = matches,
-                onStayHere = {
+                showRemember = canRemember,
+                onStayHere = { remember ->
+                    if (remember) rememberOpenInApp(context, uri.host, SitePermissionDatabase.STATE_STAY)
                     startCooldown(host)
                     val h = getDesktopHeaders()
                     if (h != null) view.loadUrl(uriStr, h) else view.loadUrl(uriStr)
                 },
-                onOpenApp = { packageName ->
+                onOpenApp = { packageName, remember ->
+                    if (remember) rememberOpenInApp(context, uri.host, SitePermissionDatabase.STATE_OPEN)
                     val specificIntent = Intent(Intent.ACTION_VIEW, uri)
                         .setPackage(packageName)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -376,7 +428,62 @@ class ClintWebViewClient(
         return super.shouldInterceptRequest(view, request)
     }
 
+    override fun onReceivedHttpAuthRequest(view: WebView, handler: HttpAuthHandler, host: String, realm: String?) {
+        if (!isCustomHttpAuthEnabled() || !isActive()) {
+            handler.cancel()
+            return
+        }
+        val isSecure = view.url?.startsWith("http://", ignoreCase = true) != true
+        onHttpAuthRequest(
+            HttpAuthRequest(
+                host = host,
+                realm = realm.orEmpty(),
+                isSecure = isSecure,
+                onSignIn = { username, password -> handler.proceed(username, password) },
+                onCancel = { handler.cancel() }
+            )
+        )
+    }
+
+    override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
+        super.onReceivedError(view, request, error)
+        if (!request.isForMainFrame) return
+        val hostKey = request.url.host?.lowercase() ?: return
+        val origin = upgradedHostOrigins.remove(hostKey) ?: return
+        httpFallbackHosts.add(hostKey)
+        val headers = getDesktopHeaders()
+        if (headers != null) view.loadUrl(origin, headers) else view.loadUrl(origin)
+    }
+
     override fun onReceivedSslError(view: WebView, handler: SslErrorHandler, error: SslError) {
-        handler.cancel()
+        val host = hostOf(error.url).orEmpty()
+        val key = "$host|${error.primaryError}"
+        if (key in allowedSslErrors) {
+            handler.proceed()
+            return
+        }
+        if (!isCustomSslWarningEnabled() || !isActive() || !isMainFrameHost(view, host)) {
+            handler.cancel()
+            return
+        }
+        onSslWarning(
+            SslWarningRequest(
+                host = host,
+                errorType = error.primaryError,
+                onProceed = {
+                    allowedSslErrors.add(key)
+                    handler.proceed()
+                },
+                onCancel = { handler.cancel() }
+            )
+        )
+    }
+
+    private fun hostOf(url: String?): String? =
+        url?.let { runCatching { Uri.parse(it).host }.getOrNull() }
+
+    private fun isMainFrameHost(view: WebView, host: String): Boolean {
+        if (host.isEmpty()) return false
+        return listOf(cachedPageUrl, view.url, view.originalUrl).any { hostOf(it).equals(host, ignoreCase = true) }
     }
 }

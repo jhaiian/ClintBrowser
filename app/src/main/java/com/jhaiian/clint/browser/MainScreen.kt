@@ -205,6 +205,21 @@ internal fun MainScreen(activity: MainActivity, state: MainUiState) {
         state.selectPickerRequest?.let { req ->
             com.jhaiian.clint.browser.dialogs.SelectPickerDialog(req, hideStatusBarPref, hideSystemNavigationPref) { state.selectPickerRequest = null }
         }
+        state.dateTimePickerRequest?.let { req ->
+            com.jhaiian.clint.browser.dialogs.DateTimePickerDialog(req, hideStatusBarPref, hideSystemNavigationPref) { state.dateTimePickerRequest = null }
+        }
+        state.colorPickerRequest?.let { req ->
+            com.jhaiian.clint.browser.dialogs.ColorPickerDialog(req, hideStatusBarPref, hideSystemNavigationPref) { state.colorPickerRequest = null }
+        }
+        state.jsDialogRequest?.let { req ->
+            com.jhaiian.clint.browser.dialogs.JsDialog(req, hideStatusBarPref, hideSystemNavigationPref) { state.jsDialogRequest = null }
+        }
+        state.httpAuthRequest?.let { req ->
+            com.jhaiian.clint.browser.dialogs.HttpAuthDialog(req, hideStatusBarPref, hideSystemNavigationPref) { state.httpAuthRequest = null }
+        }
+        state.sslWarningRequest?.let { req ->
+            com.jhaiian.clint.browser.dialogs.SslWarningDialog(req, hideStatusBarPref, hideSystemNavigationPref) { state.sslWarningRequest = null }
+        }
         if (!state.isFullscreen) {
             state.popupAlertRequest?.let { req ->
                 com.jhaiian.clint.browser.dialogs.PopupAlertDialog(req, hideStatusBarPref, hideSystemNavigationPref) { state.popupAlertRequest = null }

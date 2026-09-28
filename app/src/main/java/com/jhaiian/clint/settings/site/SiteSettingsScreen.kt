@@ -1,4 +1,5 @@
 package com.jhaiian.clint.settings.site
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.DesktopWindows
 import androidx.compose.material.icons.filled.LocationOn
@@ -30,6 +31,7 @@ fun SiteSettingsScreen(
     onLocationClick: () -> Unit,
     onNotificationsClick: () -> Unit,
     onClipboardClick: () -> Unit,
+    onOpenInAppClick: () -> Unit,
     onDesktopModeClick: () -> Unit,
     onQuiverGuardClick: () -> Unit
 ) {
@@ -79,6 +81,17 @@ fun SiteSettingsScreen(
             )
         }
 
+        SectionLabel(stringResource(R.string.site_section_open_in_app), colors.primary, Modifier.padding(start = 4.dp, bottom = 8.dp))
+        SettingsSection(colors.cardBackground) {
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.AutoMirrored.Filled.OpenInNew,
+                title = stringResource(R.string.site_settings_open_in_app),
+                summary = stringResource(openInAppSummaryRes(state.openInAppBehavior)),
+                colors = colors,
+                onClick = onOpenInAppClick
+            )
+        }
+
         SectionLabel(stringResource(R.string.site_section_desktop_mode), colors.primary, Modifier.padding(start = 4.dp, bottom = 8.dp))
         SettingsSection(colors.cardBackground) {
             SettingsRow(
@@ -112,4 +125,10 @@ private fun permissionSummaryRes(behavior: String): Int = when (behavior) {
     SitePermissionActivity.PREF_VALUE_DENY -> R.string.site_permission_always_deny
     SitePermissionActivity.PREF_VALUE_ALLOW -> R.string.site_permission_always_allow
     else -> R.string.site_permission_ask_first
+}
+
+private fun openInAppSummaryRes(behavior: String): Int = when (behavior) {
+    SitePermissionActivity.PREF_VALUE_STAY -> R.string.open_in_app_mode_stay
+    SitePermissionActivity.PREF_VALUE_OPEN -> R.string.open_in_app_mode_open
+    else -> R.string.open_in_app_mode_ask
 }

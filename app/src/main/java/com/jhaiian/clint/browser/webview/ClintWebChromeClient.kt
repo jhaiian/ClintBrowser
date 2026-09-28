@@ -6,12 +6,16 @@ import android.os.Message
 import android.os.SystemClock
 import android.view.View
 import android.webkit.GeolocationPermissions
+import android.webkit.JsPromptResult
+import android.webkit.JsResult
 import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import com.jhaiian.clint.browser.dialogs.JsDialogRequest
+import com.jhaiian.clint.browser.dialogs.JsDialogType
 
 class ClintWebChromeClient(
     private val isActive: () -> Boolean = { true },
@@ -24,7 +28,9 @@ class ClintWebChromeClient(
     private val onNewWindowRequest: (String) -> Unit = {},
     private val isFullscreenActive: () -> Boolean = { false },
     private val onWebPermissionRequest: (PermissionRequest) -> Unit = { it.deny() },
-    private val onGeolocationRequest: (String, GeolocationPermissions.Callback) -> Unit = { _, cb -> cb.invoke("", false, false) }
+    private val onGeolocationRequest: (String, GeolocationPermissions.Callback) -> Unit = { _, cb -> cb.invoke("", false, false) },
+    private val isCustomJsDialogsEnabled: () -> Boolean = { false },
+    private val onJsDialog: (JsDialogRequest) -> Unit = {}
 ) : WebChromeClient() {
 
     private var fullscreenExitedAtMs = 0L
@@ -63,6 +69,39 @@ class ClintWebChromeClient(
 
     override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
         onGeolocationRequest(origin, callback)
+    }
+
+    override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean =
+        dispatchJsDialog(JsDialogType.Alert, url, message, "", result)
+
+    override fun onJsConfirm(view: WebView, url: String, message: String, result: JsResult): Boolean =
+        dispatchJsDialog(JsDialogType.Confirm, url, message, "", result)
+
+    override fun onJsPrompt(view: WebView, url: String, message: String, defaultValue: String?, result: JsPromptResult): Boolean =
+        dispatchJsDialog(JsDialogType.Prompt, url, message, defaultValue.orEmpty(), result)
+
+    override fun onJsBeforeUnload(view: WebView, url: String, message: String, result: JsResult): Boolean =
+        dispatchJsDialog(JsDialogType.BeforeUnload, url, message, "", result)
+
+    private fun dispatchJsDialog(type: JsDialogType, url: String, message: String, defaultValue: String, result: JsResult): Boolean {
+        if (!isCustomJsDialogsEnabled()) return false
+        if (!isActive()) {
+            result.cancel()
+            return true
+        }
+        onJsDialog(
+            JsDialogRequest(
+                type = type,
+                url = url,
+                message = message,
+                defaultValue = defaultValue,
+                onConfirm = { value ->
+                    if (result is JsPromptResult) result.confirm(value) else result.confirm()
+                },
+                onCancel = { result.cancel() }
+            )
+        )
+        return true
     }
 
     override fun onCreateWindow(

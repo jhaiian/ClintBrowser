@@ -1,7 +1,12 @@
 package com.jhaiian.clint.settings.browser
 import androidx.compose.material.icons.automirrored.filled.ManageSearch
 import androidx.compose.material.icons.filled.ArrowDropDownCircle
+import androidx.compose.material.icons.filled.ChatBubble
 import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.DesktopWindows
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Search
@@ -35,7 +40,12 @@ fun BrowserSettingsScreen(
     onQuiverGuardRowClicked: () -> Unit,
     onIncognitoSearchHistoryRowClicked: () -> Unit,
     onUserScriptsRowClicked: () -> Unit,
-    onCustomSelectMenusRowClicked: () -> Unit
+    onCustomSelectMenusRowClicked: () -> Unit,
+    onCustomJsDialogsRowClicked: () -> Unit,
+    onCustomHttpAuthRowClicked: () -> Unit,
+    onCustomSslWarningsRowClicked: () -> Unit,
+    onCustomDateTimePickersRowClicked: () -> Unit,
+    onCustomColorPickerRowClicked: () -> Unit
 ) {
     val colors = LocalClintColors.current
 
@@ -114,6 +124,56 @@ fun BrowserSettingsScreen(
                 onClick = onCustomSelectMenusRowClicked,
                 trailing = {
                     ClintSwitch(checked = state.customSelectMenus)
+                }
+            )
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.DateRange,
+                title = stringResource(R.string.custom_date_time_pickers_title),
+                summary = stringResource(R.string.custom_date_time_pickers_summary),
+                colors = colors,
+                onClick = onCustomDateTimePickersRowClicked,
+                trailing = {
+                    ClintSwitch(checked = state.customDateTimePickers)
+                }
+            )
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.Palette,
+                title = stringResource(R.string.custom_color_picker_title),
+                summary = stringResource(R.string.custom_color_picker_summary),
+                colors = colors,
+                onClick = onCustomColorPickerRowClicked,
+                trailing = {
+                    ClintSwitch(checked = state.customColorPicker)
+                }
+            )
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.ChatBubble,
+                title = stringResource(R.string.custom_js_dialogs_title),
+                summary = stringResource(R.string.custom_js_dialogs_summary),
+                colors = colors,
+                onClick = onCustomJsDialogsRowClicked,
+                trailing = {
+                    ClintSwitch(checked = state.customJsDialogs)
+                }
+            )
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.Lock,
+                title = stringResource(R.string.custom_http_auth_title),
+                summary = stringResource(R.string.custom_http_auth_summary),
+                colors = colors,
+                onClick = onCustomHttpAuthRowClicked,
+                trailing = {
+                    ClintSwitch(checked = state.customHttpAuth)
+                }
+            )
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.Warning,
+                title = stringResource(R.string.custom_ssl_warnings_title),
+                summary = stringResource(R.string.custom_ssl_warnings_summary),
+                colors = colors,
+                onClick = onCustomSslWarningsRowClicked,
+                trailing = {
+                    ClintSwitch(checked = state.customSslWarnings)
                 }
             )
         }

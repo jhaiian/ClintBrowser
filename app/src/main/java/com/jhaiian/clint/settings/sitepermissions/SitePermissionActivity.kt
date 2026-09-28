@@ -27,6 +27,7 @@ import com.jhaiian.clint.setup.SectionLabel
 import com.jhaiian.clint.setup.SelectableCard
 import com.jhaiian.clint.ui.rememberMaxContentWidth
 import com.jhaiian.clint.settings.site.AddSiteDialog
+import com.jhaiian.clint.settings.site.AddSiteModeDialog
 import com.jhaiian.clint.settings.site.SiteEntry
 import com.jhaiian.clint.settings.site.SiteListDeleteConfirmDialog
 import com.jhaiian.clint.settings.site.SiteListScreen
@@ -41,6 +42,8 @@ class SitePermissionActivity : ClintActivity() {
         const val PREF_VALUE_ASK = "ask"
         const val PREF_VALUE_DENY = "deny"
         const val PREF_VALUE_ALLOW = "allow"
+        const val PREF_VALUE_STAY = "stay"
+        const val PREF_VALUE_OPEN = "open"
     }
 
     private fun titleForType(type: String): Int = when (type) {
@@ -49,6 +52,7 @@ class SitePermissionActivity : ClintActivity() {
         SitePermissionDatabase.TYPE_LOCATION -> R.string.site_settings_location
         SitePermissionDatabase.TYPE_NOTIFICATION -> R.string.site_settings_notifications
         SitePermissionDatabase.TYPE_CLIPBOARD -> R.string.site_settings_clipboard
+        SitePermissionDatabase.TYPE_OPEN_IN_APP -> R.string.site_settings_open_in_app
         else -> R.string.site_settings_camera
     }
 
@@ -62,6 +66,7 @@ class SitePermissionActivity : ClintActivity() {
         val hideStatusBar = prefs.getBoolean("hide_status_bar", false)
         val hideSystemNavigation = prefs.getBoolean("hide_system_navigation", false)
         val defaultBehaviorKey = "site_perm_default_$type"
+        val isOpenInApp = type == SitePermissionDatabase.TYPE_OPEN_IN_APP
 
         val listState = SiteListUiState()
         fun reload() {
@@ -85,10 +90,13 @@ class SitePermissionActivity : ClintActivity() {
                         searchHint = stringResource(R.string.site_permission_search_hint),
                         emptyText = stringResource(R.string.site_permission_no_exceptions),
                         stateLabel = { state ->
-                            if (state == SitePermissionDatabase.STATE_DENY)
-                                stringResource(R.string.site_permission_state_denied) to colors.secondaryText
-                            else
-                                stringResource(R.string.site_permission_state_allowed) to colors.primary
+                            when (state) {
+                                SitePermissionDatabase.STATE_DENY -> stringResource(R.string.site_permission_state_denied) to colors.secondaryText
+                                SitePermissionDatabase.STATE_STAY -> stringResource(R.string.open_in_app_mode_stay) to colors.secondaryText
+                                SitePermissionDatabase.STATE_OPEN -> stringResource(R.string.open_in_app_mode_open) to colors.primary
+                                SitePermissionDatabase.STATE_ASK -> stringResource(R.string.open_in_app_mode_ask) to colors.onSurface
+                                else -> stringResource(R.string.site_permission_state_allowed) to colors.primary
+                            }
                         },
                         onExit = { finish() },
                         onAddClick = { listState.addDialogOpen = true },
@@ -98,11 +106,15 @@ class SitePermissionActivity : ClintActivity() {
                                 stringResource(R.string.site_permission_default_behavior), colors.primary,
                                 Modifier.padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 10.dp)
                             )
-                            listOf(
+                            (if (isOpenInApp) listOf(
+                                Triple(PREF_VALUE_ASK, R.string.open_in_app_mode_ask, R.string.open_in_app_mode_ask_desc),
+                                Triple(PREF_VALUE_STAY, R.string.open_in_app_mode_stay, R.string.open_in_app_mode_stay_desc),
+                                Triple(PREF_VALUE_OPEN, R.string.open_in_app_mode_open, R.string.open_in_app_mode_open_desc)
+                            ) else listOf(
                                 Triple(PREF_VALUE_ASK, R.string.site_permission_ask_first, R.string.site_permission_ask_first_desc),
                                 Triple(PREF_VALUE_DENY, R.string.site_permission_always_deny, R.string.site_permission_always_deny_desc),
                                 Triple(PREF_VALUE_ALLOW, R.string.site_permission_always_allow, R.string.site_permission_always_allow_desc)
-                            ).forEach { (value, titleRes, descRes) ->
+                            )).forEach { (value, titleRes, descRes) ->
                                 val selected = defaultBehavior == value
                                 SelectableCard(
                                     selected = selected,
@@ -130,7 +142,23 @@ class SitePermissionActivity : ClintActivity() {
                         }
                     )
 
-                    if (listState.addDialogOpen) {
+                    if (listState.addDialogOpen && isOpenInApp) {
+                        AddSiteModeDialog(
+                            title = stringResource(R.string.site_permission_add_exception),
+                            hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation,
+                            options = listOf(
+                                SitePermissionDatabase.STATE_STAY to R.string.open_in_app_mode_stay,
+                                SitePermissionDatabase.STATE_OPEN to R.string.open_in_app_mode_open,
+                                SitePermissionDatabase.STATE_ASK to R.string.open_in_app_mode_ask
+                            ),
+                            onConfirm = { origin, state ->
+                                SitePermissionManager.setState(this@SitePermissionActivity, origin, type, state)
+                                reload()
+                                listState.addDialogOpen = false
+                            },
+                            onDismiss = { listState.addDialogOpen = false }
+                        )
+                    } else if (listState.addDialogOpen) {
                         AddSiteDialog(
                             title = stringResource(R.string.site_permission_add_exception),
                             hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation,

@@ -103,7 +103,12 @@ internal fun MainActivity.openNewTabSilent(
         onTabUrlUpdatedCallback = { wv, url -> onTabUrlUpdated(wv, url) },
         onWebsiteBlockedCallback = { blockedUrl -> onWebsiteBlocked(blockedUrl, tab.url, tab.id) },
         getDesktopHeaders = { buildDesktopHeaders() },
-        getTabId = { tab.id }
+        getTabId = { tab.id },
+        isIncognito = { tab.isIncognito },
+        isCustomHttpAuthEnabled = { isCustomHttpAuthEnabled() },
+        onHttpAuthRequest = { request -> onHttpAuthRequest(request) },
+        isCustomSslWarningEnabled = { isCustomSslWarningEnabled() },
+        onSslWarning = { request -> onSslWarningRequest(request) }
     )
     webView.webChromeClient = ClintWebChromeClient(
         isActive = { tabManager.activeTab?.id == tab.id },
@@ -118,6 +123,8 @@ internal fun MainActivity.openNewTabSilent(
         onFileChooser = { callback, params -> onShowFileChooser(callback, params) },
         onWebPermissionRequest = { request -> onWebPermissionRequest(request) },
         onGeolocationRequest = { origin, callback -> onWebGeolocationRequest(origin, callback) },
+        isCustomJsDialogsEnabled = { isCustomJsDialogsEnabled() },
+        onJsDialog = { request -> onJsDialogRequest(request) },
         isFullscreenActive = { uiState.isFullscreen },
         onNewWindowRequest = { newUrl ->
             showPopupAlertDialog(newUrl, tab.isIncognito, tab.id)
@@ -140,7 +147,12 @@ internal fun MainActivity.openNewTabInBackground(url: String, openerTabId: Strin
         onTabUrlUpdatedCallback = { wv, url -> onTabUrlUpdated(wv, url) },
         onWebsiteBlockedCallback = { blockedUrl -> onWebsiteBlocked(blockedUrl, tab.url, tab.id) },
         getDesktopHeaders = { buildDesktopHeaders() },
-        getTabId = { tab.id }
+        getTabId = { tab.id },
+        isIncognito = { tab.isIncognito },
+        isCustomHttpAuthEnabled = { isCustomHttpAuthEnabled() },
+        onHttpAuthRequest = { request -> onHttpAuthRequest(request) },
+        isCustomSslWarningEnabled = { isCustomSslWarningEnabled() },
+        onSslWarning = { request -> onSslWarningRequest(request) }
     )
     webView.webChromeClient = ClintWebChromeClient(
         isActive = { tabManager.activeTab?.id == tab.id },
@@ -155,6 +167,8 @@ internal fun MainActivity.openNewTabInBackground(url: String, openerTabId: Strin
         onFileChooser = { callback, params -> onShowFileChooser(callback, params) },
         onWebPermissionRequest = { request -> onWebPermissionRequest(request) },
         onGeolocationRequest = { origin, callback -> onWebGeolocationRequest(origin, callback) },
+        isCustomJsDialogsEnabled = { isCustomJsDialogsEnabled() },
+        onJsDialog = { request -> onJsDialogRequest(request) },
         isFullscreenActive = { uiState.isFullscreen },
         onNewWindowRequest = { newUrl ->
             showPopupAlertDialog(newUrl, false, tab.id)
@@ -179,7 +193,12 @@ internal fun MainActivity.openNewTab(isIncognito: Boolean, url: String = getSear
         onTabUrlUpdatedCallback = { wv, url -> onTabUrlUpdated(wv, url) },
         onWebsiteBlockedCallback = { blockedUrl -> onWebsiteBlocked(blockedUrl, tab.url, tab.id) },
         getDesktopHeaders = { buildDesktopHeaders() },
-        getTabId = { tab.id }
+        getTabId = { tab.id },
+        isIncognito = { tab.isIncognito },
+        isCustomHttpAuthEnabled = { isCustomHttpAuthEnabled() },
+        onHttpAuthRequest = { request -> onHttpAuthRequest(request) },
+        isCustomSslWarningEnabled = { isCustomSslWarningEnabled() },
+        onSslWarning = { request -> onSslWarningRequest(request) }
     )
     webView.webChromeClient = ClintWebChromeClient(
         isActive = { tabManager.activeTab?.id == tab.id },
@@ -194,6 +213,8 @@ internal fun MainActivity.openNewTab(isIncognito: Boolean, url: String = getSear
         onFileChooser = { callback, params -> onShowFileChooser(callback, params) },
         onWebPermissionRequest = { request -> onWebPermissionRequest(request) },
         onGeolocationRequest = { origin, callback -> onWebGeolocationRequest(origin, callback) },
+        isCustomJsDialogsEnabled = { isCustomJsDialogsEnabled() },
+        onJsDialog = { request -> onJsDialogRequest(request) },
         isFullscreenActive = { uiState.isFullscreen },
         onNewWindowRequest = { newUrl ->
             showPopupAlertDialog(newUrl, isIncognito, tab.id)
@@ -270,7 +291,12 @@ internal fun MainActivity.openRefreshLinkTab(url: String) {
         onTabUrlUpdatedCallback = { wv, u -> onTabUrlUpdated(wv, u) },
         onWebsiteBlockedCallback = { blockedUrl -> onWebsiteBlocked(blockedUrl, tab.url, tab.id) },
         getDesktopHeaders = { buildDesktopHeaders() },
-        getTabId = { tab.id }
+        getTabId = { tab.id },
+        isIncognito = { tab.isIncognito },
+        isCustomHttpAuthEnabled = { isCustomHttpAuthEnabled() },
+        onHttpAuthRequest = { request -> onHttpAuthRequest(request) },
+        isCustomSslWarningEnabled = { isCustomSslWarningEnabled() },
+        onSslWarning = { request -> onSslWarningRequest(request) }
     )
     webView.webChromeClient = ClintWebChromeClient(
         isActive = { tabManager.activeTab?.id == tab.id },
@@ -285,6 +311,8 @@ internal fun MainActivity.openRefreshLinkTab(url: String) {
         onFileChooser = { callback, params -> onShowFileChooser(callback, params) },
         onWebPermissionRequest = { request -> onWebPermissionRequest(request) },
         onGeolocationRequest = { origin, callback -> onWebGeolocationRequest(origin, callback) },
+        isCustomJsDialogsEnabled = { isCustomJsDialogsEnabled() },
+        onJsDialog = { request -> onJsDialogRequest(request) },
         isFullscreenActive = { uiState.isFullscreen },
         onNewWindowRequest = { newUrl ->
             showPopupAlertDialog(newUrl, false, tab.id)
