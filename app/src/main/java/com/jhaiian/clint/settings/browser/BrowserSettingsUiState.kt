@@ -5,6 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 class BrowserSettingsUiState(
+    initialHomepage: String,
+    initialHomepageDesign: String,
+    initialHomepageShowFavorites: Boolean,
+    initialHomepageShowRecent: Boolean,
     initialSearchEngine: String,
     initialCustomSearchEngineName: String,
     initialCustomSearchEngineUrl: String,
@@ -23,6 +27,10 @@ class BrowserSettingsUiState(
     initialCustomDateTimePickers: Boolean,
     initialCustomColorPicker: Boolean
 ) {
+    var homepage by mutableStateOf(initialHomepage)
+    var homepageDesign by mutableStateOf(initialHomepageDesign)
+    var homepageShowFavorites by mutableStateOf(initialHomepageShowFavorites)
+    var homepageShowRecent by mutableStateOf(initialHomepageShowRecent)
     var searchEngine by mutableStateOf(initialSearchEngine)
     var customSearchEngineName by mutableStateOf(initialCustomSearchEngineName)
     var customSearchEngineUrl by mutableStateOf(initialCustomSearchEngineUrl)
@@ -40,6 +48,8 @@ class BrowserSettingsUiState(
     var customSslWarnings by mutableStateOf(initialCustomSslWarnings)
     var customDateTimePickers by mutableStateOf(initialCustomDateTimePickers)
     var customColorPicker by mutableStateOf(initialCustomColorPicker)
+    var homepageDialogOpen by mutableStateOf(false)
+    var homepageDesignDialogOpen by mutableStateOf(false)
     var searchEngineDialogOpen by mutableStateOf(false)
     var searchSuggestionsApiDialogOpen by mutableStateOf(false)
 }

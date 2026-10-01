@@ -1,4 +1,9 @@
 package com.jhaiian.clint.settings.browser
+import com.jhaiian.clint.browser.home.HOMEPAGE_SEARCH_ENGINE
+import com.jhaiian.clint.browser.home.HOMEPAGE_CLINT
+import com.jhaiian.clint.browser.home.HOMEPAGE_DESIGN_GRADIENT
+import com.jhaiian.clint.browser.home.HOMEPAGE_DESIGN_IMAGE
+import com.jhaiian.clint.browser.home.HOMEPAGE_DESIGN_PLAIN
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -212,6 +217,101 @@ fun SearchSuggestionsApiDialog(
                     contentDescription = stringResource(R.string.action_edit),
                     tint = colors.iconTint
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun HomepageDialog(
+    current: String,
+    hideStatusBar: Boolean, hideSystemNavigation: Boolean,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val colors = LocalClintColors.current
+    var selected by remember(current) { mutableStateOf(current) }
+
+    ClintDialog(
+        title = stringResource(R.string.choose_homepage),
+        hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation,
+        onDismiss = onDismiss,
+        footer = {
+            Row(Modifier.fillMaxWidth().padding(end = 12.dp, bottom = 8.dp), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(android.R.string.cancel), color = colors.primary, fontWeight = FontWeight.Medium)
+                }
+                TextButton(onClick = { onConfirm(selected) }) {
+                    Text(stringResource(android.R.string.ok), color = colors.primary, fontWeight = FontWeight.Medium)
+                }
+            }
+        }
+    ) {
+        data class HomepageOption(val key: String, val titleRes: Int, val descRes: Int, val showDefault: Boolean)
+        listOf(
+            HomepageOption(HOMEPAGE_CLINT, R.string.homepage_clint, R.string.homepage_clint_desc, true),
+            HomepageOption(HOMEPAGE_SEARCH_ENGINE, R.string.homepage_search_engine, R.string.homepage_search_engine_desc, false)
+        ).forEach { option ->
+            val sel = selected == option.key
+            SelectableCard(
+                selected = sel, onClick = { selected = option.key },
+                cardBackground = colors.surfaceVariant, primary = colors.primary,
+                contentPadding = SettingsPickerOptionContentPadding, bottomSpacing = SettingsPickerOptionBottomSpacing
+            ) {
+                ClintRadioButton(selected = sel)
+                Column(Modifier.weight(1f).padding(start = 12.dp, end = 8.dp)) {
+                    Text(stringResource(option.titleRes), color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                    Text(stringResource(option.descRes), color = colors.secondaryText, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp))
+                }
+                if (option.showDefault) DefaultChip(stringResource(R.string.default_label), colors.primary)
+            }
+        }
+    }
+}
+
+@Composable
+fun HomepageDesignDialog(
+    current: String,
+    hideStatusBar: Boolean, hideSystemNavigation: Boolean,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val colors = LocalClintColors.current
+    var selected by remember(current) { mutableStateOf(current) }
+
+    ClintDialog(
+        title = stringResource(R.string.choose_homepage_design),
+        hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation,
+        onDismiss = onDismiss,
+        footer = {
+            Row(Modifier.fillMaxWidth().padding(end = 12.dp, bottom = 8.dp), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(android.R.string.cancel), color = colors.primary, fontWeight = FontWeight.Medium)
+                }
+                TextButton(onClick = { onConfirm(selected) }) {
+                    Text(stringResource(android.R.string.ok), color = colors.primary, fontWeight = FontWeight.Medium)
+                }
+            }
+        }
+    ) {
+        data class DesignOption(val key: String, val titleRes: Int, val descRes: Int, val showDefault: Boolean)
+        listOf(
+            DesignOption(HOMEPAGE_DESIGN_PLAIN, R.string.homepage_design_plain, R.string.homepage_design_plain_desc, true),
+            DesignOption(HOMEPAGE_DESIGN_GRADIENT, R.string.homepage_design_gradient, R.string.homepage_design_gradient_desc, false),
+            DesignOption(HOMEPAGE_DESIGN_IMAGE, R.string.homepage_design_image, R.string.homepage_design_image_desc, false)
+        ).forEach { option ->
+            val sel = selected == option.key
+            SelectableCard(
+                selected = sel, onClick = { selected = option.key },
+                cardBackground = colors.surfaceVariant, primary = colors.primary,
+                contentPadding = SettingsPickerOptionContentPadding, bottomSpacing = SettingsPickerOptionBottomSpacing
+            ) {
+                ClintRadioButton(selected = sel)
+                Column(Modifier.weight(1f).padding(start = 12.dp, end = 8.dp)) {
+                    Text(stringResource(option.titleRes), color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                    Text(stringResource(option.descRes), color = colors.secondaryText, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp))
+                }
+                if (option.showDefault) DefaultChip(stringResource(R.string.default_label), colors.primary)
             }
         }
     }

@@ -16,7 +16,7 @@
     <string name="downloading">Descargando\u2026</string>
     <string name="privacy_settings">Privacidad y seguridad</string>
     <string name="browser_settings">Navegador</string>
-    <string name="browser_settings_summary">Motor de búsqueda, JavaScript y bloqueador de contenido</string>
+    <string name="browser_settings_summary">Página de inicio, búsqueda, scripts, bloqueador de contenido y ventanas personalizadas</string>
     <string name="pref_category_appearance">Apariencia</string>
     <string name="pref_category_layout">Diseño</string>
     <string name="pref_category_search">Búsqueda</string>
@@ -161,7 +161,7 @@
     <string name="default_browser_title">Navegador predeterminado</string>
     <string name="default_browser_none">Ninguno</string>
     <string name="look_and_feel">Aspecto</string>
-    <string name="look_and_feel_summary">Temas, colores, pantalla y comportamiento al salir</string>
+    <string name="look_and_feel_summary">Idioma, tema, diseño y navegación</string>
     <string name="pref_language_title">Idioma</string>
     <string name="language_system">Sistema</string>
     <string name="language_system_desc">Usa el idioma de tu dispositivo; si no está disponible, se usará el inglés</string>
@@ -202,7 +202,7 @@
     <string name="menu_customization_reset_action">Restablecer</string>
     <string name="pref_updates_title">Actualizaciones</string>
     <string name="download_settings_title">Descargas</string>
-    <string name="download_settings_summary">Ubicación de descarga, notificaciones y comportamiento</string>
+    <string name="download_settings_summary">Ubicación, programación, límite de velocidad, reintentos y notificaciones</string>
     <string name="download_section_manager">GESTOR DE DESCARGAS</string>
     <string name="download_manager_title">Gestor de descargas</string>
     <string name="download_manager_summary">Elige qué app gestiona las nuevas descargas</string>
@@ -798,7 +798,7 @@
     <string name="surface_intensity_amoled_no_tint_dark_desc">Superficies negro puro, solo con botones e íconos del color de acento</string>
     <string name="surface_intensity_amoled_no_tint_light_desc">Superficies blanco puro, solo con botones e íconos del color de acento</string>
     <string name="pref_misc_title">Otros</string>
-    <string name="pref_misc_summary">Navegador predeterminado y otras utilidades</string>
+    <string name="pref_misc_summary">Navegador predeterminado y asistente de configuración</string>
     <string name="pref_rerun_setup_title">Repetir el asistente de configuración</string>
     <string name="pref_rerun_setup_summary">Reinicia el proceso de configuración inicial</string>
     <string name="rerun_setup_confirm_title">¿Repetir el asistente de configuración?</string>
@@ -1000,7 +1000,7 @@
     <string name="history_all_cleared">Historial borrado</string>
 
     <string name="site_settings">Configuración del sitio</string>
-    <string name="site_settings_summary">Cámara, micrófono, ubicación, notificaciones y modo escritorio</string>
+    <string name="site_settings_summary">Permisos, abrir en la app, modo escritorio y Quiver Guard</string>
     <string name="site_settings_camera">Cámara</string>
     <string name="site_settings_mic">Micrófono</string>
     <string name="site_settings_location">Ubicación</string>
@@ -1617,4 +1617,34 @@
     <string name="open_in_app_mode_open">Abrir siempre</string>
     <string name="open_in_app_mode_open_desc">Abre los enlaces directamente en su app sin preguntar</string>
     <string name="open_in_app_dont_ask_again">No volver a preguntar</string>
+    <string name="homepage_title">Página de inicio</string>
+    <string name="homepage_clint">Página de inicio de Clint</string>
+    <string name="homepage_clint_desc">Una página de inicio limpia con tus favoritos y accesos directos</string>
+    <string name="homepage_search_engine">Página de inicio del buscador</string>
+    <string name="homepage_search_engine_desc">Abre la página de inicio del buscador que elegiste</string>
+    <string name="choose_homepage">Elegir página de inicio</string>
+    <string name="pref_category_homepage">Página de inicio</string>
+    <string name="homepage_design_title">Diseño de la página de inicio</string>
+    <string name="choose_homepage_design">Elegir diseño de la página de inicio</string>
+    <string name="homepage_design_gradient">Degradado</string>
+    <string name="homepage_design_gradient_desc">Un suave degradado de color en la parte superior de la página</string>
+    <string name="homepage_design_plain">Color liso</string>
+    <string name="homepage_design_plain_desc">Un fondo sólido, sin efectos de degradado</string>
+    <string name="homepage_design_image">Imagen personalizada</string>
+    <string name="homepage_design_image_desc">Usa tu propia foto, suavizada para que todo se lea bien</string>
+    <string name="homepage_image_title">Imagen de la página de inicio</string>
+    <string name="homepage_image_summary">Toca para elegir otra foto</string>
+    <string name="homepage_show_favorites_title">Mostrar favoritos</string>
+    <string name="homepage_show_favorites_summary">Muestra tus marcadores en la página de inicio de Clint</string>
+    <string name="homepage_show_recent_title">Mostrar visitados recientemente</string>
+    <string name="homepage_show_recent_summary">Muestra los sitios que visitaste hace poco en la página de inicio de Clint</string>
+    <string name="homepage_image_error">No se pudo usar esa imagen. Prueba con otra.</string>
+    <string name="home_greeting_morning">Buenos días</string>
+    <string name="home_greeting_afternoon">Buenas tardes</string>
+    <string name="home_greeting_evening">Buenas noches</string>
+    <string name="home_favorites">Favoritos</string>
+    <string name="home_recent">Visitados recientemente</string>
+    <string name="home_favorites_empty">Guarda tus sitios favoritos en marcadores y aparecerán aquí</string>
+    <string name="home_incognito_message">Las páginas que visites en incógnito no se guardarán en tu historial</string>
+    <string name="home_normal_mode">Normal</string>
 </resources>

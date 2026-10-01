@@ -24,6 +24,6 @@ internal fun MainActivity.dismissWebsiteBlockedOverlay() {
     if (tab.webView.canGoBack()) {
         tab.webView.goBack()
     } else {
-        tab.webView.loadUrl(getSearchEngineHomeUrl())
+        tab.webView.loadUrl(getHomepageUrl())
     }
 }

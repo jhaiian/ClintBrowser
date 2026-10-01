@@ -66,8 +66,8 @@ object SitePermissionManager {
         val key = normalizeOrigin(origin)
         db(context).writableDatabase.delete(
             SitePermissionDatabase.TABLE,
-            "${SitePermissionDatabase.COL_ORIGIN} = ? AND ${SitePermissionDatabase.COL_TYPE} = ?",
-            arrayOf(key, type)
+            "${SitePermissionDatabase.COL_ORIGIN} IN (?, ?) AND ${SitePermissionDatabase.COL_TYPE} = ?",
+            arrayOf(key, origin, type)
         )
     }
 }

@@ -45,8 +45,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -222,7 +225,9 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
                                 is TabMenuItem.SectionHeader -> TabMenuSectionHeader(isIncognitoSection = item.isIncognitoSection)
                                 is TabMenuItem.Tab -> {
                                     val preview = item.preview
-                                    val thumbnail = remember(preview.id) { TabThumbnailCache.get(activity, preview.id) }
+                                    val thumbnail by produceState(TabThumbnailCache.peek(preview.id), preview.id) {
+                                        if (value == null) value = withContext(Dispatchers.IO) { TabThumbnailCache.get(activity, preview.id) }
+                                    }
                                     val isDragging = dragState.draggingId == preview.id
                                     val ghostAlpha by animateFloatAsState(if (isDragging) 0.25f else 1f, label = "ghostAlpha")
                                     TabMenuCard(
@@ -255,7 +260,9 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
                 if (draggedId != null) {
                     val draggedPreview = tabs.find { it.id == draggedId }
                     if (draggedPreview != null) {
-                        val thumbnail = remember(draggedPreview.id) { TabThumbnailCache.get(activity, draggedPreview.id) }
+                        val thumbnail by produceState(TabThumbnailCache.peek(draggedPreview.id), draggedPreview.id) {
+                            if (value == null) value = withContext(Dispatchers.IO) { TabThumbnailCache.get(activity, draggedPreview.id) }
+                        }
                         val offsetX = with(density) { (dragState.originOffset.x + dragState.dragOffset.x).toDp() }
                         val offsetY = with(density) { (dragState.originOffset.y + dragState.dragOffset.y).toDp() }
                         val cardWidth = with(density) { dragState.originSize.width.toDp() }

@@ -1,4 +1,5 @@
 package com.jhaiian.clint.browser
+import com.jhaiian.clint.browser.home.ClintHomeScreen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -94,6 +95,20 @@ internal fun MainScreen(activity: MainActivity, state: MainUiState) {
             }
         )
 
+        if (state.isHomePage && !state.isFullscreen) {
+            val homeBottomExtraPx = if (state.addressBarPosition == AddressBarPosition.TOP) effectiveNavBarPx else 0
+            ClintHomeScreen(
+                activity = activity,
+                state = state,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        top = with(density) { state.contentPaddingTopPx.toDp() },
+                        bottom = with(density) { (state.contentPaddingBottomPx + homeBottomExtraPx).toDp() }
+                    )
+            )
+        }
+
         val openTabSwitcher: () -> Unit = {
             activity.captureActiveTabThumbnail()
             tabMenuStyle = activity.prefs.getString("tab_menu_style", "grid") ?: "grid"
@@ -152,9 +167,7 @@ internal fun MainScreen(activity: MainActivity, state: MainUiState) {
                     )
                 ),
                 suggestions = state.suggestions,
-                voiceResult = state.voiceResult,
                 statusBarPaddingPx = effectiveStatusBarPx,
-                onVoiceResultConsumed = { state.voiceResult = null },
                 onQueryChange = { activity.onSearchQueryChanged(it) },
                 onSubmit = { activity.onSearchSubmitted(it) },
                 onVoiceSearch = { activity.handleVoiceSearchTap() },
@@ -431,7 +444,7 @@ private fun androidx.compose.foundation.layout.RowScope.NavIconButton(
 }
 
 @Composable
-private fun engineDisplayName(engine: String, customName: String): String = when (engine) {
+internal fun engineDisplayName(engine: String, customName: String): String = when (engine) {
     "brave" -> stringResource(R.string.engine_brave)
     "ecosia" -> stringResource(R.string.engine_ecosia)
     "google" -> stringResource(R.string.engine_google)

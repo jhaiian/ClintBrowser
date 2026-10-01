@@ -107,6 +107,13 @@ internal fun AddressBarRow(
         val items by com.jhaiian.clint.mediacapture.MediaCaptureStore.observe(activeTabId).collectAsState()
         items.size
     } else 0
+    val addressBarHint = stringResource(
+        R.string.search_bar_hint,
+        engineDisplayName(
+            activity.prefs.getString("search_engine", "duckduckgo") ?: "duckduckgo",
+            customSearchEngineName(activity.prefs)
+        )
+    )
     var dragOffset by remember { mutableFloatStateOf(0f) }
     var swipeDirection by remember { mutableIntStateOf(0) }
     val swipeThresholdPx = with(density) { 56.dp.toPx() }
@@ -167,7 +174,7 @@ internal fun AddressBarRow(
                     .graphicsLayer { translationX = dragOffset }
             ) {
                 Icon(
-                    imageVector = if (isSecure) androidx.compose.material.icons.Icons.Filled.Lock else androidx.compose.material.icons.Icons.Filled.LockOpen,
+                    imageVector = if (addressBarText.isEmpty()) androidx.compose.material.icons.Icons.Filled.Search else if (isSecure) androidx.compose.material.icons.Icons.Filled.Lock else androidx.compose.material.icons.Icons.Filled.LockOpen,
                     contentDescription = null,
                     tint = colors.iconTint,
                     modifier = Modifier.size(20.dp)
@@ -188,8 +195,8 @@ internal fun AddressBarRow(
                     modifier = Modifier.padding(start = 12.dp).weight(1f)
                 ) { text ->
                     Text(
-                        text = text,
-                        color = colors.onSurface,
+                        text = text.ifEmpty { addressBarHint },
+                        color = if (text.isEmpty()) colors.secondaryText else colors.onSurface,
                         fontSize = 16.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -269,9 +276,7 @@ internal fun SearchOverlay(
     isBottom: Boolean,
     hint: String,
     suggestions: List<SuggestionItem>,
-    voiceResult: String?,
     statusBarPaddingPx: Int,
-    onVoiceResultConsumed: () -> Unit,
     onQueryChange: (String) -> Unit,
     onSubmit: (String) -> Unit,
     onVoiceSearch: () -> Unit,
@@ -313,13 +318,6 @@ internal fun SearchOverlay(
         if (!insertedAutoSpace) return new
         val fixedText = newText.removeRange(cursor - 1, cursor)
         return TextFieldValue(fixedText, TextRange(fixedText.length))
-    }
-
-    LaunchedEffect(voiceResult) {
-        if (voiceResult != null) {
-            fill(voiceResult)
-            onVoiceResultConsumed()
-        }
     }
 
     val fieldRow = @Composable {

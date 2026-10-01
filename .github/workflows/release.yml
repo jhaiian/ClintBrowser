@@ -73,7 +73,7 @@ jobs:
 
       - name: Cache Gradle Wrapper JAR
         id: cache-wrapper-jar
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: gradle/wrapper/gradle-wrapper.jar
           key: gradle-wrapper-jar-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
@@ -236,7 +236,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub Release and upload APKs
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.info.outputs.tag }}
           name: "ClintBrowser ${{ steps.info.outputs.version }} (${{ steps.info.outputs.release_label }})"

@@ -16,7 +16,7 @@
     <string name="downloading">Загрузка\u2026</string>
     <string name="privacy_settings">Конфиденциальность и безопасность</string>
     <string name="browser_settings">Браузер</string>
-    <string name="browser_settings_summary">Поисковая система, JavaScript и блокировщик контента</string>
+    <string name="browser_settings_summary">Домашняя страница, поиск, скрипты, блокировщик контента и диалоги браузера</string>
     <string name="pref_category_appearance">Внешний вид</string>
     <string name="pref_category_layout">Расположение</string>
     <string name="pref_category_search">Поиск</string>
@@ -161,7 +161,7 @@
     <string name="default_browser_title">Браузер по умолчанию</string>
     <string name="default_browser_none">Нет</string>
     <string name="look_and_feel">Внешний вид</string>
-    <string name="look_and_feel_summary">Темы, цвета, отображение и поведение при выходе</string>
+    <string name="look_and_feel_summary">Язык, тема, расположение элементов и навигация</string>
     <string name="pref_language_title">Язык</string>
     <string name="language_system">Системный</string>
     <string name="language_system_desc">Соответствует языку устройства, с переходом на английский, если он не поддерживается</string>
@@ -203,7 +203,7 @@
     <string name="menu_customization_reset_action">Сбросить</string>
     <string name="pref_updates_title">Обновления</string>
     <string name="download_settings_title">Загрузки</string>
-    <string name="download_settings_summary">Место сохранения, уведомления и поведение загрузок</string>
+    <string name="download_settings_summary">Место сохранения, расписание, ограничение скорости, повторные попытки и уведомления</string>
     <string name="download_section_manager">МЕНЕДЖЕР ЗАГРУЗОК</string>
     <string name="download_manager_title">Менеджер загрузок</string>
     <string name="download_manager_summary">Выберите приложение для обработки новых загрузок</string>
@@ -799,7 +799,7 @@
     <string name="surface_intensity_amoled_no_tint_dark_desc">Истинно чёрные поверхности, акцентный цвет только у кнопок и значков</string>
     <string name="surface_intensity_amoled_no_tint_light_desc">Чисто белые поверхности, акцентный цвет только у кнопок и значков</string>
     <string name="pref_misc_title">Разное</string>
-    <string name="pref_misc_summary">Браузер по умолчанию и прочие утилиты</string>
+    <string name="pref_misc_summary">Браузер по умолчанию и мастер настройки</string>
     <string name="pref_rerun_setup_title">Повторить мастер настройки</string>
     <string name="pref_rerun_setup_summary">Перезапустить процесс первоначальной настройки</string>
     <string name="rerun_setup_confirm_title">Повторить мастер настройки?</string>
@@ -1001,7 +1001,7 @@
     <string name="history_all_cleared">История очищена</string>
 
     <string name="site_settings">Настройки сайта</string>
-    <string name="site_settings_summary">Камера, микрофон, геолокация, уведомления и режим ПК</string>
+    <string name="site_settings_summary">Разрешения, открытие в приложении, режим ПК и Quiver Guard</string>
     <string name="site_settings_camera">Камера</string>
     <string name="site_settings_mic">Микрофон</string>
     <string name="site_settings_location">Геолокация</string>
@@ -1632,4 +1632,34 @@
     <string name="open_in_app_mode_open">Всегда открывать</string>
     <string name="open_in_app_mode_open_desc">Сразу открывать ссылки в их приложениях без запроса</string>
     <string name="open_in_app_dont_ask_again">Больше не спрашивать</string>
+    <string name="homepage_title">Домашняя страница</string>
+    <string name="homepage_clint">Домашняя страница Clint</string>
+    <string name="homepage_clint_desc">Чистая стартовая страница с избранным и быстрыми ссылками</string>
+    <string name="homepage_search_engine">Домашняя страница поисковика</string>
+    <string name="homepage_search_engine_desc">Открывать главную страницу выбранной поисковой системы</string>
+    <string name="choose_homepage">Выбор домашней страницы</string>
+    <string name="pref_category_homepage">Домашняя страница</string>
+    <string name="homepage_design_title">Оформление домашней страницы</string>
+    <string name="choose_homepage_design">Выбор оформления домашней страницы</string>
+    <string name="homepage_design_gradient">Градиент</string>
+    <string name="homepage_design_gradient_desc">Мягкий цветовой переход в верхней части страницы</string>
+    <string name="homepage_design_plain">Однотонный</string>
+    <string name="homepage_design_plain_desc">Сплошной фон без градиентных эффектов</string>
+    <string name="homepage_design_image">Своё изображение</string>
+    <string name="homepage_design_image_desc">Ваше собственное фото, слегка приглушённое, чтобы всё хорошо читалось</string>
+    <string name="homepage_image_title">Изображение домашней страницы</string>
+    <string name="homepage_image_summary">Нажмите, чтобы выбрать другое фото</string>
+    <string name="homepage_show_favorites_title">Показывать избранное</string>
+    <string name="homepage_show_favorites_summary">Закладки на домашней странице Clint</string>
+    <string name="homepage_show_recent_title">Показывать недавно посещённые</string>
+    <string name="homepage_show_recent_summary">Сайты, которые вы недавно открывали, на домашней странице Clint</string>
+    <string name="homepage_image_error">Не удалось использовать это изображение. Попробуйте другое.</string>
+    <string name="home_greeting_morning">Доброе утро</string>
+    <string name="home_greeting_afternoon">Добрый день</string>
+    <string name="home_greeting_evening">Добрый вечер</string>
+    <string name="home_favorites">Избранное</string>
+    <string name="home_recent">Недавно посещённые</string>
+    <string name="home_favorites_empty">Добавляйте любимые сайты в закладки, и они появятся здесь</string>
+    <string name="home_incognito_message">Страницы, открытые в режиме инкогнито, не сохраняются в истории</string>
+    <string name="home_normal_mode">Обычный</string>
 </resources>

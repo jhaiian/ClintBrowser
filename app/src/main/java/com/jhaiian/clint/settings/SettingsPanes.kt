@@ -1,4 +1,13 @@
 package com.jhaiian.clint.settings
+import com.jhaiian.clint.browser.home.PREF_HOMEPAGE
+import com.jhaiian.clint.browser.home.HOMEPAGE_CLINT
+import com.jhaiian.clint.browser.home.PREF_HOMEPAGE_DESIGN
+import com.jhaiian.clint.browser.home.HOMEPAGE_DESIGN_GRADIENT
+import com.jhaiian.clint.browser.home.HOMEPAGE_DESIGN_IMAGE
+import com.jhaiian.clint.browser.home.PREF_HOMEPAGE_IMAGE_VERSION
+import com.jhaiian.clint.browser.home.homepageImageFile
+import com.jhaiian.clint.browser.home.readHomepageDesign
+import com.jhaiian.clint.browser.home.saveHomepageBackground
 
 import android.app.Activity
 import android.app.role.RoleManager
@@ -291,6 +300,10 @@ fun BrowserSettingsPane(activity: SettingsActivity) {
     val prefs = remember { PreferenceManager.getDefaultSharedPreferences(activity) }
     val uiState = remember {
         BrowserSettingsUiState(
+            initialHomepage = prefs.getString(PREF_HOMEPAGE, HOMEPAGE_CLINT) ?: HOMEPAGE_CLINT,
+            initialHomepageDesign = readHomepageDesign(activity, prefs),
+            initialHomepageShowFavorites = prefs.getBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_SHOW_FAVORITES, true),
+            initialHomepageShowRecent = prefs.getBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_SHOW_RECENT, true),
             initialSearchEngine = prefs.getString("search_engine", "duckduckgo") ?: "duckduckgo",
             initialCustomSearchEngineName = com.jhaiian.clint.browser.customSearchEngineName(prefs),
             initialCustomSearchEngineUrl = com.jhaiian.clint.browser.customSearchEngineUrlTemplate(prefs),
@@ -313,6 +326,10 @@ fun BrowserSettingsPane(activity: SettingsActivity) {
     var confirmDialog by remember { mutableStateOf<ConfirmDialogConfig?>(null) }
 
     OnResume {
+        uiState.homepage = prefs.getString(PREF_HOMEPAGE, HOMEPAGE_CLINT) ?: HOMEPAGE_CLINT
+        uiState.homepageDesign = readHomepageDesign(activity, prefs)
+        uiState.homepageShowFavorites = prefs.getBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_SHOW_FAVORITES, true)
+        uiState.homepageShowRecent = prefs.getBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_SHOW_RECENT, true)
         uiState.searchEngine = prefs.getString("search_engine", "duckduckgo") ?: "duckduckgo"
         uiState.customSearchEngineName = com.jhaiian.clint.browser.customSearchEngineName(prefs)
         uiState.customSearchEngineUrl = com.jhaiian.clint.browser.customSearchEngineUrlTemplate(prefs)
@@ -330,6 +347,60 @@ fun BrowserSettingsPane(activity: SettingsActivity) {
         uiState.customSslWarnings = prefs.getBoolean("custom_ssl_warnings_enabled", true)
         uiState.customDateTimePickers = prefs.getBoolean("custom_date_time_pickers_enabled", true)
         uiState.customColorPicker = prefs.getBoolean("custom_color_picker_enabled", true)
+    }
+
+    fun onHomepageConfirmed(selected: String) {
+        prefs.edit().putString(PREF_HOMEPAGE, selected).apply()
+        uiState.homepage = selected
+        uiState.homepageDialogOpen = false
+    }
+
+    val scope = rememberCoroutineScope()
+    val homepageImagePicker = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            scope.launch {
+                val saved = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { saveHomepageBackground(activity, uri) }
+                if (saved) {
+                    prefs.edit()
+                        .putString(PREF_HOMEPAGE_DESIGN, HOMEPAGE_DESIGN_IMAGE)
+                        .putLong(PREF_HOMEPAGE_IMAGE_VERSION, System.currentTimeMillis())
+                        .apply()
+                    uiState.homepageDesign = HOMEPAGE_DESIGN_IMAGE
+                } else {
+                    android.widget.Toast.makeText(activity, R.string.homepage_image_error, android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    fun launchHomepageImagePicker() {
+        homepageImagePicker.launch(
+            androidx.activity.result.PickVisualMediaRequest(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly)
+        )
+    }
+
+    fun onHomepageDesignConfirmed(selected: String) {
+        uiState.homepageDesignDialogOpen = false
+        if (selected == HOMEPAGE_DESIGN_IMAGE && !homepageImageFile(activity).exists()) {
+            launchHomepageImagePicker()
+            return
+        }
+        prefs.edit().putString(PREF_HOMEPAGE_DESIGN, selected).apply()
+        uiState.homepageDesign = selected
+    }
+
+    fun onHomepageShowFavoritesClicked() {
+        val newValue = !uiState.homepageShowFavorites
+        prefs.edit().putBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_SHOW_FAVORITES, newValue).apply()
+        uiState.homepageShowFavorites = newValue
+    }
+
+    fun onHomepageShowRecentClicked() {
+        val newValue = !uiState.homepageShowRecent
+        prefs.edit().putBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_SHOW_RECENT, newValue).apply()
+        uiState.homepageShowRecent = newValue
     }
 
     fun confirmEngine(engine: String) {
@@ -461,6 +532,11 @@ fun BrowserSettingsPane(activity: SettingsActivity) {
 
     BrowserSettingsScreen(
         state = uiState,
+        onHomepageConfirmed = ::onHomepageConfirmed,
+        onHomepageDesignConfirmed = ::onHomepageDesignConfirmed,
+        onHomepageImageRowClicked = ::launchHomepageImagePicker,
+        onHomepageShowFavoritesClicked = ::onHomepageShowFavoritesClicked,
+        onHomepageShowRecentClicked = ::onHomepageShowRecentClicked,
         onSearchEngineConfirmed = ::onSearchEngineConfirmed,
         onCustomSearchEngineSaved = ::onCustomSearchEngineSaved,
         onSearchSuggestionsApiConfirmed = ::onSearchSuggestionsApiConfirmed,

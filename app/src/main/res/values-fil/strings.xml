@@ -16,7 +16,7 @@
     <string name="downloading">Dina-download\u2026</string>
     <string name="privacy_settings">Privacy &amp; Seguridad</string>
     <string name="browser_settings">Browser</string>
-    <string name="browser_settings_summary">Search engine, JavaScript, at content blocker</string>
+    <string name="browser_settings_summary">Homepage, search, script, content blocker, at custom prompt</string>
     <string name="pref_category_appearance">Hitsura</string>
     <string name="pref_category_layout">Layout</string>
     <string name="pref_category_search">Paghahanap</string>
@@ -161,7 +161,7 @@
     <string name="default_browser_title">Default na Browser</string>
     <string name="default_browser_none">Wala</string>
     <string name="look_and_feel">Hitsura</string>
-    <string name="look_and_feel_summary">Mga tema, kulay, display, at exit behavior</string>
+    <string name="look_and_feel_summary">Wika, tema, layout, at navigation</string>
     <string name="pref_language_title">Wika</string>
     <string name="language_system">Sistema</string>
     <string name="language_system_desc">Susundan ang wika ng device mo; English ang gagamitin kung hindi ito suportado</string>
@@ -202,7 +202,7 @@
     <string name="menu_customization_reset_action">I-reset</string>
     <string name="pref_updates_title">Mga Update</string>
     <string name="download_settings_title">Mga Download</string>
-    <string name="download_settings_summary">Lokasyon ng download, notification, at behavior</string>
+    <string name="download_settings_summary">Lokasyon, iskedyul, speed limit, retry, at notification</string>
     <string name="download_section_manager">DOWNLOAD MANAGER</string>
     <string name="download_manager_title">Download Manager</string>
     <string name="download_manager_summary">Piliin kung aling app ang hahawak sa mga bagong download</string>
@@ -798,7 +798,7 @@
     <string name="surface_intensity_amoled_no_tint_dark_desc">Purong itim na surface, accent color lang sa mga button at icon</string>
     <string name="surface_intensity_amoled_no_tint_light_desc">Purong puting surface, accent color lang sa mga button at icon</string>
     <string name="pref_misc_title">Miscellaneous</string>
-    <string name="pref_misc_summary">Default na browser at iba pang utility</string>
+    <string name="pref_misc_summary">Default na browser at setup wizard</string>
     <string name="pref_rerun_setup_title">Ulitin ang Setup Wizard</string>
     <string name="pref_rerun_setup_summary">Ulitin ang unang setup ng app</string>
     <string name="rerun_setup_confirm_title">Ulitin ang Setup Wizard?</string>
@@ -1000,7 +1000,7 @@
     <string name="history_all_cleared">Nabura ang history</string>
 
     <string name="site_settings">Mga Setting ng Site</string>
-    <string name="site_settings_summary">Camera, microphone, lokasyon, notification, at desktop mode</string>
+    <string name="site_settings_summary">Mga permiso, open in app, desktop mode, at Quiver Guard</string>
     <string name="site_settings_camera">Camera</string>
     <string name="site_settings_mic">Microphone</string>
     <string name="site_settings_location">Lokasyon</string>
@@ -1610,4 +1610,34 @@
     <string name="open_in_app_mode_open">Laging buksan</string>
     <string name="open_in_app_mode_open_desc">Buksan agad ang mga link sa kanilang app nang hindi nagtatanong</string>
     <string name="open_in_app_dont_ask_again">Huwag nang itanong ulit</string>
+    <string name="homepage_title">Homepage</string>
+    <string name="homepage_clint">Homepage ng Clint</string>
+    <string name="homepage_clint_desc">Malinis na panimulang pahina na may mga paborito at shortcut mo</string>
+    <string name="homepage_search_engine">Homepage ng Search Engine</string>
+    <string name="homepage_search_engine_desc">Buksan ang homepage ng napili mong search engine</string>
+    <string name="choose_homepage">Pumili ng homepage</string>
+    <string name="pref_category_homepage">Homepage</string>
+    <string name="homepage_design_title">Disenyo ng Homepage</string>
+    <string name="choose_homepage_design">Pumili ng disenyo ng homepage</string>
+    <string name="homepage_design_gradient">Gradient</string>
+    <string name="homepage_design_gradient_desc">Banayad na paglipat ng kulay sa itaas ng pahina</string>
+    <string name="homepage_design_plain">Payak na kulay</string>
+    <string name="homepage_design_plain_desc">Solidong background na walang gradient</string>
+    <string name="homepage_design_image">Sariling Larawan</string>
+    <string name="homepage_design_image_desc">Gamitin ang sarili mong larawan, pinalambot para madaling mabasa ang lahat</string>
+    <string name="homepage_image_title">Larawan ng Homepage</string>
+    <string name="homepage_image_summary">I-tap para pumili ng ibang larawan</string>
+    <string name="homepage_show_favorites_title">Ipakita ang mga paborito</string>
+    <string name="homepage_show_favorites_summary">Ipakita ang iyong mga bookmark sa homepage ng Clint</string>
+    <string name="homepage_show_recent_title">Ipakita ang kamakailang binisita</string>
+    <string name="homepage_show_recent_summary">Ipakita ang mga site na kamakailan mong binisita sa homepage ng Clint</string>
+    <string name="homepage_image_error">Hindi magamit ang larawang iyon. Subukan ang iba.</string>
+    <string name="home_greeting_morning">Magandang umaga</string>
+    <string name="home_greeting_afternoon">Magandang hapon</string>
+    <string name="home_greeting_evening">Magandang gabi</string>
+    <string name="home_favorites">Mga paborito</string>
+    <string name="home_recent">Kamakailang binisita</string>
+    <string name="home_favorites_empty">I-bookmark ang mga paborito mong site at lalabas ang mga ito rito</string>
+    <string name="home_incognito_message">Hindi mase-save sa history mo ang mga pahinang bibisitahin mo sa Incognito</string>
+    <string name="home_normal_mode">Normal</string>
 </resources>

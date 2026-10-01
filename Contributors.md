@@ -24,3 +24,5 @@
 - [@iHarryPotter178](https://github.com/iHarryPotter178)
 - [@reviewlord](https://github.com/reviewlord)
 - [@ran-some](https://github.com/ran-some)
+- [@anonymous-shanks](https://github.com/anonymous-shanks)
+

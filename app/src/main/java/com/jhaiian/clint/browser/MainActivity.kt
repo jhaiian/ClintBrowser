@@ -1,4 +1,6 @@
 package com.jhaiian.clint.browser
+import com.jhaiian.clint.browser.home.CLINT_HOME_HOST
+import com.jhaiian.clint.browser.home.isClintHomeUrl
 import com.jhaiian.clint.browser.delegates.*
 import com.jhaiian.clint.browser.sheets.*
 import com.jhaiian.clint.browser.suggestions.*
@@ -84,7 +86,9 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
 
     internal lateinit var prefs: SharedPreferences
     internal val tabManager = TabManager()
-    internal var isDesktopMode = false
+    internal var isDesktopMode: Boolean
+        get() = uiState.isDesktopMode
+        set(value) { uiState.isDesktopMode = value }
     internal var desktopModeHost: String? = null
     internal var autoDesktopPendingReload: String? = null
     internal val desktopScriptHandlers = mutableMapOf<String, ScriptHandler>()
@@ -244,7 +248,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
     ) { result ->
         if (result.resultCode == android.app.Activity.RESULT_OK) {
             val matches = result.data?.getStringArrayListExtra(android.speech.RecognizerIntent.EXTRA_RESULTS)
-            matches?.firstOrNull()?.let { uiState.voiceResult = it }
+            matches?.firstOrNull()?.takeIf { it.isNotBlank() }?.let { onSearchSubmitted(it) }
         }
     }
 
@@ -390,9 +394,9 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
             if (downloadId != -1) {
                 restoreTabs()
                 refreshLinkSession = RefreshLinkSession(downloadId, filename, originalUrl, originalReferer, tabManager.activeIndex)
-                openRefreshLinkTab(originalReferer.ifEmpty { originalUrl.ifEmpty { getSearchEngineHomeUrl() } })
+                openRefreshLinkTab(originalReferer.ifEmpty { originalUrl.ifEmpty { getHomepageUrl() } })
             } else if (!restoreTabs()) {
-                openNewTab(isIncognito = false, url = getSearchEngineHomeUrl())
+                openNewTab(isIncognito = false, url = getHomepageUrl())
             }
         } else if (shortcutId != null) {
             val fallbackUrl = getUrlFromIntent(intent)
@@ -406,7 +410,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
                 restoreTabs()
                 openNewTab(isIncognito = false, url = intentUrl)
             } else if (!restoreTabs()) {
-                openNewTab(isIncognito = false, url = getSearchEngineHomeUrl())
+                openNewTab(isIncognito = false, url = getHomepageUrl())
             }
         }
         setupBackPressedDispatcher()
@@ -426,7 +430,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
             setIntent(android.content.Intent())
             if (downloadId != -1) {
                 refreshLinkSession = RefreshLinkSession(downloadId, filename, originalUrl, originalReferer, tabManager.activeIndex)
-                openRefreshLinkTab(originalReferer.ifEmpty { originalUrl.ifEmpty { getSearchEngineHomeUrl() } })
+                openRefreshLinkTab(originalReferer.ifEmpty { originalUrl.ifEmpty { getHomepageUrl() } })
             }
             return
         }
@@ -457,6 +461,10 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         hasWebBottomNav = false
         swipeRefreshView.isEnabled = true
         updateMainContentInsets()
+        uiState.homepageDesign = com.jhaiian.clint.browser.home.readHomepageDesign(this, prefs)
+        uiState.homepageImageVersion = prefs.getLong(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_IMAGE_VERSION, 0L)
+        uiState.homepageShowFavorites = prefs.getBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_SHOW_FAVORITES, true)
+        uiState.homepageShowRecent = prefs.getBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_SHOW_RECENT, true)
         val currentUserScriptsVersion = com.jhaiian.clint.userscripts.UserScriptState.getDataVersion(this)
         if (currentUserScriptsVersion != lastUserScriptsDataVersion) {
             lastUserScriptsDataVersion = currentUserScriptsVersion
@@ -633,14 +641,16 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
     fun onMenuNewTab() { openNewTab(false) }
     fun onMenuIncognito() { openNewTab(true) }
     fun onMenuShare() {
+        val shareUrl = tabManager.activeTab?.webView?.url
+        if (isClintHomeUrl(shareUrl)) return
         val i = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
             type = "text/plain"
-            putExtra(android.content.Intent.EXTRA_TEXT, tabManager.activeTab?.webView?.url)
+            putExtra(android.content.Intent.EXTRA_TEXT, shareUrl)
         }
         startActivity(android.content.Intent.createChooser(i, getString(R.string.share_url)))
     }
     fun onMenuOpenInApp() {
-        val currentUrl = tabManager.activeTab?.webView?.url ?: return
+        val currentUrl = tabManager.activeTab?.webView?.url?.takeUnless { isClintHomeUrl(it) } ?: return
         val currentUri = runCatching { android.net.Uri.parse(currentUrl) }.getOrNull() ?: return
         val webClient = tabManager.activeTab?.webView?.webViewClient as? com.jhaiian.clint.browser.webview.ClintWebViewClient ?: return
         val appMatches = webClient.resolveAppMatches(currentUri, this)
@@ -656,7 +666,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
     fun onMenuCreateShortcut() {
         val tab = tabManager.activeTab ?: return
         val url = tab.webView.url
-        if (url.isNullOrEmpty()) return
+        if (url.isNullOrEmpty() || isClintHomeUrl(url)) return
         uiState.createShortcutRequest = com.jhaiian.clint.browser.dialogs.CreateShortcutRequest(
             pageUrl = url,
             initialName = tab.title.ifBlank { url }
@@ -670,9 +680,10 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
 
         val wv = tabManager.activeTab?.webView
         val currentWebUrl = wv?.url
-        val host = currentWebUrl?.let { runCatching { android.net.Uri.parse(it).host }.getOrNull() }
+        val onHome = isClintHomeUrl(currentWebUrl)
+        val host = if (onHome) null else currentWebUrl?.let { runCatching { android.net.Uri.parse(it).host }.getOrNull() }
 
-        desktopModeHost = if (isDesktopMode) host else null
+        desktopModeHost = if (isDesktopMode) (if (onHome) CLINT_HOME_HOST else host) else null
 
         if (host != null && tabManager.activeTab?.isIncognito != true) {
             val shouldSave = prefs.getString(

@@ -53,6 +53,7 @@ internal fun MainActivity.restoreTabs(): Boolean {
 }
 
 internal fun MainActivity.captureActiveTabThumbnail() {
+    if (uiState.isHomePage) return
     val tab = tabManager.activeTab ?: return
     TabThumbnailCache.capture(tab.id, tab.webView, tab.isIncognito)
 }
@@ -178,7 +179,7 @@ internal fun MainActivity.openNewTabInBackground(url: String, openerTabId: Strin
     updateTabCount()
 }
 
-internal fun MainActivity.openNewTab(isIncognito: Boolean, url: String = getSearchEngineHomeUrl(), openerTabId: String? = null, shortcutId: String? = null, previousTabId: String? = null) {
+internal fun MainActivity.openNewTab(isIncognito: Boolean, url: String = getHomepageUrl(), openerTabId: String? = null, shortcutId: String? = null, previousTabId: String? = null) {
     captureActiveTabThumbnail()
     val webView = createWebView(isIncognito)
     val tab = BrowserTab(isIncognito = isIncognito, openerTabId = openerTabId, shortcutId = shortcutId, previousTabId = previousTabId, webView = webView)
@@ -223,6 +224,19 @@ internal fun MainActivity.openNewTab(isIncognito: Boolean, url: String = getSear
     tabManager.switchTo(index)
     attachActiveWebView()
     loadUrl(url)
+}
+
+internal fun MainActivity.switchToTabMode(incognito: Boolean) {
+    val index = tabManager.tabs.indexOfLast {
+        it.isIncognito == incognito && !it.isRefreshLinkTab && !tabManager.isGhostTab(it)
+    }
+    if (index == -1) {
+        openNewTab(isIncognito = incognito)
+        return
+    }
+    captureActiveTabThumbnail()
+    tabManager.switchTo(index)
+    attachActiveWebView()
 }
 
 internal fun MainActivity.attachActiveWebView() {
@@ -331,7 +345,7 @@ internal fun MainActivity.cleanupRefreshLinkTabs() {
     }
     resetProgressBar()
     if (tabManager.tabs.isEmpty()) {
-        openNewTab(isIncognito = false, url = getSearchEngineHomeUrl())
+        openNewTab(isIncognito = false, url = getHomepageUrl())
         return
     }
     val targetIndex = when {

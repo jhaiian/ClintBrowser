@@ -5,6 +5,7 @@ import com.jhaiian.clint.blocker.WebsiteBlockerCategoryDatabase
 import com.jhaiian.clint.blocker.additional.AdditionalWebsitesDatabase
 import com.jhaiian.clint.blocker.engine.WebsiteBlockerPaths
 import com.jhaiian.clint.bookmarks.BookmarkDatabase
+import com.jhaiian.clint.browser.home.homepageImageDir
 import com.jhaiian.clint.downloads.DownloadDatabase
 import com.jhaiian.clint.history.SearchHistoryDatabase
 import com.jhaiian.clint.quiver.FilterListDatabase
@@ -48,6 +49,7 @@ object BackupTargets {
 
     val ALL: List<BackupEntryTarget> = listOf(
         BackupEntryTarget("settings_default_prefs", BackupCategory.SETTINGS, BackupEntryType.PREFS, "settings/default_prefs.xml") { defaultPrefsFile(it) },
+        BackupEntryTarget("settings_homepage_image", BackupCategory.SETTINGS, BackupEntryType.DIRECTORY, "settings/homepage_image") { homepageImageDir(it) },
 
         BackupEntryTarget("tabs_db", BackupCategory.TABS, BackupEntryType.DATABASE, "tabs/${TabDatabase.DB_NAME}") { it.getDatabasePath(TabDatabase.DB_NAME) },
 

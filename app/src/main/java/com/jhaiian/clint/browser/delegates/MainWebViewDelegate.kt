@@ -297,6 +297,15 @@ internal fun MainActivity.applyUserScripts() {
     tabManager.activeTab?.webView?.reload()
 }
 
+internal fun MainActivity.getHomepageUrl(): String {
+    val homepage = prefs.getString(com.jhaiian.clint.browser.home.PREF_HOMEPAGE, com.jhaiian.clint.browser.home.HOMEPAGE_CLINT)
+    return if (homepage == com.jhaiian.clint.browser.home.HOMEPAGE_SEARCH_ENGINE) {
+        getSearchEngineHomeUrl()
+    } else {
+        com.jhaiian.clint.browser.home.CLINT_HOME_URL
+    }
+}
+
 internal fun MainActivity.getSearchEngineHomeUrl(): String {
     return when (prefs.getString("search_engine", "duckduckgo")) {
         "brave" -> "https://search.brave.com"

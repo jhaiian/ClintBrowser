@@ -1,4 +1,6 @@
 package com.jhaiian.clint.browser.webview
+import com.jhaiian.clint.browser.home.serveClintHome
+import com.jhaiian.clint.browser.home.CLINT_HOME_HOST
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -394,6 +396,8 @@ class ClintWebViewClient(
         request: WebResourceRequest
     ): WebResourceResponse? {
         if (request.url.host == null) return super.shouldInterceptRequest(view, request)
+
+        if (request.url.host == CLINT_HOME_HOST) return serveClintHome(view.context.applicationContext, request.url)
 
         if (prefs.getBoolean(com.jhaiian.clint.mediacapture.MEDIA_CAPTURE_ENABLED_PREF, true)) {
             MediaCaptureDetector.onRequestObserved(getTabId(), cachedPageUrl, request)

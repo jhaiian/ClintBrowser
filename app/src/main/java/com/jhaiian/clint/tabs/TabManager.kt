@@ -53,7 +53,7 @@ class TabManager {
     fun isGhostTab(tab: BrowserTab): Boolean = framelessShortcutsEnabled && effectiveShortcutId(tab) != null
 
     fun previews(): List<TabPreview> = tabs.filter { !isGhostTab(it) }.map {
-        TabPreview(it.id, it.title.ifBlank { "New Tab" }, it.url, it.isIncognito)
+        TabPreview(it.id, it.title.ifBlank { "New Tab" }, if (com.jhaiian.clint.browser.home.isClintHomeUrl(it.url)) "" else it.url, it.isIncognito)
     }
 
     fun moveTab(fromIndex: Int, toIndex: Int) {

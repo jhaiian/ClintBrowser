@@ -1,4 +1,6 @@
 package com.jhaiian.clint.browser.delegates
+import com.jhaiian.clint.browser.home.CLINT_HOME_HOST
+import com.jhaiian.clint.browser.home.isClintHomeUrl
 import com.jhaiian.clint.ui.theme.ThemeMode
 import com.jhaiian.clint.browser.*
 import com.jhaiian.clint.browser.suggestions.SuggestionFetcher
@@ -66,7 +68,7 @@ private fun combineSuggestions(
 
 internal fun MainActivity.openSearchOverlay(isBottom: Boolean) {
     uiState.searchOverlayIsBottom = isBottom
-    val current = tabManager.activeTab?.webView?.url ?: ""
+    val current = tabManager.activeTab?.webView?.url?.takeUnless { isClintHomeUrl(it) } ?: ""
     uiState.searchOverlayOpen = true
     onSearchQueryChanged(current)
 }
@@ -161,14 +163,14 @@ private fun MainActivity.setAddressBarText(formatted: String, isBottom: Boolean)
 
 internal fun MainActivity.navGoBack() { tabManager.activeTab?.webView?.let { if (it.canGoBack()) it.goBack() } }
 internal fun MainActivity.navGoForward() { tabManager.activeTab?.webView?.let { if (it.canGoForward()) it.goForward() } }
-internal fun MainActivity.navGoHome() { loadUrl(getSearchEngineHomeUrl()) }
+internal fun MainActivity.navGoHome() { loadUrl(getHomepageUrl()) }
 internal fun MainActivity.navRefreshOrStop() {
     tabManager.activeTab?.webView?.let { wv ->
         if (uiState.isPageLoading) { wv.stopLoading(); onPageFinished(wv.url ?: "") } else { wv.reload() }
     }
 }
 internal fun MainActivity.navToggleBookmark() {
-    val url = tabManager.activeTab?.webView?.url ?: return
+    val url = tabManager.activeTab?.webView?.url?.takeUnless { isClintHomeUrl(it) } ?: return
     val title = tabManager.activeTab?.title ?: url
     if (BookmarkManager.isBookmarked(this, url)) {
         BookmarkManager.remove(this, url)
@@ -205,6 +207,7 @@ internal fun MainActivity.loadUrl(input: String) {
     val url = formatUrl(input)
     val wv = tabManager.activeTab?.webView ?: return
     tabManager.activeTab?.url = url
+    uiState.isHomePage = isClintHomeUrl(url)
     val headers = buildDesktopHeaders()
     if (headers != null) wv.loadUrl(url, headers) else wv.loadUrl(url)
     hideKeyboardOnly()
@@ -224,11 +227,14 @@ internal fun MainActivity.formatUrl(input: String): String {
 }
 
 internal fun MainActivity.updateAddressBar(url: String) {
+    val isHome = isClintHomeUrl(url)
+    uiState.isHomePage = isHome
     if (uiState.searchOverlayOpen) return
-    val secure = url.startsWith("https://")
-    uiState.addressBarTextTop = url
+    val shown = if (isHome) "" else url
+    val secure = shown.startsWith("https://")
+    uiState.addressBarTextTop = shown
     uiState.addressBarSecureTop = secure
-    uiState.addressBarTextBottom = url
+    uiState.addressBarTextBottom = shown
     uiState.addressBarSecureBottom = secure
 }
 
@@ -255,7 +261,7 @@ internal fun MainActivity.onPageStarted(url: String) {
         onQuiverGuardPageStarted(tab, url)
     }
 
-    if (url.startsWith("http")) {
+    if (url.startsWith("http") && !isClintHomeUrl(url)) {
         if (url == autoDesktopPendingReload) {
             autoDesktopPendingReload = null
         } else {
@@ -294,7 +300,7 @@ internal fun MainActivity.onPageStarted(url: String) {
                         desktopModeHost = host
                     }
                     !isSaved && isDesktopMode && host != desktopModeHost -> {
-                        if (hostDomain == lockedDomain || !shouldSaveState) {
+                        if (hostDomain == lockedDomain || !shouldSaveState || desktopModeHost == CLINT_HOME_HOST) {
                             desktopModeHost = host
                         } else {
                             isDesktopMode = false
@@ -342,7 +348,7 @@ internal fun MainActivity.onPageFinished(url: String) {
     }
 
     val activeTab = tabManager.activeTab
-    if (activeTab?.isIncognito != true && url.startsWith("http") && !SearchHistoryManager.isSearchEngineUrl(applicationContext, url)) {
+    if (activeTab?.isIncognito != true && url.startsWith("http") && !isClintHomeUrl(url) && !SearchHistoryManager.isSearchEngineUrl(applicationContext, url)) {
         val title = activeTab?.webView?.title ?: ""
         Thread {
             SearchHistoryManager.add(applicationContext, url, title)
@@ -364,7 +370,7 @@ internal fun MainActivity.resetProgressBar() {
 }
 
 internal fun MainActivity.updateBookmarkIcon() {
-    val url = tabManager.activeTab?.webView?.url ?: ""
+    val url = tabManager.activeTab?.webView?.url?.takeUnless { isClintHomeUrl(it) } ?: ""
     uiState.hasActiveUrl = url.isNotEmpty()
     uiState.isBookmarked = url.isNotEmpty() && BookmarkManager.isBookmarked(this, url)
 }

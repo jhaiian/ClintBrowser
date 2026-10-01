@@ -4,6 +4,68 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.1.8
+
+---
+
+## What's New
+
+### Clint Homepage
+
+Now you can select which homepage you will use:
+
+- **Clint Homepage (default)**
+- **Search Engine Homepage**
+
+Clint Homepage has 3 designs:
+
+- **Plain Color** — A solid background with no gradient effects.
+- **Gradient** — A soft color fade across the top of the page.
+- **Custom Image** — Use your own photo, softened so everything stays easy to read.
+
+From the homepage, you can also see your bookmarks and recently visited pages. You can hide them if you want to.
+
+(Thank you to @reviewlord for suggesting this #45)
+
+---
+
+### Tab Grid Thumbnail
+
+- Improved thumbnail quality and performance.
+
+---
+
+### App Icon
+
+- Now supports Android 13 dynamic app icon. (Thanks to @anonymous-shanks for suggesting this #56)
+
+---
+
+## Other Changes
+
+- Reordered Browser Settings.
+- Updated main Settings description.
+
+---
+
+## Bug Fixes
+
+- Fixed Site Settings add dialog not running in original normalizer.
+
+---
+
+## Dependency Updates
+
+- Bump `gradle-wrapper` from 9.7.1 to 9.8.0 by @dependabot[bot] in #63
+- Bump `androidx.work:work-runtime-ktx` from 2.11.2 to 2.12.0 by @dependabot[bot] in #62
+- Bump `androidx.core:core-ktx` from 1.19.0 to 1.19.1 by @dependabot[bot] in #61
+
+---
+
+> *Sorry this is such a small update. I've been busy at college, guys. I have 4 assessments not finished and two of them are due tomorrow, and reporting that I will make. Yeah.*
+
+---
+
 # v1.1.7
 
 ---

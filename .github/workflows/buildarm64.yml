@@ -23,7 +23,7 @@ jobs:
 
       - name: Cache Gradle Wrapper JAR
         id: cache-wrapper-jar
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: gradle/wrapper/gradle-wrapper.jar
           key: gradle-wrapper-jar-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
@@ -55,7 +55,7 @@ jobs:
         run: find app/build/outputs/apk/github/release -name "*.apk" | sort
 
       - name: Upload arm64-v8a APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Clint-arm64-v8a
           path: app/build/outputs/apk/github/release/app-github-arm64-v8a-release.apk

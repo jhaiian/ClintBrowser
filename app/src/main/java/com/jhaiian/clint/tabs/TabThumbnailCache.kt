@@ -4,16 +4,32 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PaintFlagsDrawFilter
+import android.os.Build
+import android.util.LruCache
 import android.webkit.WebView
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
 
 object TabThumbnailCache {
-    private const val MAX_DIMENSION_PX = 360
+    private const val MAX_DIMENSION_PX = 1024
     private const val DIR_NAME = "tab_thumbnails"
+    private const val WEBP_QUALITY = 85
 
-    private val cache = ConcurrentHashMap<String, Bitmap>()
+    private val ioExecutor = Executors.newSingleThreadExecutor { runnable ->
+        Thread(runnable, "tab-thumbnail-io").apply { priority = Thread.MIN_PRIORITY }
+    }
+
+    private val cache = object : LruCache<String, Bitmap>(
+        (Runtime.getRuntime().maxMemory() / 10L).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+    ) {
+        override fun sizeOf(key: String, value: Bitmap): Int = value.allocationByteCount
+    }
+
+    private val incognitoCache = ConcurrentHashMap<String, Bitmap>()
 
     fun capture(tabId: String, webView: WebView, isIncognito: Boolean = false) {
         val width = webView.width
@@ -25,54 +41,103 @@ object TabThumbnailCache {
         runCatching {
             val bitmap = Bitmap.createBitmap(scaledWidth, scaledHeight, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
+            canvas.drawFilter = PaintFlagsDrawFilter(0, Paint.FILTER_BITMAP_FLAG or Paint.ANTI_ALIAS_FLAG)
             canvas.scale(scale, scale)
             webView.draw(canvas)
-            cache[tabId] = bitmap
-            if (!isIncognito) writeToDisk(webView.context.applicationContext, tabId, bitmap)
+            store(webView.context.applicationContext, tabId, bitmap, isIncognito)
         }
     }
 
+    fun put(context: Context, tabId: String, source: Bitmap, isIncognito: Boolean = false) {
+        val width = source.width
+        val height = source.height
+        if (width <= 0 || height <= 0) return
+        val scale = (MAX_DIMENSION_PX.toFloat() / maxOf(width, height)).coerceAtMost(1f)
+        runCatching {
+            val bitmap = if (scale < 1f) {
+                Bitmap.createScaledBitmap(
+                    source,
+                    (width * scale).toInt().coerceAtLeast(1),
+                    (height * scale).toInt().coerceAtLeast(1),
+                    true
+                )
+            } else {
+                source.copy(Bitmap.Config.ARGB_8888, false)
+            }
+            store(context.applicationContext, tabId, bitmap, isIncognito)
+        }
+    }
+
+    fun peek(tabId: String): Bitmap? = incognitoCache[tabId] ?: cache.get(tabId)
+
     fun get(context: Context, tabId: String): Bitmap? {
-        cache[tabId]?.let { return it }
+        peek(tabId)?.let { return it }
         val fromDisk = readFromDisk(context.applicationContext, tabId) ?: return null
-        cache[tabId] = fromDisk
+        cache.put(tabId, fromDisk)
         return fromDisk
     }
 
     fun evict(context: Context, tabId: String) {
         cache.remove(tabId)
-        diskFile(context.applicationContext, tabId).delete()
+        incognitoCache.remove(tabId)
+        val appContext = context.applicationContext
+        ioExecutor.execute { diskFiles(appContext, tabId).forEach { it.delete() } }
     }
 
     fun clear() {
-        cache.clear()
+        cache.evictAll()
+        incognitoCache.clear()
     }
 
     fun pruneDisk(context: Context, keepTabIds: Set<String>) {
-        runCatching {
-            diskDir(context.applicationContext).listFiles()?.forEach { file ->
-                if (file.nameWithoutExtension !in keepTabIds) file.delete()
+        val appContext = context.applicationContext
+        ioExecutor.execute {
+            runCatching {
+                diskDir(appContext).listFiles()?.forEach { file ->
+                    if (file.nameWithoutExtension !in keepTabIds) file.delete()
+                }
             }
         }
+    }
+
+    private fun store(context: Context, tabId: String, bitmap: Bitmap, isIncognito: Boolean) {
+        if (isIncognito) {
+            incognitoCache[tabId] = bitmap
+            return
+        }
+        cache.put(tabId, bitmap)
+        ioExecutor.execute { writeToDisk(context, tabId, bitmap) }
     }
 
     private fun diskDir(context: Context): File =
         File(context.filesDir, DIR_NAME).apply { mkdirs() }
 
-    private fun diskFile(context: Context, tabId: String): File =
+    private fun webpFile(context: Context, tabId: String): File =
+        File(diskDir(context), "$tabId.webp")
+
+    private fun legacyFile(context: Context, tabId: String): File =
         File(diskDir(context), "$tabId.png")
 
+    private fun diskFiles(context: Context, tabId: String): List<File> =
+        listOf(webpFile(context, tabId), legacyFile(context, tabId))
+
+    @Suppress("DEPRECATION")
     private fun writeToDisk(context: Context, tabId: String, bitmap: Bitmap) {
         runCatching {
-            FileOutputStream(diskFile(context, tabId)).use { out ->
-                bitmap.compress(Bitmap.CompressFormat.PNG, 90, out)
+            val format = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                Bitmap.CompressFormat.WEBP_LOSSY
+            } else {
+                Bitmap.CompressFormat.WEBP
             }
+            FileOutputStream(webpFile(context, tabId)).use { out ->
+                bitmap.compress(format, WEBP_QUALITY, out)
+            }
+            legacyFile(context, tabId).delete()
         }
     }
 
     private fun readFromDisk(context: Context, tabId: String): Bitmap? {
-        val file = diskFile(context, tabId)
-        if (!file.exists()) return null
+        val file = diskFiles(context, tabId).firstOrNull { it.exists() } ?: return null
         return runCatching { BitmapFactory.decodeFile(file.absolutePath) }.getOrNull()
     }
 }

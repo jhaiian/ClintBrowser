@@ -3,6 +3,7 @@ package com.jhaiian.clint.browser
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
@@ -30,7 +31,6 @@ internal class MainUiState {
     var searchQuery by mutableStateOf("")
     var suggestions by mutableStateOf<List<SuggestionItem>>(emptyList())
 
-    var voiceResult by mutableStateOf<String?>(null)
 
     var pageLoadProgress by mutableIntStateOf(0)
     var isPageLoading by mutableStateOf(false)
@@ -39,6 +39,12 @@ internal class MainUiState {
     var canGoForward by mutableStateOf(false)
     var isBookmarked by mutableStateOf(false)
     var hasActiveUrl by mutableStateOf(false)
+    var isHomePage by mutableStateOf(false)
+    var isDesktopMode by mutableStateOf(false)
+    var homepageDesign by mutableStateOf("plain")
+    var homepageImageVersion by mutableLongStateOf(0L)
+    var homepageShowFavorites by mutableStateOf(true)
+    var homepageShowRecent by mutableStateOf(true)
 
     var bookmarkFolderDialogOpen by mutableStateOf(false)
     var bookmarkFolderTree by mutableStateOf<List<com.jhaiian.clint.bookmarks.FolderTreeEntry>>(emptyList())

@@ -16,7 +16,7 @@
     <string name="downloading">Downloading\u2026</string>
     <string name="privacy_settings">Privacy &amp; Security</string>
     <string name="browser_settings">Browser</string>
-    <string name="browser_settings_summary">Search engine, JavaScript, and content blocker</string>
+    <string name="browser_settings_summary">Homepage, search, scripts, content blocker, and custom prompts</string>
     <string name="pref_category_appearance">Appearance</string>
     <string name="pref_category_layout">Layout</string>
     <string name="pref_category_search">Search</string>
@@ -161,7 +161,7 @@
     <string name="default_browser_title">Default Browser</string>
     <string name="default_browser_none">None</string>
     <string name="look_and_feel">Look &amp; Feel</string>
-    <string name="look_and_feel_summary">Themes, colors, display, and exit behavior</string>
+    <string name="look_and_feel_summary">Language, theme, layout, and navigation</string>
     <string name="pref_language_title">Language</string>
     <string name="language_system">System</string>
     <string name="language_system_desc">Match your device\'s language, falling back to English if it\'s not supported</string>
@@ -203,7 +203,7 @@
     <string name="menu_customization_reset_action">Reset</string>
     <string name="pref_updates_title">Updates</string>
     <string name="download_settings_title">Downloads</string>
-    <string name="download_settings_summary">Download location, notifications, and behavior</string>
+    <string name="download_settings_summary">Location, scheduling, speed limit, retries, and notifications</string>
     <string name="download_section_manager">DOWNLOAD MANAGER</string>
     <string name="download_manager_title">Download Manager</string>
     <string name="download_manager_summary">Choose which app handles new downloads</string>
@@ -799,7 +799,7 @@
     <string name="surface_intensity_amoled_no_tint_dark_desc">True black surfaces with accent-colored buttons and icons only</string>
     <string name="surface_intensity_amoled_no_tint_light_desc">Pure white surfaces with accent-colored buttons and icons only</string>
     <string name="pref_misc_title">Miscellaneous</string>
-    <string name="pref_misc_summary">Default browser and other utilities</string>
+    <string name="pref_misc_summary">Default browser and setup wizard</string>
     <string name="pref_rerun_setup_title">Rerun Setup Wizard</string>
     <string name="pref_rerun_setup_summary">Restart the initial setup process</string>
     <string name="rerun_setup_confirm_title">Rerun Setup Wizard?</string>
@@ -958,7 +958,7 @@
 
     <string name="data_saver_title">Data Saver</string>
     <string name="data_saver_summary">Reduce data usage with smarter loading</string>
-    <string name="data_saver_settings_summary">Disable Images and autoplay controls</string>
+    <string name="data_saver_settings_summary">Disable images and autoplay controls</string>
     <string name="data_saver_disable_images_title">Disable Images</string>
     <string name="data_saver_disable_images_summary">All images will not load</string>
     <string name="data_saver_disable_autoplay_title">Disable Autoplay</string>
@@ -1001,7 +1001,7 @@
     <string name="history_all_cleared">History cleared</string>
 
     <string name="site_settings">Site Settings</string>
-    <string name="site_settings_summary">Camera, microphone, location, notifications, and desktop mode</string>
+    <string name="site_settings_summary">Permissions, open in app, desktop mode, and Quiver Guard</string>
     <string name="site_settings_camera">Camera</string>
     <string name="site_settings_mic">Microphone</string>
     <string name="site_settings_location">Location</string>
@@ -1618,4 +1618,34 @@
     <string name="open_in_app_mode_open">Always open</string>
     <string name="open_in_app_mode_open_desc">Open links in their app without asking</string>
     <string name="open_in_app_dont_ask_again">Don\'t ask me again</string>
+    <string name="homepage_title">Homepage</string>
+    <string name="homepage_clint">Clint Homepage</string>
+    <string name="homepage_clint_desc">A clean start page with your favorites and shortcuts</string>
+    <string name="homepage_search_engine">Search Engine Homepage</string>
+    <string name="homepage_search_engine_desc">Open the homepage of your selected search engine</string>
+    <string name="choose_homepage">Choose homepage</string>
+    <string name="pref_category_homepage">Homepage</string>
+    <string name="homepage_design_title">Homepage Design</string>
+    <string name="choose_homepage_design">Choose homepage design</string>
+    <string name="homepage_design_gradient">Gradient</string>
+    <string name="homepage_design_gradient_desc">A soft color fade across the top of the page</string>
+    <string name="homepage_design_plain">Plain Color</string>
+    <string name="homepage_design_plain_desc">A solid background with no gradient effects</string>
+    <string name="homepage_design_image">Custom Image</string>
+    <string name="homepage_design_image_desc">Use your own photo, softened so everything stays easy to read</string>
+    <string name="homepage_image_title">Homepage Image</string>
+    <string name="homepage_image_summary">Tap to choose a different photo</string>
+    <string name="homepage_show_favorites_title">Show Favorites</string>
+    <string name="homepage_show_favorites_summary">Display your bookmarks on the Clint homepage</string>
+    <string name="homepage_show_recent_title">Show Recently Visited</string>
+    <string name="homepage_show_recent_summary">Display sites you visited lately on the Clint homepage</string>
+    <string name="homepage_image_error">Couldn\'t use that image. Please try another one.</string>
+    <string name="home_greeting_morning">Good morning</string>
+    <string name="home_greeting_afternoon">Good afternoon</string>
+    <string name="home_greeting_evening">Good evening</string>
+    <string name="home_favorites">Favorites</string>
+    <string name="home_recent">Recently visited</string>
+    <string name="home_favorites_empty">Bookmark your favorite sites and they\'ll show up here</string>
+    <string name="home_incognito_message">Pages you visit in Incognito won\'t be saved to your history</string>
+    <string name="home_normal_mode">Normal</string>
 </resources>

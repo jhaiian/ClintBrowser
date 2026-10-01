@@ -77,7 +77,7 @@ internal fun MainActivity.openOrResumeShortcutTab(shortcutId: String, fallbackUr
         attachActiveWebView()
         return
     }
-    val url = record?.url ?: fallbackUrl ?: getSearchEngineHomeUrl()
+    val url = record?.url ?: fallbackUrl ?: getHomepageUrl()
     val previousTabId = tabManager.activeTab?.id
     openNewTab(isIncognito = false, url = url, shortcutId = shortcutId, previousTabId = previousTabId)
     val name = record?.name
@@ -99,7 +99,7 @@ internal fun MainActivity.exitShortcutFramelessToNormal() {
         tabManager.switchTo(targetIndex)
         attachActiveWebView()
     } else {
-        openNewTab(isIncognito = false, url = getSearchEngineHomeUrl())
+        openNewTab(isIncognito = false, url = getHomepageUrl())
     }
 }
 
