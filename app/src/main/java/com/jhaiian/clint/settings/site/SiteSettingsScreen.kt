@@ -1,6 +1,7 @@
 package com.jhaiian.clint.settings.site
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.ContentPaste
+import androidx.compose.material.icons.filled.DataSaverOff
 import androidx.compose.material.icons.filled.DesktopWindows
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Mic
@@ -33,6 +34,7 @@ fun SiteSettingsScreen(
     onClipboardClick: () -> Unit,
     onOpenInAppClick: () -> Unit,
     onDesktopModeClick: () -> Unit,
+    onDataSaverClick: () -> Unit,
     onQuiverGuardClick: () -> Unit
 ) {
     val colors = LocalClintColors.current
@@ -105,6 +107,17 @@ fun SiteSettingsScreen(
                 ),
                 colors = colors,
                 onClick = onDesktopModeClick
+            )
+        }
+
+        SectionLabel(stringResource(R.string.site_section_data_saver), colors.primary, Modifier.padding(start = 4.dp, bottom = 8.dp))
+        SettingsSection(colors.cardBackground) {
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.DataSaverOff,
+                title = stringResource(R.string.data_saver_title),
+                summary = stringResource(R.string.site_settings_data_saver_summary),
+                colors = colors,
+                onClick = onDataSaverClick
             )
         }
 

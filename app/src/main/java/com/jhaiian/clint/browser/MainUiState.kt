@@ -45,6 +45,7 @@ internal class MainUiState {
     var homepageImageVersion by mutableLongStateOf(0L)
     var homepageShowFavorites by mutableStateOf(true)
     var homepageShowRecent by mutableStateOf(true)
+    var homepageCenterContent by mutableStateOf(true)
 
     var bookmarkFolderDialogOpen by mutableStateOf(false)
     var bookmarkFolderTree by mutableStateOf<List<com.jhaiian.clint.bookmarks.FolderTreeEntry>>(emptyList())
@@ -82,6 +83,7 @@ internal class MainUiState {
     var colorPickerRequest by mutableStateOf<com.jhaiian.clint.browser.dialogs.ColorPickerRequest?>(null)
     var httpAuthRequest by mutableStateOf<com.jhaiian.clint.browser.dialogs.HttpAuthRequest?>(null)
     var sslWarningRequest by mutableStateOf<com.jhaiian.clint.browser.dialogs.SslWarningRequest?>(null)
+    var httpsOnlyRequest by mutableStateOf<com.jhaiian.clint.browser.dialogs.HttpsOnlyRequest?>(null)
 
     var confirmDialogConfig by mutableStateOf<com.jhaiian.clint.ui.listscreen.ConfirmDialogConfig?>(null)
     var conflictDialogRequest by mutableStateOf<com.jhaiian.clint.downloads.DownloadConflictDialogRequest?>(null)

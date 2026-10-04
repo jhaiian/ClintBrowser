@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.automirrored.filled.AddToHomeScreen
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.DataSaverOff
 import androidx.compose.material.icons.filled.DataSaverOn
 import androidx.compose.material.icons.filled.DesktopWindows
 import androidx.compose.material.icons.filled.Download
@@ -36,7 +37,8 @@ enum class CustomizableMenuItem(val id: String) {
     HISTORY("history"),
     READER_MODE("reader_mode"),
     DESKTOP_MODE("desktop_mode"),
-    DATA_SAVER("data_saver");
+    DATA_SAVER("data_saver"),
+    DISABLE_DATA_SAVER_FOR_SITE("disable_data_saver_for_site");
 
     companion object {
         val DEFAULT_ORDER: List<CustomizableMenuItem> = entries.toList()
@@ -61,6 +63,7 @@ fun CustomizableMenuItem.icon(): ImageVector = when (this) {
     CustomizableMenuItem.READER_MODE -> Icons.AutoMirrored.Filled.ChromeReaderMode
     CustomizableMenuItem.DESKTOP_MODE -> Icons.Filled.DesktopWindows
     CustomizableMenuItem.DATA_SAVER -> Icons.Filled.DataSaverOn
+    CustomizableMenuItem.DISABLE_DATA_SAVER_FOR_SITE -> Icons.Filled.DataSaverOff
 }
 
 fun CustomizableMenuItem.titleRes(): Int = when (this) {
@@ -80,6 +83,7 @@ fun CustomizableMenuItem.titleRes(): Int = when (this) {
     CustomizableMenuItem.READER_MODE -> R.string.reader_mode
     CustomizableMenuItem.DESKTOP_MODE -> R.string.desktop_mode
     CustomizableMenuItem.DATA_SAVER -> R.string.menu_data_saver
+    CustomizableMenuItem.DISABLE_DATA_SAVER_FOR_SITE -> R.string.menu_disable_data_saver_for_site
 }
 
 object BrowserMenuCustomizationStore {

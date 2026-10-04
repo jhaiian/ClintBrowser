@@ -1,4 +1,7 @@
 package com.jhaiian.clint.browser.delegates
+import com.jhaiian.clint.settings.datasaver.DataSaverBridge
+import com.jhaiian.clint.settings.datasaver.DataSaverMode
+import com.jhaiian.clint.settings.datasaver.DataSaverSiteException
 import com.jhaiian.clint.ui.theme.ThemeMode
 import com.jhaiian.clint.browser.webview.*
 import com.jhaiian.clint.browser.MainActivity
@@ -27,7 +30,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 @SuppressLint("SetJavaScriptEnabled")
 internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
-    val webView = WebView(this)
+    val webView = ClintWebView(this)
     val settings = webView.settings
     settings.javaScriptEnabled = prefs.getBoolean("javascript_enabled", true)
     settings.domStorageEnabled = !isIncognito
@@ -38,14 +41,19 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
     settings.displayZoomControls = false
     settings.loadWithOverviewMode = true
     settings.useWideViewPort = true
-    val dataSaverEnabled = prefs.getBoolean("data_saver_enabled", false)
+    val dataSaverEnabled = DataSaverMode.isActive(prefs)
     settings.mediaPlaybackRequiresUserGesture = dataSaverEnabled && prefs.getBoolean("data_saver_disable_autoplay", true)
-    settings.loadsImagesAutomatically = !(dataSaverEnabled && prefs.getBoolean("data_saver_disable_images", true))
     settings.allowFileAccess = false
     settings.allowContentAccess = false
     settings.safeBrowsingEnabled = false
     settings.userAgentString = buildUserAgent()
     applyUserAgentMetadata(webView)
+    if (WebViewFeature.isFeatureSupported(WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST)) {
+        WebSettingsCompat.setRequestedWithHeaderOriginAllowList(settings, emptySet())
+    }
+    if (!isIncognito && WebViewFeature.isFeatureSupported(WebViewFeature.WEB_AUTHENTICATION)) {
+        WebSettingsCompat.setWebAuthenticationSupport(settings, WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_FOR_APP)
+    }
     val cookieManager = CookieManager.getInstance()
     if (isIncognito) {
         cookieManager.setAcceptCookie(false)
@@ -53,6 +61,7 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
         cookieManager.setAcceptCookie(true)
         cookieManager.setAcceptThirdPartyCookies(webView, !prefs.getBoolean("block_third_party_cookies", true))
     }
+    ClintAutofill.apply(webView, isIncognito, prefs.getBoolean(ClintAutofill.PREF_AUTOFILL_ENABLED, ClintAutofill.DEFAULT_AUTOFILL_ENABLED))
     webView.addJavascriptInterface(NestedScrollBridge(), "NestedScrollBridge")
     webView.addJavascriptInterface(CanvasTouchBridge(), "CanvasTouchBridge")
     webView.addJavascriptInterface(BottomNavBridge(), "BottomNavBridge")
@@ -63,6 +72,7 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
     webView.addJavascriptInterface(SelectPickerBridge(webView), "SelectPickerBridge")
     webView.addJavascriptInterface(DateTimePickerBridge(this, webView), "DateTimePickerBridge")
     webView.addJavascriptInterface(ColorPickerBridge(this, webView), "ColorPickerBridge")
+    webView.addJavascriptInterface(DataSaverBridge(applicationContext), "ClintDataSaverBridge")
 
     if (prefs.getBoolean("quiver_guard_enabled", false)) {
         QuiverGuardWebIntegration.installEarly(this, webView)
@@ -119,11 +129,6 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
         WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("color_picker.js"), setOf("*"))
         WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("fullscreen_popup_guard.js"), setOf("*"))
     }
-    val dataSaverActive = prefs.getBoolean("data_saver_enabled", false)
-        && prefs.getBoolean("data_saver_disable_autoplay", true)
-    if (dataSaverActive && WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
-        WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("disable_autoplay.js"), setOf("*"))
-    }
     return webView
 }
 
@@ -154,6 +159,91 @@ internal fun MainActivity.buildDesktopHeaders(): Map<String, String>? {
         "Sec-CH-UA-Mobile" to "?0",
         "Sec-CH-UA-Platform" to "\"Windows\""
     )
+}
+
+internal fun MainActivity.loadDataSaverJs(filename: String): String =
+    "(function(){try{var h=location.hostname;var a=location.ancestorOrigins;if(a&&a.length){h=new URL(a[a.length-1]).hostname;}if(window.ClintDataSaverBridge&&window.ClintDataSaverBridge.isExcepted(h)){return;}}catch(e){}\n" +
+        loadJsAsset(filename) + "\n})();"
+
+internal fun MainActivity.isSaveDataActive(url: String? = null): Boolean =
+    DataSaverMode.isActive(prefs) && prefs.getBoolean("data_saver_send_header", true) &&
+        !DataSaverSiteException.isExceptedUrl(this, url)
+
+internal fun MainActivity.applyDataSaverSiteState(tab: BrowserTab, url: String) {
+    if (!url.startsWith("http://") && !url.startsWith("https://")) return
+    val active = DataSaverMode.isActive(prefs) && !DataSaverSiteException.isExceptedUrl(this, url)
+    tab.webView.settings.mediaPlaybackRequiresUserGesture = active && prefs.getBoolean("data_saver_disable_autoplay", true)
+}
+
+internal fun MainActivity.isDataSaverBlockActive(): Boolean =
+    DataSaverMode.isActive(prefs) && prefs.getBoolean("data_saver_block_preload", true)
+
+internal fun MainActivity.isDataSaverVideoBlockActive(): Boolean =
+    DataSaverMode.isActive(prefs) && prefs.getBoolean("data_saver_block_video", false)
+
+internal fun MainActivity.addDataSaverMediaScript(tab: BrowserTab) {
+    removeDataSaverMediaScript(tab)
+    if (!WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) return
+    if (isDataSaverBlockActive()) {
+        dataSaverMediaScriptHandlers[tab.id] = WebViewCompat.addDocumentStartJavaScript(tab.webView, loadDataSaverJs("data_saver_media.js"), setOf("*"))
+    }
+    if (isDataSaverVideoBlockActive()) {
+        dataSaverVideoScriptHandlers[tab.id] = WebViewCompat.addDocumentStartJavaScript(tab.webView, loadDataSaverJs("block_video.js"), setOf("*"))
+    }
+}
+
+internal fun MainActivity.removeDataSaverMediaScript(tab: BrowserTab) {
+    dataSaverMediaScriptHandlers.remove(tab.id)?.remove()
+    dataSaverVideoScriptHandlers.remove(tab.id)?.remove()
+}
+
+internal fun MainActivity.isDoNotTrackActive(): Boolean =
+    prefs.getBoolean("do_not_track", true)
+
+internal fun MainActivity.buildRequestHeaders(url: String? = null): Map<String, String>? {
+    val headers = LinkedHashMap<String, String>()
+    buildDesktopHeaders()?.let { headers.putAll(it) }
+    if (isSaveDataActive(url)) headers["Save-Data"] = "on"
+    if (isDoNotTrackActive()) headers["DNT"] = "1"
+    return if (headers.isEmpty()) null else headers
+}
+
+internal fun MainActivity.addDoNotTrackScript(tab: BrowserTab) {
+    removeDoNotTrackScript(tab)
+    if (!isDoNotTrackActive()) return
+    if (!WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) return
+    doNotTrackScriptHandlers[tab.id] = WebViewCompat.addDocumentStartJavaScript(tab.webView, loadJsAsset("do_not_track.js"), setOf("*"))
+}
+
+internal fun MainActivity.removeDoNotTrackScript(tab: BrowserTab) {
+    doNotTrackScriptHandlers.remove(tab.id)?.remove()
+}
+
+internal fun MainActivity.reloadActiveTabWithHeaders() {
+    val activeWebView = tabManager.activeTab?.webView
+    val activeUrl = activeWebView?.url
+    val reloadHeaders = buildRequestHeaders(activeUrl)
+    if (activeWebView != null && reloadHeaders != null && activeUrl != null && activeUrl.startsWith("http")) {
+        activeWebView.loadUrl(activeUrl, reloadHeaders)
+    } else {
+        activeWebView?.reload()
+    }
+}
+
+internal fun MainActivity.applyDoNotTrackSettings() {
+    tabManager.tabs.forEach { addDoNotTrackScript(it) }
+    reloadActiveTabWithHeaders()
+}
+
+internal fun MainActivity.addSaveDataScript(tab: BrowserTab) {
+    removeSaveDataScript(tab)
+    if (!isSaveDataActive()) return
+    if (!WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) return
+    saveDataScriptHandlers[tab.id] = WebViewCompat.addDocumentStartJavaScript(tab.webView, loadDataSaverJs("save_data.js"), setOf("*"))
+}
+
+internal fun MainActivity.removeSaveDataScript(tab: BrowserTab) {
+    saveDataScriptHandlers.remove(tab.id)?.remove()
 }
 
 internal fun MainActivity.buildUserAgent(): String {
@@ -198,7 +288,8 @@ internal fun MainActivity.applyWebDarkModeToAllTabs() {
 internal fun MainActivity.addAutoplayScript(tab: BrowserTab) {
     if (!WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) return
     removeAutoplayScript(tab)
-    autoplayScriptHandlers[tab.id] = WebViewCompat.addDocumentStartJavaScript(tab.webView, loadJsAsset("disable_autoplay.js"), setOf("*"))
+    if (!DataSaverMode.isActive(prefs) || !prefs.getBoolean("data_saver_disable_autoplay", true)) return
+    autoplayScriptHandlers[tab.id] = WebViewCompat.addDocumentStartJavaScript(tab.webView, loadDataSaverJs("disable_autoplay.js"), setOf("*"))
 }
 
 internal fun MainActivity.removeAutoplayScript(tab: BrowserTab) {
@@ -206,15 +297,16 @@ internal fun MainActivity.removeAutoplayScript(tab: BrowserTab) {
 }
 
 internal fun MainActivity.applyDataSaverSettings() {
-    val dataSaverEnabled = prefs.getBoolean("data_saver_enabled", false)
-    val disableImages = dataSaverEnabled && prefs.getBoolean("data_saver_disable_images", true)
+    val dataSaverEnabled = DataSaverMode.isActive(prefs)
     val disableAutoplay = dataSaverEnabled && prefs.getBoolean("data_saver_disable_autoplay", true)
     tabManager.tabs.forEach { tab ->
-        tab.webView.settings.loadsImagesAutomatically = !disableImages
-        tab.webView.settings.mediaPlaybackRequiresUserGesture = disableAutoplay
-        if (disableAutoplay) addAutoplayScript(tab) else removeAutoplayScript(tab)
+        val excepted = DataSaverSiteException.isExceptedUrl(this, tab.webView.url)
+        tab.webView.settings.mediaPlaybackRequiresUserGesture = disableAutoplay && !excepted
+        addAutoplayScript(tab)
+        addSaveDataScript(tab)
+        addDataSaverMediaScript(tab)
     }
-    tabManager.activeTab?.webView?.reload()
+    reloadActiveTabWithHeaders()
 }
 
 internal fun MainActivity.applyJavaScript() {
@@ -230,6 +322,12 @@ internal fun MainActivity.applyCookiePolicy() {
         if (!tab.isIncognito) cookieManager.setAcceptThirdPartyCookies(tab.webView, !blockThirdParty)
     }
     tabManager.activeTab?.webView?.reload()
+}
+
+internal fun MainActivity.applyAutofillSettings() {
+    val enabled = prefs.getBoolean(ClintAutofill.PREF_AUTOFILL_ENABLED, ClintAutofill.DEFAULT_AUTOFILL_ENABLED)
+    tabManager.tabs.forEach { ClintAutofill.apply(it.webView, it.isIncognito, enabled) }
+    ClintAutofill.cancel(this)
 }
 
 internal fun MainActivity.applyUserAgentMetadata(webView: WebView) {
@@ -346,4 +444,8 @@ private fun isRelatedToSession(
 
     val originalDomains = setOfNotNull(originalDownloadDomain, originalRefererDomain)
     return newDownloadDomain in originalDomains || newPageDomain in originalDomains
+}
+
+internal fun MainActivity.prepareCacheForNavigation(tab: BrowserTab, url: String?) {
+    DataSaverCacheMode.prepare(applicationContext, prefs, tab.webView, url, tab.isIncognito)
 }

@@ -24,6 +24,13 @@
     <string name="pref_category_navigation">Navigation</string>
     <string name="pref_category_language">Wika</string>
     <string name="pref_category_shortcuts">Shortcuts</string>
+    <string name="pref_category_tabs">Mga Tab</string>
+    <string name="delete_inactive_tabs_title">Burahin ang mga Inactive na Tab</string>
+    <string name="delete_inactive_tabs_dialog_desc">Awtomatikong isasara ang mga tab na hindi mo nabuksan sa loob ng itinakdang panahon. Hindi kailanman isasara ang tab na kasalukuyan mong tinitingnan at ang mga tab mula sa frameless shortcut.</string>
+    <string name="delete_inactive_tabs_summary_never">Hindi kailanman</string>
+    <string name="delete_inactive_tabs_summary_1_day">Pagkatapos ng 1 araw</string>
+    <string name="delete_inactive_tabs_summary_1_week">Pagkatapos ng 1 linggo</string>
+    <string name="delete_inactive_tabs_summary_1_month">Pagkatapos ng 1 buwan</string>
     <string name="frameless_shortcut_title">Frameless</string>
     <string name="frameless_shortcut_summary">Itago ang search bar at bottom bar kapag binuksan ang isang shortcut mula sa home screen</string>
     <string name="pref_category_custom_prompts">Custom Browser Prompts</string>
@@ -269,6 +276,16 @@
     <string name="download_push_notifications_title">Push notifications</string>
     <string name="download_push_notifications_summary">Makatanggap ng alerto kapag natapos, nabigo, o nag-retry ang isang download</string>
     <string name="download_section_general">PANGKALAHATAN</string>
+    <string name="download_section_dialog_ui">DOWNLOAD DIALOG</string>
+    <string name="download_dialog_ui_title">UI</string>
+    <string name="download_dialog_ui_standard">Standard</string>
+    <string name="download_dialog_ui_standard_desc">Maluwag na layout na may mga heading ng seksyon at paglalarawan</string>
+    <string name="download_dialog_ui_compact">Compact</string>
+    <string name="download_dialog_ui_compact_desc">Mas siksik na layout na may mas maliliit na kontrol at mas kaunting pag-scroll</string>
+    <string name="download_quick_download_title">Mabilisang pag-download</string>
+    <string name="download_quick_download_summary">Laktawan ang download dialog at agad na magsimulang mag-download gamit ang iyong global na download settings</string>
+    <string name="download_quick_download_images_title">Mabilisang pag-download ng mga larawan</string>
+    <string name="download_quick_download_images_summary">Laktawan ang download dialog kapag nagse-save ng larawan mula sa menu ng larawan</string>
     <string name="download_keep_screen_on_title">Panatilihing Bukas ang Screen</string>
     <string name="download_keep_screen_on_summary">Mananatiling bukas ang screen sa Downloads page hanggang matapos ang lahat ng nakabinbing download. (Nakakatulong ito kung pinapatay ng OS ang mga download habang natutulog ka.)</string>
     <string name="download_status_connecting">Kumukonekta&#8230;</string>
@@ -954,14 +971,37 @@
 
     <string name="https_only">HTTPS-Only Mode</string>
     <string name="https_only_summary">I-redirect ang mga HTTP na koneksyon papuntang HTTPS at i-block ang mga site na hindi ito sinusuportahan</string>
+    <string name="https_only_blocked_title">Hindi sinusuportahan ng site na ito ang HTTPS</string>
+    <string name="https_only_blocked_message">Na-block ng HTTPS-Only Mode ang koneksyon sa %1$s dahil hindi makagawa ng secure na koneksyon. Kapag nagpatuloy ka, ipapadala ang data mo nang walang encryption.</string>
+    <string name="https_only_blocked_proceed">Magpatuloy gamit ang HTTP</string>
+    <string name="do_not_track_title">Magpadala ng Do Not Track</string>
+    <string name="do_not_track_summary">Hinihiling sa mga website na huwag kang subaybayan. Maaari nila itong balewalain</string>
 
     <string name="data_saver_title">Data Saver</string>
-    <string name="data_saver_summary">Bawasan ang paggamit ng data gamit ang mas matalinong pag-load</string>
-    <string name="data_saver_settings_summary">I-disable ang mga larawan at autoplay</string>
+    <string name="data_saver_summary">Hinaharang ang mabibigat na content at humihiling sa mga site ng mas magaan na page para makatipid sa data</string>
+    <string name="data_saver_metered_only_title">Sa Metered na Network Lang</string>
+    <string name="data_saver_metered_only_summary">Naka-on lang ang Data Saver sa mobile data at sa mga Wi‑Fi network na naka-set bilang metered</string>
+    <string name="data_saver_settings_summary">Mga larawan, font, frame, video, at iba pa</string>
     <string name="data_saver_disable_images_title">I-disable ang mga Larawan</string>
     <string name="data_saver_disable_images_summary">Hindi ilo-load ang lahat ng larawan</string>
     <string name="data_saver_disable_autoplay_title">I-disable ang Autoplay</string>
     <string name="data_saver_disable_autoplay_summary">Hindi awtomatikong magpi-play ang mga video at media. Maaaring hindi ito gumana sa lahat ng website</string>
+    <string name="data_saver_send_header_title">Humiling ng Mas Magaan na Pahina</string>
+    <string name="data_saver_send_header_summary">Sinasabihan ang mga website na magpadala ng mas magaan na pahina at larawan kung suportado nila</string>
+    <string name="data_saver_block_fonts_title">I-block ang Web Font</string>
+    <string name="data_saver_block_fonts_summary">Gagamitin ng mga pahina ang font ng system sa halip na mag-download ng sarili nila. Maglo-load pa rin ang mga icon font</string>
+    <string name="data_saver_block_frames_title">I-block ang Third-Party Frame</string>
+    <string name="data_saver_block_frames_summary">Hindi isasama ang naka-embed na content mula sa ibang website, tulad ng mga ad at widget. Maglo-load pa rin ang mga frame ng captcha, sign-in, at video player</string>
+    <string name="data_saver_block_preload_title">I-block ang Pre-load ng Media</string>
+    <string name="data_saver_block_preload_summary">Dina-download lang ang video at audio kapag pinindot mo ang play</string>
+    <string name="data_saver_cache_first_title">Gamitin Muli ang Na-save na Pahina</string>
+    <string name="data_saver_cache_first_summary">Mula sa storage muna nilo-load ang mga pahinang binabalikan para makatipid sa data. I-pull para mag-refresh at makuha ang pinakabagong bersyon</string>
+    <string name="data_saver_block_video_title">I-block ang Video</string>
+    <string name="data_saver_block_video_summary">Hindi magla-load o magpe-play ang mga video. Maaaring mag-play pa rin ang mga protektadong video at ilang website</string>
+    <string name="data_saver_disable_suggestions_title">I-disable ang Online na Mungkahi sa Paghahanap</string>
+    <string name="data_saver_disable_suggestions_summary">Sa history at mga bookmark mo lang magmumungkahi ang address bar, hindi na magtatanong sa search engine habang nagta-type ka</string>
+    <string name="data_saver_disable_favicons_title">I-disable ang Favicon</string>
+    <string name="data_saver_disable_favicons_summary">Hindi dina-download ang mga icon ng site. Ipinapakita pa rin ang mga nai-save na</string>
     <string name="menu_data_saver">Data Saver</string>
     <string name="menu_quiver_guard">Quiver Guard</string>
     <string name="menu_website_blocker">Website Blocker</string>
@@ -1097,12 +1137,25 @@
 
     <string name="privacy_section_privacy">PRIVACY &amp; SEGURIDAD</string>
     <string name="privacy_section_history">HISTORY</string>
+    <string name="privacy_section_autofill">AUTOFILL</string>
+    <string name="autofill_title">Autofill</string>
+    <string name="autofill_summary">Hayaang punan at i-save ng iyong autofill service ang mga password, address, at detalye ng bayad sa mga website. Hindi ito gumagana sa Incognito Mode</string>
+    <string name="autofill_service_title">Autofill service</string>
+    <string name="autofill_service_summary_active">May aktibong service. I-tap para palitan</string>
+    <string name="autofill_service_summary_none">Walang napiling service. I-tap para pumili</string>
+    <string name="autofill_service_open_failed">Hindi mabuksan ang mga setting ng autofill. Hanapin ito sa mga setting ng device mo</string>
 
     <string name="site_section_permissions">PERMISSIONS</string>
     <string name="site_section_desktop_mode">DESKTOP MODE</string>
     <string name="site_section_quiver_guard">QUIVER GUARD</string>
 
     <string name="data_saver_section">DATA SAVER</string>
+
+    <string name="data_saver_media_section">MEDIA</string>
+
+    <string name="data_saver_loading_section">PAG-LOAD NG PAHINA</string>
+
+    <string name="data_saver_browser_section">BROWSER</string>
 
     <string name="update_section_updates">MGA UPDATE</string>
     <string name="update_section_channel">CHANNEL</string>
@@ -1631,6 +1684,8 @@
     <string name="homepage_show_favorites_summary">Ipakita ang iyong mga bookmark sa homepage ng Clint</string>
     <string name="homepage_show_recent_title">Ipakita ang kamakailang binisita</string>
     <string name="homepage_show_recent_summary">Ipakita ang mga site na kamakailan mong binisita sa homepage ng Clint</string>
+    <string name="homepage_center_content_title">I-center ang nilalaman</string>
+    <string name="homepage_center_content_summary">I-center nang patayo ang nilalaman ng homepage ng Clint sa screen</string>
     <string name="homepage_image_error">Hindi magamit ang larawang iyon. Subukan ang iba.</string>
     <string name="home_greeting_morning">Magandang umaga</string>
     <string name="home_greeting_afternoon">Magandang hapon</string>
@@ -1640,4 +1695,14 @@
     <string name="home_favorites_empty">I-bookmark ang mga paborito mong site at lalabas ang mga ito rito</string>
     <string name="home_incognito_message">Hindi mase-save sa history mo ang mga pahinang bibisitahin mo sa Incognito</string>
     <string name="home_normal_mode">Normal</string>
+    <string name="site_section_data_saver">DATA SAVER</string>
+    <string name="site_settings_data_saver_summary">Mga naka-save na site</string>
+    <string name="data_saver_exception_no_saved_sites">Walang naka-save na site</string>
+    <string name="data_saver_exception_search_hint">Maghanap ng naka-save na site…</string>
+    <string name="data_saver_exception_add_site">Magdagdag ng site</string>
+    <string name="data_saver_exception_state_label">Naka-disable ang Data Saver</string>
+    <string name="data_saver_exception_delete_title">Alisin ang mga naka-save na site</string>
+    <string name="data_saver_exception_delete_message">Alisin ang %d na naka-save na site?</string>
+    <string name="data_saver_exception_items_deleted">Naalis ang mga naka-save na site</string>
+    <string name="menu_disable_data_saver_for_site">I-disable ang Data Saver para sa site na ito</string>
 </resources>

@@ -24,6 +24,13 @@
     <string name="pref_category_navigation">Navigation</string>
     <string name="pref_category_language">Language</string>
     <string name="pref_category_shortcuts">Shortcuts</string>
+    <string name="pref_category_tabs">Tabs</string>
+    <string name="delete_inactive_tabs_title">Delete Inactive Tabs</string>
+    <string name="delete_inactive_tabs_dialog_desc">Tabs you haven\'t opened for this long are closed automatically. The tab you\'re viewing and tabs from frameless shortcuts are never closed.</string>
+    <string name="delete_inactive_tabs_summary_never">Never</string>
+    <string name="delete_inactive_tabs_summary_1_day">After 1 day</string>
+    <string name="delete_inactive_tabs_summary_1_week">After 1 week</string>
+    <string name="delete_inactive_tabs_summary_1_month">After 1 month</string>
     <string name="frameless_shortcut_title">Frameless</string>
     <string name="frameless_shortcut_summary">Hide the search bar and bottom bar when a shortcut is opened from the home screen</string>
     <string name="pref_category_custom_prompts">Custom Browser Prompts</string>
@@ -270,6 +277,16 @@
     <string name="download_push_notifications_title">Push notifications</string>
     <string name="download_push_notifications_summary">Get alerted when a download completes, fails, or starts retrying</string>
     <string name="download_section_general">GENERAL</string>
+    <string name="download_section_dialog_ui">DOWNLOAD DIALOG</string>
+    <string name="download_dialog_ui_title">UI</string>
+    <string name="download_dialog_ui_standard">Standard</string>
+    <string name="download_dialog_ui_standard_desc">Roomy layout with section headings and descriptions</string>
+    <string name="download_dialog_ui_compact">Compact</string>
+    <string name="download_dialog_ui_compact_desc">Tighter layout with smaller controls and less scrolling</string>
+    <string name="download_quick_download_title">Quick download</string>
+    <string name="download_quick_download_summary">Skip the download dialog and start downloading right away using your global download settings</string>
+    <string name="download_quick_download_images_title">Quick download images</string>
+    <string name="download_quick_download_images_summary">Skip the download dialog when saving an image from the image menu</string>
     <string name="download_keep_screen_on_title">Keep Screen On</string>
     <string name="download_keep_screen_on_summary">Keep the screen on the Downloads page until all pending downloads are finished. (Useful if your OS keeps killing downloads while you\'re sleeping.)</string>
     <string name="download_status_connecting">Connecting&#8230;</string>
@@ -955,14 +972,37 @@
 
     <string name="https_only">HTTPS-Only Mode</string>
     <string name="https_only_summary">Redirect HTTP connections to HTTPS and block sites that don\u2019t support it</string>
+    <string name="https_only_blocked_title">This site doesn\'t support HTTPS</string>
+    <string name="https_only_blocked_message">HTTPS-Only Mode blocked the connection to %1$s because a secure connection couldn\'t be made. If you continue, your data will be sent without encryption.</string>
+    <string name="https_only_blocked_proceed">Continue over HTTP</string>
+    <string name="do_not_track_title">Send Do Not Track request</string>
+    <string name="do_not_track_summary">Asks websites not to track you. Websites may choose to ignore it</string>
 
     <string name="data_saver_title">Data Saver</string>
-    <string name="data_saver_summary">Reduce data usage with smarter loading</string>
-    <string name="data_saver_settings_summary">Disable images and autoplay controls</string>
+    <string name="data_saver_summary">Blocks heavy content and asks sites for lighter pages to use less data</string>
+    <string name="data_saver_metered_only_title">Only on Metered Networks</string>
+    <string name="data_saver_metered_only_summary">Data Saver only turns on for mobile data and for Wi‑Fi networks set as metered</string>
+    <string name="data_saver_settings_summary">Images, fonts, frames, video and more</string>
     <string name="data_saver_disable_images_title">Disable Images</string>
     <string name="data_saver_disable_images_summary">All images will not load</string>
     <string name="data_saver_disable_autoplay_title">Disable Autoplay</string>
     <string name="data_saver_disable_autoplay_summary">Videos and media will not play automatically. May not work on all websites</string>
+    <string name="data_saver_send_header_title">Request Lighter Pages</string>
+    <string name="data_saver_send_header_summary">Tells websites to send lighter pages and images when they support it</string>
+    <string name="data_saver_block_fonts_title">Block Web Fonts</string>
+    <string name="data_saver_block_fonts_summary">Pages use system fonts instead of downloading their own. Icon fonts still load</string>
+    <string name="data_saver_block_frames_title">Block Third-Party Frames</string>
+    <string name="data_saver_block_frames_summary">Skips embedded content from other websites, like ads and widgets. Captcha, sign-in and video player frames still load</string>
+    <string name="data_saver_block_preload_title">Block Media Preloading</string>
+    <string name="data_saver_block_preload_summary">Videos and audio only download once you press play</string>
+    <string name="data_saver_cache_first_title">Reuse Saved Pages</string>
+    <string name="data_saver_cache_first_summary">Revisited pages load from storage first to save data. Pull to refresh for the latest version</string>
+    <string name="data_saver_block_video_title">Block Video</string>
+    <string name="data_saver_block_video_summary">Videos will not load or play. Protected videos and some websites may still play</string>
+    <string name="data_saver_disable_suggestions_title">Disable Online Search Suggestions</string>
+    <string name="data_saver_disable_suggestions_summary">The address bar only suggests from your history and bookmarks instead of asking the search engine as you type</string>
+    <string name="data_saver_disable_favicons_title">Disable Favicons</string>
+    <string name="data_saver_disable_favicons_summary">Site icons are not downloaded. Ones already saved still show</string>
     <string name="menu_data_saver">Data Saver</string>
     <string name="menu_quiver_guard">Quiver Guard</string>
     <string name="menu_website_blocker">Website Blocker</string>
@@ -1105,12 +1145,25 @@
 
     <string name="privacy_section_privacy">PRIVACY &amp; SECURITY</string>
     <string name="privacy_section_history">HISTORY</string>
+    <string name="privacy_section_autofill">AUTOFILL</string>
+    <string name="autofill_title">Autofill</string>
+    <string name="autofill_summary">Lets your autofill service fill in and save passwords, addresses and payment details on websites. Not used in Incognito Mode</string>
+    <string name="autofill_service_title">Autofill service</string>
+    <string name="autofill_service_summary_active">A service is active. Tap to change it</string>
+    <string name="autofill_service_summary_none">No service selected. Tap to choose one</string>
+    <string name="autofill_service_open_failed">Couldn\'t open autofill settings. Look for Autofill in your device settings</string>
 
     <string name="site_section_permissions">PERMISSIONS</string>
     <string name="site_section_desktop_mode">DESKTOP MODE</string>
     <string name="site_section_quiver_guard">QUIVER GUARD</string>
 
     <string name="data_saver_section">DATA SAVER</string>
+
+    <string name="data_saver_media_section">MEDIA</string>
+
+    <string name="data_saver_loading_section">PAGE LOADING</string>
+
+    <string name="data_saver_browser_section">BROWSER</string>
 
     <string name="update_section_updates">UPDATES</string>
     <string name="update_section_channel">CHANNEL</string>
@@ -1639,6 +1692,8 @@
     <string name="homepage_show_favorites_summary">Display your bookmarks on the Clint homepage</string>
     <string name="homepage_show_recent_title">Show Recently Visited</string>
     <string name="homepage_show_recent_summary">Display sites you visited lately on the Clint homepage</string>
+    <string name="homepage_center_content_title">Center Content</string>
+    <string name="homepage_center_content_summary">Vertically center the Clint homepage content on the screen</string>
     <string name="homepage_image_error">Couldn\'t use that image. Please try another one.</string>
     <string name="home_greeting_morning">Good morning</string>
     <string name="home_greeting_afternoon">Good afternoon</string>
@@ -1648,4 +1703,14 @@
     <string name="home_favorites_empty">Bookmark your favorite sites and they\'ll show up here</string>
     <string name="home_incognito_message">Pages you visit in Incognito won\'t be saved to your history</string>
     <string name="home_normal_mode">Normal</string>
+    <string name="site_section_data_saver">DATA SAVER</string>
+    <string name="site_settings_data_saver_summary">Saved sites</string>
+    <string name="data_saver_exception_no_saved_sites">No sites saved</string>
+    <string name="data_saver_exception_search_hint">Search saved sites…</string>
+    <string name="data_saver_exception_add_site">Add site</string>
+    <string name="data_saver_exception_state_label">Data Saver Disabled</string>
+    <string name="data_saver_exception_delete_title">Remove saved sites</string>
+    <string name="data_saver_exception_delete_message">Remove %d saved site(s)?</string>
+    <string name="data_saver_exception_items_deleted">Saved sites removed</string>
+    <string name="menu_disable_data_saver_for_site">Disable Data Saver for this site</string>
 </resources>

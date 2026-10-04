@@ -37,6 +37,7 @@ internal class SitePermissionDatabase(context: Context) :
         const val TYPE_DESKTOP_MODE            = "desktop_mode"
         const val TYPE_QUIVER_GUARD_EXCEPTION  = "quiver_guard_exception"
         const val TYPE_OPEN_IN_APP             = "open_in_app"
+        const val TYPE_DATA_SAVER_EXCEPTION    = "data_saver_exception"
         const val STATE_ALLOW        = "allow"
         const val STATE_DENY         = "deny"
         const val STATE_ASK          = "ask"

@@ -16,6 +16,9 @@ import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Splitscreen
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.VideoSettings
+import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.ViewCompact
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.Wifi
 
@@ -92,7 +95,10 @@ fun DownloadSettingsScreen(
     onIgnoreBatteryOptClick: () -> Unit,
     onGrantAllFilesAccessClick: () -> Unit,
     onPushNotificationsClick: () -> Unit,
-    onKeepScreenOnClick: () -> Unit
+    onKeepScreenOnClick: () -> Unit,
+    onQuickDownloadClick: () -> Unit,
+    onQuickDownloadImagesClick: () -> Unit,
+    onDialogUiSelected: (String) -> Unit
 ) {
     val colors = LocalClintColors.current
     val context = LocalContext.current
@@ -133,6 +139,10 @@ fun DownloadSettingsScreen(
                 DownloadSettingsDialog.DOWNLOAD_MANAGER -> DownloadManagerDialog(
                     current = state.downloadManagerApp, hideStatusBar = state.hideStatusBar, hideSystemNavigation = state.hideSystemNavigation,
                     onSelect = onDownloadManagerSelected, onDismiss = { state.openDialog = null }
+                )
+                DownloadSettingsDialog.DIALOG_UI -> DownloadDialogUiDialog(
+                    current = state.dialogUi, hideStatusBar = state.hideStatusBar, hideSystemNavigation = state.hideSystemNavigation,
+                    onSelect = onDialogUiSelected, onDismiss = { state.openDialog = null }
                 )
                 null -> {}
             }
@@ -357,12 +367,42 @@ fun DownloadSettingsScreen(
         SectionLabel(stringResource(R.string.download_section_general), colors.primary, Modifier.padding(start = 4.dp, bottom = 8.dp))
         SettingsSection(colors.cardBackground) {
             SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.FlashOn,
+                title = stringResource(R.string.download_quick_download_title),
+                summary = stringResource(R.string.download_quick_download_summary),
+                colors = colors,
+                onClick = onQuickDownloadClick,
+                trailing = { ClintSwitch(checked = state.quickDownload) }
+            )
+            RowDivider(colors.divider)
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.Image,
+                title = stringResource(R.string.download_quick_download_images_title),
+                summary = stringResource(R.string.download_quick_download_images_summary),
+                colors = colors,
+                enabled = !state.quickDownload,
+                onClick = { if (!state.quickDownload) onQuickDownloadImagesClick() },
+                trailing = { ClintSwitch(checked = state.quickDownloadImages && !state.quickDownload) }
+            )
+            RowDivider(colors.divider)
+            SettingsRow(
                 icon = androidx.compose.material.icons.Icons.Filled.Visibility,
                 title = stringResource(R.string.download_keep_screen_on_title),
                 summary = stringResource(R.string.download_keep_screen_on_summary),
                 colors = colors,
                 onClick = onKeepScreenOnClick,
                 trailing = { ClintSwitch(checked = state.keepScreenOn) }
+            )
+        }
+
+        SectionLabel(stringResource(R.string.download_section_dialog_ui), colors.primary, Modifier.padding(start = 4.dp, bottom = 8.dp))
+        SettingsSection(colors.cardBackground) {
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.ViewCompact,
+                title = stringResource(R.string.download_dialog_ui_title),
+                summary = stringResource(if (state.dialogUi == DownloadSettingsKeys.DIALOG_UI_COMPACT) R.string.download_dialog_ui_compact else R.string.download_dialog_ui_standard),
+                colors = colors,
+                onClick = { state.openDialog = DownloadSettingsDialog.DIALOG_UI }
             )
         }
 

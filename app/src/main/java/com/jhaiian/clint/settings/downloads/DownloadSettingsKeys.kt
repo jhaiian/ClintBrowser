@@ -34,10 +34,18 @@ object DownloadSettingsKeys {
     const val PREF_SPEED_LIMIT_UNIT        = "download_speed_limit_unit"
     const val PREF_PUSH_NOTIFICATIONS      = "download_push_notifications"
     const val DEFAULT_PUSH_NOTIFICATIONS   = true
+    const val PREF_QUICK_DOWNLOAD          = "download_quick_download"
+    const val DEFAULT_QUICK_DOWNLOAD       = false
+    const val PREF_QUICK_DOWNLOAD_IMAGES   = "download_quick_download_images"
+    const val DEFAULT_QUICK_DOWNLOAD_IMAGES = false
     const val PREF_KEEP_SCREEN_ON          = "download_keep_screen_on"
     const val DEFAULT_KEEP_SCREEN_ON       = false
     const val PREF_DOWNLOAD_MANAGER        = "download_manager_app"
     const val DEFAULT_DOWNLOAD_MANAGER     = com.jhaiian.clint.downloads.DownloadManagerAppIds.CLINT
     const val PREF_CATEGORIZE_DOWNLOADS    = "download_categorize_downloads"
     const val DEFAULT_CATEGORIZE_DOWNLOADS = false
+    const val PREF_DOWNLOAD_DIALOG_UI      = "download_dialog_ui"
+    const val DIALOG_UI_STANDARD           = "standard"
+    const val DIALOG_UI_COMPACT            = "compact"
+    const val DEFAULT_DOWNLOAD_DIALOG_UI   = DIALOG_UI_STANDARD
 }

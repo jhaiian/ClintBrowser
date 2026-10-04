@@ -19,9 +19,8 @@ internal fun MainActivity.setupSwipeRefresh() {
             wv != null && (barsHiddenByScrolling || wv.canScrollVertically(-1) || nestedScrollActive)
         }
     }
+    updateSwipeRefreshColors(uiState.isIncognito)
     swipeRefreshView.apply {
-        setColorSchemeColors(getThemeColor(androidx.appcompat.R.attr.colorPrimary))
-        setProgressBackgroundColorSchemeColor(getThemeColor(com.google.android.material.R.attr.colorSurface))
         setOnRefreshListener {
             nestedScrollActive = false
             canvasTouchActive = false

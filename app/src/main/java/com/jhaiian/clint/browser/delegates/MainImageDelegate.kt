@@ -64,6 +64,8 @@ internal fun MainActivity.handleImagePreview(imageUrl: String) {
 }
 
 internal fun MainActivity.handleImageDownload(imageUrl: String, altText: String) {
+    val quickImages = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this)
+        .getBoolean(com.jhaiian.clint.settings.downloads.DownloadSettingsKeys.PREF_QUICK_DOWNLOAD_IMAGES, com.jhaiian.clint.settings.downloads.DownloadSettingsKeys.DEFAULT_QUICK_DOWNLOAD_IMAGES)
     if (imageUrl.startsWith("data:")) {
         val commaIdx = imageUrl.indexOf(",")
         if (commaIdx < 0) return
@@ -79,14 +81,14 @@ internal fun MainActivity.handleImageDownload(imageUrl: String, altText: String)
                 android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
             } catch (_: Exception) { return }
         }
-        showDownloadDialogForBlob(b64, filename, mimeType)
+        showDownloadDialogForBlob(b64, filename, mimeType, quickImages)
         return
     }
     val userAgent = tabManager.activeTab?.webView?.settings?.userAgentString ?: buildUserAgent()
     val referer = tabManager.activeTab?.webView?.url ?: ""
     val cookies = CookieManager.getInstance().getCookie(imageUrl) ?: ""
     val filename = resolveImageFilename(imageUrl, altText)
-    showDownloadDialog(imageUrl, filename, userAgent, referer, cookies)
+    showDownloadDialog(imageUrl, filename, userAgent, referer, cookies, quickImages)
 }
 
 private fun resolveImageFilename(imageUrl: String, altText: String = ""): String {

@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -110,6 +111,7 @@ const val HOMEPAGE_SEARCH_ENGINE = "search_engine"
 const val PREF_HOMEPAGE_DESIGN = "homepage_design"
 const val PREF_HOMEPAGE_SHOW_FAVORITES = "homepage_show_favorites"
 const val PREF_HOMEPAGE_SHOW_RECENT = "homepage_show_recent"
+const val PREF_HOMEPAGE_CENTER_CONTENT = "homepage_center_content"
 const val HOMEPAGE_DESIGN_GRADIENT = "gradient"
 const val HOMEPAGE_DESIGN_PLAIN = "plain"
 
@@ -288,9 +290,11 @@ internal fun ClintHomeScreen(activity: MainActivity, state: MainUiState, modifie
                     )
             )
         }
-        val compact = maxHeight < 480.dp
+        val viewportHeight = maxHeight
+        val compact = viewportHeight < 480.dp
         val maxContent = if (isDesktop) DesktopContentMaxWidth else ContentMaxWidth
         val contentWidth = if (maxWidth < maxContent) maxWidth else maxContent
+        val centered = state.homepageCenterContent
         val showFavorites = state.homepageShowFavorites
         val showRecent = state.homepageShowRecent && recent.isNotEmpty()
         val sideBySide = isDesktop && !isIncognito && showFavorites && showRecent && contentWidth >= 800.dp
@@ -347,6 +351,7 @@ internal fun ClintHomeScreen(activity: MainActivity, state: MainUiState, modifie
             ) {
                 Column(
                     modifier = Modifier
+                        .then(if (centered) Modifier.heightIn(min = viewportHeight) else Modifier)
                         .widthIn(max = maxContent)
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp)
@@ -354,10 +359,12 @@ internal fun ClintHomeScreen(activity: MainActivity, state: MainUiState, modifie
                             alpha = reveal
                             translationY = (1f - reveal) * 18.dp.toPx()
                         },
+                    verticalArrangement = if (centered) Arrangement.Center else Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    if (centered) Spacer(Modifier.height(16.dp))
                     if (isDesktop) {
-                        Spacer(Modifier.height(if (compact) 16.dp else 56.dp))
+                        if (!centered) Spacer(Modifier.height(if (compact) 16.dp else 56.dp))
                         HomeDesktopHero(
                             isIncognito = isIncognito,
                             showGlow = design == HOMEPAGE_DESIGN_GRADIENT,
@@ -376,7 +383,7 @@ internal fun ClintHomeScreen(activity: MainActivity, state: MainUiState, modifie
                         Spacer(Modifier.height(if (compact) 16.dp else 24.dp))
                         HomeDesktopActions(actions, actionsPerRow)
                     } else {
-                        Spacer(Modifier.height(if (compact) 12.dp else 40.dp))
+                        if (!centered) Spacer(Modifier.height(if (compact) 12.dp else 40.dp))
                         HomeHero(
                             isIncognito = isIncognito,
                             showGlow = design == HOMEPAGE_DESIGN_GRADIENT,
@@ -412,7 +419,7 @@ internal fun ClintHomeScreen(activity: MainActivity, state: MainUiState, modifie
                             }
                         }
                     }
-                    Spacer(Modifier.height(32.dp))
+                    Spacer(Modifier.height(if (centered) 16.dp else 32.dp))
                 }
             }
         }

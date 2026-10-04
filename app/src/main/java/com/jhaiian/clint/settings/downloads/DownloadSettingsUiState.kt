@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 enum class DownloadSettingsDialog {
-    MEASUREMENT_SYSTEM, RETRY_COUNT, RETRY_INTERVAL, SPEED_LIMIT, DOWNLOAD_MANAGER
+    MEASUREMENT_SYSTEM, RETRY_COUNT, RETRY_INTERVAL, SPEED_LIMIT, DOWNLOAD_MANAGER, DIALOG_UI
 }
 
 class DownloadSettingsUiState(
@@ -14,6 +14,7 @@ class DownloadSettingsUiState(
     initialLocationMode: String,
     initialCustomUri: Uri?,
     initialCategorizeDownloads: Boolean,
+    initialDialogUi: String,
     initialMeasurementSystemDecimal: Boolean,
     initialUnmeteredOnly: Boolean,
     initialScheduleEnabled: Boolean,
@@ -34,6 +35,8 @@ class DownloadSettingsUiState(
     initialAllFilesAccessGranted: Boolean,
     initialPushNotifications: Boolean,
     initialKeepScreenOn: Boolean,
+    initialQuickDownload: Boolean,
+    initialQuickDownloadImages: Boolean,
     initialHideStatusBar: Boolean,
 initialHideSystemNavigation: Boolean
 ) {
@@ -41,6 +44,7 @@ initialHideSystemNavigation: Boolean
     var locationMode by mutableStateOf(initialLocationMode)
     var customUri by mutableStateOf(initialCustomUri)
     var categorizeDownloads by mutableStateOf(initialCategorizeDownloads)
+    var dialogUi by mutableStateOf(initialDialogUi)
     var measurementSystemDecimal by mutableStateOf(initialMeasurementSystemDecimal)
     var unmeteredOnly by mutableStateOf(initialUnmeteredOnly)
 
@@ -68,6 +72,8 @@ initialHideSystemNavigation: Boolean
 
     var pushNotifications by mutableStateOf(initialPushNotifications)
     var keepScreenOn by mutableStateOf(initialKeepScreenOn)
+    var quickDownload by mutableStateOf(initialQuickDownload)
+    var quickDownloadImages by mutableStateOf(initialQuickDownloadImages)
     var hideStatusBar by mutableStateOf(initialHideStatusBar)
     var hideSystemNavigation by mutableStateOf(initialHideSystemNavigation)
 

@@ -24,6 +24,13 @@
     <string name="pref_category_navigation">Navegación</string>
     <string name="pref_category_language">Idioma</string>
     <string name="pref_category_shortcuts">Accesos directos</string>
+    <string name="pref_category_tabs">Pestañas</string>
+    <string name="delete_inactive_tabs_title">Eliminar pestañas inactivas</string>
+    <string name="delete_inactive_tabs_dialog_desc">Las pestañas que no abras durante este tiempo se cierran automáticamente. La pestaña que estás viendo y las de los accesos directos sin marco nunca se cierran.</string>
+    <string name="delete_inactive_tabs_summary_never">Nunca</string>
+    <string name="delete_inactive_tabs_summary_1_day">Después de 1 día</string>
+    <string name="delete_inactive_tabs_summary_1_week">Después de 1 semana</string>
+    <string name="delete_inactive_tabs_summary_1_month">Después de 1 mes</string>
     <string name="frameless_shortcut_title">Sin marco</string>
     <string name="frameless_shortcut_summary">Oculta la barra de búsqueda y la barra inferior al abrir un acceso directo desde la pantalla de inicio</string>
     <string name="pref_category_custom_prompts">Ventanas del navegador personalizadas</string>
@@ -269,6 +276,16 @@
     <string name="download_push_notifications_title">Notificaciones push</string>
     <string name="download_push_notifications_summary">Recibe un aviso cuando una descarga se complete, falle o vuelva a intentarse</string>
     <string name="download_section_general">GENERAL</string>
+    <string name="download_section_dialog_ui">CUADRO DE DESCARGA</string>
+    <string name="download_dialog_ui_title">Interfaz</string>
+    <string name="download_dialog_ui_standard">Estándar</string>
+    <string name="download_dialog_ui_standard_desc">Diseño amplio con títulos de sección y descripciones</string>
+    <string name="download_dialog_ui_compact">Compacto</string>
+    <string name="download_dialog_ui_compact_desc">Diseño más ajustado, con controles más pequeños y menos desplazamiento</string>
+    <string name="download_quick_download_title">Descarga rápida</string>
+    <string name="download_quick_download_summary">Omite el cuadro de diálogo y empieza a descargar al instante con tu configuración global de descargas</string>
+    <string name="download_quick_download_images_title">Descarga rápida de imágenes</string>
+    <string name="download_quick_download_images_summary">Omite el cuadro de diálogo al guardar una imagen desde el menú de imágenes</string>
     <string name="download_keep_screen_on_title">Mantener la pantalla encendida</string>
     <string name="download_keep_screen_on_summary">Mantén la pantalla encendida en la sección de Descargas hasta que terminen todas las pendientes. (Útil si tu sistema suele cancelar las descargas mientras duermes).</string>
     <string name="download_status_connecting">Conectando&#8230;</string>
@@ -954,14 +971,37 @@
 
     <string name="https_only">Modo solo HTTPS</string>
     <string name="https_only_summary">Redirige las conexiones HTTP a HTTPS y bloquea los sitios que no lo admitan</string>
+    <string name="https_only_blocked_title">Este sitio no admite HTTPS</string>
+    <string name="https_only_blocked_message">El modo solo HTTPS bloqueó la conexión con %1$s porque no se pudo establecer una conexión segura. Si continúas, tus datos se enviarán sin cifrar.</string>
+    <string name="https_only_blocked_proceed">Continuar con HTTP</string>
+    <string name="do_not_track_title">Enviar solicitud «No rastrear»</string>
+    <string name="do_not_track_summary">Pide a los sitios web que no te rastreen. Pueden ignorar la solicitud</string>
 
     <string name="data_saver_title">Ahorro de datos</string>
-    <string name="data_saver_summary">Reduce el consumo de datos con una carga más inteligente</string>
-    <string name="data_saver_settings_summary">Desactivar imágenes y controles de reproducción automática</string>
+    <string name="data_saver_summary">Bloquea el contenido pesado y pide a los sitios páginas más ligeras para gastar menos datos</string>
+    <string name="data_saver_metered_only_title">Solo en redes de uso medido</string>
+    <string name="data_saver_metered_only_summary">El ahorro de datos solo se activa con datos móviles y con redes Wi‑Fi configuradas como de uso medido</string>
+    <string name="data_saver_settings_summary">Imágenes, fuentes, marcos, vídeo y más</string>
     <string name="data_saver_disable_images_title">Desactivar imágenes</string>
     <string name="data_saver_disable_images_summary">Ninguna imagen se cargará</string>
     <string name="data_saver_disable_autoplay_title">Desactivar reproducción automática</string>
     <string name="data_saver_disable_autoplay_summary">Los videos y contenidos multimedia no se reproducirán automáticamente. Puede que no funcione en todos los sitios web</string>
+    <string name="data_saver_send_header_title">Solicitar páginas más ligeras</string>
+    <string name="data_saver_send_header_summary">Pide a los sitios web que envíen páginas e imágenes más ligeras cuando sea posible</string>
+    <string name="data_saver_block_fonts_title">Bloquear fuentes web</string>
+    <string name="data_saver_block_fonts_summary">Las páginas usan las fuentes del sistema en lugar de descargar las suyas. Las fuentes de iconos se siguen cargando</string>
+    <string name="data_saver_block_frames_title">Bloquear marcos de terceros</string>
+    <string name="data_saver_block_frames_summary">Omite el contenido incrustado de otros sitios, como anuncios y widgets. Los marcos de captcha, inicio de sesión y reproductores de vídeo se siguen cargando</string>
+    <string name="data_saver_block_preload_title">Bloquear precarga de multimedia</string>
+    <string name="data_saver_block_preload_summary">El vídeo y el audio solo se descargan cuando pulsas reproducir</string>
+    <string name="data_saver_cache_first_title">Reutilizar páginas guardadas</string>
+    <string name="data_saver_cache_first_summary">Las páginas que vuelves a visitar se cargan primero desde el almacenamiento para ahorrar datos. Desliza hacia abajo para ver la versión más reciente</string>
+    <string name="data_saver_block_video_title">Bloquear vídeo</string>
+    <string name="data_saver_block_video_summary">Los vídeos no se cargarán ni se reproducirán. Los vídeos protegidos y algunos sitios web podrían seguir reproduciéndose</string>
+    <string name="data_saver_disable_suggestions_title">Desactivar sugerencias de búsqueda en línea</string>
+    <string name="data_saver_disable_suggestions_summary">La barra de direcciones solo sugiere desde tu historial y marcadores, sin consultar al buscador mientras escribes</string>
+    <string name="data_saver_disable_favicons_title">Desactivar favicons</string>
+    <string name="data_saver_disable_favicons_summary">Los iconos de los sitios no se descargan. Los que ya están guardados se siguen mostrando</string>
     <string name="menu_data_saver">Ahorro de datos</string>
     <string name="menu_quiver_guard">Quiver Guard</string>
     <string name="menu_website_blocker">Bloqueador de sitios web</string>
@@ -1104,12 +1144,25 @@
 
     <string name="privacy_section_privacy">PRIVACIDAD Y SEGURIDAD</string>
     <string name="privacy_section_history">HISTORIAL</string>
+    <string name="privacy_section_autofill">AUTOCOMPLETADO</string>
+    <string name="autofill_title">Autocompletado</string>
+    <string name="autofill_summary">Permite que tu servicio de autocompletado rellene y guarde contraseñas, direcciones y datos de pago en los sitios web. No se usa en modo incógnito</string>
+    <string name="autofill_service_title">Servicio de autocompletado</string>
+    <string name="autofill_service_summary_active">Hay un servicio activo. Toca para cambiarlo</string>
+    <string name="autofill_service_summary_none">No hay ningún servicio seleccionado. Toca para elegir uno</string>
+    <string name="autofill_service_open_failed">No se pudieron abrir los ajustes de autocompletado. Búscalos en los ajustes del dispositivo</string>
 
     <string name="site_section_permissions">PERMISOS</string>
     <string name="site_section_desktop_mode">MODO ESCRITORIO</string>
     <string name="site_section_quiver_guard">QUIVER GUARD</string>
 
     <string name="data_saver_section">AHORRO DE DATOS</string>
+
+    <string name="data_saver_media_section">MULTIMEDIA</string>
+
+    <string name="data_saver_loading_section">CARGA DE PÁGINAS</string>
+
+    <string name="data_saver_browser_section">NAVEGADOR</string>
 
     <string name="update_section_updates">ACTUALIZACIONES</string>
     <string name="update_section_channel">CANAL</string>
@@ -1638,6 +1691,8 @@
     <string name="homepage_show_favorites_summary">Muestra tus marcadores en la página de inicio de Clint</string>
     <string name="homepage_show_recent_title">Mostrar visitados recientemente</string>
     <string name="homepage_show_recent_summary">Muestra los sitios que visitaste hace poco en la página de inicio de Clint</string>
+    <string name="homepage_center_content_title">Centrar contenido</string>
+    <string name="homepage_center_content_summary">Centra verticalmente el contenido de la página de inicio de Clint en la pantalla</string>
     <string name="homepage_image_error">No se pudo usar esa imagen. Prueba con otra.</string>
     <string name="home_greeting_morning">Buenos días</string>
     <string name="home_greeting_afternoon">Buenas tardes</string>
@@ -1647,4 +1702,14 @@
     <string name="home_favorites_empty">Guarda tus sitios favoritos en marcadores y aparecerán aquí</string>
     <string name="home_incognito_message">Las páginas que visites en incógnito no se guardarán en tu historial</string>
     <string name="home_normal_mode">Normal</string>
+    <string name="site_section_data_saver">AHORRO DE DATOS</string>
+    <string name="site_settings_data_saver_summary">Sitios guardados</string>
+    <string name="data_saver_exception_no_saved_sites">No hay sitios guardados</string>
+    <string name="data_saver_exception_search_hint">Buscar sitios guardados…</string>
+    <string name="data_saver_exception_add_site">Agregar sitio</string>
+    <string name="data_saver_exception_state_label">Ahorro de datos desactivado</string>
+    <string name="data_saver_exception_delete_title">Quitar sitios guardados</string>
+    <string name="data_saver_exception_delete_message">¿Quitar %d sitio(s) guardado(s)?</string>
+    <string name="data_saver_exception_items_deleted">Sitios guardados quitados</string>
+    <string name="menu_disable_data_saver_for_site">Desactivar el ahorro de datos para este sitio</string>
 </resources>

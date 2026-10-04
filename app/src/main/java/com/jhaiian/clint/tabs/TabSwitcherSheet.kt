@@ -288,11 +288,9 @@ internal fun rememberTabFavicon(tab: TabPreview): Bitmap? {
         val faviconUrl = FaviconCache.faviconUrlFor(tab.url)
         if (faviconUrl.isEmpty()) return@LaunchedEffect
         if (tab.isIncognito) {
-            FaviconCache.loadMemoryOnly(faviconUrl) { bmp -> bitmap = bmp }
+            FaviconCache.loadMemoryOnly(context, faviconUrl) { bmp -> bitmap = bmp }
         } else {
-            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-            val cacheOnly = prefs.getBoolean("data_saver_enabled", false) && prefs.getBoolean("data_saver_disable_images", true)
-            FaviconCache.load(context, faviconUrl, cacheOnly) { bmp -> bitmap = bmp }
+            FaviconCache.load(context, faviconUrl) { bmp -> bitmap = bmp }
         }
     }
     return bitmap

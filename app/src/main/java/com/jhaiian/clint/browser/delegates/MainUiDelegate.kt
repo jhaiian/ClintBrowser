@@ -1,9 +1,11 @@
 package com.jhaiian.clint.browser.delegates
+import androidx.compose.ui.graphics.toArgb
 import com.jhaiian.clint.browser.home.CLINT_HOME_HOST
 import com.jhaiian.clint.browser.home.isClintHomeUrl
 import com.jhaiian.clint.ui.theme.ThemeMode
 import com.jhaiian.clint.browser.*
 import com.jhaiian.clint.browser.suggestions.SuggestionFetcher
+import com.jhaiian.clint.settings.datasaver.DataSaverMode
 import com.jhaiian.clint.browser.webview.loadJsAsset
 import android.content.Context
 import android.Manifest
@@ -97,9 +99,15 @@ internal fun MainActivity.onSearchQueryChanged(query: String) {
             runOnUiThread { uiState.suggestions = combineSuggestions(bookmarks, history, emptyList()) }
             return@post
         }
+        val onlineBlocked = DataSaverMode.isActive(prefs) && prefs.getBoolean("data_saver_disable_suggestions", true)
+        if (onlineBlocked) {
+            suggestionFetcher?.cancel()
+            lastOnlineSuggestions = emptyList()
+        }
         val history = if (historyAllowed) SearchHistoryManager.search(this, query).take(SUGGESTION_HISTORY_LIMIT) else emptyList()
         val bookmarks = BookmarkManager.search(this, query).take(SUGGESTION_BOOKMARK_LIMIT)
         runOnUiThread { uiState.suggestions = combineSuggestions(bookmarks, history, lastOnlineSuggestions) }
+        if (onlineBlocked) return@post
         val suggestionsApi = prefs.getString("search_suggestions_api", "duckduckgo") ?: "duckduckgo"
         val customSuggestionsUrl = if (suggestionsApi == "custom") {
             customSearchSuggestionsApiQueryUrl(prefs, android.net.Uri.encode(query))
@@ -208,7 +216,8 @@ internal fun MainActivity.loadUrl(input: String) {
     val wv = tabManager.activeTab?.webView ?: return
     tabManager.activeTab?.url = url
     uiState.isHomePage = isClintHomeUrl(url)
-    val headers = buildDesktopHeaders()
+    val headers = buildRequestHeaders(url)
+    tabManager.activeTab?.let { prepareCacheForNavigation(it, url) }
     if (headers != null) wv.loadUrl(url, headers) else wv.loadUrl(url)
     hideKeyboardOnly()
 }
@@ -259,6 +268,7 @@ internal fun MainActivity.onPageStarted(url: String) {
 
     tabManager.activeTab?.let { tab ->
         onQuiverGuardPageStarted(tab, url)
+        applyDataSaverSiteState(tab, url)
     }
 
     if (url.startsWith("http") && !isClintHomeUrl(url)) {
@@ -398,10 +408,14 @@ internal fun MainActivity.updateMediaCaptureEnabledState() {
 }
 
 internal fun MainActivity.updateSwipeRefreshColors(isIncognito: Boolean) {
-    swipeRefreshView.setProgressBackgroundColorSchemeColor(
-        getThemeColor(com.google.android.material.R.attr.colorSurface)
+    val resolved = com.jhaiian.clint.ui.theme.resolveClintTheme(
+        this,
+        if (com.jhaiian.clint.ui.theme.ThemeMode.isLight(prefs.getString("app_theme", "system") ?: "system")) "light" else "dark",
+        prefs.getString("accent_color", "material_you") ?: "material_you",
+        prefs.getString("surface_intensity", "soft_tint") ?: "soft_tint"
     )
-    swipeRefreshView.setColorSchemeColors(getThemeColor(androidx.appcompat.R.attr.colorPrimary))
+    swipeRefreshView.setProgressBackgroundColorSchemeColor(resolved.cardBackground.toArgb())
+    swipeRefreshView.setColorSchemeColors(resolved.primary.toArgb())
 }
 
 internal fun MainActivity.hideKeyboard() {

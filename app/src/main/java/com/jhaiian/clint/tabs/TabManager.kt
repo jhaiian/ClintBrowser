@@ -9,7 +9,12 @@ class TabManager {
     val activeTab: BrowserTab? get() = tabs.getOrNull(activeIndex)
     val count: Int get() = tabs.size
 
+    fun touchActive() {
+        activeTab?.lastActiveAt = System.currentTimeMillis()
+    }
+
     fun add(tab: BrowserTab): Int {
+        touchActive()
         tabs.add(tab)
         activeIndex = tabs.lastIndex
         return activeIndex
@@ -35,7 +40,10 @@ class TabManager {
     }
 
     fun switchTo(index: Int) {
-        if (index in tabs.indices) activeIndex = index
+        if (index !in tabs.indices) return
+        touchActive()
+        activeIndex = index
+        touchActive()
     }
 
     fun effectiveShortcutId(tab: BrowserTab): String? {

@@ -86,6 +86,7 @@ import com.jhaiian.clint.downloads.DownloadStatus
 import com.jhaiian.clint.quiver.engine.BlockedRequestCounter
 import com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase
 import com.jhaiian.clint.settings.sitepermissions.SitePermissionManager
+import com.jhaiian.clint.settings.datasaver.DataSaverSiteException
 import com.jhaiian.clint.userscripts.UserScriptState
 import com.jhaiian.clint.ui.ClintDialogStatusBarEffect
 import com.jhaiian.clint.ui.listscreen.PopupShape
@@ -106,6 +107,7 @@ internal data class BrowserMenuSnapshot(
     val isQuiverGuardEnabled: Boolean,
     val quiverGuardBlockedCount: Long,
     val isQuiverGuardExceptionForSite: Boolean,
+    val isDataSaverExceptionForSite: Boolean,
     val isWebsiteBlockerEnabled: Boolean,
     val openInAppEnabled: Boolean,
     val openInAppLabel: String?,
@@ -139,6 +141,7 @@ internal class BrowserMenuActions(
     val onQuiverGuard: () -> Unit,
     val onOpenQuiverGuardSettings: () -> Unit,
     val onDisableQuiverGuardForSite: () -> Unit,
+    val onDisableDataSaverForSite: () -> Unit,
     val onWebsiteBlocker: () -> Unit,
     val onOpenWebsiteBlockerSettings: () -> Unit
 )
@@ -166,6 +169,8 @@ internal fun MainActivity.buildMenuSnapshot(): BrowserMenuSnapshot {
         SitePermissionManager.getState(this, host, SitePermissionDatabase.TYPE_QUIVER_GUARD_EXCEPTION) != null
     }
 
+    val dataSaverExceptionForSite = DataSaverSiteException.isExceptedUrl(this, wv?.url)
+
     return BrowserMenuSnapshot(
         showNavRow = position != "split",
         canGoBack = wv?.canGoBack() == true,
@@ -182,6 +187,7 @@ internal fun MainActivity.buildMenuSnapshot(): BrowserMenuSnapshot {
         isQuiverGuardEnabled = prefs.getBoolean("quiver_guard_enabled", false),
         quiverGuardBlockedCount = tabManager.activeTab?.id?.let { BlockedRequestCounter.getTabCount(it) } ?: 0L,
         isQuiverGuardExceptionForSite = exceptionForSite,
+        isDataSaverExceptionForSite = dataSaverExceptionForSite,
         isWebsiteBlockerEnabled = prefs.getBoolean("website_blocker_enabled", false),
         openInAppEnabled = appMatches.isNotEmpty(),
         openInAppLabel = openInAppLabel,
@@ -216,6 +222,7 @@ internal fun MainActivity.buildMenuActions(dismiss: () -> Unit): BrowserMenuActi
     onQuiverGuard = { dismiss(); onMenuQuiverGuard() },
     onOpenQuiverGuardSettings = { dismiss(); onMenuOpenQuiverGuardSettings() },
     onDisableQuiverGuardForSite = { dismiss(); onMenuDisableQuiverGuardForSite() },
+    onDisableDataSaverForSite = { dismiss(); onMenuDisableDataSaverForSite() },
     onWebsiteBlocker = { dismiss(); onMenuWebsiteBlocker() },
     onOpenWebsiteBlockerSettings = { dismiss(); onMenuOpenWebsiteBlockerSettings() }
 )
@@ -432,6 +439,12 @@ private fun MenuItemRowFor(item: CustomizableMenuItem, snapshot: BrowserMenuSnap
             checked = snapshot.isDataSaverEnabled,
             onClick = actions.onDataSaver,
             onLongClick = actions.onOpenDataSaverSettings
+        )
+        CustomizableMenuItem.DISABLE_DATA_SAVER_FOR_SITE -> MenuItemRow(
+            item.icon(),
+            stringResource(item.titleRes()),
+            checked = snapshot.isDataSaverExceptionForSite,
+            onClick = actions.onDisableDataSaverForSite
         )
     }
 }

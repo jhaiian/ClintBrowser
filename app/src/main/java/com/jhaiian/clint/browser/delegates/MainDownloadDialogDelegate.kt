@@ -10,7 +10,11 @@ import com.jhaiian.clint.R
 import com.jhaiian.clint.browser.MainActivity
 import com.jhaiian.clint.downloads.DEFAULT_SPEED_LIMIT_UNIT
 import com.jhaiian.clint.downloads.DownloadRequestDialog
+import com.jhaiian.clint.downloads.DownloadCategories
 import com.jhaiian.clint.downloads.DownloadRequestSubmission
+import com.jhaiian.clint.downloads.checkFat32FileSizeLimit
+import com.jhaiian.clint.downloads.checkStorageAvailable
+import com.jhaiian.clint.downloads.resolveSpeedLimitBytesPerSec
 import com.jhaiian.clint.downloads.estimateBase64DecodedSize
 import com.jhaiian.clint.downloads.ClintDownloadManager
 import com.jhaiian.clint.downloads.DownloadsActivity
@@ -23,7 +27,8 @@ internal fun MainActivity.showDownloadDialog(
     filename: String,
     userAgent: String,
     referer: String,
-    cookies: String
+    cookies: String,
+    forceQuick: Boolean = false
 ) {
     val prefs = PreferenceManager.getDefaultSharedPreferences(this)
     val downloadManagerApp = prefs.getString(DownloadSettingsKeys.PREF_DOWNLOAD_MANAGER, DownloadSettingsKeys.DEFAULT_DOWNLOAD_MANAGER) ?: DownloadSettingsKeys.DEFAULT_DOWNLOAD_MANAGER
@@ -33,6 +38,7 @@ internal fun MainActivity.showDownloadDialog(
         return
     }
     mountDownloadRequestDialog(
+        forceQuick = forceQuick,
         url = url,
         onCopyLink = { copyDownloadRequestLink(url) },
         initialFilename = filename,
@@ -50,19 +56,13 @@ internal fun MainActivity.showDownloadDialog(
         initialSpeedLimitAmount = prefs.getInt(DownloadSettingsKeys.PREF_SPEED_LIMIT_AMOUNT, DownloadSettingsKeys.DEFAULT_SPEED_LIMIT_AMOUNT),
         initialSpeedLimitUnit = prefs.getString(DownloadSettingsKeys.PREF_SPEED_LIMIT_UNIT, DEFAULT_SPEED_LIMIT_UNIT) ?: DEFAULT_SPEED_LIMIT_UNIT,
         onSubmit = { submission, dismiss, onRename ->
-            if (com.jhaiian.clint.downloads.DownloadFileHelper.isCustomLocationAccessible(this, submission.locationMode, submission.customLocationUri)) {
-                showClintSnackbar(
-                    message = getString(R.string.toast_downloading, submission.filename),
-                    actionLabel = getString(R.string.download_started_view_action),
-                    onAction = { DownloadsActivity.open(this) }
-                )
-            }
             initiateDownload(
                 url, submission.filename, userAgent, referer, cookies,
                 submission.retryEnabled, submission.unmeteredOnly, submission.splitParts, submission.multithreadingParts, submission.speedLimitBytesPerSec,
                 submission.locationMode, submission.customLocationUri, submission.categorizeEnabled, submission.scheduledStartAtMillis,
                 onDismiss = dismiss,
-                onRename = onRename
+                onRename = onRename,
+                onStarted = { showDownloadStartedSnackbar(submission.filename, submission.locationMode, submission.customLocationUri) }
             )
         }
     )
@@ -71,10 +71,12 @@ internal fun MainActivity.showDownloadDialog(
 internal fun MainActivity.showDownloadDialogForBlob(
     base64: String,
     filename: String,
-    mimeType: String
+    mimeType: String,
+    forceQuick: Boolean = false
 ) {
     val blobLabel = getString(R.string.download_dialog_blob_label)
     mountDownloadRequestDialog(
+        forceQuick = forceQuick,
         url = blobLabel,
         onCopyLink = { copyDownloadRequestLink(blobLabel) },
         initialFilename = filename,
@@ -104,6 +106,16 @@ internal fun MainActivity.showDownloadDialogForBlob(
     )
 }
 
+internal fun MainActivity.showDownloadStartedSnackbar(filename: String, locationMode: String, customLocationUri: String?) {
+    if (com.jhaiian.clint.downloads.DownloadFileHelper.isCustomLocationAccessible(this, locationMode, customLocationUri)) {
+        showClintSnackbar(
+            message = getString(R.string.toast_downloading, filename),
+            actionLabel = getString(R.string.download_started_view_action),
+            onAction = { DownloadsActivity.open(this) }
+        )
+    }
+}
+
 private fun MainActivity.copyDownloadRequestLink(text: String) {
     val clipboard = getSystemService(ClipboardManager::class.java)
     clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.download_dialog_link_clip_label), text))
@@ -113,6 +125,7 @@ private fun MainActivity.copyDownloadRequestLink(text: String) {
 }
 
 internal fun MainActivity.mountDownloadRequestDialog(
+    forceQuick: Boolean = false,
     url: String,
     onCopyLink: () -> Unit,
     initialFilename: String,
@@ -143,7 +156,7 @@ internal fun MainActivity.mountDownloadRequestDialog(
 
     val dismiss: () -> Unit = { overlayContent = null }
 
-    overlayContent = {
+    fun mountFull() { overlayContent = {
         ClintComposeTheme(theme = theme) {
             DownloadRequestDialog(
                 hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation,
@@ -183,7 +196,30 @@ internal fun MainActivity.mountDownloadRequestDialog(
                 onSubmit = { submission, onDismissFromSubmit, onRename -> onSubmit(submission, onDismissFromSubmit, onRename) }
             )
         }
+    } }
+
+    if (forceQuick || prefs.getBoolean(DownloadSettingsKeys.PREF_QUICK_DOWNLOAD, DownloadSettingsKeys.DEFAULT_QUICK_DOWNLOAD)) {
+        val storageError = checkStorageAvailable(this, contentLengthBytes, initialLocationMode, initialCustomUri)
+        val fat32Error = checkFat32FileSizeLimit(this, contentLengthBytes, initialLocationMode, initialCustomUri)
+        if (storageError == null && fat32Error == null) {
+            val submission = DownloadRequestSubmission(
+                filename = initialFilename,
+                retryEnabled = initialRetryEnabled,
+                unmeteredOnly = initialUnmeteredOnly,
+                splitParts = initialSplitParts,
+                multithreadingParts = initialMultithreadingParts,
+                speedLimitBytesPerSec = resolveSpeedLimitBytesPerSec(this, initialSpeedLimitAmount, initialSpeedLimitUnit),
+                locationMode = initialLocationMode,
+                customLocationUri = initialCustomUri?.toString(),
+                categorizeEnabled = DownloadCategories.isEnabled(this),
+                scheduledStartAtMillis = 0L,
+                concurrentSegments = initialConcurrentSegments
+            )
+            onSubmit(submission, dismiss) { mountFull() }
+            return
+        }
     }
+    mountFull()
 }
 
 internal fun MainActivity.launchDownloadDialogFolderPicker() {

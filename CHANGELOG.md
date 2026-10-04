@@ -4,6 +4,94 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.1.9
+
+---
+
+## What's New
+
+### Heavily Improved Data Saver
+
+Expanded with all of these options:
+
+- **Only on Metered Networks** — Data Saver only turns on for mobile data and for Wi-Fi networks set as metered.
+- **Disable Images** — All images will not load.
+- **Block Video** — Videos will not load or play. Protected videos and some websites may still play.
+- **Disable Autoplay** — Videos and media will not play automatically. May not work on all websites. This would not work on the native player of that site like YouTube or Reddit; it will only work on standard video like embedded video sites.
+- **Block Media Preloading** — Videos and audio only download once you press play. Same thing here.
+- **Block Web Fonts** — Pages use system fonts instead of downloading their own. Icon fonts still load.
+- **Block Third-Party Frames** — Skips embedded content from other websites, like ads and widgets. Captcha and sign-in frames still load.
+- **Reuse Saved Pages** — Revisited pages load from storage first to save data. Pull to refresh for the latest version.
+- **Request Lighter Pages** — Tells websites to send lighter pages and images when they support it. Basically, the app will send a recognizable Data Saver header, which is basically telling the website, "We have Data Saver on." It's up to the website if they're gonna do something about it.
+- **Disable Online Search Suggestions** — The address bar only suggests from your history and bookmarks instead of asking the search engine as you type.
+- **Disable Favicons** — Site icons are not downloaded. Ones already saved still show.
+
+(Thank you to @super585 for suggesting this #41)
+
+> *Tbh guys, I just ran out of ideas. It's just so hard to implement everything with WebView limitations. But if you turn on everything, especially Disable Images and Block Video, you should get a good result — or even block video. One thing that's gonna help you save much data without limiting content is Quiver Guard to block ads and trackers from loading.*
+
+---
+
+### Privacy & Security
+
+- Added **Send Do Not Track request**. Asks websites not to track you. Websites may choose to ignore it. It's the same scenario as the Data Saver header — the app will send a Do Not Track header to the website, and it's up to the website if they care about that.
+- Added the ability to turn off **Autofill** in Browser Settings.
+- Added **Passkeys support** in the web. It's not guaranteed to work, especially on Google Password Manager, because they have an allow list of browsers that are allowed to run passkeys, so I'm sorry guys, but it might work with third-party providers.
+
+(Thank you to @Rohit-Bhadra for suggesting this #66)
+
+---
+
+### Clint Homepage
+
+- Added **Center Content** — Vertically center the Clint homepage content on the screen.
+
+(Thank you to @reviewlord for suggesting this #64)
+
+---
+
+### Tabs
+
+- Added **Delete Inactive Tabs** with 4 options:
+  - Never
+  - 1 day
+  - 1 week
+  - 1 month
+
+---
+
+### Download Settings
+
+- Added **Quick Download** — Skip the download dialog and start downloading right away using your global download settings.
+- Added **Quick Download Images** — Skip the download dialog when saving an image from the image menu.
+- Added an option to change the **Download Dialog UI**:
+  - **Standard** — Roomy layout with section headings and descriptions (this is the current one).
+  - **Compact** — Tighter layout with smaller controls and less scrolling.
+
+(Thank you to @iHarryPotter178 for suggesting this #57)
+
+---
+
+## Bug Fixes
+
+- Fixed the Swipe Refresh Layout not following the theme.
+- Fixed the download Snackbar appearing even though the download had not started yet.
+- Fixed the download Snackbar not showing the final filename correctly.
+
+---
+
+### Donation
+
+Thank you for our first donation!
+
+- **Babygirlcripwalker** — Subscribing as a Pym Arrow member, $1 per month.
+
+---
+
+> *As you can see, I did a lot of work, but there's a consequence to this. I missed my two assessments because I fell asleep while waiting for this app to compile, because jeez, this takes a long time. And yeah, I was supposed to make the assessment, but when I woke up it was already too late, the classroom was closed, and it was past the due date. I just lost 75 points of assessment for this update. And I still have a reporting presentation, so I might make that, and yeah, there might be no update for Clint for a few days.*
+
+---
+
 # v1.1.8
 
 ---

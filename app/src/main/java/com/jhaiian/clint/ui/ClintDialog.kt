@@ -133,6 +133,7 @@ fun ClintDialog(
     cancelable: Boolean = true,
     footer: @Composable () -> Unit = { ClintDialogCancelFooter(onDismiss) },
     scrollState: ScrollState = rememberScrollState(),
+    compact: Boolean = false,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val colors = LocalClintColors.current
@@ -148,14 +149,18 @@ fun ClintDialog(
         BoxWithConstraints {
             val maxContentHeight = (maxHeight - ClintDialogChromeHeight)
                 .coerceIn(0.dp, ClintDialogContentMaxHeight)
-            Surface(shape = RoundedCornerShape(24.dp), color = colors.popupBackground) {
+            Surface(shape = RoundedCornerShape(if (compact) 20.dp else 24.dp), color = colors.popupBackground) {
                 Column {
                     Text(
                         title,
                         color = colors.onSurface,
-                        fontSize = 18.sp,
+                        fontSize = if (compact) 16.sp else 18.sp,
                         fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp, bottom = 8.dp)
+                        modifier = if (compact) {
+                            Modifier.padding(start = 20.dp, end = 20.dp, top = 14.dp, bottom = 4.dp)
+                        } else {
+                            Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp, bottom = 8.dp)
+                        }
                     )
                     Column(
                         Modifier

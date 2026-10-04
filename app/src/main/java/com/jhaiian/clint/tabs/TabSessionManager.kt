@@ -9,7 +9,8 @@ data class SavedTab(
     val title: String,
     val isActive: Boolean,
     val tabId: String,
-    val shortcutId: String? = null
+    val shortcutId: String? = null,
+    val lastActiveAt: Long = System.currentTimeMillis()
 )
 
 object TabSessionManager {
@@ -35,6 +36,7 @@ object TabSessionManager {
                     put(TabDatabase.COL_ACTIVE, if (tab.isActive) 1 else 0)
                     put(TabDatabase.COL_TAB_ID, tab.tabId)
                     put(TabDatabase.COL_SHORTCUT_ID, tab.shortcutId)
+                    put(TabDatabase.COL_LAST_ACTIVE, tab.lastActiveAt)
                 }
                 writable.insert(TabDatabase.TABLE, null, values)
             }
@@ -53,7 +55,8 @@ object TabSessionManager {
                 TabDatabase.COL_TITLE,
                 TabDatabase.COL_ACTIVE,
                 TabDatabase.COL_TAB_ID,
-                TabDatabase.COL_SHORTCUT_ID
+                TabDatabase.COL_SHORTCUT_ID,
+                TabDatabase.COL_LAST_ACTIVE
             ),
             null, null, null, null,
             "${TabDatabase.COL_POSITION} ASC"
@@ -68,7 +71,8 @@ object TabSessionManager {
                         title = it.getString(2),
                         isActive = it.getInt(3) == 1,
                         tabId = it.getString(4) ?: java.util.UUID.randomUUID().toString(),
-                        shortcutId = it.getString(5)
+                        shortcutId = it.getString(5),
+                        lastActiveAt = it.getLong(6)
                     )
                 )
             }

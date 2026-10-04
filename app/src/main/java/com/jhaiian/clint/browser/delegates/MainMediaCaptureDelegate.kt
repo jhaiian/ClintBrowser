@@ -123,13 +123,6 @@ private fun MainActivity.showMediaCaptureDownloadDialog(
                     dismiss()
                     enqueueMediaCaptureStream(media, allItems, pageUrl, userAgent, submission, knownLengthBytes ?: estimatedBytes ?: 0L, convertTsToMp4)
                 } else {
-                    if (DownloadFileHelper.isCustomLocationAccessible(this, submission.locationMode, submission.customLocationUri)) {
-                        showClintSnackbar(
-                            message = getString(R.string.toast_downloading, submission.filename),
-                            actionLabel = getString(R.string.download_started_view_action),
-                            onAction = { DownloadsActivity.open(this) }
-                        )
-                    }
                     initiateDownload(
                         media.url, submission.filename,
                         mediaCaptureRequestHeader(media, "User-Agent") ?: userAgent,
@@ -138,7 +131,8 @@ private fun MainActivity.showMediaCaptureDownloadDialog(
                         submission.retryEnabled, submission.unmeteredOnly, submission.splitParts, submission.multithreadingParts, submission.speedLimitBytesPerSec,
                         submission.locationMode, submission.customLocationUri, submission.categorizeEnabled, submission.scheduledStartAtMillis,
                         onDismiss = dismiss,
-                        onRename = onRename
+                        onRename = onRename,
+                        onStarted = { showDownloadStartedSnackbar(submission.filename, submission.locationMode, submission.customLocationUri) }
                     )
                 }
             }

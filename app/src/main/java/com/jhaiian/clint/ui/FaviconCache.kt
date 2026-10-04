@@ -5,6 +5,8 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Handler
 import android.os.Looper
+import androidx.preference.PreferenceManager
+import com.jhaiian.clint.settings.datasaver.DataSaverMode
 import java.io.File
 import java.net.URL
 import java.security.MessageDigest
@@ -23,6 +25,11 @@ object FaviconCache {
         }.getOrDefault("")
     }
 
+    private fun isNetworkBlocked(context: Context): Boolean {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+        return DataSaverMode.isActive(prefs) && prefs.getBoolean("data_saver_disable_favicons", true)
+    }
+
     fun load(context: Context, faviconUrl: String, cacheOnly: Boolean = false, onResult: (Bitmap?) -> Unit) {
         if (faviconUrl.isEmpty()) {
             onResult(null)
@@ -31,6 +38,7 @@ object FaviconCache {
         val key = keyFor(faviconUrl)
         memoryCache[key]?.let { onResult(it); return }
         val appContext = context.applicationContext
+        val cacheOnly = cacheOnly || isNetworkBlocked(appContext)
         executor.execute {
             val file = diskFile(appContext, key)
             val cached = if (file.exists()) BitmapFactory.decodeFile(file.absolutePath) else null
@@ -54,13 +62,17 @@ object FaviconCache {
         }
     }
 
-    fun loadMemoryOnly(faviconUrl: String, onResult: (Bitmap?) -> Unit) {
+    fun loadMemoryOnly(context: Context, faviconUrl: String, onResult: (Bitmap?) -> Unit) {
         if (faviconUrl.isEmpty()) {
             onResult(null)
             return
         }
         val key = keyFor(faviconUrl)
         memoryCache[key]?.let { onResult(it); return }
+        if (isNetworkBlocked(context.applicationContext)) {
+            onResult(null)
+            return
+        }
         executor.execute {
             val bmp = tryFetch(faviconUrl) ?: tryFetch(fallbackUrlFor(faviconUrl))
             if (bmp != null) memoryCache[key] = bmp

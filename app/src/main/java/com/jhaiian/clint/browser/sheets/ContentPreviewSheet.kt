@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.preference.PreferenceManager
+import com.jhaiian.clint.settings.datasaver.DataSaverMode
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
@@ -110,11 +111,9 @@ internal fun ContentPreviewSheet(request: ContentPreviewRequest, activity: MainA
 
     androidx.compose.runtime.LaunchedEffect(request.url, request.isReaderMode, request.isPage) {
         if ((request.isReaderMode || request.isPage) && request.url.isNotEmpty()) {
-            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-            val disableImages = prefs.getBoolean("data_saver_enabled", false) && prefs.getBoolean("data_saver_disable_images", true)
             val faviconUrl = FaviconCache.faviconUrlFor(request.url)
             if (faviconUrl.isNotEmpty()) {
-                FaviconCache.load(context, faviconUrl, disableImages) { bmp -> if (bmp != null) favicon = bmp }
+                FaviconCache.load(context, faviconUrl) { bmp -> if (bmp != null) favicon = bmp }
             }
         }
     }
@@ -218,8 +217,8 @@ private fun PreviewWebView(
                 update = { wv -> if (!request.isReaderMode) applyPreviewDarkMode(wv.context, wv, systemDark) },
                 factory = { ctx ->
                     val prefs = PreferenceManager.getDefaultSharedPreferences(ctx)
-                    val dataSaverEnabled = prefs.getBoolean("data_saver_enabled", false)
-                    val disableImages = dataSaverEnabled && prefs.getBoolean("data_saver_disable_images", true)
+                    val dataSaverEnabled = DataSaverMode.isActive(prefs)
+                    val disableImages = dataSaverEnabled && prefs.getBoolean("data_saver_disable_images", false)
                     val disableAutoplay = dataSaverEnabled && prefs.getBoolean("data_saver_disable_autoplay", true)
                     val quiverGuardEnabled = prefs.getBoolean("quiver_guard_enabled", false)
 

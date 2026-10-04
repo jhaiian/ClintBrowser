@@ -233,28 +233,32 @@ fun ClintScheduleDateTimeRows(
     scheduledMillis: Long,
     onScheduledMillisChange: (Long) -> Unit,
     hideStatusBar: Boolean,
-    hideSystemNavigation: Boolean
+    hideSystemNavigation: Boolean,
+    compact: Boolean = false
 ) {
     val colors = LocalClintColors.current
     val context = LocalContext.current
+    val rowVerticalPadding = if (compact) 4.dp else 6.dp
+    val titleSize = if (compact) 13.sp else 14.sp
+    val valueSize = if (compact) 12.sp else 13.sp
     val dateFormat = remember { DateFormat.getMediumDateFormat(context) }
     val timeFormat = remember { DateFormat.getTimeFormat(context) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
 
     Row(
-        Modifier.fillMaxWidth().clickable { showDatePicker = true }.padding(vertical = 6.dp),
+        Modifier.fillMaxWidth().clickable { showDatePicker = true }.padding(vertical = rowVerticalPadding),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(stringResource(R.string.download_schedule_date_title), color = colors.onSurface, fontSize = 14.sp, modifier = Modifier.weight(1f))
-        Text(dateFormat.format(java.util.Date(scheduledMillis)), color = colors.secondaryText, fontSize = 13.sp)
+        Text(stringResource(R.string.download_schedule_date_title), color = colors.onSurface, fontSize = titleSize, modifier = Modifier.weight(1f))
+        Text(dateFormat.format(java.util.Date(scheduledMillis)), color = colors.secondaryText, fontSize = valueSize)
     }
     Row(
-        Modifier.fillMaxWidth().clickable { showTimePicker = true }.padding(vertical = 6.dp),
+        Modifier.fillMaxWidth().clickable { showTimePicker = true }.padding(vertical = rowVerticalPadding),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(stringResource(R.string.download_schedule_time_title), color = colors.onSurface, fontSize = 14.sp, modifier = Modifier.weight(1f))
-        Text(timeFormat.format(java.util.Date(scheduledMillis)), color = colors.secondaryText, fontSize = 13.sp)
+        Text(stringResource(R.string.download_schedule_time_title), color = colors.onSurface, fontSize = titleSize, modifier = Modifier.weight(1f))
+        Text(timeFormat.format(java.util.Date(scheduledMillis)), color = colors.secondaryText, fontSize = valueSize)
     }
 
     if (showDatePicker) {

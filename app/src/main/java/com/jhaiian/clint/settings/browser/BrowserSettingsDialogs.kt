@@ -1,5 +1,6 @@
 package com.jhaiian.clint.settings.browser
 import com.jhaiian.clint.browser.home.HOMEPAGE_SEARCH_ENGINE
+import com.jhaiian.clint.tabs.InactiveTabsPolicy
 import com.jhaiian.clint.browser.home.HOMEPAGE_CLINT
 import com.jhaiian.clint.browser.home.HOMEPAGE_DESIGN_GRADIENT
 import com.jhaiian.clint.browser.home.HOMEPAGE_DESIGN_IMAGE
@@ -264,6 +265,59 @@ fun HomepageDialog(
                     Text(stringResource(option.descRes), color = colors.secondaryText, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp))
                 }
                 if (option.showDefault) DefaultChip(stringResource(R.string.default_label), colors.primary)
+            }
+        }
+    }
+}
+
+@Composable
+fun InactiveTabsDialog(
+    current: String,
+    hideStatusBar: Boolean, hideSystemNavigation: Boolean,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val colors = LocalClintColors.current
+    var selected by remember(current) { mutableStateOf(current) }
+
+    ClintDialog(
+        title = stringResource(R.string.delete_inactive_tabs_title),
+        hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation,
+        onDismiss = onDismiss,
+        footer = {
+            Row(Modifier.fillMaxWidth().padding(end = 12.dp, bottom = 8.dp), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(android.R.string.cancel), color = colors.primary, fontWeight = FontWeight.Medium)
+                }
+                TextButton(onClick = { onConfirm(selected) }) {
+                    Text(stringResource(android.R.string.ok), color = colors.primary, fontWeight = FontWeight.Medium)
+                }
+            }
+        }
+    ) {
+        Text(
+            stringResource(R.string.delete_inactive_tabs_dialog_desc),
+            color = colors.secondaryText, fontSize = 13.sp,
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
+        )
+        data class InactiveTabsOption(val key: String, val titleRes: Int)
+        listOf(
+            InactiveTabsOption(InactiveTabsPolicy.NEVER, R.string.delete_inactive_tabs_summary_never),
+            InactiveTabsOption(InactiveTabsPolicy.AFTER_1_DAY, R.string.delete_inactive_tabs_summary_1_day),
+            InactiveTabsOption(InactiveTabsPolicy.AFTER_1_WEEK, R.string.delete_inactive_tabs_summary_1_week),
+            InactiveTabsOption(InactiveTabsPolicy.AFTER_1_MONTH, R.string.delete_inactive_tabs_summary_1_month)
+        ).forEach { option ->
+            val sel = selected == option.key
+            SelectableCard(
+                selected = sel, onClick = { selected = option.key },
+                cardBackground = colors.surfaceVariant, primary = colors.primary,
+                contentPadding = SettingsPickerOptionContentPadding, bottomSpacing = SettingsPickerOptionBottomSpacing
+            ) {
+                ClintRadioButton(selected = sel)
+                Column(Modifier.weight(1f).padding(start = 12.dp, end = 8.dp)) {
+                    Text(stringResource(option.titleRes), color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                }
+                if (option.key == InactiveTabsPolicy.DEFAULT) DefaultChip(stringResource(R.string.default_label), colors.primary)
             }
         }
     }

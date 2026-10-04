@@ -9,7 +9,7 @@
 
 - [@snashyturner](https://github.com/snashyturner)
 
-## Translator
+## Translators
 
 - [mirr1184-ctrl](https://github.com/mirr1184-ctrl)
 - [@snashyturner](https://github.com/snashyturner)
@@ -25,4 +25,5 @@
 - [@reviewlord](https://github.com/reviewlord)
 - [@ran-some](https://github.com/ran-some)
 - [@anonymous-shanks](https://github.com/anonymous-shanks)
-
+- [@Rohit-Bhadra](https://github.com/Rohit-Bhadra)
+- [@super585](https://github.com/super585)

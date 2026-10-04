@@ -50,6 +50,35 @@ private val OptionContentPadding = SettingsPickerOptionContentPadding
 private val OptionBottomSpacing = SettingsPickerOptionBottomSpacing
 
 @Composable
+fun DownloadDialogUiDialog(
+    current: String,
+    hideStatusBar: Boolean, hideSystemNavigation: Boolean,
+    onSelect: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val colors = LocalClintColors.current
+    ClintDialog(title = stringResource(R.string.download_dialog_ui_title), hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation, onDismiss = onDismiss) {
+        data class Option(val key: String, val titleRes: Int, val descRes: Int)
+        listOf(
+            Option(DownloadSettingsKeys.DIALOG_UI_STANDARD, R.string.download_dialog_ui_standard, R.string.download_dialog_ui_standard_desc),
+            Option(DownloadSettingsKeys.DIALOG_UI_COMPACT, R.string.download_dialog_ui_compact, R.string.download_dialog_ui_compact_desc)
+        ).forEach { option ->
+            SelectableCard(
+                selected = current == option.key, onClick = { onSelect(option.key) },
+                cardBackground = colors.surfaceVariant, primary = colors.primary,
+                contentPadding = OptionContentPadding, bottomSpacing = OptionBottomSpacing
+            ) {
+                Column(Modifier.weight(1f).padding(start = 4.dp, end = 8.dp)) {
+                    Text(stringResource(option.titleRes), color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(option.descRes), color = colors.secondaryText, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp))
+                }
+                CheckSlot(current == option.key, colors.primary)
+            }
+        }
+    }
+}
+
+@Composable
 fun MeasurementSystemDialog(
     current: Boolean,
     hideStatusBar: Boolean, hideSystemNavigation: Boolean,

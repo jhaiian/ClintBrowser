@@ -9,6 +9,8 @@ class BrowserSettingsUiState(
     initialHomepageDesign: String,
     initialHomepageShowFavorites: Boolean,
     initialHomepageShowRecent: Boolean,
+    initialHomepageCenterContent: Boolean,
+    initialDeleteInactiveTabs: String,
     initialSearchEngine: String,
     initialCustomSearchEngineName: String,
     initialCustomSearchEngineUrl: String,
@@ -31,6 +33,8 @@ class BrowserSettingsUiState(
     var homepageDesign by mutableStateOf(initialHomepageDesign)
     var homepageShowFavorites by mutableStateOf(initialHomepageShowFavorites)
     var homepageShowRecent by mutableStateOf(initialHomepageShowRecent)
+    var homepageCenterContent by mutableStateOf(initialHomepageCenterContent)
+    var deleteInactiveTabs by mutableStateOf(initialDeleteInactiveTabs)
     var searchEngine by mutableStateOf(initialSearchEngine)
     var customSearchEngineName by mutableStateOf(initialCustomSearchEngineName)
     var customSearchEngineUrl by mutableStateOf(initialCustomSearchEngineUrl)
@@ -50,6 +54,7 @@ class BrowserSettingsUiState(
     var customColorPicker by mutableStateOf(initialCustomColorPicker)
     var homepageDialogOpen by mutableStateOf(false)
     var homepageDesignDialogOpen by mutableStateOf(false)
+    var deleteInactiveTabsDialogOpen by mutableStateOf(false)
     var searchEngineDialogOpen by mutableStateOf(false)
     var searchSuggestionsApiDialogOpen by mutableStateOf(false)
 }

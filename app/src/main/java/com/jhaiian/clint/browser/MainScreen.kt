@@ -233,6 +233,9 @@ internal fun MainScreen(activity: MainActivity, state: MainUiState) {
         state.sslWarningRequest?.let { req ->
             com.jhaiian.clint.browser.dialogs.SslWarningDialog(req, hideStatusBarPref, hideSystemNavigationPref) { state.sslWarningRequest = null }
         }
+        state.httpsOnlyRequest?.let { req ->
+            com.jhaiian.clint.browser.dialogs.HttpsOnlyDialog(req, hideStatusBarPref, hideSystemNavigationPref) { state.httpsOnlyRequest = null }
+        }
         if (!state.isFullscreen) {
             state.popupAlertRequest?.let { req ->
                 com.jhaiian.clint.browser.dialogs.PopupAlertDialog(req, hideStatusBarPref, hideSystemNavigationPref) { state.popupAlertRequest = null }

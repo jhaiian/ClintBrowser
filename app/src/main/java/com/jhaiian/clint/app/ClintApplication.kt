@@ -6,6 +6,7 @@ import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceManager
+import com.jhaiian.clint.settings.datasaver.DataSaverMode
 import com.jhaiian.clint.util.LocaleHelper
 import com.jhaiian.clint.ui.theme.SystemDarkState
 import com.jhaiian.clint.util.loadMeasurementSystemPreference
@@ -25,6 +26,7 @@ class ClintApplication : Application() {
         applyNightMode()
         SystemDarkState.install(this)
         loadMeasurementSystemPreference(this)
+        DataSaverMode.register(this)
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
             override fun onActivityStarted(activity: Activity) {}

@@ -8,7 +8,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.preference.PreferenceManager
 
 @Composable
 fun rememberClintFavicon(pageUrl: String, storedFaviconUrl: String = ""): Bitmap? {
@@ -17,10 +16,7 @@ fun rememberClintFavicon(pageUrl: String, storedFaviconUrl: String = ""): Bitmap
     LaunchedEffect(pageUrl, storedFaviconUrl) {
         val faviconUrl = storedFaviconUrl.ifBlank { FaviconCache.faviconUrlFor(pageUrl) }
         if (faviconUrl.isNotEmpty()) {
-            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-            val cacheOnly = prefs.getBoolean("data_saver_enabled", false) &&
-                prefs.getBoolean("data_saver_disable_images", true)
-            FaviconCache.load(context, faviconUrl, cacheOnly) { bmp -> bitmap = bmp }
+            FaviconCache.load(context, faviconUrl) { bmp -> bitmap = bmp }
         }
     }
     return bitmap

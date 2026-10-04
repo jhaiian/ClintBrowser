@@ -20,6 +20,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.jhaiian.clint.R
 import com.jhaiian.clint.browser.dialogs.HttpAuthRequest
+import com.jhaiian.clint.browser.dialogs.HttpsOnlyRequest
 import com.jhaiian.clint.browser.dialogs.SslWarningRequest
 import com.jhaiian.clint.blocker.engine.WebsiteBlockerEngine
 import com.jhaiian.clint.blocker.engine.WebsiteBlockerWebIntegration
@@ -44,7 +45,8 @@ class ClintWebViewClient(
     private val onHttpAuthRequest: (HttpAuthRequest) -> Unit = {},
     private val isCustomSslWarningEnabled: () -> Boolean = { false },
     private val onSslWarning: (SslWarningRequest) -> Unit = {},
-    private val isIncognito: () -> Boolean = { false }
+    private val isIncognito: () -> Boolean = { false },
+    private val onHttpsOnlyBlocked: (HttpsOnlyRequest) -> Unit = {}
 ) : WebViewClient() {
 
     private val allowedSslErrors = mutableSetOf<String>()
@@ -53,8 +55,9 @@ class ClintWebViewClient(
 
     private val cooldownDomains = mutableMapOf<String, Long>()
     private var pendingHeaderLoad: String? = null
-    private val httpFallbackHosts = mutableSetOf<String>()
-    private val upgradedHostOrigins = mutableMapOf<String, String>()
+    private val allowedHttpHosts: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
+    private val upgradedHostOrigins = java.util.concurrent.ConcurrentHashMap<String, String>()
+    private val ipv4Regex = Regex("""^(\d{1,3}\.){3}\d{1,3}$""")
 
     @Volatile private var exceptionCacheHost: String? = null
     @Volatile private var exceptionCacheValid: Boolean = false
@@ -77,6 +80,18 @@ class ClintWebViewClient(
             exceptionCacheValid = true
             return state
         }
+    }
+
+    fun upgradeForHttpsOnly(url: String): String {
+        val uri = Uri.parse(url)
+        if (!uri.scheme.equals("http", ignoreCase = true)) return url
+        if (!prefs.getBoolean("https_only", true)) return url
+        val hostKey = uri.host?.lowercase() ?: return url
+        if (hostKey in allowedHttpHosts || hostKey == "localhost" || hostKey.contains(':') || ipv4Regex.matches(hostKey)) return url
+        val builder = uri.buildUpon().scheme("https")
+        if (uri.port == 80) builder.encodedAuthority(uri.encodedAuthority?.removeSuffix(":80"))
+        upgradedHostOrigins[hostKey] = url
+        return builder.build().toString()
     }
 
     private fun registeredDomain(host: String): String =
@@ -108,9 +123,10 @@ class ClintWebViewClient(
     }
 
     override fun onPageFinished(view: WebView, url: String) {
-        Uri.parse(url).host?.lowercase()?.let { upgradedHostOrigins.remove(it) }
+        if (url.startsWith("https://", ignoreCase = true)) Uri.parse(url).host?.lowercase()?.let { upgradedHostOrigins.remove(it) }
         super.onPageFinished(view, url)
         cachedPageUrl = url
+        DataSaverCacheMode.reset(view, isIncognito())
         MediaCaptureStore.updatePageUrl(getTabId(), url)
         onTabUrlUpdatedCallback(view, url)
         if (isActive()) onPageFinishedCallback(url) else view.evaluateJavascript(TabMediaControl.PAUSE_SCRIPT, null)
@@ -136,14 +152,16 @@ class ClintWebViewClient(
             return handleCustomScheme(view, uri)
         }
 
-        if (scheme == "http" && request.isForMainFrame && prefs.getBoolean("https_only", true)) {
-            val host = uri.host ?: ""
-            val isIpAddress = host.matches(Regex("""^(\d{1,3}\.){3}\d{1,3}$"""))
-            val hostKey = host.lowercase()
-            if (!isIpAddress && hostKey !in httpFallbackHosts) {
-                val httpsUri = uri.buildUpon().scheme("https").build()
-                upgradedHostOrigins[hostKey] = uri.toString()
-                view.loadUrl(httpsUri.toString())
+        if (request.isForMainFrame && request.method.equals("GET", ignoreCase = true)) {
+            DataSaverCacheMode.prepare(view.context.applicationContext, prefs, view, uri.toString(), isIncognito())
+        }
+
+        if (scheme == "http" && request.isForMainFrame) {
+            val original = uri.toString()
+            val upgraded = upgradeForHttpsOnly(original)
+            if (upgraded != original) {
+                val headers = getDesktopHeaders()
+                if (headers != null) view.loadUrl(upgraded, headers) else view.loadUrl(upgraded)
                 return true
             }
         }
@@ -399,9 +417,23 @@ class ClintWebViewClient(
 
         if (request.url.host == CLINT_HOME_HOST) return serveClintHome(view.context.applicationContext, request.url)
 
+        if (request.isForMainFrame && request.url.scheme.equals("http", ignoreCase = true)) {
+            val original = request.url.toString()
+            val upgraded = upgradeForHttpsOnly(original)
+            if (upgraded != original) {
+                view.post {
+                    val headers = getDesktopHeaders()
+                    if (headers != null) view.loadUrl(upgraded, headers) else view.loadUrl(upgraded)
+                }
+                return WebResourceResponse("text/html", "utf-8", java.io.ByteArrayInputStream(ByteArray(0)))
+            }
+        }
+
         if (prefs.getBoolean(com.jhaiian.clint.mediacapture.MEDIA_CAPTURE_ENABLED_PREF, true)) {
             MediaCaptureDetector.onRequestObserved(getTabId(), cachedPageUrl, request)
         }
+
+        DataSaverRequestFilter.intercept(view.context.applicationContext, prefs, request, cachedPageUrl)?.let { return it }
 
         val websiteBlockerEnabled = prefs.getBoolean("website_blocker_enabled", false)
         if (request.isForMainFrame && WebsiteBlockerEngine.isActive && websiteBlockerEnabled) {
@@ -454,13 +486,23 @@ class ClintWebViewClient(
         if (!request.isForMainFrame) return
         val hostKey = request.url.host?.lowercase() ?: return
         val origin = upgradedHostOrigins.remove(hostKey) ?: return
-        httpFallbackHosts.add(hostKey)
-        val headers = getDesktopHeaders()
-        if (headers != null) view.loadUrl(origin, headers) else view.loadUrl(origin)
+        if (error.errorCode == WebViewClient.ERROR_HOST_LOOKUP) return
+        onHttpsOnlyBlocked(
+            HttpsOnlyRequest(
+                host = hostKey,
+                onProceed = {
+                    allowedHttpHosts.add(hostKey)
+                    val headers = getDesktopHeaders()
+                    if (headers != null) view.loadUrl(origin, headers) else view.loadUrl(origin)
+                },
+                onCancel = {}
+            )
+        )
     }
 
     override fun onReceivedSslError(view: WebView, handler: SslErrorHandler, error: SslError) {
         val host = hostOf(error.url).orEmpty()
+        upgradedHostOrigins.remove(host.lowercase())
         val key = "$host|${error.primaryError}"
         if (key in allowedSslErrors) {
             handler.proceed()

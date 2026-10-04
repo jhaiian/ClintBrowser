@@ -166,6 +166,11 @@
             android:exported="false"
             android:configChanges="uiMode|screenSize|smallestScreenSize|screenLayout|orientation"
             android:parentActivityName=".settings.SettingsActivity" />
+        <activity
+            android:name=".settings.datasaver.DataSaverExceptionActivity"
+            android:exported="false"
+            android:configChanges="uiMode|screenSize|smallestScreenSize|screenLayout|orientation"
+            android:parentActivityName=".settings.SettingsActivity" />
 
         <activity
             android:name=".quiver.QuiverGuardActivity"

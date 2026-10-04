@@ -24,6 +24,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,6 +64,7 @@ import com.jhaiian.clint.settings.misc.MiscUiState
 import com.jhaiian.clint.settings.privacy.PrivacySettingsScreen
 import com.jhaiian.clint.settings.privacy.PrivacySettingsUiState
 import com.jhaiian.clint.settings.quiverguardexception.QuiverGuardExceptionActivity
+import com.jhaiian.clint.settings.datasaver.DataSaverExceptionActivity
 import com.jhaiian.clint.settings.site.SiteSettingsScreen
 import com.jhaiian.clint.settings.site.SiteSettingsUiState
 import com.jhaiian.clint.settings.sitepermissions.SitePermissionActivity
@@ -82,12 +84,32 @@ import com.jhaiian.clint.util.PREF_MEASUREMENT_SYSTEM
 import com.jhaiian.clint.util.setMeasurementSystemDecimal
 import kotlinx.coroutines.launch
 
+private const val PREF_DO_NOT_TRACK = "do_not_track"
+private const val DEFAULT_DO_NOT_TRACK = true
 private const val PREF_DATA_SAVER_ENABLED = "data_saver_enabled"
+private const val PREF_METERED_ONLY = "data_saver_metered_only"
+private const val DEFAULT_METERED_ONLY = true
 private const val PREF_DISABLE_IMAGES = "data_saver_disable_images"
 private const val PREF_DISABLE_AUTOPLAY = "data_saver_disable_autoplay"
+private const val PREF_SEND_SAVE_DATA_HEADER = "data_saver_send_header"
+private const val PREF_DISABLE_SUGGESTIONS = "data_saver_disable_suggestions"
+private const val PREF_DISABLE_FAVICONS = "data_saver_disable_favicons"
+private const val DEFAULT_DISABLE_SUGGESTIONS = true
+private const val DEFAULT_DISABLE_FAVICONS = true
+private const val PREF_BLOCK_VIDEO = "data_saver_block_video"
+private const val DEFAULT_BLOCK_VIDEO = false
+private const val PREF_CACHE_FIRST = "data_saver_cache_first"
+private const val DEFAULT_CACHE_FIRST = true
+private const val PREF_BLOCK_FONTS = "data_saver_block_fonts"
+private const val PREF_BLOCK_FRAMES = "data_saver_block_frames"
+private const val PREF_BLOCK_PRELOAD = "data_saver_block_preload"
+private const val DEFAULT_BLOCK_FONTS = true
+private const val DEFAULT_BLOCK_FRAMES = true
+private const val DEFAULT_BLOCK_PRELOAD = true
 private const val DEFAULT_DATA_SAVER_ENABLED = false
-private const val DEFAULT_DISABLE_IMAGES = true
+private const val DEFAULT_DISABLE_IMAGES = false
 private const val DEFAULT_DISABLE_AUTOPLAY = true
+private const val DEFAULT_SEND_SAVE_DATA_HEADER = true
 
 private const val PREF_BLOCK_THIRD_PARTY_COOKIES = "block_third_party_cookies"
 private const val PREF_CUSTOM_USER_AGENT = "custom_user_agent"
@@ -304,6 +326,8 @@ fun BrowserSettingsPane(activity: SettingsActivity) {
             initialHomepageDesign = readHomepageDesign(activity, prefs),
             initialHomepageShowFavorites = prefs.getBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_SHOW_FAVORITES, true),
             initialHomepageShowRecent = prefs.getBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_SHOW_RECENT, true),
+            initialHomepageCenterContent = prefs.getBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_CENTER_CONTENT, true),
+            initialDeleteInactiveTabs = com.jhaiian.clint.tabs.InactiveTabsPolicy.normalize(prefs.getString(com.jhaiian.clint.tabs.InactiveTabsPolicy.PREF_DELETE_INACTIVE_TABS, null)),
             initialSearchEngine = prefs.getString("search_engine", "duckduckgo") ?: "duckduckgo",
             initialCustomSearchEngineName = com.jhaiian.clint.browser.customSearchEngineName(prefs),
             initialCustomSearchEngineUrl = com.jhaiian.clint.browser.customSearchEngineUrlTemplate(prefs),
@@ -330,6 +354,7 @@ fun BrowserSettingsPane(activity: SettingsActivity) {
         uiState.homepageDesign = readHomepageDesign(activity, prefs)
         uiState.homepageShowFavorites = prefs.getBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_SHOW_FAVORITES, true)
         uiState.homepageShowRecent = prefs.getBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_SHOW_RECENT, true)
+        uiState.homepageCenterContent = prefs.getBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_CENTER_CONTENT, true)
         uiState.searchEngine = prefs.getString("search_engine", "duckduckgo") ?: "duckduckgo"
         uiState.customSearchEngineName = com.jhaiian.clint.browser.customSearchEngineName(prefs)
         uiState.customSearchEngineUrl = com.jhaiian.clint.browser.customSearchEngineUrlTemplate(prefs)
@@ -353,6 +378,12 @@ fun BrowserSettingsPane(activity: SettingsActivity) {
         prefs.edit().putString(PREF_HOMEPAGE, selected).apply()
         uiState.homepage = selected
         uiState.homepageDialogOpen = false
+    }
+
+    fun onDeleteInactiveTabsConfirmed(selected: String) {
+        prefs.edit().putString(com.jhaiian.clint.tabs.InactiveTabsPolicy.PREF_DELETE_INACTIVE_TABS, selected).apply()
+        uiState.deleteInactiveTabs = selected
+        uiState.deleteInactiveTabsDialogOpen = false
     }
 
     val scope = rememberCoroutineScope()
@@ -401,6 +432,12 @@ fun BrowserSettingsPane(activity: SettingsActivity) {
         val newValue = !uiState.homepageShowRecent
         prefs.edit().putBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_SHOW_RECENT, newValue).apply()
         uiState.homepageShowRecent = newValue
+    }
+
+    fun onHomepageCenterContentClicked() {
+        val newValue = !uiState.homepageCenterContent
+        prefs.edit().putBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_CENTER_CONTENT, newValue).apply()
+        uiState.homepageCenterContent = newValue
     }
 
     fun confirmEngine(engine: String) {
@@ -537,6 +574,8 @@ fun BrowserSettingsPane(activity: SettingsActivity) {
         onHomepageImageRowClicked = ::launchHomepageImagePicker,
         onHomepageShowFavoritesClicked = ::onHomepageShowFavoritesClicked,
         onHomepageShowRecentClicked = ::onHomepageShowRecentClicked,
+        onHomepageCenterContentClicked = ::onHomepageCenterContentClicked,
+        onDeleteInactiveTabsConfirmed = ::onDeleteInactiveTabsConfirmed,
         onSearchEngineConfirmed = ::onSearchEngineConfirmed,
         onCustomSearchEngineSaved = ::onCustomSearchEngineSaved,
         onSearchSuggestionsApiConfirmed = ::onSearchSuggestionsApiConfirmed,
@@ -570,8 +609,16 @@ fun PrivacySettingsPane(activity: SettingsActivity) {
         PrivacySettingsUiState(
             initialBlockThirdPartyCookies = prefs.getBoolean(PREF_BLOCK_THIRD_PARTY_COOKIES, DEFAULT_BLOCK_THIRD_PARTY_COOKIES),
             initialCustomUserAgent = prefs.getBoolean(PREF_CUSTOM_USER_AGENT, DEFAULT_CUSTOM_USER_AGENT),
-            initialHttpsOnly = prefs.getBoolean(PREF_HTTPS_ONLY, DEFAULT_HTTPS_ONLY)
+            initialHttpsOnly = prefs.getBoolean(PREF_HTTPS_ONLY, DEFAULT_HTTPS_ONLY),
+            initialDoNotTrack = prefs.getBoolean(PREF_DO_NOT_TRACK, DEFAULT_DO_NOT_TRACK),
+            initialAutofillEnabled = prefs.getBoolean(com.jhaiian.clint.browser.webview.ClintAutofill.PREF_AUTOFILL_ENABLED, com.jhaiian.clint.browser.webview.ClintAutofill.DEFAULT_AUTOFILL_ENABLED),
+            initialAutofillServiceActive = com.jhaiian.clint.browser.webview.ClintAutofill.hasService(activity),
+            autofillSupported = com.jhaiian.clint.browser.webview.ClintAutofill.isSupported(activity)
         )
+    }
+
+    androidx.lifecycle.compose.LifecycleEventEffect(androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+        uiState.autofillServiceActive = com.jhaiian.clint.browser.webview.ClintAutofill.hasService(activity)
     }
 
     fun toggle(prefKey: String, current: Boolean, apply: (Boolean) -> Unit) {
@@ -585,6 +632,13 @@ fun PrivacySettingsPane(activity: SettingsActivity) {
         onBlockThirdPartyCookiesClick = { toggle(PREF_BLOCK_THIRD_PARTY_COOKIES, uiState.blockThirdPartyCookies) { uiState.blockThirdPartyCookies = it } },
         onCustomUserAgentClick = { toggle(PREF_CUSTOM_USER_AGENT, uiState.customUserAgent) { uiState.customUserAgent = it } },
         onHttpsOnlyClick = { toggle(PREF_HTTPS_ONLY, uiState.httpsOnly) { uiState.httpsOnly = it } },
+        onDoNotTrackClick = { toggle(PREF_DO_NOT_TRACK, uiState.doNotTrack) { uiState.doNotTrack = it } },
+        onAutofillClick = { toggle(com.jhaiian.clint.browser.webview.ClintAutofill.PREF_AUTOFILL_ENABLED, uiState.autofillEnabled) { uiState.autofillEnabled = it } },
+        onAutofillServiceClick = {
+            if (!com.jhaiian.clint.browser.webview.ClintAutofill.openServicePicker(activity)) {
+                android.widget.Toast.makeText(activity, R.string.autofill_service_open_failed, android.widget.Toast.LENGTH_LONG).show()
+            }
+        },
         onHistoryClick = { activity.startActivity(Intent(activity, HistoryActivity::class.java)) }
     )
 }
@@ -634,6 +688,7 @@ fun SiteSettingsPane(activity: SettingsActivity) {
         onClipboardClick = { openPermission(SitePermissionDatabase.TYPE_CLIPBOARD) },
         onOpenInAppClick = { openPermission(SitePermissionDatabase.TYPE_OPEN_IN_APP) },
         onDesktopModeClick = { activity.startActivity(Intent(activity, DesktopModeActivity::class.java)) },
+        onDataSaverClick = { activity.startActivity(Intent(activity, DataSaverExceptionActivity::class.java)) },
         onQuiverGuardClick = { activity.startActivity(Intent(activity, QuiverGuardExceptionActivity::class.java)) }
     )
 }
@@ -644,8 +699,17 @@ fun DataSaverPane(activity: SettingsActivity) {
     val uiState = remember {
         DataSaverUiState(
             initialEnabled = prefs.getBoolean(PREF_DATA_SAVER_ENABLED, DEFAULT_DATA_SAVER_ENABLED),
+            initialMeteredOnly = prefs.getBoolean(PREF_METERED_ONLY, DEFAULT_METERED_ONLY),
             initialDisableImages = prefs.getBoolean(PREF_DISABLE_IMAGES, DEFAULT_DISABLE_IMAGES),
-            initialDisableAutoplay = prefs.getBoolean(PREF_DISABLE_AUTOPLAY, DEFAULT_DISABLE_AUTOPLAY)
+            initialDisableAutoplay = prefs.getBoolean(PREF_DISABLE_AUTOPLAY, DEFAULT_DISABLE_AUTOPLAY),
+            initialSendHeader = prefs.getBoolean(PREF_SEND_SAVE_DATA_HEADER, DEFAULT_SEND_SAVE_DATA_HEADER),
+            initialBlockFonts = prefs.getBoolean(PREF_BLOCK_FONTS, DEFAULT_BLOCK_FONTS),
+            initialBlockFrames = prefs.getBoolean(PREF_BLOCK_FRAMES, DEFAULT_BLOCK_FRAMES),
+            initialBlockPreload = prefs.getBoolean(PREF_BLOCK_PRELOAD, DEFAULT_BLOCK_PRELOAD),
+            initialCacheFirst = prefs.getBoolean(PREF_CACHE_FIRST, DEFAULT_CACHE_FIRST),
+            initialBlockVideo = prefs.getBoolean(PREF_BLOCK_VIDEO, DEFAULT_BLOCK_VIDEO),
+            initialDisableSuggestions = prefs.getBoolean(PREF_DISABLE_SUGGESTIONS, DEFAULT_DISABLE_SUGGESTIONS),
+            initialDisableFavicons = prefs.getBoolean(PREF_DISABLE_FAVICONS, DEFAULT_DISABLE_FAVICONS)
         )
     }
     fun toggle(prefKey: String, current: Boolean, apply: (Boolean) -> Unit) {
@@ -657,11 +721,38 @@ fun DataSaverPane(activity: SettingsActivity) {
     DataSaverScreen(
         state = uiState,
         onEnabledClick = { toggle(PREF_DATA_SAVER_ENABLED, uiState.enabled) { uiState.enabled = it } },
+        onMeteredOnlyClick = {
+            if (uiState.enabled) toggle(PREF_METERED_ONLY, uiState.meteredOnly) { uiState.meteredOnly = it }
+        },
         onDisableImagesClick = {
             if (uiState.enabled) toggle(PREF_DISABLE_IMAGES, uiState.disableImages) { uiState.disableImages = it }
         },
         onDisableAutoplayClick = {
             if (uiState.enabled) toggle(PREF_DISABLE_AUTOPLAY, uiState.disableAutoplay) { uiState.disableAutoplay = it }
+        },
+        onSendHeaderClick = {
+            if (uiState.enabled) toggle(PREF_SEND_SAVE_DATA_HEADER, uiState.sendHeader) { uiState.sendHeader = it }
+        },
+        onBlockFontsClick = {
+            if (uiState.enabled) toggle(PREF_BLOCK_FONTS, uiState.blockFonts) { uiState.blockFonts = it }
+        },
+        onBlockFramesClick = {
+            if (uiState.enabled) toggle(PREF_BLOCK_FRAMES, uiState.blockFrames) { uiState.blockFrames = it }
+        },
+        onBlockPreloadClick = {
+            if (uiState.enabled) toggle(PREF_BLOCK_PRELOAD, uiState.blockPreload) { uiState.blockPreload = it }
+        },
+        onCacheFirstClick = {
+            if (uiState.enabled) toggle(PREF_CACHE_FIRST, uiState.cacheFirst) { uiState.cacheFirst = it }
+        },
+        onBlockVideoClick = {
+            if (uiState.enabled) toggle(PREF_BLOCK_VIDEO, uiState.blockVideo) { uiState.blockVideo = it }
+        },
+        onDisableSuggestionsClick = {
+            if (uiState.enabled) toggle(PREF_DISABLE_SUGGESTIONS, uiState.disableSuggestions) { uiState.disableSuggestions = it }
+        },
+        onDisableFaviconsClick = {
+            if (uiState.enabled) toggle(PREF_DISABLE_FAVICONS, uiState.disableFavicons) { uiState.disableFavicons = it }
         }
     )
 }
@@ -926,6 +1017,7 @@ fun DownloadSettingsPane(activity: SettingsActivity) {
             initialLocationMode = prefs.getString(DownloadSettingsKeys.PREF_DOWNLOAD_LOCATION_MODE, DownloadSettingsKeys.MODE_DEFAULT) ?: DownloadSettingsKeys.MODE_DEFAULT,
             initialCustomUri = prefs.getString(DownloadSettingsKeys.PREF_DOWNLOAD_CUSTOM_URI, null)?.let { Uri.parse(it) },
             initialCategorizeDownloads = prefs.getBoolean(DownloadSettingsKeys.PREF_CATEGORIZE_DOWNLOADS, DownloadSettingsKeys.DEFAULT_CATEGORIZE_DOWNLOADS),
+            initialDialogUi = prefs.getString(DownloadSettingsKeys.PREF_DOWNLOAD_DIALOG_UI, DownloadSettingsKeys.DEFAULT_DOWNLOAD_DIALOG_UI) ?: DownloadSettingsKeys.DEFAULT_DOWNLOAD_DIALOG_UI,
             initialMeasurementSystemDecimal = prefs.getString(PREF_MEASUREMENT_SYSTEM, DEFAULT_MEASUREMENT_SYSTEM) == MEASUREMENT_SYSTEM_DECIMAL,
             initialUnmeteredOnly = prefs.getBoolean(DownloadSettingsKeys.PREF_UNMETERED_ONLY, DownloadSettingsKeys.DEFAULT_UNMETERED_ONLY),
             initialScheduleEnabled = prefs.getBoolean(DownloadSettingsKeys.PREF_SCHEDULE_ENABLED, DownloadSettingsKeys.DEFAULT_SCHEDULE_ENABLED),
@@ -946,6 +1038,8 @@ fun DownloadSettingsPane(activity: SettingsActivity) {
             initialAllFilesAccessGranted = isAllFilesAccessGranted(),
             initialPushNotifications = prefs.getBoolean(DownloadSettingsKeys.PREF_PUSH_NOTIFICATIONS, DownloadSettingsKeys.DEFAULT_PUSH_NOTIFICATIONS),
             initialKeepScreenOn = prefs.getBoolean(DownloadSettingsKeys.PREF_KEEP_SCREEN_ON, DownloadSettingsKeys.DEFAULT_KEEP_SCREEN_ON),
+            initialQuickDownload = prefs.getBoolean(DownloadSettingsKeys.PREF_QUICK_DOWNLOAD, DownloadSettingsKeys.DEFAULT_QUICK_DOWNLOAD),
+            initialQuickDownloadImages = prefs.getBoolean(DownloadSettingsKeys.PREF_QUICK_DOWNLOAD_IMAGES, DownloadSettingsKeys.DEFAULT_QUICK_DOWNLOAD_IMAGES),
             initialHideStatusBar = prefs.getBoolean("hide_status_bar", false),
             initialHideSystemNavigation = prefs.getBoolean("hide_system_navigation", false)
         )
@@ -1027,6 +1121,11 @@ fun DownloadSettingsPane(activity: SettingsActivity) {
             val newValue = !uiState.categorizeDownloads
             prefs.edit().putBoolean(DownloadSettingsKeys.PREF_CATEGORIZE_DOWNLOADS, newValue).apply()
             uiState.categorizeDownloads = newValue
+        },
+        onDialogUiSelected = { value ->
+            prefs.edit().putString(DownloadSettingsKeys.PREF_DOWNLOAD_DIALOG_UI, value).apply()
+            uiState.dialogUi = value
+            uiState.openDialog = null
         },
         onMeasurementSystemSelected = { decimal ->
             val value = if (decimal) MEASUREMENT_SYSTEM_DECIMAL else MEASUREMENT_SYSTEM_BINARY
@@ -1112,6 +1211,16 @@ fun DownloadSettingsPane(activity: SettingsActivity) {
             val newValue = !uiState.keepScreenOn
             prefs.edit().putBoolean(DownloadSettingsKeys.PREF_KEEP_SCREEN_ON, newValue).apply()
             uiState.keepScreenOn = newValue
+        },
+        onQuickDownloadClick = {
+            val newValue = !uiState.quickDownload
+            prefs.edit().putBoolean(DownloadSettingsKeys.PREF_QUICK_DOWNLOAD, newValue).apply()
+            uiState.quickDownload = newValue
+        },
+        onQuickDownloadImagesClick = {
+            val newValue = !uiState.quickDownloadImages
+            prefs.edit().putBoolean(DownloadSettingsKeys.PREF_QUICK_DOWNLOAD_IMAGES, newValue).apply()
+            uiState.quickDownloadImages = newValue
         }
     )
 }

@@ -1,6 +1,8 @@
 package com.jhaiian.clint.settings.browser
 import com.jhaiian.clint.browser.home.HOMEPAGE_SEARCH_ENGINE
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.AutoDelete
+import com.jhaiian.clint.tabs.InactiveTabsPolicy
 import androidx.compose.material.icons.filled.Gradient
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.History
@@ -21,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.VerticalAlignCenter
 import androidx.compose.material.icons.filled.VisibilityOff
 
 import androidx.compose.foundation.layout.padding
@@ -44,6 +47,8 @@ fun BrowserSettingsScreen(
     onHomepageImageRowClicked: () -> Unit,
     onHomepageShowFavoritesClicked: () -> Unit,
     onHomepageShowRecentClicked: () -> Unit,
+    onHomepageCenterContentClicked: () -> Unit,
+    onDeleteInactiveTabsConfirmed: (String) -> Unit,
     onSearchEngineConfirmed: (String) -> Unit,
     onCustomSearchEngineSaved: (name: String, url: String) -> Unit,
     onSearchSuggestionsApiConfirmed: (String) -> Unit,
@@ -80,6 +85,14 @@ fun BrowserSettingsScreen(
                     hideStatusBar = state.hideStatusBar, hideSystemNavigation = state.hideSystemNavigation,
                     onConfirm = onHomepageDesignConfirmed,
                     onDismiss = { state.homepageDesignDialogOpen = false }
+                )
+            }
+            if (state.deleteInactiveTabsDialogOpen) {
+                InactiveTabsDialog(
+                    current = state.deleteInactiveTabs,
+                    hideStatusBar = state.hideStatusBar, hideSystemNavigation = state.hideSystemNavigation,
+                    onConfirm = onDeleteInactiveTabsConfirmed,
+                    onDismiss = { state.deleteInactiveTabsDialogOpen = false }
                 )
             }
             if (state.searchEngineDialogOpen) {
@@ -155,6 +168,17 @@ fun BrowserSettingsScreen(
                     ClintSwitch(checked = state.homepageShowRecent && homepageOptionsEnabled)
                 }
             )
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.VerticalAlignCenter,
+                title = stringResource(R.string.homepage_center_content_title),
+                summary = stringResource(R.string.homepage_center_content_summary),
+                colors = colors,
+                enabled = homepageOptionsEnabled,
+                onClick = { if (homepageOptionsEnabled) onHomepageCenterContentClicked() },
+                trailing = {
+                    ClintSwitch(checked = state.homepageCenterContent && homepageOptionsEnabled)
+                }
+            )
         }
 
         SectionLabel(stringResource(R.string.pref_category_search).uppercase(), colors.primary, Modifier.padding(start = 4.dp, bottom = 8.dp))
@@ -172,6 +196,17 @@ fun BrowserSettingsScreen(
                 summary = engineSummaryText(state.searchSuggestionsApi, state.customSearchSuggestionsApiName),
                 colors = colors,
                 onClick = { state.searchSuggestionsApiDialogOpen = true }
+            )
+        }
+
+        SectionLabel(stringResource(R.string.pref_category_tabs).uppercase(), colors.primary, Modifier.padding(start = 4.dp, bottom = 8.dp))
+        SettingsSection(colors.cardBackground) {
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.AutoDelete,
+                title = stringResource(R.string.delete_inactive_tabs_title),
+                summary = deleteInactiveTabsSummaryText(state.deleteInactiveTabs),
+                colors = colors,
+                onClick = { state.deleteInactiveTabsDialogOpen = true }
             )
         }
 
@@ -315,6 +350,14 @@ private fun engineSummaryText(engine: String, customName: String): String = when
     "google" -> stringResource(R.string.engine_google)
     "custom" -> customName.ifBlank { stringResource(R.string.engine_custom) }
     else -> stringResource(R.string.engine_duckduckgo)
+}
+
+@Composable
+private fun deleteInactiveTabsSummaryText(value: String): String = when (value) {
+    InactiveTabsPolicy.AFTER_1_DAY -> stringResource(R.string.delete_inactive_tabs_summary_1_day)
+    InactiveTabsPolicy.AFTER_1_WEEK -> stringResource(R.string.delete_inactive_tabs_summary_1_week)
+    InactiveTabsPolicy.AFTER_1_MONTH -> stringResource(R.string.delete_inactive_tabs_summary_1_month)
+    else -> stringResource(R.string.delete_inactive_tabs_summary_never)
 }
 
 @Composable

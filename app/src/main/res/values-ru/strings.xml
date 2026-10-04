@@ -24,6 +24,13 @@
     <string name="pref_category_navigation">Навигация</string>
     <string name="pref_category_language">Язык</string>
     <string name="pref_category_shortcuts">Ярлыки</string>
+    <string name="pref_category_tabs">Вкладки</string>
+    <string name="delete_inactive_tabs_title">Удалять неактивные вкладки</string>
+    <string name="delete_inactive_tabs_dialog_desc">Вкладки, которые вы не открывали в течение этого времени, закрываются автоматически. Текущая вкладка и вкладки из ярлыков без рамки не закрываются никогда.</string>
+    <string name="delete_inactive_tabs_summary_never">Никогда</string>
+    <string name="delete_inactive_tabs_summary_1_day">Через 1 день</string>
+    <string name="delete_inactive_tabs_summary_1_week">Через 1 неделю</string>
+    <string name="delete_inactive_tabs_summary_1_month">Через 1 месяц</string>
     <string name="frameless_shortcut_title">Без рамки</string>
     <string name="frameless_shortcut_summary">Скрывать поисковую строку и нижнюю панель при открытии ярлыка с главного экрана</string>
     <string name="pref_category_custom_prompts">Пользовательские диалоги браузера</string>
@@ -270,6 +277,16 @@
     <string name="download_push_notifications_title">Push-уведомления</string>
     <string name="download_push_notifications_summary">Получать уведомление о завершении, ошибке или повторной попытке загрузки</string>
     <string name="download_section_general">ОБЩИЕ</string>
+    <string name="download_section_dialog_ui">ОКНО ЗАГРУЗКИ</string>
+    <string name="download_dialog_ui_title">Интерфейс</string>
+    <string name="download_dialog_ui_standard">Стандартный</string>
+    <string name="download_dialog_ui_standard_desc">Просторная компоновка с заголовками разделов и описаниями</string>
+    <string name="download_dialog_ui_compact">Компактный</string>
+    <string name="download_dialog_ui_compact_desc">Более плотная компоновка с мелкими элементами и меньшей прокруткой</string>
+    <string name="download_quick_download_title">Быстрая загрузка</string>
+    <string name="download_quick_download_summary">Начинать загрузку сразу, без диалога, с использованием общих настроек загрузок</string>
+    <string name="download_quick_download_images_title">Быстрая загрузка изображений</string>
+    <string name="download_quick_download_images_summary">Пропускать диалог загрузки при сохранении изображения из меню изображения</string>
     <string name="download_keep_screen_on_title">Не выключать экран</string>
     <string name="download_keep_screen_on_summary">Не выключать экран на странице загрузок, пока все ожидающие загрузки не завершатся. (Полезно, если ваша ОС завершает загрузки, пока экран заблокирован.)</string>
     <string name="download_status_connecting">Подключение&#8230;</string>
@@ -955,14 +972,37 @@
 
     <string name="https_only">Режим только HTTPS</string>
     <string name="https_only_summary">Перенаправлять HTTP-соединения на HTTPS и блокировать сайты, которые его не поддерживают</string>
+    <string name="https_only_blocked_title">Этот сайт не поддерживает HTTPS</string>
+    <string name="https_only_blocked_message">Режим «Только HTTPS» заблокировал подключение к %1$s, так как не удалось установить защищённое соединение. Если продолжить, ваши данные будут передаваться без шифрования.</string>
+    <string name="https_only_blocked_proceed">Продолжить по HTTP</string>
+    <string name="do_not_track_title">Отправлять запрос «Не отслеживать»</string>
+    <string name="do_not_track_summary">Просит сайты не отслеживать вас. Сайты могут проигнорировать запрос</string>
 
     <string name="data_saver_title">Экономия трафика</string>
-    <string name="data_saver_summary">Сократить расход трафика за счёт более умной загрузки</string>
-    <string name="data_saver_settings_summary">Отключение изображений и элементов автовоспроизведения</string>
+    <string name="data_saver_summary">Блокирует тяжёлое содержимое и запрашивает у сайтов облегчённые страницы, чтобы экономить трафик</string>
+    <string name="data_saver_metered_only_title">Только в сетях с лимитом</string>
+    <string name="data_saver_metered_only_summary">Экономия трафика включается только в мобильной сети и в сетях Wi‑Fi, отмеченных как лимитные</string>
+    <string name="data_saver_settings_summary">Изображения, шрифты, фреймы, видео и другое</string>
     <string name="data_saver_disable_images_title">Отключить изображения</string>
     <string name="data_saver_disable_images_summary">Изображения не будут загружаться</string>
     <string name="data_saver_disable_autoplay_title">Отключить автовоспроизведение</string>
     <string name="data_saver_disable_autoplay_summary">Видео и медиа не будут воспроизводиться автоматически. Может работать не на всех сайтах</string>
+    <string name="data_saver_send_header_title">Запрашивать облегчённые страницы</string>
+    <string name="data_saver_send_header_summary">Просит сайты отдавать более лёгкие страницы и изображения, если они это поддерживают</string>
+    <string name="data_saver_block_fonts_title">Блокировать веб-шрифты</string>
+    <string name="data_saver_block_fonts_summary">Страницы используют системные шрифты вместо загрузки собственных. Шрифты значков по-прежнему загружаются</string>
+    <string name="data_saver_block_frames_title">Блокировать сторонние фреймы</string>
+    <string name="data_saver_block_frames_summary">Пропускает встроенное содержимое с других сайтов, например рекламу и виджеты. Фреймы капчи, входа и видеоплееров по-прежнему загружаются</string>
+    <string name="data_saver_block_preload_title">Блокировать предзагрузку медиа</string>
+    <string name="data_saver_block_preload_summary">Видео и аудио загружаются только после нажатия кнопки воспроизведения</string>
+    <string name="data_saver_cache_first_title">Использовать сохранённые страницы</string>
+    <string name="data_saver_cache_first_summary">Уже открывавшиеся страницы сначала загружаются из памяти, чтобы экономить трафик. Потяните вниз, чтобы получить свежую версию</string>
+    <string name="data_saver_block_video_title">Блокировать видео</string>
+    <string name="data_saver_block_video_summary">Видео не будут загружаться и воспроизводиться. Защищённые видео и некоторые сайты всё же могут воспроизводиться</string>
+    <string name="data_saver_disable_suggestions_title">Отключить онлайн-подсказки поиска</string>
+    <string name="data_saver_disable_suggestions_summary">Адресная строка подсказывает только из истории и закладок и не обращается к поисковику, пока вы печатаете</string>
+    <string name="data_saver_disable_favicons_title">Отключить значки сайтов</string>
+    <string name="data_saver_disable_favicons_summary">Значки сайтов не загружаются. Уже сохранённые по-прежнему отображаются</string>
     <string name="menu_data_saver">Экономия трафика</string>
     <string name="menu_quiver_guard">Quiver Guard</string>
     <string name="menu_website_blocker">Блокировщик сайтов</string>
@@ -1119,12 +1159,25 @@
 
     <string name="privacy_section_privacy">КОНФИДЕНЦИАЛЬНОСТЬ И БЕЗОПАСНОСТЬ</string>
     <string name="privacy_section_history">ИСТОРИЯ</string>
+    <string name="privacy_section_autofill">АВТОЗАПОЛНЕНИЕ</string>
+    <string name="autofill_title">Автозаполнение</string>
+    <string name="autofill_summary">Позволяет службе автозаполнения подставлять и сохранять пароли, адреса и платёжные данные на сайтах. В режиме инкогнито не используется</string>
+    <string name="autofill_service_title">Служба автозаполнения</string>
+    <string name="autofill_service_summary_active">Служба активна. Нажмите, чтобы изменить</string>
+    <string name="autofill_service_summary_none">Служба не выбрана. Нажмите, чтобы выбрать</string>
+    <string name="autofill_service_open_failed">Не удалось открыть настройки автозаполнения. Найдите их в настройках устройства</string>
 
     <string name="site_section_permissions">РАЗРЕШЕНИЯ</string>
     <string name="site_section_desktop_mode">РЕЖИМ ПК</string>
     <string name="site_section_quiver_guard">QUIVER GUARD</string>
 
     <string name="data_saver_section">ЭКОНОМИЯ ТРАФИКА</string>
+
+    <string name="data_saver_media_section">МЕДИА</string>
+
+    <string name="data_saver_loading_section">ЗАГРУЗКА СТРАНИЦ</string>
+
+    <string name="data_saver_browser_section">БРАУЗЕР</string>
 
     <string name="update_section_updates">ОБНОВЛЕНИЯ</string>
     <string name="update_section_channel">КАНАЛ</string>
@@ -1653,6 +1706,8 @@
     <string name="homepage_show_favorites_summary">Закладки на домашней странице Clint</string>
     <string name="homepage_show_recent_title">Показывать недавно посещённые</string>
     <string name="homepage_show_recent_summary">Сайты, которые вы недавно открывали, на домашней странице Clint</string>
+    <string name="homepage_center_content_title">Центрировать содержимое</string>
+    <string name="homepage_center_content_summary">Выравнивать содержимое домашней страницы Clint по центру экрана</string>
     <string name="homepage_image_error">Не удалось использовать это изображение. Попробуйте другое.</string>
     <string name="home_greeting_morning">Доброе утро</string>
     <string name="home_greeting_afternoon">Добрый день</string>
@@ -1662,4 +1717,14 @@
     <string name="home_favorites_empty">Добавляйте любимые сайты в закладки, и они появятся здесь</string>
     <string name="home_incognito_message">Страницы, открытые в режиме инкогнито, не сохраняются в истории</string>
     <string name="home_normal_mode">Обычный</string>
+    <string name="site_section_data_saver">ЭКОНОМИЯ ТРАФИКА</string>
+    <string name="site_settings_data_saver_summary">Сохранённые сайты</string>
+    <string name="data_saver_exception_no_saved_sites">Сохранённых сайтов нет</string>
+    <string name="data_saver_exception_search_hint">Поиск сохранённых сайтов…</string>
+    <string name="data_saver_exception_add_site">Добавить сайт</string>
+    <string name="data_saver_exception_state_label">Экономия трафика отключена</string>
+    <string name="data_saver_exception_delete_title">Удалить сохранённые сайты</string>
+    <string name="data_saver_exception_delete_message">Удалить сохранённых сайтов: %d?</string>
+    <string name="data_saver_exception_items_deleted">Сохранённые сайты удалены</string>
+    <string name="menu_disable_data_saver_for_site">Отключить экономию трафика для этого сайта</string>
 </resources>

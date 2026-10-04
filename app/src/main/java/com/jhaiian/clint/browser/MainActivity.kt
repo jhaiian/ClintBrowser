@@ -1,4 +1,5 @@
 package com.jhaiian.clint.browser
+import com.jhaiian.clint.settings.datasaver.DataSaverMode
 import com.jhaiian.clint.browser.home.CLINT_HOME_HOST
 import com.jhaiian.clint.browser.home.isClintHomeUrl
 import com.jhaiian.clint.browser.delegates.*
@@ -93,6 +94,10 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
     internal var autoDesktopPendingReload: String? = null
     internal val desktopScriptHandlers = mutableMapOf<String, ScriptHandler>()
     internal val autoplayScriptHandlers = mutableMapOf<String, ScriptHandler>()
+    internal val saveDataScriptHandlers = mutableMapOf<String, ScriptHandler>()
+    internal val doNotTrackScriptHandlers = mutableMapOf<String, ScriptHandler>()
+    internal val dataSaverMediaScriptHandlers = mutableMapOf<String, ScriptHandler>()
+    internal val dataSaverVideoScriptHandlers = mutableMapOf<String, ScriptHandler>()
     internal val userScriptHandlers = mutableMapOf<String, ScriptHandler>()
     private var lastUserScriptsDataVersion = 0L
     internal val quiverGuardScriptHandlers = com.jhaiian.clint.quiver.engine.ScriptHandlerStore()
@@ -148,6 +153,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         pendingDownload = null
         if (granted && pending != null) {
             ClintDownloadManager.enqueue(this, pending.url, pending.filename, pending.userAgent, pending.referer, pending.cookies)
+            showDownloadStartedSnackbar(pending.filename, com.jhaiian.clint.settings.downloads.DownloadSettingsKeys.MODE_DEFAULT, null)
         }
     }
 
@@ -303,11 +309,13 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         when (key) {
             "javascript_enabled" -> applyJavaScript()
             "block_third_party_cookies" -> applyCookiePolicy()
+            "do_not_track" -> applyDoNotTrackSettings()
+            com.jhaiian.clint.browser.webview.ClintAutofill.PREF_AUTOFILL_ENABLED -> applyAutofillSettings()
             "custom_user_agent" -> applyUserAgent()
             "quiver_guard_enabled" -> onQuiverGuardEnabled(prefs.getBoolean("quiver_guard_enabled", false))
             com.jhaiian.clint.mediacapture.MEDIA_CAPTURE_ENABLED_PREF -> updateMediaCaptureEnabledState()
             "user_scripts_enabled" -> applyUserScripts()
-            "data_saver_enabled", "data_saver_disable_images", "data_saver_disable_autoplay" -> applyDataSaverSettings()
+            "data_saver_enabled", "data_saver_metered_only", "data_saver_disable_images", "data_saver_disable_autoplay", "data_saver_send_header", "data_saver_block_fonts", "data_saver_block_frames", "data_saver_block_preload", "data_saver_block_video" -> applyDataSaverSettings()
             "hide_bars_on_scroll" -> {
                 if (!prefs.getBoolean("hide_bars_on_scroll", true)) {
                     animateBottomBarTo(0f, animated = false)
@@ -344,6 +352,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
             return
         }
         prefs.registerOnSharedPreferenceChangeListener(prefsListener)
+        DataSaverMode.onActiveChanged = { applyDataSaverSettings() }
         updateMediaCaptureEnabledState()
         tabManager.framelessShortcutsEnabled = prefs.getBoolean("shortcut_frameless_enabled", true)
         lastUserScriptsDataVersion = com.jhaiian.clint.userscripts.UserScriptState.getDataVersion(this)
@@ -453,6 +462,8 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
     override fun onResume() {
         super.onResume()
         if (isFinishing) return
+        closeInactiveTabs()
+        if (::swipeRefreshView.isInitialized) updateSwipeRefreshColors(uiState.isIncognito)
         bottomBarAnimator2?.cancel()
         uiState.topBarFraction = 0f
         uiState.bottomBarFraction = 0f
@@ -465,6 +476,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         uiState.homepageImageVersion = prefs.getLong(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_IMAGE_VERSION, 0L)
         uiState.homepageShowFavorites = prefs.getBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_SHOW_FAVORITES, true)
         uiState.homepageShowRecent = prefs.getBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_SHOW_RECENT, true)
+        uiState.homepageCenterContent = prefs.getBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_CENTER_CONTENT, true)
         val currentUserScriptsVersion = com.jhaiian.clint.userscripts.UserScriptState.getDataVersion(this)
         if (currentUserScriptsVersion != lastUserScriptsDataVersion) {
             lastUserScriptsDataVersion = currentUserScriptsVersion
@@ -493,6 +505,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
 
     override fun onDestroy() {
         prefs.unregisterOnSharedPreferenceChangeListener(prefsListener)
+        DataSaverMode.onActiveChanged = null
         if (refreshLinkSession != null) {
             cleanupRefreshLinkTabs()
             refreshLinkSession = null
@@ -712,7 +725,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         }
 
         if (wv != null && !currentWebUrl.isNullOrEmpty()) {
-            val headers = buildDesktopHeaders()
+            val headers = buildRequestHeaders(currentWebUrl)
             if (headers != null) wv.loadUrl(currentWebUrl, headers) else wv.reload()
         } else wv?.reload()
     }
@@ -787,6 +800,20 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
             com.jhaiian.clint.quiver.engine.BlockedRequestCounter.resetTab(tab.id)
         }
         wv.reload()
+    }
+    fun onMenuDisableDataSaverForSite() {
+        val tab = tabManager.activeTab ?: return
+        val currentUrl = tab.webView.url ?: return
+        if (!currentUrl.startsWith("http://") && !currentUrl.startsWith("https://")) return
+        val host = runCatching { android.net.Uri.parse(currentUrl).host }.getOrNull() ?: return
+        if (tab.isIncognito) return
+        if (com.jhaiian.clint.settings.datasaver.DataSaverSiteException.isExcepted(this, host)) {
+            com.jhaiian.clint.settings.datasaver.DataSaverSiteException.remove(this, host)
+        } else {
+            com.jhaiian.clint.settings.datasaver.DataSaverSiteException.add(this, host)
+        }
+        applyDataSaverSiteState(tab, currentUrl)
+        reloadActiveTabWithHeaders()
     }
     fun onMenuWebsiteBlocker() {
         val enabled = !prefs.getBoolean("website_blocker_enabled", false)
