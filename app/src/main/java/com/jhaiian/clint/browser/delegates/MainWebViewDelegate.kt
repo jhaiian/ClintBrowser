@@ -48,9 +48,6 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
     settings.safeBrowsingEnabled = false
     settings.userAgentString = buildUserAgent()
     applyUserAgentMetadata(webView)
-    if (WebViewFeature.isFeatureSupported(WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST)) {
-        WebSettingsCompat.setRequestedWithHeaderOriginAllowList(settings, emptySet())
-    }
     if (!isIncognito && WebViewFeature.isFeatureSupported(WebViewFeature.WEB_AUTHENTICATION)) {
         WebSettingsCompat.setWebAuthenticationSupport(settings, WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_FOR_APP)
     }
