@@ -14,7 +14,7 @@ Before I discuss the changelog, I have an announcement. This is important for th
 
 For more details and to vote on the poll:
 
-https://github.com/jhaiian/ClintBrowser/discussions/67
+[ClintBrowser Discussion #67](https://github.com/jhaiian/ClintBrowser/discussions/67)
 
 ---
 
@@ -205,7 +205,6 @@ I hate removing features, but this has to be done for my own sake. I hope you gu
 - Updated Privacy Policy.
 
 ---
-
 
 # v1.1.9
 
