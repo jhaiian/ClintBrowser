@@ -1691,7 +1691,7 @@
     <string name="media_capture_menu_stream">I-stream</string>
     <string name="media_capture_menu_copy_link">Kopyahin ang Download Link</string>
     <string name="media_capture_menu_share_link">Ibahagi ang Download Link</string>
-    <string name="media_capture_convert_ts_to_mp4">I-convert ang TS sa MP4</string>
+    <string name="media_capture_convert_ts_to_mp4">I-convert ang TS sa MP4 o AAC</string>
     <string name="media_capture_menu_preview">I-preview</string>
     <string name="media_capture_subtitle_preview_title">Preview ng Subtitle</string>
     <string name="media_capture_subtitle_preview_error">Hindi na-load ang subtitle.\nPaki-check ang iyong koneksyon at subukan ulit.</string>

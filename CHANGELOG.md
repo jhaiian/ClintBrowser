@@ -4,6 +4,209 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.2.0
+
+---
+
+## Announcement
+
+Before I discuss the changelog, I have an announcement. This is important for the future of Clint Browser. I'm planning to switch Clint to use GeckoView.
+
+For more details and to vote on the poll:
+
+https://github.com/jhaiian/ClintBrowser/discussions/67
+
+---
+
+## What's New
+
+### Profiles
+
+Now you can stay signed in to **multiple accounts on the same website at the same time**. Each profile keeps its own cookies and site data, so they never mix with each other.
+
+- **Default** — Your existing logins and site data. This is always there and can't be deleted.
+- **Create your own profiles** — Give each one a name and pick a color from 8 colors. The next color is picked for you automatically.
+- **Edit** — Rename a profile or change its color anytime.
+- **Clear data** — Signs you out of every website in that profile and removes its cookies and site data, but keeps the profile.
+- **Delete** — Permanently deletes the profile and all of its logins, cookies and site data.
+  - If a tab is still using that profile, it will tell you to close those tabs first. If you're sure you already closed them, restart the app and try again.
+
+**Where to find it**
+
+- **Browser Settings → Profiles**
+- Add **New tab in profile…** to your browser menu through Menu customization. Long-press it to jump straight to Profiles.
+- It's also in the **Tab Menu** three-dot menu.
+- Pick a profile in the picker dialog when you open a new tab, or tap **Manage** to open Profiles. If you don't have any profile yet, it takes you to Profiles to create one.
+
+**How it behaves**
+
+- Links and popups you open from a tab stay in the **same profile** as that tab.
+- **Incognito never uses profiles.**
+- Tabs in the Tab Grid show a small badge with the profile color and name.
+- Your tabs remember their profile after you close and reopen the app.
+- Downloads, saving images, and media/stream capture now use the cookies of the profile you're in. That means downloads from sites you're logged in to still work.
+- **Backup & Restore** now includes your profiles and each profile's cookies.
+
+> *Profiles need a newer version of Android System WebView. If your WebView is too old, Clint will show an "Update WebView" message and the menu item will be hidden. Update it in Google Play or wherever you get WebView from.*
+
+(Thanks to u/Interesting-Stick641 on Reddit for suggesting this)
+
+---
+
+### Media Capture
+
+- Subtitles from HLS streams are now detected, previewed, and downloaded. Clint reads the playlist, fetches the subtitle segments, and merges them into one subtitle file.
+- Subtitle preview now shows the cue count and duration for HLS subtitle playlists too.
+- **Convert TS to MP4 or AAC** — audio-only streams can now be converted to a standard AAC file instead of being left as raw TS.
+- Added a minimum size for a normal video to be shown.
+
+(Thanks to @reviewlord for reporting this #71)
+
+---
+
+### Shortcut Manager
+
+A new page to view and manage every shortcut you've added to your home screen. It replaces the old global **Frameless** toggle in Browser Settings.
+
+**Where to find it**
+
+- **Browser Settings → Shortcut Manager**
+- Long-press **Create a Shortcut** in the browser menu.
+
+**What you can do**
+
+- See all your shortcuts with their icon, name and when they were created.
+- **Search** your shortcuts.
+- **Sort** by Title or Date Created, ascending or descending.
+- **Select multiple** shortcuts and delete them at once.
+- Use the three-dot menu on each shortcut for **Settings**, **Create a Shortcut** and **Delete**.
+  - **Create a Shortcut** puts it on your home screen again. If it's already there, it tells you instead of adding a duplicate.
+  - **Delete** removes the shortcut and it stops working. You still need to remove the icon from your home screen yourself, because Android doesn't let apps do that. If you tap it later, it will say that the shortcut was deleted.
+
+**Shortcut Settings**
+
+- Change the **icon**, **name** and **URL**. The URL gets checked, and an invalid one shows a red outline.
+- **Frameless** is now **per shortcut**. Before, it was one setting for all of them. If you had it turned off, all your existing shortcuts are moved over as off, so nothing changes for you.
+- **Profile** — Open this shortcut with the cookies and logins of a profile. This shows up when you have profiles.
+- Leave with unsaved changes and it asks if you want to **Save** or **Discard**.
+- If you change the URL of a shortcut that's currently open, it loads the new URL right away.
+
+The **Create a Shortcut** dialog also has the **Frameless** switch and a **Profile** picker now, so you can set it up right when you create it.
+
+---
+
+### Settings Search
+
+- Added a **search bar in Settings**. It searches across **all settings in every page**, including the smaller ones.
+- Tap a result and it opens the right page, scrolls to that setting, and briefly highlights it so you can see which one it is.
+- If nothing matches, it says *No settings found*.
+
+---
+
+### Data Saver
+
+I'm going even further, guys. Two more options:
+
+- **Block Scripts** — Stops pages from downloading JavaScript files. This covers normal scripts, web workers, and common analytics/ads scripts like gtag, Tag Manager and AdSense. On top of that, Clint also stops pages from adding new scripts while they load.
+- **Block CSS** — Stops pages from downloading stylesheets. Pages will look plain and unstyled.
+
+Both only work while Data Saver is on, like the other options.
+
+(Thank you to @super585 for suggesting this #41)
+
+> *Be careful with these two. Many modern websites are almost fully JavaScript, so blocking scripts can make a page blank, buttons not work, or stuff not load. I added it because some of you asked for the most extreme Data Saver possible, but you can always turn it off or use the per-site Data Saver exception for sites that break.*
+
+---
+
+### Look and Feel
+
+- Added a **Home button** next to the address bar that takes you to your homepage. You can turn it off in Look and Feel.
+
+(Thank you to u/ManFromUrth on Reddit for suggesting the Home button)
+
+- Added **Popup alert style**. You can now choose how Clint asks before a page opens a new window:
+  - **Dialog** — Shows a prompt with the destination URL and Yes and No buttons. This is the default and works like before.
+  - **Snackbar** — Shows a compact bar at the bottom with the destination URL and a single **Open** button. It's less in your way, and you can just ignore it if you don't want the new window.
+
+(Thank you to @HatoGreyrat for suggesting this #70)
+
+---
+
+### Backup & Restore
+
+- Added a new **Shortcuts** category. It backs up your home screen shortcuts, their icons, and their saved tabs, so you can restore them on a new device or after a reinstall.
+- Added a new **Profiles** category. It backs up your profiles with their logins and cookies.
+
+---
+
+### Browser Menu
+
+Some menu items now do something extra when you **long-press** them:
+
+- **Create a Shortcut** → opens Shortcut Manager.
+- **Quiver Guard** (site toggle) → opens Quiver Guard site settings.
+- **Desktop Mode** → opens Desktop Mode settings.
+- **Data Saver** (site toggle) → opens Data Saver site settings.
+
+---
+
+### Search Suggestions
+
+- Added **Off** in the online search suggestions options. No suggestions from the web at all. The address bar only suggests from your history and bookmarks.
+
+---
+
+### Download Settings
+
+- The **Compact** Download Dialog UI now also applies to the **manual download dialog** (when you add a download by URL), so it's tighter there too.
+
+---
+
+### Userscripts
+
+- Userscripts now show the **icon from the script itself**, when the script has one. It supports full links, relative paths, and embedded images. If there's no icon, it falls back to the site's favicon like before.
+- Favicons that are embedded in the page now load correctly.
+
+---
+
+## Removed Feature
+
+**Removed the Tab Menu style option.** Tab Sheet is gone and **Tab Grid** is now the only tab menu. If you were still using Tab Sheet, you'll be switched to the grid automatically.
+
+I'm removing the tab switcher because it's difficult to maintain, has frustrating glitches, and is falling behind.
+
+I know Clint is supposed to be customizable, and I hate taking that away, but the Tab Grid gives me much more room for future tab features. Honestly, how am I supposed to implement things like drag and drop in a bottom sheet?
+
+I hate removing features, but this has to be done for my own sake. I hope you guys understand.
+
+---
+
+## Other Changes
+
+- Renamed the **F-Droid** build to **FOSS**. Releases now build **GitHub and FOSS APKs together**, and the FOSS ones are named `ClintBrowser-foss-<version>-<arch>.apk`.
+- Removed the dependency info block from the APK and bundle.
+- I was actually planning to release Clint to IzzyOnDroid, but due to the announcement, it will get delayed.
+- The FOSS version will include no in-app update and no manage external access.
+- Closing a tab now fully releases its WebView, and popup helpers get cleaned up properly. (This is needed so profiles can be deleted without being stuck as "in use".)
+
+---
+
+## Bug Fixes
+
+- Fixed animated images in the image menu causing a crash on Android 8 and 8.1. #68
+- Fixed in-app video preview player not keeping the screen awake during playback. #69
+
+(Thank you so much @HatoGreyrat for reporting both of these issues)
+
+---
+
+### Legal
+
+- Updated Privacy Policy.
+
+---
+
+
 # v1.1.9
 
 ---

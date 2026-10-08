@@ -7,6 +7,8 @@ enum class TrackKind { VIDEO, AUDIO }
 
 enum class StreamContainerFormat { HLS, DASH }
 
+const val STREAM_FORMAT_HLS_SUBTITLE = "HLS_SUBTITLE"
+
 data class HlsKeyInfo(
     val keyUri: String,
     val ivHex: String?,
@@ -47,7 +49,8 @@ data class StreamDownloadRequest(
     val concurrentSegments: Int = 6,
     val noAudio: Boolean = false,
     val isLive: Boolean = false,
-    val convertTsToMp4: Boolean = false
+    val convertTsToMp4: Boolean = false,
+    val subtitleOnly: Boolean = false
 )
 
 object StreamBackoff {

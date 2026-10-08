@@ -1719,7 +1719,7 @@
     <string name="media_capture_menu_stream">Поток</string>
     <string name="media_capture_menu_copy_link">Скопировать ссылку загрузки</string>
     <string name="media_capture_menu_share_link">Поделиться ссылкой загрузки</string>
-    <string name="media_capture_convert_ts_to_mp4">Конвертировать TS в MP4</string>
+    <string name="media_capture_convert_ts_to_mp4">Конвертировать TS в MP4 или AAC</string>
     <string name="media_capture_menu_preview">Предпросмотр</string>
     <string name="media_capture_subtitle_preview_title">Предпросмотр субтитров</string>
     <string name="media_capture_subtitle_preview_error">Не удалось загрузить субтитры.\nПроверьте подключение к интернету и повторите попытку.</string>

@@ -192,6 +192,7 @@ fun suggestMediaCaptureFilename(media: DetectedMedia, pageTitle: String, contain
         return fromUrl
     }
     val ext = when {
+        media.kind == MediaKind.SUBTITLE && (media.isHlsPlaylist || media.format.equals("HLS", true)) -> "vtt"
         media.format.equals("HLS", true) || media.format.equals("DASH", true) -> containerExtension ?: "mp4"
         else -> media.format.lowercase()
     }

@@ -27,6 +27,10 @@ object StreamDownloadJob {
         } else this
 
     suspend fun run(context: Context, initialItem: DownloadItem) {
+        if (initialItem.streamFormat == STREAM_FORMAT_HLS_SUBTITLE) {
+            runSubtitle(context, initialItem)
+            return
+        }
         var current = initialItem
         val workDir = File(context.filesDir, "stream_downloads/${current.id}")
 
@@ -267,14 +271,23 @@ object StreamDownloadJob {
             val userExtension = current.filename.substringAfterLast('.', "").trim().takeIf { it.isNotBlank() }
             val wantsTsConversion = current.streamConvertTsToMp4 && !needsMux && !current.streamPrimaryIsAudio &&
                 videoTrack.containerHintExtension.equals("ts", ignoreCase = true)
-            val outExtension = userExtension ?: when {
-                needsMux || wantsTsConversion || videoTrack.containerHintExtension == "mp4" -> "mp4"
+            val wantsAacConversion = current.streamConvertTsToMp4 && !needsMux && current.streamPrimaryIsAudio &&
+                videoTrack.containerHintExtension.equals("ts", ignoreCase = true)
+            val audioFragmented = current.streamPrimaryIsAudio && !needsMux && videoTrack.containerHintExtension == "mp4"
+            val outExtension = when {
+                audioFragmented && userExtension.equals("aac", ignoreCase = true) -> "m4a"
+                userExtension != null -> userExtension
+                needsMux || wantsTsConversion -> "mp4"
+                wantsAacConversion -> "aac"
+                audioFragmented -> "m4a"
+                videoTrack.containerHintExtension == "mp4" -> "mp4"
                 else -> "ts"
             }
             val convertTsToMp4 = wantsTsConversion && !outExtension.equals("ts", ignoreCase = true)
+            val convertTsToAac = wantsAacConversion && outExtension.equals("aac", ignoreCase = true)
 
             publishProgress {
-                it.copy(status = if (convertTsToMp4) DownloadStatus.CONVERTING else DownloadStatus.MUXING, muxProgress = 0)
+                it.copy(status = if (convertTsToMp4 || convertTsToAac) DownloadStatus.CONVERTING else DownloadStatus.MUXING, muxProgress = 0)
             }
             DownloadNotificationHelper.showProgressNotification(context, current)
 
@@ -321,6 +334,16 @@ object StreamDownloadJob {
                     DownloadWorker.fail(context, current.withClockStopped(), message)
                     workDir.deleteRecursively()
                     return
+                }
+            } else if (convertTsToAac) {
+                val conversionTarget = finalFile
+                val converted = withContext(Dispatchers.IO) {
+                    TsToAacConverter.convert(videoTrackFile, conversionTarget, { isActive }) { pct -> onTransformProgress(pct) }
+                }
+                if (!converted) {
+                    runCatching { finalFile.delete() }
+                    finalFile = DownloadFileHelper.uniqueFile(destDir, "${baseName(finalFilename)}.ts")
+                    videoTrackFile.copyTo(finalFile, overwrite = true)
                 }
             } else if (convertTsToMp4) {
                 val conversionTarget = finalFile
@@ -541,20 +564,93 @@ object StreamDownloadJob {
         destDir: File,
         finalFile: File
     ) {
-        val builder = okhttp3.Request.Builder().url(url)
-        StreamRequestHeaders.apply(builder, url, pageUrl, "", userAgent, extraHeaders)
-        ClintDownloadManager.httpClient.newCall(builder.build()).execute().use { resp ->
-            if (!resp.isSuccessful) return
-            val bytes = resp.body.bytes()
-            val cleanUrl = url.substringBefore("?")
-            val ext = when {
-                cleanUrl.endsWith(".srt", ignoreCase = true) -> "srt"
-                cleanUrl.endsWith(".vtt", ignoreCase = true) -> "vtt"
-                resp.header("Content-Type")?.contains("vtt", ignoreCase = true) == true -> "vtt"
-                else -> "vtt"
+        val fetched = HlsSubtitleResolver.fetch(url, pageUrl, userAgent, extraHeaders, { false }) ?: return
+        val subFile = DownloadFileHelper.uniqueFile(destDir, "${baseName(finalFile.name)}.${fetched.extension}")
+        subFile.writeBytes(fetched.bytes)
+    }
+
+    private suspend fun runSubtitle(context: Context, initialItem: DownloadItem) {
+        var current = initialItem
+
+        fun isCancelled(): Boolean =
+            current.id in ClintDownloadManager.removedIds || current.id in ClintDownloadManager.pauseRequested
+
+        fun publishProgress(transform: (DownloadItem) -> DownloadItem) {
+            current = transform(current)
+            ClintDownloadManager.publish(current)
+        }
+
+        try {
+            publishProgress {
+                it.withClockStarted().copy(
+                    status = DownloadStatus.DOWNLOADING, segmentsCompleted = 0, segmentsTotal = 0, bytesDownloaded = 0L
+                )
             }
-            val subFile = DownloadFileHelper.uniqueFile(destDir, "${baseName(finalFile.name)}.$ext")
-            subFile.writeBytes(bytes)
+            DownloadNotificationHelper.showProgressNotification(context, current)
+
+            var lastNotifyAt = 0L
+            val fetched = withContext(Dispatchers.IO) {
+                HlsSubtitleResolver.fetch(
+                    current.streamVideoUrl, current.streamPageUrl, current.userAgent, current.streamHeaders, ::isCancelled
+                ) { completed, total, bytes ->
+                    publishProgress { it.copy(segmentsCompleted = completed, segmentsTotal = total, bytesDownloaded = bytes) }
+                    val now = System.currentTimeMillis()
+                    if (now - lastNotifyAt > 800) {
+                        lastNotifyAt = now
+                        DownloadNotificationHelper.showProgressNotification(context, current)
+                    }
+                }
+            }
+            if (isCancelled()) throw StreamCancelledException()
+            if (fetched == null) {
+                DownloadWorker.fail(context, current.withClockStopped(), context.getString(R.string.download_error_playlist_unavailable))
+                return
+            }
+            publishProgress { it.withClockStopped() }
+
+            if (!DownloadFileHelper.isCustomLocationAccessible(context, current.locationMode, current.customLocationUri)) {
+                DownloadWorker.fail(context, current.withClockStopped(), context.getString(R.string.download_location_invalid_message))
+                return
+            }
+            val directCustomDir = DownloadFileHelper.resolveDirectCustomDir(context, current)
+            val safMode = DownloadFileHelper.isSafCustomMode(context, current) && directCustomDir == null
+            val rawDestDir = directCustomDir
+                ?: if (safMode) DownloadFileHelper.tempDownloadDir(context) else DownloadFileHelper.resolveDownloadDir()
+
+            val userExtension = current.filename.substringAfterLast('.', "").trim().takeIf { it.isNotBlank() }
+            val guessedFinalName = "${baseName(current.filename)}.${userExtension ?: fetched.extension}"
+            val destDir = if (safMode) rawDestDir else DownloadCategories.resolveDir(current.categorizeEnabled, rawDestDir, guessedFinalName)
+            destDir.mkdirs()
+            val finalFile = DownloadFileHelper.uniqueFile(destDir, guessedFinalName)
+            finalFile.writeBytes(fetched.bytes)
+
+            current = current.withClockStopped().copy(
+                filename = finalFile.name,
+                file = finalFile,
+                totalBytes = finalFile.length(),
+                bytesDownloaded = finalFile.length()
+            )
+
+            if (safMode) {
+                DownloadWorker.moveTempToSaf(context, current)
+            } else {
+                current = current.copy(status = DownloadStatus.COMPLETE, completedAt = System.currentTimeMillis())
+                ClintDownloadManager.persistDownload(current)
+                ClintDownloadManager.publish(current)
+                DownloadNotificationHelper.showCompleteNotification(context, current)
+                ClintDownloadManager.tryDequeueNext(context)
+            }
+        } catch (_: StreamCancelledException) {
+            if (current.id in ClintDownloadManager.removedIds) return
+            if (current.id in ClintDownloadManager.pauseRequested) {
+                ClintDownloadManager.pauseRequested.remove(current.id)
+                val updated = current.withClockStopped().copy(status = DownloadStatus.PAUSED)
+                ClintDownloadManager.publish(updated)
+                ClintDownloadManager.persistDownload(updated)
+                ClintDownloadManager.tryDequeueNext(context)
+            }
+        } catch (e: Throwable) {
+            DownloadWorker.fail(context, current.withClockStopped(), e.message ?: context.getString(R.string.download_error_unknown))
         }
     }
 }

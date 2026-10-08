@@ -181,8 +181,17 @@ private fun resolveManualHlsPlan(url: String, userAgent: String, convertTsToMp4P
     val track = HlsPlaylistFetcher.fetch(chosen.url, "", "", userAgent, trackKind) ?: return null
     val estimatedBytes = HlsSegmentEstimator.estimate(chosen, track, url).estimatedBytes ?: 0L
     val hasAudio = pairedAudio != null
-    val convertTsToMp4 = convertTsToMp4Pref && !primaryIsAudio
-    val finalExtension = if (hasAudio || track.containerHintExtension == "mp4" || convertTsToMp4) "mp4" else track.containerHintExtension
+    val convertTsToMp4 = convertTsToMp4Pref
+    val finalExtension = when {
+        hasAudio -> "mp4"
+        primaryIsAudio -> when (track.containerHintExtension) {
+            "mp4" -> "m4a"
+            "ts" -> if (convertTsToMp4) "aac" else "ts"
+            else -> track.containerHintExtension
+        }
+        track.containerHintExtension == "mp4" || convertTsToMp4 -> "mp4"
+        else -> track.containerHintExtension
+    }
     return ManualStreamPlan(
         format = StreamContainerFormat.HLS,
         videoUrl = if (!primaryIsAudio) chosen.url else null,
@@ -223,7 +232,7 @@ private fun resolveManualDashPlan(url: String, userAgent: String): ManualStreamP
         audioBandwidth = pairedAudio?.bandwidthBitsPerSec,
         primaryIsAudio = primaryIsAudio,
         estimatedTotalBytes = estimatedBytes,
-        containerExtension = "mp4"
+        containerExtension = if (primaryIsAudio) "m4a" else "mp4"
     )
 }
 

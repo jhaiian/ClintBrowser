@@ -1699,7 +1699,7 @@
     <string name="media_capture_menu_stream">Stream</string>
     <string name="media_capture_menu_copy_link">Copy Download Link</string>
     <string name="media_capture_menu_share_link">Share Download Link</string>
-    <string name="media_capture_convert_ts_to_mp4">Convert TS to MP4</string>
+    <string name="media_capture_convert_ts_to_mp4">Convert TS to MP4 or AAC</string>
     <string name="media_capture_menu_preview">Preview</string>
     <string name="media_capture_subtitle_preview_title">Subtitle Preview</string>
     <string name="media_capture_subtitle_preview_error">Couldn\u2019t load subtitle.\nPlease check your connection and try again.</string>

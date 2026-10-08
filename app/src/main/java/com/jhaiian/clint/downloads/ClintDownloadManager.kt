@@ -249,7 +249,11 @@ object ClintDownloadManager {
             streamVideoUrl = request.videoUrl ?: request.audioUrl ?: "",
             streamAudioUrl = if (request.videoUrl != null) request.audioUrl else null,
             streamSubtitleUrl = request.subtitleUrl,
-            streamFormat = if (request.format == com.jhaiian.clint.mediacapture.download.StreamContainerFormat.DASH) "DASH" else "HLS",
+            streamFormat = when {
+                request.subtitleOnly -> com.jhaiian.clint.mediacapture.download.STREAM_FORMAT_HLS_SUBTITLE
+                request.format == com.jhaiian.clint.mediacapture.download.StreamContainerFormat.DASH -> "DASH"
+                else -> "HLS"
+            },
             streamPageUrl = request.pageUrl,
             referer = request.referer,
             streamVideoWidth = videoWidth,
@@ -272,7 +276,12 @@ object ClintDownloadManager {
         val needsMuxGuess = request.videoUrl != null && request.audioUrl != null
         val convertsTsGuess = request.convertTsToMp4 && !primaryIsAudio
         val userExt = request.filename.substringAfterLast('.', "").trim().takeIf { it.isNotBlank() }
-        val guessedExt = userExt ?: if (needsMuxGuess || convertsTsGuess) "mp4" else "ts"
+        val guessedExt = userExt ?: when {
+            request.subtitleOnly -> "vtt"
+            needsMuxGuess || convertsTsGuess -> "mp4"
+            primaryIsAudio && request.convertTsToMp4 -> "aac"
+            else -> "ts"
+        }
         val dot = request.filename.lastIndexOf('.')
         val guessedBase = if (dot > 0) request.filename.substring(0, dot) else request.filename
         val guessedFilename = "$guessedBase.$guessedExt"

@@ -33,6 +33,7 @@ object MediaCaptureDetector {
     private const val MAX_MANIFEST_BYTES = 3L * 1024 * 1024
     private const val MAX_MANIFEST_CHARS = MAX_MANIFEST_BYTES.toInt()
     private const val MIN_EXTENSIONLESS_MEDIA_BYTES = 20_000L
+    private const val MIN_VIDEO_BYTES = 20_000L
     private val EXCLUDED_HEADERS = setOf(
         "range", "if-range", "if-modified-since", "if-none-match",
         "accept-encoding", "connection", "content-length", "host", "cookie"
@@ -308,9 +309,10 @@ object MediaCaptureDetector {
                         }
                     }
                     if (kind == null) return@launch
-                    if (extKind == null && extFormat == null) {
-                        val size = head?.contentLength
-                        if (size != null && size < MIN_EXTENSIONLESS_MEDIA_BYTES) return@launch
+                    val size = head?.contentLength
+                    if (size != null) {
+                        if (extKind == null && extFormat == null && size < MIN_EXTENSIONLESS_MEDIA_BYTES) return@launch
+                        if (kind == MediaKind.VIDEO && size < MIN_VIDEO_BYTES) return@launch
                     }
                     val detected = DetectedMedia(
                         id = UUID.randomUUID().toString(),
@@ -408,7 +410,8 @@ object MediaCaptureDetector {
             return media.copy(
                 cueCount = info.cueCount,
                 durationSeconds = media.durationSeconds ?: info.durationSeconds,
-                language = language
+                language = language,
+                isHlsPlaylist = info.isHlsPlaylist
             )
         }
         val info = MediaFileMetadataProbe.probe(media, pageUrl) ?: return media
