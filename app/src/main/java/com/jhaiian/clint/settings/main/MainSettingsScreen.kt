@@ -99,7 +99,7 @@ fun MainSettingsScreen(
                 onClick = onBackupRestoreClick
             )
             RowDivider(colors.divider)
-            if (BuildConfig.IS_FDROID) {
+            if (BuildConfig.IS_FOSS) {
                 SettingsRow(
                     icon = androidx.compose.material.icons.Icons.Filled.History,
                     title = stringResource(R.string.view_changelog_title),

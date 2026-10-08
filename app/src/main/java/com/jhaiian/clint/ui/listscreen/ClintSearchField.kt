@@ -31,15 +31,18 @@ fun RowScope.ClintSearchField(
     query: String,
     onQueryChange: (String) -> Unit,
     hint: String,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    autoFocus: Boolean = true
 ) {
     val colors = LocalClintColors.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-        keyboardController?.show()
+        if (autoFocus) {
+            focusRequester.requestFocus()
+            keyboardController?.show()
+        }
     }
 
     BasicTextField(

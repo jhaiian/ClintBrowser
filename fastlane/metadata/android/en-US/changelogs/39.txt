@@ -1,0 +1,8 @@
+• Heavily improved Data Saver: disable images, block video, disable autoplay, block media preloading, web fonts and third-party frames, and more
+• Added Send Do Not Track request
+• Added Autofill toggle and Passkeys support
+• Added Center Content for the Clint homepage
+• Added Delete Inactive Tabs
+• Added Quick Download and a Compact download dialog
+• Fixed Swipe Refresh Layout not following the theme
+• Fixed download Snackbar issues

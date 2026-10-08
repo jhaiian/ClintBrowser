@@ -8,6 +8,7 @@ import android.content.pm.ActivityInfo
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
+import android.view.WindowManager
 import android.widget.ImageView
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
@@ -109,6 +110,7 @@ class VideoPreviewActivity : ClintActivity() {
                 VideoPreviewPlayer(
                     media = media,
                     onVideoSizeDetected = { width, height -> requestedOrientation = orientationFor(width, height) },
+                    onKeepScreenOnChanged = { keepOn -> setKeepScreenOn(keepOn) },
                     onClose = { finish() }
                 )
             }
@@ -127,6 +129,11 @@ class VideoPreviewActivity : ClintActivity() {
             hideSystemBars()
             window.decorView.post { hideSystemBars() }
         }
+    }
+
+    private fun setKeepScreenOn(keepOn: Boolean) {
+        if (keepOn) window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        else window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
     private fun hideSystemBars() {
@@ -163,6 +170,7 @@ private fun PlayerView.applyAccentControls(accent: Int, onAccent: Int) {
 private fun VideoPreviewPlayer(
     media: DetectedMedia,
     onVideoSizeDetected: (Int, Int) -> Unit,
+    onKeepScreenOnChanged: (Boolean) -> Unit,
     onClose: () -> Unit
 ) {
     val context = LocalContext.current
@@ -183,14 +191,29 @@ private fun VideoPreviewPlayer(
     }
 
     DisposableEffect(player) {
+        fun syncKeepScreenOn() {
+            val active = player.playWhenReady &&
+                (player.playbackState == Player.STATE_READY || player.playbackState == Player.STATE_BUFFERING)
+            onKeepScreenOnChanged(active)
+        }
         val listener = object : Player.Listener {
             override fun onPlaybackStateChanged(state: Int) {
                 playbackState = state
                 if (state == Player.STATE_READY) hasError = false
+                syncKeepScreenOn()
+            }
+
+            override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+                syncKeepScreenOn()
+            }
+
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                syncKeepScreenOn()
             }
 
             override fun onPlayerError(error: PlaybackException) {
                 hasError = true
+                onKeepScreenOnChanged(false)
             }
 
             override fun onVideoSizeChanged(videoSize: VideoSize) {
@@ -202,6 +225,7 @@ private fun VideoPreviewPlayer(
         player.addListener(listener)
         onDispose {
             player.removeListener(listener)
+            onKeepScreenOnChanged(false)
             player.release()
         }
     }

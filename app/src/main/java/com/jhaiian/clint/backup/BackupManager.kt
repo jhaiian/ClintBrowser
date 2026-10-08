@@ -1,6 +1,7 @@
 package com.jhaiian.clint.backup
 
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import android.webkit.CookieManager
 import androidx.core.content.pm.PackageInfoCompat
 import kotlinx.coroutines.Dispatchers
@@ -30,8 +31,11 @@ object BackupManager {
         onEncryptStart: () -> Unit = {}
     ): BackupResult = withContext(Dispatchers.IO) {
         val appContext = context.applicationContext
-        if (BackupCategory.COOKIES in categories) {
-            withContext(Dispatchers.Main) { CookieManager.getInstance().flush() }
+        if (BackupCategory.COOKIES in categories || BackupCategory.PROFILES in categories) {
+            withContext(Dispatchers.Main) {
+                CookieManager.getInstance().flush()
+                com.jhaiian.clint.profiles.WebProfiles.flushAll()
+            }
         }
         val tempZip = File.createTempFile("clint_backup_", ".zip", appContext.cacheDir)
         try {
@@ -43,6 +47,9 @@ object BackupManager {
                     when (target.type) {
                         BackupEntryType.DATABASE, BackupEntryType.PREFS -> {
                             val file = target.file(appContext)
+                            if (target.type == BackupEntryType.DATABASE && file.parentFile == appContext.getDatabasePath(file.name).parentFile) {
+                                checkpointDatabase(file)
+                            }
                             if (file.exists() && file.length() > 0) {
                                 planned.add(PlannedFile(target.id, category, file, target.zipPath))
                             }
@@ -56,6 +63,12 @@ object BackupManager {
                             }
                         }
                     }
+                }
+            }
+
+            if (BackupCategory.PROFILES in categories) {
+                for ((dirName, file) in BackupTargets.profileCookieFiles(appContext)) {
+                    planned.add(PlannedFile("${BackupTargets.PROFILE_COOKIES_ID_PREFIX}$dirName", BackupCategory.PROFILES, file, "${BackupTargets.PROFILE_COOKIES_ZIP_PREFIX}$dirName/Cookies"))
                 }
             }
 
@@ -116,6 +129,15 @@ object BackupManager {
         } finally {
             tempZip.delete()
             password?.fill('\u0000')
+        }
+    }
+
+    private fun checkpointDatabase(file: File) {
+        if (!file.exists()) return
+        runCatching {
+            SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE).use { db ->
+                db.rawQuery("PRAGMA wal_checkpoint(TRUNCATE)", null).use { it.moveToFirst() }
+            }
         }
     }
 

@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ChromeReaderMode
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.automirrored.filled.AddToHomeScreen
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Code
@@ -24,6 +25,7 @@ import com.jhaiian.clint.R
 enum class CustomizableMenuItem(val id: String) {
     NEW_TAB("new_tab"),
     NEW_INCOGNITO_TAB("new_incognito_tab"),
+    NEW_PROFILE_TAB("new_profile_tab"),
     SHARE("share"),
     OPEN_IN_APP("open_in_app"),
     CREATE_SHORTCUT("create_shortcut"),
@@ -49,6 +51,7 @@ enum class CustomizableMenuItem(val id: String) {
 fun CustomizableMenuItem.icon(): ImageVector = when (this) {
     CustomizableMenuItem.NEW_TAB -> Icons.Filled.Add
     CustomizableMenuItem.NEW_INCOGNITO_TAB -> Icons.Filled.VisibilityOff
+    CustomizableMenuItem.NEW_PROFILE_TAB -> Icons.Filled.AccountCircle
     CustomizableMenuItem.SHARE -> Icons.Filled.Share
     CustomizableMenuItem.OPEN_IN_APP -> Icons.AutoMirrored.Filled.OpenInNew
     CustomizableMenuItem.CREATE_SHORTCUT -> Icons.AutoMirrored.Filled.AddToHomeScreen
@@ -69,6 +72,7 @@ fun CustomizableMenuItem.icon(): ImageVector = when (this) {
 fun CustomizableMenuItem.titleRes(): Int = when (this) {
     CustomizableMenuItem.NEW_TAB -> R.string.new_tab
     CustomizableMenuItem.NEW_INCOGNITO_TAB -> R.string.new_incognito_tab
+    CustomizableMenuItem.NEW_PROFILE_TAB -> R.string.profiles_new_tab_in
     CustomizableMenuItem.SHARE -> R.string.share_url
     CustomizableMenuItem.OPEN_IN_APP -> R.string.menu_open_in_app
     CustomizableMenuItem.CREATE_SHORTCUT -> R.string.menu_create_shortcut

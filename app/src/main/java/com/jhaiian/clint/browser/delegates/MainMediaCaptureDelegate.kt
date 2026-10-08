@@ -127,7 +127,7 @@ private fun MainActivity.showMediaCaptureDownloadDialog(
                         media.url, submission.filename,
                         mediaCaptureRequestHeader(media, "User-Agent") ?: userAgent,
                         mediaCaptureRequestHeader(media, "Referer") ?: pageUrl,
-                        mediaCaptureCookies(media.url),
+                        mediaCaptureCookies(media),
                         submission.retryEnabled, submission.unmeteredOnly, submission.splitParts, submission.multithreadingParts, submission.speedLimitBytesPerSec,
                         submission.locationMode, submission.customLocationUri, submission.categorizeEnabled, submission.scheduledStartAtMillis,
                         onDismiss = dismiss,
@@ -223,5 +223,5 @@ private fun mediaCaptureRequestHeader(media: DetectedMedia, name: String): Strin
         ?.value
         ?.takeIf { it.isNotBlank() }
 
-private fun mediaCaptureCookies(url: String): String =
-    runCatching { android.webkit.CookieManager.getInstance().getCookie(url) }.getOrNull().orEmpty()
+private fun mediaCaptureCookies(media: DetectedMedia): String =
+    com.jhaiian.clint.profiles.WebProfiles.cookieForHeaders(media.requestHeaders, media.url)

@@ -1,0 +1,7 @@
+• Ahorro de datos muy mejorado: sin imágenes, sin vídeo, sin reproducción automática, sin precarga de medios, fuentes web ni marcos de terceros
+• Nueva solicitud «No rastrear»
+• Nuevo interruptor de autocompletado y claves de acceso
+• Centrar contenido en la página de inicio
+• Eliminar pestañas inactivas
+• Descarga rápida y diálogo compacto
+• Corregidos el deslizar para actualizar y el aviso de descarga

@@ -2,6 +2,7 @@ package com.jhaiian.clint.browser
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Mic
@@ -99,6 +100,8 @@ internal fun AddressBarRow(
     onTabCountClick: () -> Unit,
     onMediaCaptureClick: () -> Unit,
     onSwipeTabChange: (Int) -> Boolean,
+    showHomeButton: Boolean = false,
+    onHomeClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val colors = LocalClintColors.current
@@ -135,6 +138,23 @@ internal fun AddressBarRow(
                 tint = colors.iconTint,
                 modifier = Modifier.padding(end = 8.dp).size(20.dp)
             )
+        }
+        if (showHomeButton) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .padding(end = 6.dp)
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .clickable(onClick = onHomeClick)
+            ) {
+                Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Filled.Home,
+                    contentDescription = stringResource(R.string.home),
+                    tint = colors.iconTint,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
         }
         Surface(
             color = colors.addressBarColor,

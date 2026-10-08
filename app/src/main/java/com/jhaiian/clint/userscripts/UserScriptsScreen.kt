@@ -408,7 +408,12 @@ private fun UserScriptRow(
             .padding(start = 14.dp, end = 4.dp, top = 10.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val favicon = rememberClintFavicon(item.script.sourceUrl ?: "")
+        val scriptIconUrl = remember(item.metadata.icon, item.script.sourceUrl) {
+            resolveUserScriptIconUrl(item.metadata.icon, item.script.sourceUrl)
+        }
+        val scriptIcon = rememberClintFavicon("", scriptIconUrl)
+        val siteFavicon = rememberClintFavicon(if (scriptIcon == null) item.script.sourceUrl ?: "" else "")
+        val favicon = scriptIcon ?: siteFavicon
         Box(Modifier.size(40.dp).clip(CircleShape).background(colors.surfaceVariant), contentAlignment = Alignment.Center) {
             if (favicon != null) {
                 Image(bitmap = favicon.asImageBitmap(), contentDescription = null, modifier = Modifier.size(22.dp))

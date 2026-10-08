@@ -67,6 +67,7 @@ import com.jhaiian.clint.settings.common.RowDivider
 import com.jhaiian.clint.settings.common.SettingsRow
 import com.jhaiian.clint.settings.common.SettingsScreenScaffold
 import com.jhaiian.clint.settings.common.SettingsSection
+import com.jhaiian.clint.settings.common.settingsSearchHighlight
 import com.jhaiian.clint.setup.SectionLabel
 import com.jhaiian.clint.ui.theme.ClintColors
 import com.jhaiian.clint.ui.theme.LocalClintColors
@@ -499,7 +500,7 @@ private fun SliderSettingsCard(
     colors: ClintColors,
     onValueChange: (Int) -> Unit
 ) {
-    Column(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)) {
+    Column(Modifier.fillMaxWidth().settingsSearchHighlight(title, colors.primary).padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Icon(icon, contentDescription = null, tint = colors.iconTint, modifier = Modifier.size(22.dp))
             Column(Modifier.weight(1f).padding(start = 16.dp)) {

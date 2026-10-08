@@ -1,0 +1,5 @@
+• Nuevos perfiles: mantén varias cuentas del mismo sitio web abiertas a la vez, cada una con sus propias cookies y datos
+• Abre pestañas nuevas y accesos directos en el perfil que prefieras
+• Nuevo Administrador de accesos directos para gestionar los de tu pantalla de inicio
+• El modo Sin marco ahora se ajusta en cada acceso directo
+• Nuevas opciones Bloquear scripts y Bloquear CSS en Ahorro de datos

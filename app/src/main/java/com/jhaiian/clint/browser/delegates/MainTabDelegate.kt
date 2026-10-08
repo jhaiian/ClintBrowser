@@ -3,6 +3,7 @@ import com.jhaiian.clint.browser.MainActivity
 
 import android.annotation.SuppressLint
 import com.jhaiian.clint.tabs.BrowserTab
+import com.jhaiian.clint.profiles.WebProfiles
 import com.jhaiian.clint.tabs.InactiveTabsPolicy
 import com.jhaiian.clint.tabs.SavedTab
 import com.jhaiian.clint.tabs.TabSessionManager
@@ -35,7 +36,8 @@ internal fun MainActivity.saveTabs() {
                 isActive = if (restoreActiveId != null) tab.id == restoreActiveId else tab == tabManager.activeTab,
                 tabId = tab.id,
                 shortcutId = tab.shortcutId,
-                lastActiveAt = tab.lastActiveAt
+                lastActiveAt = tab.lastActiveAt,
+                profileId = tab.profileId
             )
         }
     Thread { TabSessionManager.save(this, savedTabs) }.start()
@@ -48,7 +50,7 @@ internal fun MainActivity.restoreTabs(): Boolean {
     if (savedTabs.isEmpty()) return false
     val activeIndex = savedTabs.indexOfFirst { it.isActive }.coerceAtLeast(0)
     savedTabs.forEachIndexed { index, saved ->
-        openNewTabSilent(saved.url, saved.tabId, saved.shortcutId, deferLoad = index != activeIndex, title = saved.title)
+        openNewTabSilent(saved.url, saved.tabId, saved.shortcutId, deferLoad = index != activeIndex, title = saved.title, profileId = saved.profileId)
     }
     tabManager.switchTo(activeIndex)
     savedTabs.forEach { saved ->
@@ -69,7 +71,7 @@ internal fun MainActivity.closeInactiveTabs() {
     val expired = tabManager.tabs.filter { tab ->
         tab.id != activeId &&
             !tab.isRefreshLinkTab &&
-            tabManager.effectiveShortcutId(tab) == null &&
+            !tabManager.isGhostTab(tab) &&
             now - tab.lastActiveAt >= threshold
     }
     if (expired.isEmpty()) return
@@ -124,10 +126,11 @@ internal fun MainActivity.openNewTabSilent(
     id: String = java.util.UUID.randomUUID().toString(),
     shortcutId: String? = null,
     deferLoad: Boolean = false,
-    title: String? = null
+    title: String? = null,
+    profileId: String = WebProfiles.DEFAULT_ID
 ) {
-    val webView = createWebView(false)
-    val tab = BrowserTab(id = id, url = url, shortcutId = shortcutId, webView = webView)
+    val webView = createWebView(false, WebProfiles.resolve(this, profileId))
+    val tab = BrowserTab(id = id, url = url, shortcutId = shortcutId, profileId = WebProfiles.profileOf(webView), webView = webView)
     if (!title.isNullOrBlank()) tab.title = title
     tabManager.add(tab)
     if (isDesktopMode) addDesktopScript(tab)
@@ -179,8 +182,10 @@ internal fun MainActivity.openNewTabSilent(
 }
 
 internal fun MainActivity.openNewTabInBackground(url: String, openerTabId: String? = null) {
-    val webView = createWebView(false)
-    val tab = BrowserTab(url = url, openerTabId = openerTabId, webView = webView)
+    val sourceTab = openerTabId?.let { id -> tabManager.tabs.firstOrNull { it.id == id } } ?: tabManager.activeTab
+    val sourceProfile = sourceTab?.takeIf { !it.isIncognito }?.profileId ?: WebProfiles.DEFAULT_ID
+    val webView = createWebView(false, WebProfiles.resolve(this, sourceProfile))
+    val tab = BrowserTab(url = url, openerTabId = openerTabId, profileId = WebProfiles.profileOf(webView), webView = webView)
     tabManager.addInBackground(tab)
     if (isDesktopMode) addDesktopScript(tab)
     addAutoplayScript(tab)
@@ -229,10 +234,22 @@ internal fun MainActivity.openNewTabInBackground(url: String, openerTabId: Strin
     updateTabCount()
 }
 
-internal fun MainActivity.openNewTab(isIncognito: Boolean, url: String = getHomepageUrl(), openerTabId: String? = null, shortcutId: String? = null, previousTabId: String? = null) {
+internal fun MainActivity.activeProfileId(): String =
+    tabManager.activeTab?.takeIf { !it.isIncognito }?.profileId ?: WebProfiles.DEFAULT_ID
+
+internal fun MainActivity.openNewTab(isIncognito: Boolean, url: String = getHomepageUrl(), openerTabId: String? = null, shortcutId: String? = null, previousTabId: String? = null, profileId: String? = null) {
     captureActiveTabThumbnail()
-    val webView = createWebView(isIncognito)
-    val tab = BrowserTab(isIncognito = isIncognito, openerTabId = openerTabId, shortcutId = shortcutId, previousTabId = previousTabId, webView = webView)
+    val requestedProfile = when {
+        isIncognito -> WebProfiles.DEFAULT_ID
+        profileId != null -> profileId
+        else -> openerTabId
+            ?.let { id -> tabManager.tabs.firstOrNull { it.id == id } }
+            ?.takeIf { !it.isIncognito }
+            ?.profileId
+            ?: WebProfiles.DEFAULT_ID
+    }
+    val webView = createWebView(isIncognito, WebProfiles.resolve(this, requestedProfile))
+    val tab = BrowserTab(isIncognito = isIncognito, openerTabId = openerTabId, shortcutId = shortcutId, previousTabId = previousTabId, profileId = WebProfiles.profileOf(webView), webView = webView)
     val index = tabManager.add(tab)
     if (isDesktopMode) addDesktopScript(tab)
     addAutoplayScript(tab)
@@ -319,10 +336,10 @@ internal fun MainActivity.attachActiveWebView() {
     updateNavigationState()
     updateBookmarkIcon()
     BlockedRequestCounter.setActiveTab(tab.id)
-    val cookieManager = android.webkit.CookieManager.getInstance()
     if (tab.isIncognito) {
-        cookieManager.setAcceptCookie(false)
+        android.webkit.CookieManager.getInstance().setAcceptCookie(false)
     } else {
+        val cookieManager = WebProfiles.cookieManagerFor(tab.webView)
         cookieManager.setAcceptCookie(true)
         cookieManager.setAcceptThirdPartyCookies(tab.webView, !prefs.getBoolean("block_third_party_cookies", true))
     }

@@ -10,7 +10,8 @@ data class SavedTab(
     val isActive: Boolean,
     val tabId: String,
     val shortcutId: String? = null,
-    val lastActiveAt: Long = System.currentTimeMillis()
+    val lastActiveAt: Long = System.currentTimeMillis(),
+    val profileId: String = "default"
 )
 
 object TabSessionManager {
@@ -37,6 +38,7 @@ object TabSessionManager {
                     put(TabDatabase.COL_TAB_ID, tab.tabId)
                     put(TabDatabase.COL_SHORTCUT_ID, tab.shortcutId)
                     put(TabDatabase.COL_LAST_ACTIVE, tab.lastActiveAt)
+                    put(TabDatabase.COL_PROFILE_ID, tab.profileId)
                 }
                 writable.insert(TabDatabase.TABLE, null, values)
             }
@@ -56,7 +58,8 @@ object TabSessionManager {
                 TabDatabase.COL_ACTIVE,
                 TabDatabase.COL_TAB_ID,
                 TabDatabase.COL_SHORTCUT_ID,
-                TabDatabase.COL_LAST_ACTIVE
+                TabDatabase.COL_LAST_ACTIVE,
+                TabDatabase.COL_PROFILE_ID
             ),
             null, null, null, null,
             "${TabDatabase.COL_POSITION} ASC"
@@ -72,7 +75,8 @@ object TabSessionManager {
                         isActive = it.getInt(3) == 1,
                         tabId = it.getString(4) ?: java.util.UUID.randomUUID().toString(),
                         shortcutId = it.getString(5),
-                        lastActiveAt = it.getLong(6)
+                        lastActiveAt = it.getLong(6),
+                        profileId = it.getString(7) ?: "default"
                     )
                 )
             }
@@ -88,6 +92,10 @@ object TabSessionManager {
             "1"
         )
         return cursor.use { !it.moveToFirst() }
+    }
+
+    fun removeProfile(context: Context, profileId: String) {
+        db(context).writableDatabase.delete(TabDatabase.TABLE, "${TabDatabase.COL_PROFILE_ID} = ?", arrayOf(profileId))
     }
 
     fun clear(context: Context) {

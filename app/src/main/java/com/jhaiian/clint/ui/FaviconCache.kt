@@ -3,6 +3,7 @@ package com.jhaiian.clint.ui
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Base64
 import android.os.Handler
 import android.os.Looper
 import androidx.preference.PreferenceManager
@@ -90,11 +91,27 @@ object FaviconCache {
 
     private fun tryFetch(url: String): Bitmap? {
         if (url.isEmpty()) return null
+        if (url.startsWith("data:", ignoreCase = true)) return decodeDataUri(url)
         return runCatching {
             val conn = URL(url).openConnection()
             conn.connectTimeout = 5000
             conn.readTimeout = 5000
             BitmapFactory.decodeStream(conn.getInputStream())
+        }.getOrNull()
+    }
+
+    private fun decodeDataUri(uri: String): Bitmap? {
+        return runCatching {
+            val comma = uri.indexOf(',')
+            if (comma < 0) return@runCatching null
+            val header = uri.substring(0, comma)
+            val payload = uri.substring(comma + 1)
+            val bytes = if (header.contains(";base64", ignoreCase = true)) {
+                Base64.decode(payload, Base64.DEFAULT)
+            } else {
+                java.net.URLDecoder.decode(payload, "UTF-8").toByteArray()
+            }
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
         }.getOrNull()
     }
 

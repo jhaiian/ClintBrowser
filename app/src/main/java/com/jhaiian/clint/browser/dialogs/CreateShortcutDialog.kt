@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,11 +34,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.jhaiian.clint.R
 import com.jhaiian.clint.browser.MainActivity
+import com.jhaiian.clint.browser.delegates.activeProfileId
 import com.jhaiian.clint.browser.delegates.createHomeScreenShortcut
+import com.jhaiian.clint.profiles.ShortcutProfileField
+import com.jhaiian.clint.profiles.shortcutProfileFieldVisible
+import androidx.compose.ui.platform.LocalContext
 import com.jhaiian.clint.ui.ClintDialog
 import com.jhaiian.clint.ui.ClintOutlinedTextField
+import com.jhaiian.clint.ui.ClintSwitch
 import com.jhaiian.clint.ui.rememberClintFavicon
 import com.jhaiian.clint.ui.theme.LocalClintColors
 
@@ -55,6 +62,9 @@ internal fun CreateShortcutDialog(
 ) {
     val colors = LocalClintColors.current
     var name by remember(request) { mutableStateOf(request.initialName) }
+    var frameless by remember(request) { mutableStateOf(true) }
+    var profileId by remember(request) { mutableStateOf(activity.activeProfileId()) }
+    val context = LocalContext.current
     var customIcon by remember(request) { mutableStateOf<Bitmap?>(null) }
     val faviconBitmap = rememberClintFavicon(pageUrl = request.pageUrl)
     val displayedIcon = customIcon ?: faviconBitmap
@@ -76,7 +86,7 @@ internal fun CreateShortcutDialog(
                     onClick = {
                         val finalName = name.trim().ifEmpty { request.initialName }
                         onDismiss()
-                        activity.createHomeScreenShortcut(request.pageUrl, finalName, displayedIcon)
+                        activity.createHomeScreenShortcut(request.pageUrl, finalName, displayedIcon, frameless, profileId)
                     },
                     enabled = name.isNotBlank()
                 ) {
@@ -135,6 +145,28 @@ internal fun CreateShortcutDialog(
                 label = { Text(stringResource(R.string.create_shortcut_name_hint)) },
                 singleLine = true
             )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { frameless = !frameless }
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f).padding(end = 12.dp)) {
+                Text(stringResource(R.string.frameless_shortcut_title), color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                Text(
+                    stringResource(R.string.frameless_shortcut_summary),
+                    color = colors.secondaryText,
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
+            ClintSwitch(checked = frameless)
+        }
+        if (shortcutProfileFieldVisible(context, profileId)) {
+            ShortcutProfileField(profileId, hideStatusBar, hideSystemNavigation) { profileId = it }
         }
     }
 }

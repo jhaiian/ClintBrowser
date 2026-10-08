@@ -211,7 +211,7 @@ private fun ImageThumbnail(imageUrl: String, referer: String) {
                 imageView.setPadding(0, 0, 0, 0)
                 imageView.imageTintList = null
                 imageView.setImageDrawable(d)
-                (d as? AnimatedImageDrawable)?.start()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) startIfAnimated(d)
             } else {
                 imageView.imageTintList = android.content.res.ColorStateList.valueOf(colors.iconTint.toArgbCompat())
             }
@@ -247,6 +247,11 @@ private fun rememberVectorDrawable(image: androidx.compose.ui.graphics.vector.Im
         }
         android.graphics.drawable.BitmapDrawable(resources, imageBitmap.asAndroidBitmap())
     }
+}
+
+@androidx.annotation.RequiresApi(Build.VERSION_CODES.P)
+private fun startIfAnimated(d: Drawable) {
+    (d as? AnimatedImageDrawable)?.start()
 }
 
 private fun dpToPx(context: android.content.Context, dp: Int): Int =

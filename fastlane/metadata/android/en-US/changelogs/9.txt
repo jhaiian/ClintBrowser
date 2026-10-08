@@ -1,1 +1,0 @@
-- Fixed the bug related to “Open in apps” by re-adding the QUERY_ALL_PACKAGES.

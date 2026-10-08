@@ -341,105 +341,6 @@ fun MenuStyleDialog(
 }
 
 @Composable
-fun TabMenuStyleDialog(
-    current: String,
-    theme: String,
-    accent: String,
-    hideStatusBar: Boolean, hideSystemNavigation: Boolean,
-    onSelect: (String) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val colors = LocalClintColors.current
-    val (bg, surface) = rememberBgSurface(theme, accent)
-    val scrollState = rememberScrollState()
-
-    ClintDialog(title = stringResource(R.string.pref_tab_menu_style_title), hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation, onDismiss = onDismiss, scrollState = scrollState) {
-        data class TabMenuOption(val key: String, val titleRes: Int, val descRes: Int)
-        listOf(
-            TabMenuOption("grid", R.string.tab_menu_style_grid, R.string.tab_menu_style_grid_desc),
-            TabMenuOption("sheet", R.string.tab_menu_style_sheet, R.string.tab_menu_style_sheet_desc)
-        ).forEach { option ->
-            SelectableCard(
-                selected = current == option.key, onClick = { onSelect(option.key) },
-                cardBackground = colors.surfaceVariant, primary = colors.primary,
-                contentPadding = OptionContentPadding, bottomSpacing = OptionBottomSpacing,
-                modifier = Modifier.scrollToSelection(scrollState, current == option.key)
-            ) {
-                TabMenuStylePreview(option.key, bg, surface, colors.primary)
-                Column(Modifier.weight(1f).padding(start = 12.dp, end = 8.dp)) {
-                    Text(stringResource(option.titleRes), color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Medium)
-                    Text(stringResource(option.descRes), color = colors.secondaryText, fontSize = 12.sp, modifier = Modifier.padding(top = 2.dp))
-                }
-                CheckSlot(current == option.key, colors.primary)
-            }
-        }
-    }
-}
-
-@Composable
-private fun TabMenuStylePreview(variant: String, bg: Color, surface: Color, accent: Color) {
-    Box(
-        Modifier
-            .size(52.dp, 64.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .background(bg)
-    ) {
-        if (variant == "grid") {
-            Column(
-                Modifier.fillMaxWidth().padding(6.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                repeat(2) { row ->
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        repeat(2) { col ->
-                            Box(
-                                Modifier
-                                    .weight(1f)
-                                    .height(20.dp)
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .background(surface)
-                                    .then(
-                                        if (row == 0 && col == 0)
-                                            Modifier.padding(2.dp)
-                                        else Modifier
-                                    )
-                            ) {
-                                if (row == 0 && col == 0) {
-                                    Box(
-                                        Modifier
-                                            .size(6.dp)
-                                            .align(Alignment.TopStart)
-                                            .clip(RoundedCornerShape(2.dp))
-                                            .background(accent)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(34.dp)
-                        .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
-                        .background(surface)
-                        .padding(6.dp)
-                ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Spacer(Modifier.width(28.dp).height(4.dp).clip(RoundedCornerShape(2.dp)).background(accent))
-                        Spacer(Modifier.width(22.dp).height(4.dp).clip(RoundedCornerShape(2.dp)).background(bg))
-                        Spacer(Modifier.width(24.dp).height(4.dp).clip(RoundedCornerShape(2.dp)).background(bg))
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
 fun ScrollHideModeDialog(
     current: String,
     addressBarPosition: String,
@@ -523,6 +424,45 @@ fun ExitConfirmationDialog(
             val sel = selected == option.key
             SelectableCard(
                 selected = sel, onClick = { selected = option.key },
+                cardBackground = colors.surfaceVariant, primary = colors.primary,
+                contentPadding = OptionContentPadding, bottomSpacing = OptionBottomSpacing,
+                modifier = Modifier.scrollToSelection(scrollState, sel)
+            ) {
+                ClintRadioButton(selected = sel)
+                Column(Modifier.weight(1f).padding(start = 12.dp, end = 8.dp)) {
+                    Text(stringResource(option.titleRes), color = colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                    Text(stringResource(option.descRes), color = colors.secondaryText, fontSize = 13.sp, modifier = Modifier.padding(top = 2.dp))
+                }
+                if (option.showDefault) DefaultChip(stringResource(R.string.default_label), colors.primary)
+            }
+        }
+    }
+}
+
+@Composable
+fun PopupAlertStyleDialog(
+    current: String,
+    hideStatusBar: Boolean, hideSystemNavigation: Boolean,
+    onSelect: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val colors = LocalClintColors.current
+    val scrollState = rememberScrollState()
+
+    ClintDialog(
+        title = stringResource(R.string.pref_popup_alert_style_title),
+        hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation,
+        onDismiss = onDismiss,
+        scrollState = scrollState
+    ) {
+        data class StyleOption(val key: String, val titleRes: Int, val descRes: Int, val showDefault: Boolean)
+        listOf(
+            StyleOption("dialog", R.string.popup_alert_style_dialog, R.string.popup_alert_style_dialog_desc, true),
+            StyleOption("snackbar", R.string.popup_alert_style_snackbar, R.string.popup_alert_style_snackbar_desc, false)
+        ).forEach { option ->
+            val sel = current == option.key
+            SelectableCard(
+                selected = sel, onClick = { onSelect(option.key) },
                 cardBackground = colors.surfaceVariant, primary = colors.primary,
                 contentPadding = OptionContentPadding, bottomSpacing = OptionBottomSpacing,
                 modifier = Modifier.scrollToSelection(scrollState, sel)

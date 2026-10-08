@@ -55,6 +55,7 @@ internal class MainUiState {
     var tabCountText by mutableStateOf("1")
     var isIncognito by mutableStateOf(false)
     var isMediaCaptureEnabled by mutableStateOf(true)
+    var showHomeButton by mutableStateOf(true)
     var activeTabId by mutableStateOf<String?>(null)
 
     var topBarFraction by mutableFloatStateOf(0f)
@@ -90,6 +91,7 @@ internal class MainUiState {
     var webPermissionDialogRequest by mutableStateOf<com.jhaiian.clint.ui.WebPermissionDialogRequest?>(null)
     var popupAlertRequest by mutableStateOf<com.jhaiian.clint.browser.dialogs.PopupAlertRequest?>(null)
     var refreshLinkDialogRequest by mutableStateOf<com.jhaiian.clint.browser.dialogs.RefreshLinkDialogRequest?>(null)
+    var profilePickerOpen by mutableStateOf(false)
     var createShortcutRequest by mutableStateOf<com.jhaiian.clint.browser.dialogs.CreateShortcutRequest?>(null)
     var openInAppRequest by mutableStateOf<com.jhaiian.clint.browser.webview.OpenInAppRequest?>(null)
     var userScriptInstallPromptRequest by mutableStateOf<com.jhaiian.clint.userscripts.UserScriptInstallPromptRequest?>(null)

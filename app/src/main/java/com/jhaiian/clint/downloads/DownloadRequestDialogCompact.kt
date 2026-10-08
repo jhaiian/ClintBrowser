@@ -201,13 +201,13 @@ internal fun CompactDownloadRequestContent(
 }
 
 @Composable
-private fun CompactDivider() {
+internal fun CompactDivider() {
     val colors = LocalClintColors.current
     Box(Modifier.padding(vertical = 6.dp)) { RowDivider(colors.divider) }
 }
 
 @Composable
-private fun CompactToggleRow(title: String, checked: Boolean, onToggle: () -> Unit) {
+internal fun CompactToggleRow(title: String, checked: Boolean, onToggle: () -> Unit) {
     val colors = LocalClintColors.current
     Row(
         Modifier.fillMaxWidth().heightIn(min = 32.dp).clickable(onClick = onToggle),
@@ -224,7 +224,7 @@ private fun CompactToggleRow(title: String, checked: Boolean, onToggle: () -> Un
 }
 
 @Composable
-private fun CompactSliderRow(title: String, valueText: String, value: Int, range: IntRange, onChange: (Int) -> Unit) {
+internal fun CompactSliderRow(title: String, valueText: String, value: Int, range: IntRange, onChange: (Int) -> Unit) {
     val colors = LocalClintColors.current
     Row(Modifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(title, color = colors.onSurface, fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
@@ -240,7 +240,7 @@ private fun CompactSliderRow(title: String, valueText: String, value: Int, range
 }
 
 @Composable
-private fun CompactLocationRow(mode: String, onModeSelected: (String) -> Unit) {
+internal fun CompactLocationRow(mode: String, onModeSelected: (String) -> Unit) {
     val colors = LocalClintColors.current
     var menuOpen by remember { mutableStateOf(false) }
     val modeLabel = stringResource(
@@ -275,7 +275,7 @@ private fun CompactLocationRow(mode: String, onModeSelected: (String) -> Unit) {
 }
 
 @Composable
-private fun CompactSpeedLimitRow(
+internal fun CompactSpeedLimitRow(
     text: String,
     onTextChange: (String) -> Unit,
     unitLabel: String,

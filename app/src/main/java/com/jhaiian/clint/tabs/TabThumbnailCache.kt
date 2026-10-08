@@ -16,7 +16,7 @@ import java.util.concurrent.Executors
 
 object TabThumbnailCache {
     private const val MAX_DIMENSION_PX = 1024
-    private const val DIR_NAME = "tab_thumbnails"
+    const val DIR_NAME = "tab_thumbnails"
     private const val WEBP_QUALITY = 85
 
     private val ioExecutor = Executors.newSingleThreadExecutor { runnable ->

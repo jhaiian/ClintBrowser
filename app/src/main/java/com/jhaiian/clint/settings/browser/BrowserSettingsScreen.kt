@@ -1,5 +1,6 @@
 package com.jhaiian.clint.settings.browser
 import com.jhaiian.clint.browser.home.HOMEPAGE_SEARCH_ENGINE
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.AutoDelete
 import com.jhaiian.clint.tabs.InactiveTabsPolicy
@@ -19,7 +20,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.DesktopWindows
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.automirrored.filled.AddToHomeScreen
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Shield
@@ -54,11 +55,12 @@ fun BrowserSettingsScreen(
     onSearchSuggestionsApiConfirmed: (String) -> Unit,
     onCustomSearchSuggestionsApiSaved: (name: String, url: String) -> Unit,
     onJavascriptRowClicked: () -> Unit,
-    onFramelessShortcutRowClicked: () -> Unit,
+    onShortcutManagerRowClicked: () -> Unit,
     onWebsiteBlockerRowClicked: () -> Unit,
     onQuiverGuardRowClicked: () -> Unit,
     onIncognitoSearchHistoryRowClicked: () -> Unit,
     onUserScriptsRowClicked: () -> Unit,
+    onProfilesRowClicked: () -> Unit,
     onCustomSelectMenusRowClicked: () -> Unit,
     onCustomJsDialogsRowClicked: () -> Unit,
     onCustomHttpAuthRowClicked: () -> Unit,
@@ -193,7 +195,7 @@ fun BrowserSettingsScreen(
             SettingsRow(
                 icon = androidx.compose.material.icons.Icons.AutoMirrored.Filled.ManageSearch,
                 title = stringResource(R.string.search_suggestions_api),
-                summary = engineSummaryText(state.searchSuggestionsApi, state.customSearchSuggestionsApiName),
+                summary = if (state.searchSuggestionsApi == "off") stringResource(R.string.suggestions_api_off) else engineSummaryText(state.searchSuggestionsApi, state.customSearchSuggestionsApiName),
                 colors = colors,
                 onClick = { state.searchSuggestionsApiDialogOpen = true }
             )
@@ -261,19 +263,23 @@ fun BrowserSettingsScreen(
                 colors = colors,
                 onClick = onUserScriptsRowClicked
             )
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.AccountCircle,
+                title = stringResource(R.string.profiles_title),
+                summary = stringResource(R.string.profiles_settings_summary),
+                colors = colors,
+                onClick = onProfilesRowClicked
+            )
         }
 
         SectionLabel(stringResource(R.string.pref_category_shortcuts).uppercase(), colors.primary, Modifier.padding(start = 4.dp, bottom = 8.dp))
         SettingsSection(colors.cardBackground) {
             SettingsRow(
-                icon = androidx.compose.material.icons.Icons.AutoMirrored.Filled.OpenInNew,
-                title = stringResource(R.string.frameless_shortcut_title),
-                summary = stringResource(R.string.frameless_shortcut_summary),
+                icon = androidx.compose.material.icons.Icons.AutoMirrored.Filled.AddToHomeScreen,
+                title = stringResource(R.string.shortcut_manager_title),
+                summary = stringResource(R.string.shortcut_manager_summary),
                 colors = colors,
-                onClick = onFramelessShortcutRowClicked,
-                trailing = {
-                    ClintSwitch(checked = state.framelessShortcut)
-                }
+                onClick = onShortcutManagerRowClicked
             )
         }
 

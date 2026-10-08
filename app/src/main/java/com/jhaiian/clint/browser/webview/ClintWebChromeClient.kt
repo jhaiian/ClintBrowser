@@ -2,6 +2,8 @@ package com.jhaiian.clint.browser.webview
 
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import android.os.SystemClock
 import android.view.View
@@ -114,11 +116,27 @@ class ClintWebChromeClient(
         if (resultMsg == null || isFullscreenActive() || hijackedFullscreenExit) return false
         val helperWebView = WebView(view.context)
         helperWebView.settings.javaScriptEnabled = false
+        val mainHandler = Handler(Looper.getMainLooper())
+        var released = false
+        // The helper only exists to capture the popup URL. If it is never destroyed it keeps the
+        // opener's profile marked as "in use", which blocks deleting that profile later.
+        val release = Runnable {
+            if (released) return@Runnable
+            released = true
+            helperWebView.stopLoading()
+            helperWebView.webViewClient = WebViewClient()
+            helperWebView.destroy()
+        }
+        fun scheduleRelease() {
+            mainHandler.removeCallbacks(release)
+            mainHandler.post(release)
+        }
         helperWebView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(wv: WebView, request: WebResourceRequest): Boolean {
                 val url = request.url.toString()
                 if (url != "about:blank") {
                     onNewWindowRequest(url)
+                    scheduleRelease()
                 }
                 return true
             }
@@ -126,10 +144,16 @@ class ClintWebChromeClient(
                 if (url != "about:blank") {
                     onNewWindowRequest(url)
                     wv.stopLoading()
+                    scheduleRelease()
                 }
             }
         }
-        val transport = resultMsg.obj as? WebView.WebViewTransport ?: return false
+        val transport = resultMsg.obj as? WebView.WebViewTransport
+        if (transport == null) {
+            release.run()
+            return false
+        }
+        mainHandler.postDelayed(release, HELPER_RELEASE_TIMEOUT_MS)
         transport.webView = helperWebView
         resultMsg.sendToTarget()
         return true
@@ -137,5 +161,6 @@ class ClintWebChromeClient(
 
     companion object {
         private const val FULLSCREEN_EXIT_POPUP_GUARD_MS = 700L
+        private const val HELPER_RELEASE_TIMEOUT_MS = 30_000L
     }
 }

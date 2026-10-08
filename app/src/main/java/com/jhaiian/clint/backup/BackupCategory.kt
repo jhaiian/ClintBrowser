@@ -10,9 +10,11 @@ enum class BackupCategory(val id: String) {
     WEBSITE_BLOCKER("website_blocker"),
     QUIVER_GUARD("quiver_guard"),
     COOKIES("cookies"),
+    PROFILES("profiles"),
     BOOKMARKS("bookmarks"),
     SEARCH_HISTORY("search_history"),
     SITE_PERMISSIONS("site_permissions"),
+    SHORTCUTS("shortcuts"),
     UPDATE_SETTINGS("update_settings");
 
     companion object {
@@ -20,10 +22,10 @@ enum class BackupCategory(val id: String) {
 
         /**
          * Categories that make sense to offer for backup on the current build flavor.
-         * UPDATE_SETTINGS is excluded on F-Droid, since that flavor has no in-app
+         * UPDATE_SETTINGS is excluded on the FOSS flavor, since that flavor has no in-app
          * update checker and therefore no update preferences to save or restore.
          */
         fun available(): List<BackupCategory> =
-            entries.filter { it != UPDATE_SETTINGS || !BuildConfig.IS_FDROID }
+            entries.filter { it != UPDATE_SETTINGS || !BuildConfig.IS_FOSS }
     }
 }

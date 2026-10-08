@@ -55,7 +55,7 @@ internal fun MainActivity.showImageLongPressSheet(imageUrl: String, pageTitle: S
 }
 
 internal fun MainActivity.handleImageOpenInNewTab(imageUrl: String) {
-    openNewTab(isIncognito = false, url = imageUrl)
+    openNewTab(isIncognito = false, url = imageUrl, profileId = activeProfileId())
 }
 
 internal fun MainActivity.handleImagePreview(imageUrl: String) {
@@ -86,7 +86,7 @@ internal fun MainActivity.handleImageDownload(imageUrl: String, altText: String)
     }
     val userAgent = tabManager.activeTab?.webView?.settings?.userAgentString ?: buildUserAgent()
     val referer = tabManager.activeTab?.webView?.url ?: ""
-    val cookies = CookieManager.getInstance().getCookie(imageUrl) ?: ""
+    val cookies = com.jhaiian.clint.profiles.WebProfiles.cookieFor(activeProfileId(), imageUrl)
     val filename = resolveImageFilename(imageUrl, altText)
     showDownloadDialog(imageUrl, filename, userAgent, referer, cookies, quickImages)
 }

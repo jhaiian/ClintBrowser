@@ -156,6 +156,25 @@
             android:parentActivityName=".settings.SettingsActivity" />
 
         <activity
+            android:name=".profiles.ProfilesActivity"
+            android:exported="false"
+            android:configChanges="uiMode|screenSize|smallestScreenSize|screenLayout|orientation"
+            android:parentActivityName=".settings.SettingsActivity" />
+
+        <activity
+            android:name=".settings.shortcutmanager.ShortcutManagerActivity"
+            android:exported="false"
+            android:configChanges="uiMode|screenSize|smallestScreenSize|screenLayout|orientation"
+            android:parentActivityName=".settings.SettingsActivity" />
+
+        <activity
+            android:name=".settings.shortcutmanager.ShortcutSettingsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"
+            android:configChanges="uiMode|screenSize|smallestScreenSize|screenLayout|orientation"
+            android:parentActivityName=".settings.shortcutmanager.ShortcutManagerActivity" />
+
+        <activity
             android:name=".settings.desktopmode.DesktopModeActivity"
             android:exported="false"
             android:configChanges="uiMode|screenSize|smallestScreenSize|screenLayout|orientation"

@@ -55,7 +55,7 @@ internal object DownloadFileHelper {
     }
 
     fun hasAllFilesAccess(): Boolean =
-        !BuildConfig.IS_FDROID &&
+        !BuildConfig.IS_FOSS &&
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
             Environment.isExternalStorageManager()
 

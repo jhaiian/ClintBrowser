@@ -13,7 +13,7 @@ data class ShortcutSavedTab(
     val tabId: String
 )
 
-private class ShortcutTabDatabase(context: Context) :
+internal class ShortcutTabDatabase(context: Context) :
     SQLiteOpenHelper(context.applicationContext, DB_NAME, null, DB_VERSION) {
 
     override fun onCreate(db: SQLiteDatabase) {

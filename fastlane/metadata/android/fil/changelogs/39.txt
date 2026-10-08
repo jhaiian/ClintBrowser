@@ -1,0 +1,7 @@
+• Mas pinahusay na Data Saver: walang larawan, video, autoplay, media preloading, web fonts, at third-party frames
+• Bagong Do Not Track request
+• Bagong switch ng Autofill at suporta sa passkeys
+• Center Content sa homepage ng Clint
+• Delete Inactive Tabs
+• Quick Download at Compact na download dialog
+• Inayos ang Swipe Refresh at ang download Snackbar

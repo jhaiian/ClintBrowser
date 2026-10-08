@@ -8,12 +8,15 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -29,6 +32,7 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,24 +51,29 @@ import com.jhaiian.clint.BuildConfig
 import com.jhaiian.clint.R
 import com.jhaiian.clint.base.ClintActivity
 import com.jhaiian.clint.settings.backuprestore.BackupRestorePane
+import com.jhaiian.clint.settings.common.LocalSettingsSearchTarget
+import com.jhaiian.clint.settings.common.SettingsSearchTarget
 import com.jhaiian.clint.settings.main.MainSettingsScreen
+import com.jhaiian.clint.settings.search.SettingsSearchResults
+import com.jhaiian.clint.settings.search.SettingsSearchToolbar
 import com.jhaiian.clint.settings.supportclint.SupportClintActivity
 import com.jhaiian.clint.ui.DocumentViewer
 import com.jhaiian.clint.ui.OverlayHostActivity
 import com.jhaiian.clint.ui.theme.ClintComposeTheme
 import com.jhaiian.clint.ui.theme.LocalClintColors
 
-private const val DEST_LOOK_AND_FEEL = "look_and_feel"
-private const val DEST_BROWSER = "browser"
-private const val DEST_PRIVACY = "privacy"
-private const val DEST_SITE_SETTINGS = "site_settings"
-private const val DEST_DATA_SAVER = "data_saver"
-private const val DEST_DOWNLOADS = "downloads"
-private const val DEST_BACKUP_RESTORE = "backup_restore"
-private const val DEST_UPDATES = "updates"
-private const val DEST_MISC = "misc"
-private const val DEST_DEBUG = "debug"
-private const val DEST_ABOUT = "about"
+internal const val DEST_LOOK_AND_FEEL = "look_and_feel"
+internal const val DEST_BROWSER = "browser"
+internal const val DEST_PRIVACY = "privacy"
+internal const val DEST_SITE_SETTINGS = "site_settings"
+internal const val DEST_DATA_SAVER = "data_saver"
+internal const val DEST_DOWNLOADS = "downloads"
+internal const val DEST_BACKUP_RESTORE = "backup_restore"
+internal const val DEST_UPDATES = "updates"
+internal const val DEST_MISC = "misc"
+internal const val DEST_DEBUG = "debug"
+internal const val DEST_ABOUT = "about"
+internal const val DEST_SUPPORT_CLINT = "support_clint"
 
 class SettingsActivity : ClintActivity(), OverlayHostActivity {
 
@@ -155,17 +164,50 @@ class SettingsActivity : ClintActivity(), OverlayHostActivity {
 private fun SettingsNavHost(activity: SettingsActivity, initialDestination: String?) {
     var selectedDestination by rememberSaveable { mutableStateOf(initialDestination) }
     var hasShownList by rememberSaveable { mutableStateOf(initialDestination == null) }
+    var searchActive by rememberSaveable { mutableStateOf(false) }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    var searchTarget by remember { mutableStateOf<SettingsSearchTarget?>(null) }
     val isTwoPane = calculateWindowSizeClass(activity).widthSizeClass != WindowWidthSizeClass.Compact
+
+    val navigate: (String, String?) -> Unit = { destination, targetTitle ->
+        searchTarget = targetTitle?.let { SettingsSearchTarget(it) }
+        when {
+            destination == DEST_SUPPORT_CLINT ->
+                activity.startActivity(Intent(activity, SupportClintActivity::class.java))
+            destination == DEST_UPDATES && BuildConfig.IS_FOSS ->
+                DocumentViewer.show(
+                    activity,
+                    activity.getString(R.string.document_viewer_changelog_title),
+                    DocumentViewer.CHANGELOG_URL
+                )
+            else -> selectedDestination = destination
+        }
+    }
+
+    val listPane: @Composable (onNavigate: (String, String?) -> Unit) -> Unit = { onNavigate ->
+        SettingsListPane(
+            activity = activity,
+            searchActive = searchActive,
+            searchQuery = searchQuery,
+            onSearchActiveChange = { active ->
+                searchActive = active
+                if (!active) searchQuery = ""
+            },
+            onSearchQueryChange = { searchQuery = it },
+            onNavigate = onNavigate
+        )
+    }
 
     if (isTwoPane) {
         Row(Modifier.fillMaxSize()) {
             Box(Modifier.width(360.dp).fillMaxHeight()) {
-                SettingsListPane(activity = activity) { destination -> selectedDestination = destination }
+                listPane(navigate)
             }
             Box(Modifier.weight(1f).fillMaxHeight()) {
                 SettingsDetailPane(
                     activity = activity,
                     destination = selectedDestination,
+                    searchTarget = searchTarget,
                     onBack = { selectedDestination = null }
                 )
             }
@@ -183,56 +225,90 @@ private fun SettingsNavHost(activity: SettingsActivity, initialDestination: Stri
             label = "settings_pane"
         ) { destination ->
             if (destination == null) {
-                SettingsListPane(activity = activity) { newDestination ->
+                listPane { newDestination, targetTitle ->
                     hasShownList = true
-                    selectedDestination = newDestination
+                    navigate(newDestination, targetTitle)
                 }
             } else {
-                SettingsDetailPane(activity = activity, destination = destination, onBack = handleBack)
+                SettingsDetailPane(
+                    activity = activity,
+                    destination = destination,
+                    searchTarget = searchTarget,
+                    onBack = handleBack
+                )
             }
         }
     }
 }
 
 @Composable
-private fun SettingsListPane(activity: SettingsActivity, onNavigate: (String) -> Unit) {
+private fun SettingsListPane(
+    activity: SettingsActivity,
+    searchActive: Boolean,
+    searchQuery: String,
+    onSearchActiveChange: (Boolean) -> Unit,
+    onSearchQueryChange: (String) -> Unit,
+    onNavigate: (String, String?) -> Unit
+) {
     val versionName = remember {
         activity.packageManager.getPackageInfo(activity.packageName, 0).versionName ?: ""
     }
+    val colors = LocalClintColors.current
+    BackHandler(enabled = searchActive) { onSearchActiveChange(false) }
     Column(Modifier.fillMaxSize()) {
-        SettingsToolbar(title = stringResource(R.string.settings), onBack = { activity.finish() })
-        Box(Modifier.weight(1f)) {
-            MainSettingsScreen(
-                versionName = versionName,
-                onLookAndFeelClick = { onNavigate(DEST_LOOK_AND_FEEL) },
-                onBrowserClick = { onNavigate(DEST_BROWSER) },
-                onPrivacyClick = { onNavigate(DEST_PRIVACY) },
-                onSiteSettingsClick = { onNavigate(DEST_SITE_SETTINGS) },
-                onDataSaverClick = { onNavigate(DEST_DATA_SAVER) },
-                onDownloadsClick = { onNavigate(DEST_DOWNLOADS) },
-                onBackupRestoreClick = { onNavigate(DEST_BACKUP_RESTORE) },
-                onUpdatesClick = {
-                    if (BuildConfig.IS_FDROID) {
-                        DocumentViewer.show(
-                            activity,
-                            activity.getString(R.string.document_viewer_changelog_title),
-                            DocumentViewer.CHANGELOG_URL
-                        )
-                    } else {
-                        onNavigate(DEST_UPDATES)
-                    }
-                },
-                onMiscClick = { onNavigate(DEST_MISC) },
-                onDebugClick = { onNavigate(DEST_DEBUG) },
-                onAboutClick = { onNavigate(DEST_ABOUT) },
-                onSupportClintClick = { activity.startActivity(Intent(activity, SupportClintActivity::class.java)) }
+        if (searchActive) {
+            SettingsSearchToolbar(
+                query = searchQuery,
+                onQueryChange = onSearchQueryChange,
+                onClose = { onSearchActiveChange(false) }
             )
+            Box(Modifier.weight(1f)) {
+                SettingsSearchResults(query = searchQuery) { result ->
+                    onNavigate(result.destination, result.highlightTitle)
+                }
+            }
+        } else {
+            SettingsToolbar(
+                title = stringResource(R.string.settings),
+                onBack = { activity.finish() },
+                actions = {
+                    IconButton(onClick = { onSearchActiveChange(true) }) {
+                        Icon(
+                            Icons.Filled.Search,
+                            contentDescription = stringResource(R.string.settings_search),
+                            tint = colors.iconTint
+                        )
+                    }
+                }
+            )
+            Box(Modifier.weight(1f)) {
+                MainSettingsScreen(
+                    versionName = versionName,
+                    onLookAndFeelClick = { onNavigate(DEST_LOOK_AND_FEEL, null) },
+                    onBrowserClick = { onNavigate(DEST_BROWSER, null) },
+                    onPrivacyClick = { onNavigate(DEST_PRIVACY, null) },
+                    onSiteSettingsClick = { onNavigate(DEST_SITE_SETTINGS, null) },
+                    onDataSaverClick = { onNavigate(DEST_DATA_SAVER, null) },
+                    onDownloadsClick = { onNavigate(DEST_DOWNLOADS, null) },
+                    onBackupRestoreClick = { onNavigate(DEST_BACKUP_RESTORE, null) },
+                    onUpdatesClick = { onNavigate(DEST_UPDATES, null) },
+                    onMiscClick = { onNavigate(DEST_MISC, null) },
+                    onDebugClick = { onNavigate(DEST_DEBUG, null) },
+                    onAboutClick = { onNavigate(DEST_ABOUT, null) },
+                    onSupportClintClick = { onNavigate(DEST_SUPPORT_CLINT, null) }
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun SettingsDetailPane(activity: SettingsActivity, destination: String?, onBack: () -> Unit) {
+private fun SettingsDetailPane(
+    activity: SettingsActivity,
+    destination: String?,
+    searchTarget: SettingsSearchTarget?,
+    onBack: () -> Unit
+) {
     if (destination == null) {
         SettingsEmptyDetailPane()
         return
@@ -240,18 +316,20 @@ private fun SettingsDetailPane(activity: SettingsActivity, destination: String?,
     Column(Modifier.fillMaxSize()) {
         SettingsToolbar(title = stringResource(destinationTitleRes(destination)), onBack = onBack)
         Box(Modifier.weight(1f)) {
-            when (destination) {
-                DEST_LOOK_AND_FEEL -> LookAndFeelPane(activity)
-                DEST_BROWSER -> BrowserSettingsPane(activity)
-                DEST_PRIVACY -> PrivacySettingsPane(activity)
-                DEST_SITE_SETTINGS -> SiteSettingsPane(activity)
-                DEST_DATA_SAVER -> DataSaverPane(activity)
-                DEST_DOWNLOADS -> DownloadSettingsPane(activity)
-                DEST_BACKUP_RESTORE -> BackupRestorePane(activity)
-                DEST_UPDATES -> UpdateSettingsPane(activity)
-                DEST_MISC -> MiscPane(activity)
-                DEST_DEBUG -> DebugPane(activity)
-                DEST_ABOUT -> AboutPane(activity)
+            CompositionLocalProvider(LocalSettingsSearchTarget provides searchTarget) {
+                when (destination) {
+                    DEST_LOOK_AND_FEEL -> LookAndFeelPane(activity)
+                    DEST_BROWSER -> BrowserSettingsPane(activity)
+                    DEST_PRIVACY -> PrivacySettingsPane(activity)
+                    DEST_SITE_SETTINGS -> SiteSettingsPane(activity)
+                    DEST_DATA_SAVER -> DataSaverPane(activity)
+                    DEST_DOWNLOADS -> DownloadSettingsPane(activity)
+                    DEST_BACKUP_RESTORE -> BackupRestorePane(activity)
+                    DEST_UPDATES -> UpdateSettingsPane(activity)
+                    DEST_MISC -> MiscPane(activity)
+                    DEST_DEBUG -> DebugPane(activity)
+                    DEST_ABOUT -> AboutPane(activity)
+                }
             }
         }
     }
@@ -273,7 +351,7 @@ private fun destinationTitleRes(destination: String): Int = when (destination) {
 }
 
 @Composable
-private fun SettingsToolbar(title: String, onBack: () -> Unit) {
+private fun SettingsToolbar(title: String, onBack: () -> Unit, actions: @Composable RowScope.() -> Unit = {}) {
     val colors = LocalClintColors.current
     Surface(color = colors.surface, shadowElevation = 4.dp, modifier = Modifier.statusBarsPadding()) {
         Row(Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -285,8 +363,11 @@ private fun SettingsToolbar(title: String, onBack: () -> Unit) {
                 color = colors.onSurface,
                 fontSize = 19.sp,
                 fontWeight = FontWeight.Medium,
-                modifier = Modifier.padding(start = 4.dp)
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f).padding(start = 4.dp)
             )
+            actions()
         }
     }
 }

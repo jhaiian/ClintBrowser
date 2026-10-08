@@ -18,7 +18,6 @@ class BrowserSettingsUiState(
     initialCustomSearchSuggestionsApiName: String,
     initialCustomSearchSuggestionsApiUrl: String,
     initialJavascriptEnabled: Boolean,
-    initialFramelessShortcut: Boolean,
     initialHideStatusBar: Boolean,
     initialHideSystemNavigation: Boolean,
     initialIncognitoSearchHistory: Boolean,
@@ -42,7 +41,6 @@ class BrowserSettingsUiState(
     var customSearchSuggestionsApiName by mutableStateOf(initialCustomSearchSuggestionsApiName)
     var customSearchSuggestionsApiUrl by mutableStateOf(initialCustomSearchSuggestionsApiUrl)
     var javascriptEnabled by mutableStateOf(initialJavascriptEnabled)
-    var framelessShortcut by mutableStateOf(initialFramelessShortcut)
     var hideStatusBar by mutableStateOf(initialHideStatusBar)
     var hideSystemNavigation by mutableStateOf(initialHideSystemNavigation)
     var incognitoSearchHistory by mutableStateOf(initialIncognitoSearchHistory)

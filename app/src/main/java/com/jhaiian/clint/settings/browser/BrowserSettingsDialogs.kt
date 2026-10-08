@@ -176,7 +176,8 @@ fun SearchSuggestionsApiDialog(
         data class SuggestionsApiOption(val key: String, val titleRes: Int, val descRes: Int, val showDefault: Boolean)
         listOf(
             SuggestionsApiOption("duckduckgo", R.string.engine_duckduckgo, R.string.suggestions_api_duckduckgo_desc, true),
-            SuggestionsApiOption("google", R.string.engine_google, R.string.suggestions_api_google_desc, false)
+            SuggestionsApiOption("google", R.string.engine_google, R.string.suggestions_api_google_desc, false),
+            SuggestionsApiOption("off", R.string.suggestions_api_off, R.string.suggestions_api_off_desc, false)
         ).forEach { option ->
             val sel = selected == option.key
             SelectableCard(

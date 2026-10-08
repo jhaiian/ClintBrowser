@@ -16,7 +16,9 @@ class DataSaverUiState(
     initialCacheFirst: Boolean,
     initialBlockVideo: Boolean,
     initialDisableSuggestions: Boolean,
-    initialDisableFavicons: Boolean
+    initialDisableFavicons: Boolean,
+    initialBlockScripts: Boolean,
+    initialBlockCss: Boolean
 ) {
     var enabled by mutableStateOf(initialEnabled)
     var meteredOnly by mutableStateOf(initialMeteredOnly)
@@ -30,4 +32,6 @@ class DataSaverUiState(
     var blockVideo by mutableStateOf(initialBlockVideo)
     var disableSuggestions by mutableStateOf(initialDisableSuggestions)
     var disableFavicons by mutableStateOf(initialDisableFavicons)
+    var blockScripts by mutableStateOf(initialBlockScripts)
+    var blockCss by mutableStateOf(initialBlockCss)
 }

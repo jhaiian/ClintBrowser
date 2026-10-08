@@ -17,7 +17,8 @@ internal class TabDatabase(context: Context) :
                 $COL_ACTIVE   INTEGER NOT NULL DEFAULT 0,
                 $COL_TAB_ID   TEXT,
                 $COL_SHORTCUT_ID TEXT,
-                $COL_LAST_ACTIVE INTEGER NOT NULL DEFAULT 0
+                $COL_LAST_ACTIVE INTEGER NOT NULL DEFAULT 0,
+                $COL_PROFILE_ID TEXT NOT NULL DEFAULT 'default'
             )"""
         )
     }
@@ -33,11 +34,14 @@ internal class TabDatabase(context: Context) :
         if (oldVersion < 5) {
             db.execSQL("ALTER TABLE $TABLE ADD COLUMN $COL_LAST_ACTIVE INTEGER NOT NULL DEFAULT ${System.currentTimeMillis()}")
         }
+        if (oldVersion < 6) {
+            db.execSQL("ALTER TABLE $TABLE ADD COLUMN $COL_PROFILE_ID TEXT NOT NULL DEFAULT 'default'")
+        }
     }
 
     companion object {
         const val DB_NAME    = "clint_tabs.db"
-        const val DB_VERSION = 5
+        const val DB_VERSION = 6
         const val TABLE      = "tabs"
         const val COL_ID       = "id"
         const val COL_POSITION = "position"
@@ -47,5 +51,6 @@ internal class TabDatabase(context: Context) :
         const val COL_TAB_ID   = "tab_id"
         const val COL_SHORTCUT_ID = "shortcut_id"
         const val COL_LAST_ACTIVE = "last_active"
+        const val COL_PROFILE_ID = "profile_id"
     }
 }

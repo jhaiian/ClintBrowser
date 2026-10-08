@@ -24,13 +24,15 @@ import com.jhaiian.clint.mediacapture.MediaCaptureDetector
 import com.jhaiian.clint.mediacapture.MediaCaptureStore
 import com.jhaiian.clint.quiver.engine.QuiverGuardWebIntegration
 import com.jhaiian.clint.tabs.BrowserTab
+import com.jhaiian.clint.profiles.WebProfiles
 import com.jhaiian.clint.userscripts.UserScriptEngine
 import com.jhaiian.clint.util.registeredDomain
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 @SuppressLint("SetJavaScriptEnabled")
-internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
+internal fun MainActivity.createWebView(isIncognito: Boolean, profileId: String = WebProfiles.DEFAULT_ID): WebView {
     val webView = ClintWebView(this)
+    if (!isIncognito) WebProfiles.bind(webView, profileId)
     val settings = webView.settings
     settings.javaScriptEnabled = prefs.getBoolean("javascript_enabled", true)
     settings.domStorageEnabled = !isIncognito
@@ -51,10 +53,10 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
     if (!isIncognito && WebViewFeature.isFeatureSupported(WebViewFeature.WEB_AUTHENTICATION)) {
         WebSettingsCompat.setWebAuthenticationSupport(settings, WebSettingsCompat.WEB_AUTHENTICATION_SUPPORT_FOR_APP)
     }
-    val cookieManager = CookieManager.getInstance()
     if (isIncognito) {
-        cookieManager.setAcceptCookie(false)
+        CookieManager.getInstance().setAcceptCookie(false)
     } else {
+        val cookieManager = WebProfiles.cookieManagerFor(webView)
         cookieManager.setAcceptCookie(true)
         cookieManager.setAcceptThirdPartyCookies(webView, !prefs.getBoolean("block_third_party_cookies", true))
     }
@@ -107,7 +109,7 @@ internal fun MainActivity.createWebView(isIncognito: Boolean): WebView {
             }
         }
         val referer = webView.url ?: ""
-        val cookies = CookieManager.getInstance().getCookie(url) ?: ""
+        val cookies = WebProfiles.cookieFor(WebProfiles.profileOf(webView), url)
         val session = refreshLinkSession
         if (session != null && tabManager.activeTab?.isRefreshLinkTab == true && isRelatedToSession(url, referer, session)) {
             showRefreshLinkDownloadDialog(url, filename, userAgent, referer, cookies, session)
@@ -178,6 +180,9 @@ internal fun MainActivity.isDataSaverBlockActive(): Boolean =
 internal fun MainActivity.isDataSaverVideoBlockActive(): Boolean =
     DataSaverMode.isActive(prefs) && prefs.getBoolean("data_saver_block_video", false)
 
+internal fun MainActivity.isDataSaverScriptBlockActive(): Boolean =
+    DataSaverMode.isActive(prefs) && prefs.getBoolean("data_saver_block_scripts", false)
+
 internal fun MainActivity.addDataSaverMediaScript(tab: BrowserTab) {
     removeDataSaverMediaScript(tab)
     if (!WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) return
@@ -187,11 +192,15 @@ internal fun MainActivity.addDataSaverMediaScript(tab: BrowserTab) {
     if (isDataSaverVideoBlockActive()) {
         dataSaverVideoScriptHandlers[tab.id] = WebViewCompat.addDocumentStartJavaScript(tab.webView, loadDataSaverJs("block_video.js"), setOf("*"))
     }
+    if (isDataSaverScriptBlockActive()) {
+        dataSaverScriptBlockHandlers[tab.id] = WebViewCompat.addDocumentStartJavaScript(tab.webView, loadDataSaverJs("block_scripts.js"), setOf("*"))
+    }
 }
 
 internal fun MainActivity.removeDataSaverMediaScript(tab: BrowserTab) {
     dataSaverMediaScriptHandlers.remove(tab.id)?.remove()
     dataSaverVideoScriptHandlers.remove(tab.id)?.remove()
+    dataSaverScriptBlockHandlers.remove(tab.id)?.remove()
 }
 
 internal fun MainActivity.isDoNotTrackActive(): Boolean =
@@ -314,9 +323,8 @@ internal fun MainActivity.applyJavaScript() {
 
 internal fun MainActivity.applyCookiePolicy() {
     val blockThirdParty = prefs.getBoolean("block_third_party_cookies", true)
-    val cookieManager = CookieManager.getInstance()
     tabManager.tabs.forEach { tab ->
-        if (!tab.isIncognito) cookieManager.setAcceptThirdPartyCookies(tab.webView, !blockThirdParty)
+        if (!tab.isIncognito) WebProfiles.cookieManagerFor(tab.webView).setAcceptThirdPartyCookies(tab.webView, !blockThirdParty)
     }
     tabManager.activeTab?.webView?.reload()
 }

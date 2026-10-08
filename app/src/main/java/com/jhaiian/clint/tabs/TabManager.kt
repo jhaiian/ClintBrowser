@@ -4,7 +4,7 @@ class TabManager {
 
     val tabs = mutableListOf<BrowserTab>()
     var activeIndex = 0
-    var framelessShortcutsEnabled = true
+    var framelessShortcutIds: Set<String> = emptySet()
 
     val activeTab: BrowserTab? get() = tabs.getOrNull(activeIndex)
     val count: Int get() = tabs.size
@@ -32,11 +32,21 @@ class TabManager {
             tab.webView.clearCache(true)
             tab.webView.clearHistory()
         }
-        tab.webView.destroy()
+        releaseWebView(tab)
         tabs.removeAt(index)
         if (activeIndex >= tabs.size) {
             activeIndex = (tabs.size - 1).coerceAtLeast(0)
         }
+    }
+
+    private fun releaseWebView(tab: BrowserTab) {
+        val webView = tab.webView
+        (webView.parent as? android.view.ViewGroup)?.removeView(webView)
+        webView.stopLoading()
+        webView.webViewClient = android.webkit.WebViewClient()
+        webView.webChromeClient = null
+        webView.destroy()
+        com.jhaiian.clint.profiles.WebProfiles.unregisterTab(tab.id)
     }
 
     fun switchTo(index: Int) {
@@ -58,10 +68,13 @@ class TabManager {
         return null
     }
 
-    fun isGhostTab(tab: BrowserTab): Boolean = framelessShortcutsEnabled && effectiveShortcutId(tab) != null
+    fun isGhostTab(tab: BrowserTab): Boolean {
+        val shortcutId = effectiveShortcutId(tab) ?: return false
+        return shortcutId in framelessShortcutIds
+    }
 
     fun previews(): List<TabPreview> = tabs.filter { !isGhostTab(it) }.map {
-        TabPreview(it.id, it.title.ifBlank { "New Tab" }, if (com.jhaiian.clint.browser.home.isClintHomeUrl(it.url)) "" else it.url, it.isIncognito)
+        TabPreview(it.id, it.title.ifBlank { "New Tab" }, if (com.jhaiian.clint.browser.home.isClintHomeUrl(it.url)) "" else it.url, it.isIncognito, it.profileId)
     }
 
     fun moveTab(fromIndex: Int, toIndex: Int) {
@@ -91,7 +104,7 @@ class TabManager {
                 it.webView.clearCache(true)
                 it.webView.clearHistory()
             }
-            it.webView.destroy()
+            releaseWebView(it)
         }
         tabs.clear()
         activeIndex = 0

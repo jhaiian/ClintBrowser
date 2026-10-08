@@ -98,6 +98,10 @@ private const val DEFAULT_DISABLE_SUGGESTIONS = true
 private const val DEFAULT_DISABLE_FAVICONS = true
 private const val PREF_BLOCK_VIDEO = "data_saver_block_video"
 private const val DEFAULT_BLOCK_VIDEO = false
+private const val PREF_BLOCK_SCRIPTS = "data_saver_block_scripts"
+private const val PREF_BLOCK_CSS = "data_saver_block_css"
+private const val DEFAULT_BLOCK_SCRIPTS = false
+private const val DEFAULT_BLOCK_CSS = false
 private const val PREF_CACHE_FIRST = "data_saver_cache_first"
 private const val DEFAULT_CACHE_FIRST = true
 private const val PREF_BLOCK_FONTS = "data_saver_block_fonts"
@@ -150,10 +154,11 @@ fun LookAndFeelPane(activity: SettingsActivity) {
             initialScrollHideMode = prefs.getString("scroll_hide_mode", "off") ?: "off",
             initialAddressBarPosition = prefs.getString("address_bar_position", "top") ?: "top",
             initialMenuStyle = prefs.getString("menu_style", "popup") ?: "popup",
-            initialTabMenuStyle = prefs.getString("tab_menu_style", "grid") ?: "grid",
             initialHideStatusBar = prefs.getBoolean("hide_status_bar", false),
             initialHideSystemNavigation = prefs.getBoolean("hide_system_navigation", false),
-            initialExitConfirmation = prefs.getString("exit_confirmation", "toast") ?: "toast"
+            initialShowHomeButton = prefs.getBoolean("show_home_button", true),
+            initialExitConfirmation = prefs.getString("exit_confirmation", "toast") ?: "toast",
+            initialPopupAlertStyle = prefs.getString("popup_alert_style", "dialog") ?: "dialog"
         )
     }
     var confirmDialog by remember { mutableStateOf<ConfirmDialogConfig?>(null) }
@@ -162,10 +167,11 @@ fun LookAndFeelPane(activity: SettingsActivity) {
         uiState.scrollHideMode = prefs.getString("scroll_hide_mode", "off") ?: "off"
         uiState.addressBarPosition = prefs.getString("address_bar_position", "top") ?: "top"
         uiState.menuStyle = prefs.getString("menu_style", "popup") ?: "popup"
-        uiState.tabMenuStyle = prefs.getString("tab_menu_style", "grid") ?: "grid"
         uiState.hideStatusBar = prefs.getBoolean("hide_status_bar", false)
         uiState.hideSystemNavigation = prefs.getBoolean("hide_system_navigation", false)
+        uiState.showHomeButton = prefs.getBoolean("show_home_button", true)
         uiState.exitConfirmation = prefs.getString("exit_confirmation", "toast") ?: "toast"
+        uiState.popupAlertStyle = prefs.getString("popup_alert_style", "dialog") ?: "dialog"
         uiState.language = prefs.getString(LocaleHelper.PREF_APP_LANGUAGE, LocaleHelper.LANGUAGE_SYSTEM) ?: LocaleHelper.LANGUAGE_SYSTEM
     }
 
@@ -239,6 +245,12 @@ fun LookAndFeelPane(activity: SettingsActivity) {
         )
     }
 
+    fun onShowHomeButtonRowClicked() {
+        val newValue = !uiState.showHomeButton
+        prefs.edit().putBoolean("show_home_button", newValue).apply()
+        uiState.showHomeButton = newValue
+    }
+
     fun onHideStatusBarRowClicked() {
         val newValue = !uiState.hideStatusBar
         confirmDialog = ConfirmDialogConfig(
@@ -297,20 +309,21 @@ fun LookAndFeelPane(activity: SettingsActivity) {
             uiState.menuStyle = style
             uiState.openDialog = null
         },
-        onTabMenuStyleSelected = { style ->
-            prefs.edit().putString("tab_menu_style", style).apply()
-            uiState.tabMenuStyle = style
-            uiState.openDialog = null
-        },
         onScrollHideModeSelected = ::selectScrollHideMode,
         onHideStatusBarRowClicked = ::onHideStatusBarRowClicked,
         onHideSystemNavigationRowClicked = ::onHideSystemNavigationRowClicked,
+        onShowHomeButtonRowClicked = ::onShowHomeButtonRowClicked,
         onCustomizeMenuRowClicked = {
             activity.startActivity(Intent(activity, com.jhaiian.clint.settings.menucustomization.MenuCustomizationActivity::class.java))
         },
         onExitConfirmationConfirmed = { value ->
             prefs.edit().putString("exit_confirmation", value).apply()
             uiState.exitConfirmation = value
+            uiState.openDialog = null
+        },
+        onPopupAlertStyleSelected = { value ->
+            prefs.edit().putString("popup_alert_style", value).apply()
+            uiState.popupAlertStyle = value
             uiState.openDialog = null
         }
     )
@@ -335,7 +348,6 @@ fun BrowserSettingsPane(activity: SettingsActivity) {
             initialCustomSearchSuggestionsApiName = com.jhaiian.clint.browser.customSearchSuggestionsApiName(prefs),
             initialCustomSearchSuggestionsApiUrl = com.jhaiian.clint.browser.customSearchSuggestionsApiUrlTemplate(prefs),
             initialJavascriptEnabled = prefs.getBoolean("javascript_enabled", true),
-            initialFramelessShortcut = prefs.getBoolean("shortcut_frameless_enabled", true),
             initialHideStatusBar = prefs.getBoolean("hide_status_bar", false),
             initialHideSystemNavigation = prefs.getBoolean("hide_system_navigation", false),
             initialIncognitoSearchHistory = prefs.getBoolean("incognito_search_history_enabled", false),
@@ -362,7 +374,6 @@ fun BrowserSettingsPane(activity: SettingsActivity) {
         uiState.customSearchSuggestionsApiName = com.jhaiian.clint.browser.customSearchSuggestionsApiName(prefs)
         uiState.customSearchSuggestionsApiUrl = com.jhaiian.clint.browser.customSearchSuggestionsApiUrlTemplate(prefs)
         uiState.javascriptEnabled = prefs.getBoolean("javascript_enabled", true)
-        uiState.framelessShortcut = prefs.getBoolean("shortcut_frameless_enabled", true)
         uiState.hideStatusBar = prefs.getBoolean("hide_status_bar", false)
         uiState.hideSystemNavigation = prefs.getBoolean("hide_system_navigation", false)
         uiState.incognitoSearchHistory = prefs.getBoolean("incognito_search_history_enabled", false)
@@ -519,12 +530,6 @@ fun BrowserSettingsPane(activity: SettingsActivity) {
         }
     }
 
-    fun onFramelessShortcutRowClicked() {
-        val newValue = !uiState.framelessShortcut
-        prefs.edit().putBoolean("shortcut_frameless_enabled", newValue).apply()
-        uiState.framelessShortcut = newValue
-    }
-
     fun onIncognitoSearchHistoryRowClicked() {
         val newValue = !uiState.incognitoSearchHistory
         prefs.edit().putBoolean("incognito_search_history_enabled", newValue).apply()
@@ -581,7 +586,9 @@ fun BrowserSettingsPane(activity: SettingsActivity) {
         onSearchSuggestionsApiConfirmed = ::onSearchSuggestionsApiConfirmed,
         onCustomSearchSuggestionsApiSaved = ::onCustomSearchSuggestionsApiSaved,
         onJavascriptRowClicked = ::onJavascriptRowClicked,
-        onFramelessShortcutRowClicked = ::onFramelessShortcutRowClicked,
+        onShortcutManagerRowClicked = {
+            activity.startActivity(android.content.Intent(activity, com.jhaiian.clint.settings.shortcutmanager.ShortcutManagerActivity::class.java))
+        },
         onWebsiteBlockerRowClicked = {
             activity.startActivity(android.content.Intent(activity, com.jhaiian.clint.blocker.WebsiteBlockerActivity::class.java))
         },
@@ -591,6 +598,9 @@ fun BrowserSettingsPane(activity: SettingsActivity) {
         onIncognitoSearchHistoryRowClicked = ::onIncognitoSearchHistoryRowClicked,
         onUserScriptsRowClicked = {
             activity.startActivity(android.content.Intent(activity, com.jhaiian.clint.userscripts.UserScriptsActivity::class.java))
+        },
+        onProfilesRowClicked = {
+            activity.startActivity(android.content.Intent(activity, com.jhaiian.clint.profiles.ProfilesActivity::class.java))
         },
         onCustomSelectMenusRowClicked = ::onCustomSelectMenusRowClicked,
         onCustomJsDialogsRowClicked = ::onCustomJsDialogsRowClicked,
@@ -709,7 +719,9 @@ fun DataSaverPane(activity: SettingsActivity) {
             initialCacheFirst = prefs.getBoolean(PREF_CACHE_FIRST, DEFAULT_CACHE_FIRST),
             initialBlockVideo = prefs.getBoolean(PREF_BLOCK_VIDEO, DEFAULT_BLOCK_VIDEO),
             initialDisableSuggestions = prefs.getBoolean(PREF_DISABLE_SUGGESTIONS, DEFAULT_DISABLE_SUGGESTIONS),
-            initialDisableFavicons = prefs.getBoolean(PREF_DISABLE_FAVICONS, DEFAULT_DISABLE_FAVICONS)
+            initialDisableFavicons = prefs.getBoolean(PREF_DISABLE_FAVICONS, DEFAULT_DISABLE_FAVICONS),
+            initialBlockScripts = prefs.getBoolean(PREF_BLOCK_SCRIPTS, DEFAULT_BLOCK_SCRIPTS),
+            initialBlockCss = prefs.getBoolean(PREF_BLOCK_CSS, DEFAULT_BLOCK_CSS)
         )
     }
     fun toggle(prefKey: String, current: Boolean, apply: (Boolean) -> Unit) {
@@ -753,6 +765,12 @@ fun DataSaverPane(activity: SettingsActivity) {
         },
         onDisableFaviconsClick = {
             if (uiState.enabled) toggle(PREF_DISABLE_FAVICONS, uiState.disableFavicons) { uiState.disableFavicons = it }
+        },
+        onBlockScriptsClick = {
+            if (uiState.enabled) toggle(PREF_BLOCK_SCRIPTS, uiState.blockScripts) { uiState.blockScripts = it }
+        },
+        onBlockCssClick = {
+            if (uiState.enabled) toggle(PREF_BLOCK_CSS, uiState.blockCss) { uiState.blockCss = it }
         }
     )
 }
@@ -998,7 +1016,7 @@ private fun aboutOpenLink(context: Context, url: String) {
 }
 
 private fun showGrantAllFilesAccessRow(): Boolean =
-    !BuildConfig.IS_FDROID && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+    !BuildConfig.IS_FOSS && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
 
 private fun isAllFilesAccessGranted(): Boolean =
     Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Environment.isExternalStorageManager()

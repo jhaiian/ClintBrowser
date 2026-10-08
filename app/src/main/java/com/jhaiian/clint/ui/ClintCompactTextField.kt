@@ -30,7 +30,8 @@ fun ClintCompactTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     placeholder: String = "",
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    isError: Boolean = false
 ) {
     val colors = LocalClintColors.current
     var focused by remember { mutableStateOf(false) }
@@ -48,7 +49,7 @@ fun ClintCompactTextField(
                 Modifier
                     .fillMaxWidth()
                     .heightIn(min = 36.dp)
-                    .border(1.dp, if (focused) colors.primary else colors.divider, shape)
+                    .border(1.dp, if (isError) colors.colorError else if (focused) colors.primary else colors.divider, shape)
                     .padding(horizontal = 10.dp),
                 contentAlignment = Alignment.CenterStart
             ) {

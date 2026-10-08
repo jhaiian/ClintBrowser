@@ -2,6 +2,7 @@ package com.jhaiian.clint.userscripts
 
 import com.jhaiian.clint.ui.listscreen.ListSortKey
 import com.jhaiian.clint.ui.listscreen.ListSortOrder
+import java.net.URL
 
 fun filterAndSortUserScripts(
     items: List<UserScriptListItem>,
@@ -33,4 +34,16 @@ fun filterAndSortUserScripts(
 fun sectionLetterForUserScript(entry: UserScriptListItem, sortKey: ListSortKey): String = when (sortKey) {
     ListSortKey.TITLE -> entry.metadata.name.firstOrNull()?.uppercaseChar()?.toString() ?: "#"
     ListSortKey.DATE_ADDED -> "#"
+}
+
+fun resolveUserScriptIconUrl(icon: String, sourceUrl: String?): String {
+    val value = icon.trim()
+    if (value.isEmpty()) return ""
+    return when {
+        value.startsWith("data:image/", ignoreCase = true) -> value
+        value.startsWith("https://", ignoreCase = true) || value.startsWith("http://", ignoreCase = true) -> value
+        value.startsWith("//") -> "https:$value"
+        sourceUrl.isNullOrBlank() -> ""
+        else -> runCatching { URL(URL(sourceUrl), value).toString() }.getOrDefault("")
+    }
 }

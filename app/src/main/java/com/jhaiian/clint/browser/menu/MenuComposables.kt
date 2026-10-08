@@ -123,9 +123,12 @@ internal class BrowserMenuActions(
     val onToggleBookmark: () -> Unit,
     val onNewTab: () -> Unit,
     val onIncognito: () -> Unit,
+    val onNewProfileTab: () -> Unit,
+    val onOpenProfiles: () -> Unit,
     val onShare: () -> Unit,
     val onOpenInApp: () -> Unit,
     val onCreateShortcut: () -> Unit,
+    val onOpenShortcutManager: () -> Unit,
     val onDownloads: () -> Unit,
     val onOpenDownloadSettings: () -> Unit,
     val onMediaCapture: () -> Unit,
@@ -141,6 +144,9 @@ internal class BrowserMenuActions(
     val onQuiverGuard: () -> Unit,
     val onOpenQuiverGuardSettings: () -> Unit,
     val onDisableQuiverGuardForSite: () -> Unit,
+    val onOpenQuiverGuardSiteSettings: () -> Unit,
+    val onOpenDesktopModeSettings: () -> Unit,
+    val onOpenDataSaverSiteSettings: () -> Unit,
     val onDisableDataSaverForSite: () -> Unit,
     val onWebsiteBlocker: () -> Unit,
     val onOpenWebsiteBlockerSettings: () -> Unit
@@ -204,9 +210,12 @@ internal fun MainActivity.buildMenuActions(dismiss: () -> Unit): BrowserMenuActi
     onToggleBookmark = { dismiss(); onMenuToggleBookmark() },
     onNewTab = { dismiss(); onMenuNewTab() },
     onIncognito = { dismiss(); onMenuIncognito() },
+    onNewProfileTab = { dismiss(); onMenuNewProfileTab() },
+    onOpenProfiles = { dismiss(); onMenuOpenProfiles() },
     onShare = { dismiss(); onMenuShare() },
     onOpenInApp = { dismiss(); onMenuOpenInApp() },
     onCreateShortcut = { dismiss(); onMenuCreateShortcut() },
+    onOpenShortcutManager = { dismiss(); onMenuOpenShortcutManager() },
     onDownloads = { dismiss(); onMenuDownloads() },
     onOpenDownloadSettings = { dismiss(); onMenuOpenDownloadSettings() },
     onMediaCapture = { dismiss(); onMenuMediaCapture() },
@@ -222,6 +231,9 @@ internal fun MainActivity.buildMenuActions(dismiss: () -> Unit): BrowserMenuActi
     onQuiverGuard = { dismiss(); onMenuQuiverGuard() },
     onOpenQuiverGuardSettings = { dismiss(); onMenuOpenQuiverGuardSettings() },
     onDisableQuiverGuardForSite = { dismiss(); onMenuDisableQuiverGuardForSite() },
+    onOpenQuiverGuardSiteSettings = { dismiss(); onMenuOpenQuiverGuardSiteSettings() },
+    onOpenDesktopModeSettings = { dismiss(); onMenuOpenDesktopModeSettings() },
+    onOpenDataSaverSiteSettings = { dismiss(); onMenuOpenDataSaverSiteSettings() },
     onDisableDataSaverForSite = { dismiss(); onMenuDisableDataSaverForSite() },
     onWebsiteBlocker = { dismiss(); onMenuWebsiteBlocker() },
     onOpenWebsiteBlockerSettings = { dismiss(); onMenuOpenWebsiteBlockerSettings() }
@@ -368,6 +380,14 @@ private fun MenuItemRowFor(item: CustomizableMenuItem, snapshot: BrowserMenuSnap
     when (item) {
         CustomizableMenuItem.NEW_TAB -> MenuItemRow(item.icon(), stringResource(item.titleRes()), onClick = actions.onNewTab)
         CustomizableMenuItem.NEW_INCOGNITO_TAB -> MenuItemRow(item.icon(), stringResource(item.titleRes()), onClick = actions.onIncognito)
+        CustomizableMenuItem.NEW_PROFILE_TAB -> if (com.jhaiian.clint.profiles.WebProfiles.isSupported()) {
+            MenuItemRow(
+                item.icon(),
+                stringResource(item.titleRes()),
+                onClick = actions.onNewProfileTab,
+                onLongClick = actions.onOpenProfiles
+            )
+        }
         CustomizableMenuItem.SHARE -> MenuItemRow(item.icon(), stringResource(item.titleRes()), onClick = actions.onShare)
         CustomizableMenuItem.OPEN_IN_APP -> MenuItemRow(
             item.icon(),
@@ -379,7 +399,8 @@ private fun MenuItemRowFor(item: CustomizableMenuItem, snapshot: BrowserMenuSnap
             item.icon(),
             stringResource(item.titleRes()),
             enabled = snapshot.canCreateShortcut,
-            onClick = actions.onCreateShortcut
+            onClick = actions.onCreateShortcut,
+            onLongClick = actions.onOpenShortcutManager
         )
         CustomizableMenuItem.DOWNLOADS -> MenuItemRow(
             item.icon(),
@@ -415,7 +436,8 @@ private fun MenuItemRowFor(item: CustomizableMenuItem, snapshot: BrowserMenuSnap
             item.icon(),
             stringResource(item.titleRes()),
             checked = snapshot.isQuiverGuardExceptionForSite,
-            onClick = actions.onDisableQuiverGuardForSite
+            onClick = actions.onDisableQuiverGuardForSite,
+            onLongClick = actions.onOpenQuiverGuardSiteSettings
         )
         CustomizableMenuItem.WEBSITE_BLOCKER -> MenuItemRow(
             item.icon(),
@@ -431,7 +453,8 @@ private fun MenuItemRowFor(item: CustomizableMenuItem, snapshot: BrowserMenuSnap
             item.icon(),
             stringResource(item.titleRes()),
             checked = snapshot.isDesktopMode,
-            onClick = actions.onDesktopMode
+            onClick = actions.onDesktopMode,
+            onLongClick = actions.onOpenDesktopModeSettings
         )
         CustomizableMenuItem.DATA_SAVER -> MenuItemRow(
             item.icon(),
@@ -444,7 +467,8 @@ private fun MenuItemRowFor(item: CustomizableMenuItem, snapshot: BrowserMenuSnap
             item.icon(),
             stringResource(item.titleRes()),
             checked = snapshot.isDataSaverExceptionForSite,
-            onClick = actions.onDisableDataSaverForSite
+            onClick = actions.onDisableDataSaverForSite,
+            onLongClick = actions.onOpenDataSaverSiteSettings
         )
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AppShortcut
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Code
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.SwitchAccount
 import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.Tab
 import androidx.compose.material.icons.filled.Visibility
@@ -82,9 +84,11 @@ private fun categoryTitleRes(category: BackupCategory): Int = when (category) {
     BackupCategory.WEBSITE_BLOCKER -> R.string.backup_category_website_blocker
     BackupCategory.QUIVER_GUARD -> R.string.backup_category_quiver_guard
     BackupCategory.COOKIES -> R.string.backup_category_cookies
+    BackupCategory.PROFILES -> R.string.backup_category_profiles
     BackupCategory.BOOKMARKS -> R.string.backup_category_bookmarks
     BackupCategory.SEARCH_HISTORY -> R.string.backup_category_search_history
     BackupCategory.SITE_PERMISSIONS -> R.string.backup_category_site_permissions
+    BackupCategory.SHORTCUTS -> R.string.backup_category_shortcuts
     BackupCategory.UPDATE_SETTINGS -> R.string.backup_category_update_settings
 }
 
@@ -96,9 +100,11 @@ private fun categoryDescRes(category: BackupCategory): Int = when (category) {
     BackupCategory.WEBSITE_BLOCKER -> R.string.backup_category_website_blocker_desc
     BackupCategory.QUIVER_GUARD -> R.string.backup_category_quiver_guard_desc
     BackupCategory.COOKIES -> R.string.backup_category_cookies_desc
+    BackupCategory.PROFILES -> R.string.backup_category_profiles_desc
     BackupCategory.BOOKMARKS -> R.string.backup_category_bookmarks_desc
     BackupCategory.SEARCH_HISTORY -> R.string.backup_category_search_history_desc
     BackupCategory.SITE_PERMISSIONS -> R.string.backup_category_site_permissions_desc
+    BackupCategory.SHORTCUTS -> R.string.backup_category_shortcuts_desc
     BackupCategory.UPDATE_SETTINGS -> R.string.backup_category_update_settings_desc
 }
 
@@ -110,9 +116,11 @@ private fun categoryIcon(category: BackupCategory): ImageVector = when (category
     BackupCategory.WEBSITE_BLOCKER -> Icons.Filled.Shield
     BackupCategory.QUIVER_GUARD -> Icons.Filled.Security
     BackupCategory.COOKIES -> Icons.Filled.Cookie
+    BackupCategory.PROFILES -> Icons.Filled.SwitchAccount
     BackupCategory.BOOKMARKS -> Icons.Filled.Bookmark
     BackupCategory.SEARCH_HISTORY -> Icons.Filled.History
     BackupCategory.SITE_PERMISSIONS -> Icons.Filled.PrivacyTip
+    BackupCategory.SHORTCUTS -> Icons.Filled.AppShortcut
     BackupCategory.UPDATE_SETTINGS -> Icons.Filled.SystemUpdate
 }
 

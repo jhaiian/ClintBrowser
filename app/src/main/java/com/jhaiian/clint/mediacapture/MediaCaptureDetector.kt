@@ -87,12 +87,12 @@ object MediaCaptureDetector {
         if (!knownMediaExtension(ext)) {
             extensionFromQuery(uri)?.let { ext = it }
         }
-        val headers = request.requestHeaders
-        val dest = headers?.entries
-            ?.firstOrNull { it.key.equals("Sec-Fetch-Dest", ignoreCase = true) }
+        val headers = com.jhaiian.clint.profiles.WebProfiles.withMarker(request.requestHeaders, com.jhaiian.clint.profiles.WebProfiles.profileOfTab(tabId))
+        val dest = headers.entries
+            .firstOrNull { it.key.equals("Sec-Fetch-Dest", ignoreCase = true) }
             ?.value?.lowercase() ?: ""
-        val accept = headers?.entries
-            ?.firstOrNull { it.key.equals("Accept", ignoreCase = true) }
+        val accept = headers.entries
+            .firstOrNull { it.key.equals("Accept", ignoreCase = true) }
             ?.value?.lowercase() ?: ""
         val looksLikeMediaAccept = accept.contains("video/") || accept.contains("audio/")
         val looksLikeNonMediaAccept = accept.contains("application/json") || accept.contains("text/html")
@@ -131,14 +131,14 @@ object MediaCaptureDetector {
 
     private fun applyHeaders(builder: Request.Builder, original: Map<String, String>?, url: String, refererUrl: String? = null) {
         original?.forEach { (key, value) ->
-            if (!key.equals("Range", ignoreCase = true) && !key.equals("Accept-Encoding", ignoreCase = true)) {
+            if (!key.equals("Range", ignoreCase = true) && !key.equals("Accept-Encoding", ignoreCase = true) && !key.equals(com.jhaiian.clint.profiles.WebProfiles.PROFILE_HEADER, ignoreCase = true)) {
                 runCatching { builder.header(key, value) }
             }
         }
         val hasCookie = original?.keys?.any { it.equals("Cookie", ignoreCase = true) } == true
         if (!hasCookie) {
-            val cookie = runCatching { CookieManager.getInstance().getCookie(url) }.getOrNull()
-            if (!cookie.isNullOrBlank()) runCatching { builder.header("Cookie", cookie) }
+            val cookie = com.jhaiian.clint.profiles.WebProfiles.cookieForHeaders(original, url)
+            if (cookie.isNotBlank()) runCatching { builder.header("Cookie", cookie) }
         }
         val hasReferer = original?.keys?.any { it.equals("Referer", ignoreCase = true) } == true
         if (!hasReferer && !refererUrl.isNullOrBlank()) {

@@ -1,0 +1,5 @@
+• Bagong Mga Profile: manatiling naka-sign in sa maraming account sa iisang website, bawat isa may sariling cookies at site data
+• Magbukas ng bagong tab at shortcut sa profile na gusto mo
+• Bagong Tagapamahala ng Shortcut para sa mga shortcut sa home screen
+• Ang Frameless ay nakatakda na sa bawat shortcut
+• Idinagdag ang I-block ang Script at I-block ang CSS sa Data Saver

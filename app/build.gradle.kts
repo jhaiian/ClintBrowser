@@ -21,8 +21,8 @@ android {
         applicationId = "com.jhaiian.clint"
         minSdk = 26
         targetSdk = 37
-        versionCode = 39
-        versionName = "v1.1.9"
+        versionCode = 40
+        versionName = "v1.2.0"
     }
 
     val hasSigningConfig = localProperties.getProperty("signingConfig.storePassword") != null
@@ -38,16 +38,21 @@ android {
         }
     }
 
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+
     flavorDimensions += "distribution"
 
     productFlavors {
         create("github") {
             dimension = "distribution"
-            buildConfigField("boolean", "IS_FDROID", "false")
+            buildConfigField("boolean", "IS_FOSS", "false")
         }
-        create("fdroid") {
+        create("foss") {
             dimension = "distribution"
-            buildConfigField("boolean", "IS_FDROID", "true")
+            buildConfigField("boolean", "IS_FOSS", "true")
         }
     }
 

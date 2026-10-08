@@ -1,0 +1,5 @@
+• Added Profiles: stay signed in to several accounts on the same website, each with its own cookies and site data
+• Open new tabs and shortcuts in a profile of your choice
+• Added Shortcut Manager to view and manage your home screen shortcuts
+• Frameless Mode is now set per shortcut, with its own settings screen
+• Added Block Scripts and Block CSS to Data Saver

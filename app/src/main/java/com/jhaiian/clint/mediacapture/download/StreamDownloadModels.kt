@@ -84,10 +84,12 @@ object StreamRequestHeaders {
         if (userAgent.isNotBlank()) result["User-Agent"] = userAgent
         if (referer.isNotBlank()) result["Referer"] = referer
         val cookieHeader = cookies.ifBlank {
-            runCatching { CookieManager.getInstance().getCookie(url) }.getOrNull() ?: ""
+            com.jhaiian.clint.profiles.WebProfiles.cookieForHeaders(extraHeaders, url)
         }
         if (cookieHeader.isNotBlank()) result["Cookie"] = cookieHeader
-        extraHeaders.forEach { (key, value) -> result[key] = value }
+        extraHeaders.forEach { (key, value) ->
+            if (!key.equals(com.jhaiian.clint.profiles.WebProfiles.PROFILE_HEADER, ignoreCase = true)) result[key] = value
+        }
         return result
     }
 }

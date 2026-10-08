@@ -19,8 +19,13 @@ object ShortcutIconStore {
         return runCatching { BitmapFactory.decodeFile(path) }.getOrNull()
     }
 
-    private fun fileFor(context: Context, shortcutId: String): File {
-        val dir = File(context.applicationContext.filesDir, "shortcut_icons")
-        return File(dir, "$shortcutId.png")
+    fun delete(context: Context, shortcutId: String) {
+        runCatching { fileFor(context, shortcutId).delete() }
     }
+
+    fun directory(context: Context): File =
+        File(context.applicationContext.filesDir, "shortcut_icons")
+
+    fun fileFor(context: Context, shortcutId: String): File =
+        File(directory(context), "$shortcutId.png")
 }

@@ -1,116 +1,67 @@
-Clint is a free and open-source Android browser with no dedicated backend infrastructure, meaning it does not collect any of your data. It features a clean, customizable Material Design interface, the built-in Quiver Guard content blocker for ads and trackers, and an advanced download manager and website blocker.
+Clint is an open source Android browser with a modern Material 3 interface and tons of features. It has no backend, collects zero data, and has no ads or paywalls. Completely free.
 
-Privacy & Security
+<b>MEDIA CAPTURE</b>
+• Detects video, audio and subtitle streams on the pages you visit
+• Supports normal video, HLS/M3U8 and DASH streams
+• Download detected media directly from the browser
 
-· Blocks 16+ trackers and analytics domains
-· Third-party cookie blocking
-· Generic user-agent to reduce fingerprinting
-· HTTPS-Only Mode
-· Incognito mode with fully isolated sessions
+<b>DOWNLOAD MANAGER</b>
+• Multi-threaded and multi-part downloads
+• Pause and resume
+• Download scheduler and speed limiter
+• Custom download locations
+• Automatically pauses and resumes stuck downloads
 
-Browsing Features
+<b>USER SCRIPTS</b>
+• Install userscripts from a URL or write your own with the built-in code editor
+• Tampermonkey-style metadata (@match, @include, @exclude, @require, @resource, @grant)
+• GM API support, including GM.setValue, GM.getValue, GM.xmlHttpRequest and GM.notification
+• Automatic update checks for scripts installed from a URL
+• Enable or disable individual scripts at any time
 
-· Multi-tab browsing with bottom sheet tab switcher
-· Reader mode for distraction-free reading
-· Data saver mode (blocks images, disables auto-play video)
-· Speech-to-text in address bar
-· Search suggestions
-· Browser history
-· Pull-to-refresh
-· Desktop mode
-· Pop-up protection
-· Full-screen video support
-· Content Blocker
+<b>QUIVER GUARD</b>
+• Built-in ad and tracker blocker
+• Cosmetic and network filtering
+• Multiple filter lists
+• Per-site controls
 
-Customization
+<b>WEBSITE BLOCKER</b>
+• Blocks pornography, gambling and other unwanted categories
+• Category-based filter lists
+• Add your own custom websites to block
 
-· 3 themes: Dark, Light, Legacy
-· 7 accent colors including Material You
-· 3 surface intensity levels
-· 3 address bar positions: Top, Bottom, Split
-· 2 menu styles: Pop-up or bottom sheet
-· Nested scroll controls
-· Hide status bar option
+<b>DATA SAVER</b>
+• Only on metered networks
+• Disable images, block video and stop autoplay
+• Block media preloading, web fonts and third-party frames
+• Reuse saved pages and request lighter pages
+• Disable online search suggestions and favicons
+• Block scripts and CSS
 
-Bookmarks
+<b>PRIVACY AND SECURITY</b>
+• Incognito mode
+• Popup protection
+• Send Do Not Track request
+• Passkeys support
+• Autofill can be turned off
 
-· Save pages with one tap
-· Sort by title, last visit, or date added
-· Stored locally in SQLite
+<b>CUSTOMIZATION</b>
+• 50 accent colors, Light and Dark themes and 5 surface intensities
+• 500 possible theme combinations
+• Choose between the Clint homepage and your search engine homepage
+• Plain color, gradient or custom image homepage backgrounds
 
-Downloads & Uploads
+<b>PROFILES</b>
+• Stay signed in to several accounts on the same website at once
+• Each profile keeps its own cookies and site data
+• Open new tabs and shortcuts in any profile
 
-· Upload images, videos, audio, and recordings
-· Advanced download manager using OkHttp (1DM inspired)
-· Custom download location
-· Split download parts
-· Multi-threading
-· Pause and resume support
-· Long-press any image to download
+<b>BROWSER</b>
+• Multi-tab browsing
+• Reader Mode
+• Desktop Mode
+• Delete inactive tabs automatically
+• Quick Download
+• Shortcut Manager with frameless shortcuts
 
-Site Settings
-
-· Manage camera, microphone, location, notifications
-· Configurable defaults: Ask first, always deny, always allow
-· Site exceptions
-
-Additional Features
-
-· Local crash log viewer
-· Intent handling for external apps (YouTube, Spotify, etc.)
-· Favicons
-
-Requirements
-
-· Android 8.0 (API 26) or higher
-· WebView Implementation
-
-App permissions
-
-INTERNET
-Lets the app load websites and download files.
-
-ACCESS_NETWORK_STATE
-Lets the app check if you're connected to the internet and whether you're on Wi-Fi or mobile data, so downloads can pause when you go offline and resume when you reconnect.
-
-WRITE_EXTERNAL_STORAGE
-Lets the app save downloaded files to your Downloads folder. Only applies on Android 9 and below.
-
-POST_NOTIFICATIONS
-Lets the app show download progress, completion, and failure alerts in your notification bar and site permission.
-
-REQUEST_INSTALL_PACKAGES
-Lets the app install APK files you download directly from the download screen.
-
-CAMERA
-Used when a website asks you to upload a photo and you choose to take one with your camera, and when a website requests camera access for video calls.
-
-RECORD_AUDIO
-Used for the voice search button in the browser, and when a website requests microphone access for voice or video calls.
-
-MODIFY_AUDIO_SETTINGS
-Required for WebRTC voice and video calls on websites to work properly. The WebView needs this to manage audio routing during a call.
-
-ACCESS_FINE_LOCATION
-Used when a website asks for your location, for example to show nearby places or get directions.
-
-ACCESS_COARSE_LOCATION
-Same as ACCESS_FINE_LOCATION but used as a fallback when only approximate location is available on your device.
-
-QUERY_ALL_PACKAGES
-Lets the app detect which apps on your device can handle special links, like opening a phone number in your dialer or a store link in the Play Store.
-
-FOREGROUND_SERVICE
-Lets the app keep downloading files even when you switch to another app.
-
-FOREGROUND_SERVICE_DATA_SYNC
-Works together with FOREGROUND_SERVICE to tell Android that the background activity is a file download.
-
-REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-Prevents Android from pausing downloads when the device is in battery saver or Doze mode.
-
-WAKE_LOCK
-Prevents your device from sleeping while a download is in progress so files don't get stuck halfway.
-
-RECEIVE_BOOT_COMPLETED
-Lets the app check for unfinished downloads after your device restarts and resume them automatically.
+Requires Android 8.0 or higher and a WebView implementation.

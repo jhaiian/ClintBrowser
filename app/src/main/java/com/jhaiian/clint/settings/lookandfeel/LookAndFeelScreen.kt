@@ -4,6 +4,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Contrast
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Reorder
@@ -35,12 +37,13 @@ fun LookAndFeelScreen(
     onLanguageSelected: (String) -> Unit,
     onAddressBarPositionSelected: (String) -> Unit,
     onMenuStyleSelected: (String) -> Unit,
-    onTabMenuStyleSelected: (String) -> Unit,
     onScrollHideModeSelected: (String) -> Unit,
     onHideStatusBarRowClicked: () -> Unit,
     onHideSystemNavigationRowClicked: () -> Unit,
+    onShowHomeButtonRowClicked: () -> Unit,
     onCustomizeMenuRowClicked: () -> Unit,
-    onExitConfirmationConfirmed: (String) -> Unit
+    onExitConfirmationConfirmed: (String) -> Unit,
+    onPopupAlertStyleSelected: (String) -> Unit
 ) {
     val colors = LocalClintColors.current
     val intensityEnabled = ThemeSwatchUtils.isSurfaceIntensityEnabled(state.theme, state.accent)
@@ -68,10 +71,6 @@ fun LookAndFeelScreen(
                     current = state.menuStyle, addressBarPosition = state.addressBarPosition, theme = state.theme, accent = state.accent,
                     hideStatusBar = state.hideStatusBar, hideSystemNavigation = state.hideSystemNavigation, onSelect = onMenuStyleSelected, onDismiss = { state.openDialog = null }
                 )
-                LookAndFeelDialog.TAB_MENU_STYLE -> TabMenuStyleDialog(
-                    current = state.tabMenuStyle, theme = state.theme, accent = state.accent,
-                    hideStatusBar = state.hideStatusBar, hideSystemNavigation = state.hideSystemNavigation, onSelect = onTabMenuStyleSelected, onDismiss = { state.openDialog = null }
-                )
                 LookAndFeelDialog.SCROLL_HIDE_MODE -> ScrollHideModeDialog(
                     current = state.scrollHideMode, addressBarPosition = state.addressBarPosition, theme = state.theme, accent = state.accent,
                     hideStatusBar = state.hideStatusBar, hideSystemNavigation = state.hideSystemNavigation, onSelect = onScrollHideModeSelected, onDismiss = { state.openDialog = null }
@@ -79,6 +78,10 @@ fun LookAndFeelScreen(
                 LookAndFeelDialog.EXIT_CONFIRMATION -> ExitConfirmationDialog(
                     current = state.exitConfirmation, hideStatusBar = state.hideStatusBar, hideSystemNavigation = state.hideSystemNavigation,
                     onConfirm = onExitConfirmationConfirmed, onDismiss = { state.openDialog = null }
+                )
+                LookAndFeelDialog.POPUP_ALERT_STYLE -> PopupAlertStyleDialog(
+                    current = state.popupAlertStyle, hideStatusBar = state.hideStatusBar, hideSystemNavigation = state.hideSystemNavigation,
+                    onSelect = onPopupAlertStyleSelected, onDismiss = { state.openDialog = null }
                 )
                 LookAndFeelDialog.LANGUAGE -> LanguageSelectorDialog(
                     current = state.language, hideStatusBar = state.hideStatusBar, hideSystemNavigation = state.hideSystemNavigation,
@@ -146,19 +149,22 @@ fun LookAndFeelScreen(
             )
             RowDivider(colors.divider)
             SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.Home,
+                title = stringResource(R.string.pref_show_home_button_title),
+                summary = stringResource(R.string.pref_show_home_button_summary),
+                colors = colors,
+                onClick = onShowHomeButtonRowClicked,
+                trailing = {
+                    ClintSwitch(checked = state.showHomeButton)
+                }
+            )
+            RowDivider(colors.divider)
+            SettingsRow(
                 icon = androidx.compose.material.icons.Icons.Filled.MoreVert,
                 title = stringResource(R.string.pref_menu_style_title),
                 summary = stringResource(menuStyleSummaryRes(state.menuStyle)),
                 colors = colors,
                 onClick = { state.openDialog = LookAndFeelDialog.MENU_STYLE }
-            )
-            RowDivider(colors.divider)
-            SettingsRow(
-                icon = androidx.compose.material.icons.Icons.Filled.GridView,
-                title = stringResource(R.string.pref_tab_menu_style_title),
-                summary = stringResource(tabMenuStyleSummaryRes(state.tabMenuStyle)),
-                colors = colors,
-                onClick = { state.openDialog = LookAndFeelDialog.TAB_MENU_STYLE }
             )
             RowDivider(colors.divider)
             SettingsRow(
@@ -200,6 +206,14 @@ fun LookAndFeelScreen(
                 summary = stringResource(exitConfirmationSummaryRes(state.exitConfirmation)),
                 colors = colors,
                 onClick = { state.openDialog = LookAndFeelDialog.EXIT_CONFIRMATION }
+            )
+            RowDivider(colors.divider)
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.Layers,
+                title = stringResource(R.string.pref_popup_alert_style_title),
+                summary = stringResource(popupAlertStyleSummaryRes(state.popupAlertStyle)),
+                colors = colors,
+                onClick = { state.openDialog = LookAndFeelDialog.POPUP_ALERT_STYLE }
             )
         }
     }
@@ -282,14 +296,14 @@ private fun addressBarPositionSummaryRes(position: String): Int = when (position
 private fun menuStyleSummaryRes(style: String): Int =
     if (style == "bottom_sheet") R.string.menu_style_bottom_sheet else R.string.menu_style_popup
 
-private fun tabMenuStyleSummaryRes(style: String): Int =
-    if (style == "grid") R.string.tab_menu_style_grid else R.string.tab_menu_style_sheet
-
 private fun exitConfirmationSummaryRes(value: String): Int = when (value) {
     "off" -> R.string.exit_confirmation_off
     "dialog" -> R.string.exit_confirmation_dialog
     else -> R.string.exit_confirmation_toast
 }
+
+private fun popupAlertStyleSummaryRes(value: String): Int =
+    if (value == "snackbar") R.string.popup_alert_style_snackbar else R.string.popup_alert_style_dialog
 
 @Composable
 fun languageSummaryText(language: String): String {

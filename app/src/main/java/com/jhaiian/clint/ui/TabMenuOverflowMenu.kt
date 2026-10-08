@@ -2,6 +2,7 @@ package com.jhaiian.clint.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
@@ -24,7 +25,9 @@ fun TabMenuOverflowMenu(
     onNewTab: () -> Unit,
     onNewIncognitoTab: () -> Unit,
     onCloseAllTabs: () -> Unit,
-    onSelectTabs: () -> Unit
+    onSelectTabs: () -> Unit,
+    showProfileTab: Boolean = false,
+    onNewProfileTab: () -> Unit = {}
 ) {
     val colors = LocalClintColors.current
     DropdownMenu(
@@ -39,6 +42,11 @@ fun TabMenuOverflowMenu(
         }
         ListMenuItem(Icons.Filled.VisibilityOff, stringResource(R.string.new_incognito_tab), checked = false) {
             onDismiss(); onNewIncognitoTab()
+        }
+        if (showProfileTab) {
+            ListMenuItem(androidx.compose.material.icons.Icons.Filled.AccountCircle, stringResource(R.string.profiles_new_tab_in), checked = false) {
+                onDismiss(); onNewProfileTab()
+            }
         }
         ListMenuItem(Icons.Filled.Close, stringResource(R.string.tab_menu_close_all_tabs), checked = false) {
             onDismiss(); onCloseAllTabs()

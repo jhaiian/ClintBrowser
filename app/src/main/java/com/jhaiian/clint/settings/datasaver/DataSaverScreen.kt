@@ -1,5 +1,7 @@
 package com.jhaiian.clint.settings.datasaver
 import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.Style
 import androidx.compose.material.icons.filled.DataSaverOn
 import androidx.compose.material.icons.filled.HideImage
 import androidx.compose.material.icons.filled.History
@@ -40,7 +42,9 @@ fun DataSaverScreen(
     onCacheFirstClick: () -> Unit,
     onBlockVideoClick: () -> Unit,
     onDisableSuggestionsClick: () -> Unit,
-    onDisableFaviconsClick: () -> Unit
+    onDisableFaviconsClick: () -> Unit,
+    onBlockScriptsClick: () -> Unit,
+    onBlockCssClick: () -> Unit
 ) {
     val colors = LocalClintColors.current
 
@@ -143,6 +147,30 @@ fun DataSaverScreen(
                 enabled = state.enabled,
                 trailing = {
                     ClintSwitch(checked = state.blockFrames)
+                }
+            )
+            RowDivider(colors.divider)
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.Code,
+                title = stringResource(R.string.data_saver_block_scripts_title),
+                summary = stringResource(R.string.data_saver_block_scripts_summary),
+                colors = colors,
+                onClick = onBlockScriptsClick,
+                enabled = state.enabled,
+                trailing = {
+                    ClintSwitch(checked = state.blockScripts)
+                }
+            )
+            RowDivider(colors.divider)
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.Style,
+                title = stringResource(R.string.data_saver_block_css_title),
+                summary = stringResource(R.string.data_saver_block_css_summary),
+                colors = colors,
+                onClick = onBlockCssClick,
+                enabled = state.enabled,
+                trailing = {
+                    ClintSwitch(checked = state.blockCss)
                 }
             )
             RowDivider(colors.divider)

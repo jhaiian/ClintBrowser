@@ -24,8 +24,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,6 +37,8 @@ import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Card
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,6 +57,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -60,6 +65,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jhaiian.clint.R
 import com.jhaiian.clint.ui.ClintCheckbox
+import com.jhaiian.clint.ui.FaviconCache
 import com.jhaiian.clint.ui.theme.LocalClintColors
 
 private val IncognitoCardBackground = Color(0xFF2A2A31)
@@ -83,6 +89,11 @@ internal fun TabMenuCard(
 ) {
     val colors = LocalClintColors.current
     val favicon = rememberTabFavicon(preview)
+    val appContext = androidx.compose.ui.platform.LocalContext.current
+    val profile = remember(preview.profileId) {
+        if (preview.profileId == com.jhaiian.clint.profiles.WebProfiles.DEFAULT_ID) null
+        else com.jhaiian.clint.profiles.ProfileRepository.get(appContext, preview.profileId)
+    }
     val interactionSource = remember { MutableInteractionSource() }
     var pressed by remember { mutableStateOf(false) }
     LaunchedEffect(interactionSource) {
@@ -198,6 +209,28 @@ internal fun TabMenuCard(
                     )
                 }
 
+                if (profile != null) {
+                    Row(
+                        Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(6.dp)
+                            .clip(RoundedCornerShape(11.dp))
+                            .background(Color.Black.copy(alpha = 0.6f))
+                            .padding(horizontal = 7.dp, vertical = 3.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(Modifier.size(9.dp).clip(CircleShape).background(Color(profile.color)))
+                        Text(
+                            profile.name,
+                            color = Color.White,
+                            fontSize = 10.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(start = 5.dp).widthIn(max = 90.dp)
+                        )
+                    }
+                }
+
                 if (preview.isIncognito) {
                     Box(
                         Modifier
@@ -242,4 +275,35 @@ internal fun TabMenuSectionHeader(isIncognitoSection: Boolean, modifier: Modifie
             modifier = Modifier.padding(start = 6.dp)
         )
     }
+}
+
+@Composable
+internal fun NewTabButton(text: String, iconRes: androidx.compose.ui.graphics.vector.ImageVector, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val colors = LocalClintColors.current
+    Button(
+        onClick = onClick,
+        modifier = modifier.height(44.dp),
+        shape = RoundedCornerShape(22.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = colors.buttonBackground, contentColor = colors.buttonTextColor),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp)
+    ) {
+        Icon(iconRes, contentDescription = null, tint = colors.buttonIconTint, modifier = Modifier.size(18.dp))
+        Text(text, fontSize = 13.sp, color = colors.buttonTextColor, modifier = Modifier.padding(start = 8.dp))
+    }
+}
+
+@Composable
+internal fun rememberTabFavicon(tab: TabPreview): Bitmap? {
+    val context = LocalContext.current
+    var bitmap by remember(tab.url, tab.isIncognito) { mutableStateOf<Bitmap?>(null) }
+    LaunchedEffect(tab.url, tab.isIncognito) {
+        val faviconUrl = FaviconCache.faviconUrlFor(tab.url)
+        if (faviconUrl.isEmpty()) return@LaunchedEffect
+        if (tab.isIncognito) {
+            FaviconCache.loadMemoryOnly(context, faviconUrl) { bmp -> bitmap = bmp }
+        } else {
+            FaviconCache.load(context, faviconUrl) { bmp -> bitmap = bmp }
+        }
+    }
+    return bitmap
 }

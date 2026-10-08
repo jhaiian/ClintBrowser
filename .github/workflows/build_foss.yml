@@ -1,6 +1,6 @@
 # This is for testing purposes only.
 
-name: Build F-Droid APK
+name: Build FOSS APK
 
 on:
   workflow_dispatch:
@@ -50,12 +50,12 @@ jobs:
       - name: Create local.properties
         run: printf '%s\n' "${{ secrets.LOCAL_PROPERTIES }}" > local.properties
 
-      - name: Build F-Droid Release APK
-        run: ./gradlew assembleFdroidRelease
+      - name: Build FOSS Release APK
+        run: ./gradlew assembleFossRelease
 
-      - name: Upload F-Droid APK
+      - name: Upload FOSS APK
         uses: actions/upload-artifact@v7
         with:
-          name: Clint-FDroid
-          path: app/build/outputs/apk/fdroid/release/app-fdroid-release.apk
+          name: Clint-FOSS
+          path: app/build/outputs/apk/foss/release/*.apk
           if-no-files-found: error

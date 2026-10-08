@@ -9,6 +9,9 @@ import android.webkit.URLUtil
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -371,16 +374,29 @@ fun DownloadManualDialog(
         if (!prefillUrl.isNullOrBlank()) doFetch()
     }
 
+    val compact = remember {
+        prefs.getString(DownloadSettingsKeys.PREF_DOWNLOAD_DIALOG_UI, DownloadSettingsKeys.DEFAULT_DOWNLOAD_DIALOG_UI) == DownloadSettingsKeys.DIALOG_UI_COMPACT
+    }
+    val footerButtonModifier = if (compact) Modifier.height(36.dp) else Modifier
+    val footerButtonPadding = if (compact) PaddingValues(horizontal = 12.dp, vertical = 0.dp) else ButtonDefaults.TextButtonContentPadding
+    val footerTextSize = if (compact) 13.sp else androidx.compose.ui.unit.TextUnit.Unspecified
+
     ClintDialog(
         title = stringResource(R.string.download_dialog_title),
         hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation,
         onDismiss = onDismiss,
+        compact = compact,
         footer = {
-            Row(Modifier.fillMaxWidth().padding(end = 12.dp, bottom = 4.dp), horizontalArrangement = Arrangement.End) {
-                TextButton(onClick = onDismiss) {
-                    Text(stringResource(R.string.action_cancel), color = colors.primary, fontWeight = FontWeight.Medium)
+            Row(
+                Modifier.fillMaxWidth().padding(end = if (compact) 8.dp else 12.dp, bottom = if (compact) 0.dp else 4.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(onClick = onDismiss, modifier = footerButtonModifier, contentPadding = footerButtonPadding) {
+                    Text(stringResource(R.string.action_cancel), color = colors.primary, fontWeight = FontWeight.Medium, fontSize = footerTextSize)
                 }
                 TextButton(
+                    modifier = footerButtonModifier,
+                    contentPadding = footerButtonPadding,
                     onClick = {
                         if (!isFetched) {
                             doFetch()
@@ -453,12 +469,53 @@ fun DownloadManualDialog(
                         if (isFetching) stringResource(R.string.download_manual_fetching)
                         else if (isFetched) stringResource(R.string.action_download)
                         else stringResource(R.string.download_manual_fetch),
-                        color = colors.primary, fontWeight = FontWeight.Medium
+                        color = colors.primary, fontWeight = FontWeight.Medium, fontSize = footerTextSize
                     )
                 }
             }
         }
     ) {
+        if (compact) {
+            fun pickFolder() {
+                activity.launchManualFolderPicker { uri ->
+                    prefs.edit().putString(DownloadSettingsKeys.PREF_DOWNLOAD_CUSTOM_URI, uri.toString()).apply()
+                    customUri = uri
+                }
+            }
+            CompactManualDownloadContent(
+                url = url, onUrlChange = { url = it; urlError = null; resetFetchState() },
+                urlError = urlError, isFetching = isFetching,
+                filename = filename, onFilenameChange = { filename = it },
+                extension = extension, onExtensionChange = { extension = it },
+                fileSizeText = fileSizeText,
+                locationMode = locationMode,
+                onLocationModeSelected = {
+                    locationMode = it
+                    if (it == DownloadSettingsKeys.MODE_CUSTOM) pickFolder()
+                },
+                customUri = customUri, onPickFolder = { pickFolder() },
+                categorizeEnabled = categorizeEnabled, onCategorizeToggle = { categorizeEnabled = !categorizeEnabled },
+                destinationPreviewText = destinationPreviewText,
+                retryEnabled = retryEnabled, onRetryToggle = { retryEnabled = !retryEnabled },
+                unmeteredOnly = unmeteredOnly, onUnmeteredToggle = { unmeteredOnly = !unmeteredOnly },
+                isStream = streamPlan != null,
+                splitParts = splitParts, onSplitPartsChange = { splitParts = it },
+                multithreadingParts = multithreadingParts, onMultithreadingPartsChange = { multithreadingParts = it },
+                concurrentSegments = concurrentSegments, onConcurrentSegmentsChange = { concurrentSegments = it },
+                speedLimitText = speedLimitText, onSpeedLimitTextChange = { speedLimitText = it },
+                speedUnitLabel = speedUnitLabel, kbLabel = kbLabel, mbLabel = mbLabel, onSpeedUnitChange = { speedUnitLabel = it },
+                scheduleEnabled = scheduleEnabled,
+                onScheduleToggle = {
+                    scheduleEnabled = !scheduleEnabled
+                    if (scheduleEnabled) {
+                        scheduledMillis = Calendar.getInstance().apply { add(Calendar.MINUTE, 1) }.timeInMillis
+                        if (needsExactAlarmPermissionRationale(context)) blockingError = exactAlarmPermissionDialogConfig(context)
+                    }
+                },
+                scheduledMillis = scheduledMillis, onScheduledMillisChange = { scheduledMillis = it },
+                hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation
+            )
+        } else {
         Column(Modifier.padding(horizontal = 14.dp, vertical = 2.dp)) {
             DialogSectionLabel(stringResource(R.string.download_dialog_section_link))
             SettingsSection(colors.dialogSectionBackground, bottomSpacing = 8.dp) {
@@ -698,6 +755,7 @@ fun DownloadManualDialog(
                     }
                 }
             }
+        }
         }
     }
 

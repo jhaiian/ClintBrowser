@@ -95,6 +95,19 @@ Clint is built with **Material 3** and **Jetpack Compose**, with a highly custom
 - Category-based filter lists (abuse, ads, crypto, drugs, fraud, gambling, and more)
 - Add your own custom websites to block
 
+### 👤 Profiles
+
+- Stay signed in to several accounts on the same website at the same time
+- Each profile keeps its own cookies, logins, and site data
+- Pick a profile when opening a new tab
+- Give each profile its own name and color
+
+### 🔗 Shortcuts
+
+- Add any website to your home screen with a custom name and icon
+- Frameless mode hides the search bar and bottom bar for an app-like feel
+- Manage all your shortcuts in one place with the built-in Shortcut Manager
+
 ### 🌐 Browser
 
 - Multi-tab browsing

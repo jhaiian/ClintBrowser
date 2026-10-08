@@ -159,6 +159,17 @@ User scripts are pieces of JavaScript you can install to change how pages look o
 
 ---
 
+## Shortcuts
+
+Shortcuts let you add a website to your home screen. Here's how they handle your data:
+
+- **Shortcut data is local.** A shortcut's name, URL, icon, frameless setting, and the profile it opens in are stored on your device. They are never uploaded or synced anywhere by Clint Browser.
+- **The home screen icon belongs to your launcher.** Clint Browser asks Android to place the icon, and your launcher handles it from there.
+- **Opening a shortcut loads the website.** It connects to the site the same way visiting the page normally would.
+- **Deleting a shortcut removes its data from the app.** Its icon may stay on your home screen until you remove it yourself.
+
+---
+
 ## Website Permissions
 
 Clint Browser allows websites to request access to certain device features. These permissions are fully controlled by you and can be configured in **Site Settings**.
@@ -219,6 +230,7 @@ Clint Browser requests the following permissions:
 - **QUERY_ALL_PACKAGES** – Detects which apps on your device can handle special links, like opening a phone number in your dialer or a store link in the Play Store.
 - **FOREGROUND_SERVICE** – Keeps downloading files even when you switch to another app.
 - **FOREGROUND_SERVICE_DATA_SYNC** – Works with `FOREGROUND_SERVICE` to tell Android the background activity is a file download.
+- **FOREGROUND_SERVICE_MEDIA_PROCESSING** – Works with `FOREGROUND_SERVICE` to tell Android the background activity is processing a downloaded video stream, such as combining its segments into a single file.
 
 ## Power & Background
 - **REQUEST_IGNORE_BATTERY_OPTIMIZATIONS** – Prevents Android from pausing downloads when the device is in battery saver or Doze mode.

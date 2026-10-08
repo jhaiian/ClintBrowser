@@ -1,12 +1,16 @@
 package com.jhaiian.clint.backup
 
+import android.content.ContentValues
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import com.jhaiian.clint.shortcuts.ShortcutDatabase
+import com.jhaiian.clint.shortcuts.ShortcutIconStore
 import java.util.zip.ZipFile
 
 data class StagedBackupFile(val rawFile: File, val header: BackupContainerHeader)
@@ -135,6 +139,9 @@ object RestoreManager {
                         manifest.entries.count { it.category == category.id && it.id.startsWith("${target.id}:") }
                 }
             }
+            if (category == BackupCategory.PROFILES) {
+                total += manifest.entries.count { it.category == category.id && it.id.startsWith(BackupTargets.PROFILE_COOKIES_ID_PREFIX) }
+            }
         }
         var completed = 0
         onProgress(completed, total)
@@ -174,6 +181,18 @@ object RestoreManager {
                         }
                     }
                 }
+                if (category == BackupCategory.PROFILES) {
+                    val profileEntries = manifest.entries.filter { it.category == category.id && it.id.startsWith(BackupTargets.PROFILE_COOKIES_ID_PREFIX) }
+                    for (entry in profileEntries) {
+                        val dirName = entry.id.removePrefix(BackupTargets.PROFILE_COOKIES_ID_PREFIX)
+                        if (!BackupTargets.isSafeProfileDir(dirName)) continue
+                        val zipEntry = zip.getEntry(entry.zipPath) ?: continue
+                        restoreSingleFile(appContext, zip, zipEntry, BackupTargets.profileCookieFile(appContext, dirName), BackupEntryType.DATABASE)
+                        restoredAny = true
+                        completed++
+                        onProgress(completed, total)
+                    }
+                }
                 if (restoredAny) restored.add(category) else unavailable.add(category)
             }
         }
@@ -196,6 +215,10 @@ object RestoreManager {
             if (!compiledArtifactsRestored) {
                 BackupTargets.websiteBlockerCompiledArtifacts(appContext).forEach { it.delete() }
             }
+        }
+
+        if (BackupCategory.SHORTCUTS in restored) {
+            relinkShortcutIcons(appContext)
         }
 
         plainZipFile.delete()
@@ -228,6 +251,26 @@ object RestoreManager {
         if (!tempFile.renameTo(destFile)) {
             tempFile.copyTo(destFile, overwrite = true)
             tempFile.delete()
+        }
+    }
+
+    private fun relinkShortcutIcons(context: Context) {
+        val dbFile = context.getDatabasePath(ShortcutDatabase.DB_NAME)
+        if (!dbFile.exists()) return
+        runCatching {
+            SQLiteDatabase.openDatabase(dbFile.path, null, SQLiteDatabase.OPEN_READWRITE).use { db ->
+                val ids = mutableListOf<String>()
+                db.rawQuery("SELECT ${ShortcutDatabase.COL_ID} FROM ${ShortcutDatabase.TABLE}", null).use { cursor ->
+                    while (cursor.moveToNext()) ids.add(cursor.getString(0))
+                }
+                for (id in ids) {
+                    val icon = ShortcutIconStore.fileFor(context, id)
+                    val values = ContentValues()
+                    if (icon.exists()) values.put(ShortcutDatabase.COL_ICON_PATH, icon.absolutePath)
+                    else values.putNull(ShortcutDatabase.COL_ICON_PATH)
+                    db.update(ShortcutDatabase.TABLE, values, "${ShortcutDatabase.COL_ID} = ?", arrayOf(id))
+                }
+            }
         }
     }
 

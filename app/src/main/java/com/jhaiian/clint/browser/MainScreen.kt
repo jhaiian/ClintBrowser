@@ -36,7 +36,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.jhaiian.clint.tabs.TabSwitcherSheet
 import com.jhaiian.clint.tabs.TabMenuScreen
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,7 +60,6 @@ internal fun MainScreen(activity: MainActivity, state: MainUiState) {
     val density = LocalDensity.current
     val colors = LocalClintColors.current
     var tabSwitcherOpen by remember { mutableStateOf(false) }
-    var tabMenuStyle by remember { mutableStateOf("grid") }
     val hideStatusBar = state.hideStatusBar
     val hideSystemNavigation = state.hideSystemNavigation
     val rawStatusBarPx = WindowInsets.statusBars.getTop(density)
@@ -111,7 +109,6 @@ internal fun MainScreen(activity: MainActivity, state: MainUiState) {
 
         val openTabSwitcher: () -> Unit = {
             activity.captureActiveTabThumbnail()
-            tabMenuStyle = activity.prefs.getString("tab_menu_style", "grid") ?: "grid"
             tabSwitcherOpen = true
         }
 
@@ -185,11 +182,8 @@ internal fun MainScreen(activity: MainActivity, state: MainUiState) {
             )
         }
 
-        if (tabSwitcherOpen && tabMenuStyle == "sheet") {
-            TabSwitcherSheet(activity = activity, onDismiss = { tabSwitcherOpen = false })
-        }
         AnimatedVisibility(
-            visible = tabSwitcherOpen && tabMenuStyle == "grid",
+            visible = tabSwitcherOpen,
             enter = fadeIn(tween(220)) + scaleIn(initialScale = 0.92f, animationSpec = tween(220)),
             exit = fadeOut(tween(160)) + scaleOut(targetScale = 0.94f, animationSpec = tween(160))
         ) {
@@ -243,6 +237,19 @@ internal fun MainScreen(activity: MainActivity, state: MainUiState) {
         }
         state.refreshLinkDialogRequest?.let { req ->
             com.jhaiian.clint.browser.dialogs.RefreshLinkDialog(req, hideStatusBarPref, hideSystemNavigationPref) { state.refreshLinkDialogRequest = null }
+        }
+        if (state.profilePickerOpen) {
+            com.jhaiian.clint.profiles.ProfilePickerDialog(
+                profiles = remember { com.jhaiian.clint.profiles.ProfileRepository.all(activity) },
+                hideStatusBar = hideStatusBarPref,
+                hideSystemNavigation = hideSystemNavigationPref,
+                onPick = { id -> state.profilePickerOpen = false; activity.onNewTabInProfile(id) },
+                onManage = {
+                    state.profilePickerOpen = false
+                    activity.startActivity(android.content.Intent(activity, com.jhaiian.clint.profiles.ProfilesActivity::class.java))
+                },
+                onDismiss = { state.profilePickerOpen = false }
+            )
         }
         state.createShortcutRequest?.let { req ->
             com.jhaiian.clint.browser.dialogs.CreateShortcutDialog(req, activity, hideStatusBarPref, hideSystemNavigationPref) { state.createShortcutRequest = null }
@@ -322,6 +329,8 @@ private fun TopToolbar(
             onAddressBarClick = { activity.openSearchOverlay(isBottom = false) },
             onTabCountClick = onTabCountClick,
             onMediaCaptureClick = { activity.mountMediaCaptureDialog() },
+            showHomeButton = state.showHomeButton,
+            onHomeClick = { activity.navGoHome() },
             onSwipeTabChange = { direction -> activity.onSwipeTabChange(direction) }
         )
         PageLoadProgress(state)
@@ -379,6 +388,8 @@ private fun BottomToolbar(
             onAddressBarClick = { activity.openSearchOverlay(isBottom = true) },
             onTabCountClick = onTabCountClick,
             onMediaCaptureClick = { activity.mountMediaCaptureDialog() },
+            showHomeButton = state.showHomeButton,
+            onHomeClick = { activity.navGoHome() },
             onSwipeTabChange = { direction -> activity.onSwipeTabChange(direction) }
         )
     }

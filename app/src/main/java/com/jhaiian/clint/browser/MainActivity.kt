@@ -98,6 +98,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
     internal val doNotTrackScriptHandlers = mutableMapOf<String, ScriptHandler>()
     internal val dataSaverMediaScriptHandlers = mutableMapOf<String, ScriptHandler>()
     internal val dataSaverVideoScriptHandlers = mutableMapOf<String, ScriptHandler>()
+    internal val dataSaverScriptBlockHandlers = mutableMapOf<String, ScriptHandler>()
     internal val userScriptHandlers = mutableMapOf<String, ScriptHandler>()
     private var lastUserScriptsDataVersion = 0L
     internal val quiverGuardScriptHandlers = com.jhaiian.clint.quiver.engine.ScriptHandlerStore()
@@ -314,8 +315,9 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
             "custom_user_agent" -> applyUserAgent()
             "quiver_guard_enabled" -> onQuiverGuardEnabled(prefs.getBoolean("quiver_guard_enabled", false))
             com.jhaiian.clint.mediacapture.MEDIA_CAPTURE_ENABLED_PREF -> updateMediaCaptureEnabledState()
+            "show_home_button" -> updateHomeButtonState()
             "user_scripts_enabled" -> applyUserScripts()
-            "data_saver_enabled", "data_saver_metered_only", "data_saver_disable_images", "data_saver_disable_autoplay", "data_saver_send_header", "data_saver_block_fonts", "data_saver_block_frames", "data_saver_block_preload", "data_saver_block_video" -> applyDataSaverSettings()
+            "data_saver_enabled", "data_saver_metered_only", "data_saver_disable_images", "data_saver_disable_autoplay", "data_saver_send_header", "data_saver_block_fonts", "data_saver_block_frames", "data_saver_block_preload", "data_saver_block_video", "data_saver_block_scripts", "data_saver_block_css" -> applyDataSaverSettings()
             "hide_bars_on_scroll" -> {
                 if (!prefs.getBoolean("hide_bars_on_scroll", true)) {
                     animateBottomBarTo(0f, animated = false)
@@ -325,10 +327,6 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
                 if (prefs.getString("scroll_hide_mode", "off") == "off") {
                     animateBottomBarTo(0f, animated = false)
                 }
-            }
-            "shortcut_frameless_enabled" -> {
-                tabManager.framelessShortcutsEnabled = prefs.getBoolean("shortcut_frameless_enabled", true)
-                updateTabCount()
             }
         }
     }
@@ -354,7 +352,8 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         prefs.registerOnSharedPreferenceChangeListener(prefsListener)
         DataSaverMode.onActiveChanged = { applyDataSaverSettings() }
         updateMediaCaptureEnabledState()
-        tabManager.framelessShortcutsEnabled = prefs.getBoolean("shortcut_frameless_enabled", true)
+        updateHomeButtonState()
+        tabManager.framelessShortcutIds = com.jhaiian.clint.shortcuts.ShortcutStore.framelessIds(this)
         lastUserScriptsDataVersion = com.jhaiian.clint.userscripts.UserScriptState.getDataVersion(this)
         applySystemUiVisibility()
 
@@ -380,7 +379,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         ) {
             notifPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
         }
-        if (!BuildConfig.IS_FDROID && prefs.getBoolean("check_update_on_launch", true)) {
+        if (!BuildConfig.IS_FOSS && prefs.getBoolean("check_update_on_launch", true)) {
             val skipOnMetered = prefs.getBoolean("skip_update_on_metered", true)
             val isBeta = prefs.getBoolean("beta_channel", false)
             if (!skipOnMetered || !isNetworkMetered()) {
@@ -388,12 +387,13 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
             }
         }
         migrateScrollHideMode()
+        migrateLegacyTabMenuStyle()
         setupSwipeRefresh()
         setupAddressBar()
         applyAddressBarPosition()
         val isRefreshLinkMode = intent.getBooleanExtra(EXTRA_REFRESH_LINK_MODE, false)
         val shortcutId = intent.getStringExtra(EXTRA_SHORTCUT_ID)
-        applyShortcutFrameless(shortcutId != null)
+        applyShortcutFrameless(shortcutId)
         if (isRefreshLinkMode) {
             val downloadId = intent.getIntExtra(EXTRA_REFRESH_LINK_DOWNLOAD_ID, -1)
             val filename = intent.getStringExtra(EXTRA_REFRESH_LINK_FILENAME) ?: ""
@@ -427,10 +427,11 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
 
     override fun onNewIntent(intent: android.content.Intent) {
         super.onNewIntent(intent)
+        syncFramelessShortcuts()
         val isRefreshLinkMode = intent.getBooleanExtra(EXTRA_REFRESH_LINK_MODE, false)
         val shortcutId = intent.getStringExtra(EXTRA_SHORTCUT_ID)
         val wasShortcutFrameless = uiState.isShortcutFrameless
-        applyShortcutFrameless(shortcutId != null)
+        applyShortcutFrameless(shortcutId)
         if (isRefreshLinkMode) {
             val downloadId = intent.getIntExtra(EXTRA_REFRESH_LINK_DOWNLOAD_ID, -1)
             val filename = intent.getStringExtra(EXTRA_REFRESH_LINK_FILENAME) ?: ""
@@ -462,6 +463,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
     override fun onResume() {
         super.onResume()
         if (isFinishing) return
+        syncFramelessShortcuts()
         closeInactiveTabs()
         if (::swipeRefreshView.isInitialized) updateSwipeRefreshColors(uiState.isIncognito)
         bottomBarAnimator2?.cancel()
@@ -620,6 +622,19 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         onTabSelected(visibleIndices[newPos])
         return true
     }
+    fun releaseShortcutGroupTabs(ids: List<String>) {
+        ids.forEach { id ->
+            val index = tabManager.tabs.indexOfFirst { it.id == id }
+            val tab = tabManager.tabs.getOrNull(index) ?: return@forEach
+            removeDesktopScript(tab)
+            onQuiverGuardTabClosed(tab)
+            com.jhaiian.clint.mediacapture.MediaCaptureStore.removeTab(tab.id)
+            com.jhaiian.clint.ui.FaviconCache.evict(this, tab.url)
+            com.jhaiian.clint.tabs.TabThumbnailCache.evict(this, tab.id)
+            tabManager.closeTab(index)
+        }
+    }
+
     fun onTabClosed(index: Int) {
         val tab = tabManager.tabs.getOrNull(index)
         tab?.let {
@@ -644,6 +659,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         else updateTabCount()
     }
     fun onNewTab() { openNewTab(false) }
+    fun onNewTabInProfile(profileId: String) { openNewTab(isIncognito = false, profileId = profileId) }
     fun onNewIncognitoTab() { openNewTab(true) }
 
     fun onMenuGoBack() { navGoBack() }
@@ -653,6 +669,28 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
     fun onMenuToggleBookmark() { navToggleBookmark() }
     fun onMenuNewTab() { openNewTab(false) }
     fun onMenuIncognito() { openNewTab(true) }
+    fun onMenuOpenQuiverGuardSiteSettings() {
+        startActivity(android.content.Intent(this, com.jhaiian.clint.settings.quiverguardexception.QuiverGuardExceptionActivity::class.java))
+    }
+    fun onMenuOpenDesktopModeSettings() {
+        startActivity(android.content.Intent(this, com.jhaiian.clint.settings.desktopmode.DesktopModeActivity::class.java))
+    }
+    fun onMenuOpenDataSaverSiteSettings() {
+        startActivity(android.content.Intent(this, com.jhaiian.clint.settings.datasaver.DataSaverExceptionActivity::class.java))
+    }
+    fun onMenuOpenShortcutManager() {
+        startActivity(android.content.Intent(this, com.jhaiian.clint.settings.shortcutmanager.ShortcutManagerActivity::class.java))
+    }
+    fun onMenuOpenProfiles() {
+        startActivity(android.content.Intent(this, com.jhaiian.clint.profiles.ProfilesActivity::class.java))
+    }
+    fun onMenuNewProfileTab() {
+        if (com.jhaiian.clint.profiles.ProfileRepository.all(this).isEmpty()) {
+            startActivity(android.content.Intent(this, com.jhaiian.clint.profiles.ProfilesActivity::class.java))
+        } else {
+            uiState.profilePickerOpen = true
+        }
+    }
     fun onMenuShare() {
         val shareUrl = tabManager.activeTab?.webView?.url
         if (isClintHomeUrl(shareUrl)) return
@@ -1085,6 +1123,7 @@ td,th{border:1px solid $secondaryColor;padding:6px 8px;}
     inner class UserScriptBridge(private val webView: android.webkit.WebView) {
         private val prefs = getSharedPreferences("user_script_gm_values", android.content.Context.MODE_PRIVATE)
         private val calls = java.util.concurrent.ConcurrentHashMap<String, okhttp3.Call>()
+        private val profileId = com.jhaiian.clint.profiles.WebProfiles.profileOf(webView)
 
         @android.webkit.JavascriptInterface
         fun getValue(scriptKey: String, key: String): String? = prefs.getString("$scriptKey|$key", null)
@@ -1167,8 +1206,8 @@ td,th{border:1px solid $secondaryColor;padding:6px 8px;}
                     ByteArray(0).toRequestBody(null)
                 } else null
                 val builder = okhttp3.Request.Builder().url(url).method(method, requestBody)
-                val cookie = runCatching { android.webkit.CookieManager.getInstance().getCookie(url) }.getOrNull()
-                if (!cookie.isNullOrBlank()) builder.header("Cookie", cookie)
+                val cookie = com.jhaiian.clint.profiles.WebProfiles.cookieFor(profileId, url)
+                if (cookie.isNotBlank()) builder.header("Cookie", cookie)
                 if (details.has("headers")) {
                     details.optJSONObject("headers")?.let { headers ->
                         headers.keys().forEach { k -> builder.header(k, headers.optString(k)) }
@@ -1227,6 +1266,12 @@ td,th{border:1px solid $secondaryColor;padding:6px 8px;}
         }
     }
 
+    private fun migrateLegacyTabMenuStyle() {
+        if (prefs.contains("tab_menu_style")) {
+            prefs.edit().remove("tab_menu_style").apply()
+        }
+    }
+
     fun onImageOpenInNewTab(imageUrl: String) { handleImageOpenInNewTab(imageUrl) }
     fun onImageOpenIncognito(imageUrl: String) { openNewTab(isIncognito = true, url = imageUrl) }
     fun onImageOpenInCurrentTab(imageUrl: String) { dismissContentPreview(); loadUrl(imageUrl) }
@@ -1243,7 +1288,7 @@ td,th{border:1px solid $secondaryColor;padding:6px 8px;}
     fun onLinkCopyText(url: String, text: String) { handleLinkCopyText(text) }
     fun onLinkShare(url: String) { handleLinkShare(url) }
 
-    fun onPreviewOpenInNewTab(url: String) { openNewTab(isIncognito = false, url = url) }
+    fun onPreviewOpenInNewTab(url: String) { openNewTab(isIncognito = false, url = url, profileId = activeProfileId()) }
 
     fun onPreviewLinkOpenInNewTab(url: String) { dismissContentPreview(); handleLinkOpenInNewTab(url) }
     fun onPreviewLinkOpenIncognito(url: String) { dismissContentPreview(); handleLinkOpenIncognito(url) }

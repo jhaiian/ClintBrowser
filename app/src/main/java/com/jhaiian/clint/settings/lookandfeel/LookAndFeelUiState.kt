@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 enum class LookAndFeelDialog {
-    THEME, ACCENT, SURFACE_INTENSITY, ADDRESS_BAR_POSITION, MENU_STYLE, TAB_MENU_STYLE, SCROLL_HIDE_MODE, EXIT_CONFIRMATION, LANGUAGE
+    THEME, ACCENT, SURFACE_INTENSITY, ADDRESS_BAR_POSITION, MENU_STYLE, SCROLL_HIDE_MODE, EXIT_CONFIRMATION, POPUP_ALERT_STYLE, LANGUAGE
 }
 
 class LookAndFeelUiState(
@@ -16,9 +16,10 @@ class LookAndFeelUiState(
     initialScrollHideMode: String,
     initialAddressBarPosition: String,
     initialMenuStyle: String,
-    initialTabMenuStyle: String,
     initialHideStatusBar: Boolean, initialHideSystemNavigation: Boolean,
-    initialExitConfirmation: String
+    initialShowHomeButton: Boolean,
+    initialExitConfirmation: String,
+    initialPopupAlertStyle: String
 ) {
     var theme by mutableStateOf(initialTheme)
     var accent by mutableStateOf(initialAccent)
@@ -28,11 +29,12 @@ class LookAndFeelUiState(
     var scrollHideMode by mutableStateOf(initialScrollHideMode)
     var addressBarPosition by mutableStateOf(initialAddressBarPosition)
     var menuStyle by mutableStateOf(initialMenuStyle)
-    var tabMenuStyle by mutableStateOf(initialTabMenuStyle)
     var hideStatusBar by mutableStateOf(initialHideStatusBar)
     var hideSystemNavigation by mutableStateOf(initialHideSystemNavigation)
+    var showHomeButton by mutableStateOf(initialShowHomeButton)
 
     var exitConfirmation by mutableStateOf(initialExitConfirmation)
+    var popupAlertStyle by mutableStateOf(initialPopupAlertStyle)
 
     var openDialog by mutableStateOf<LookAndFeelDialog?>(null)
 }

@@ -19,6 +19,12 @@ internal object DataSaverRequestFilter {
 
     private val videoSegmentExtensions = listOf(".m4s")
 
+    private val scriptExtensions = listOf(".js", ".mjs", ".cjs")
+
+    private val scriptPathSuffixes = listOf("/gtag/js", "/gtm.js", "/analytics.js", "/adsbygoogle.js")
+
+    private val styleExtensions = listOf(".css")
+
     private val iconFontHints = listOf(
         "icon", "awesome", "glyph", "symbol", "material", "fa-", "fa5", "fa6", "dashicons", "bootstrap"
     )
@@ -62,7 +68,9 @@ internal object DataSaverRequestFilter {
         val blockFonts = prefs.getBoolean("data_saver_block_fonts", true)
         val blockFrames = prefs.getBoolean("data_saver_block_frames", true)
         val blockVideo = prefs.getBoolean("data_saver_block_video", false)
-        if (!blockImages && !blockFonts && !blockFrames && !blockVideo) return null
+        val blockScripts = prefs.getBoolean("data_saver_block_scripts", false)
+        val blockCss = prefs.getBoolean("data_saver_block_css", false)
+        if (!blockImages && !blockFonts && !blockFrames && !blockVideo && !blockScripts && !blockCss) return null
         if (request.isForMainFrame) return null
         if (DataSaverSiteException.isExceptedUrl(context, pageUrl)) return null
         val url = request.url ?: return null
@@ -79,6 +87,12 @@ internal object DataSaverRequestFilter {
             }
         }
 
+        if (blockScripts && isScript(request, url)) {
+            return emptyResponse("application/javascript", 200, "OK")
+        }
+        if (blockCss && isStyleSheet(request, url)) {
+            return emptyResponse("text/css", 200, "OK")
+        }
         if (blockImages && isImage(request, url)) {
             return emptyResponse("image/gif", 404, "Blocked")
         }
@@ -108,6 +122,28 @@ internal object DataSaverRequestFilter {
         if (isNavigationRequest(request)) return false
         val path = url.path?.lowercase() ?: return false
         return imageExtensions.any { path.endsWith(it) }
+    }
+
+    private fun isScript(request: WebResourceRequest, url: Uri): Boolean {
+        if (isNavigationRequest(request)) return false
+        val dest = headerValue(request, "Sec-Fetch-Dest")
+        if (dest != null) {
+            if (dest.equals("script", ignoreCase = true) || dest.equals("worker", ignoreCase = true) || dest.equals("sharedworker", ignoreCase = true)) return true
+            if (dest.isNotEmpty() && !dest.equals("empty", ignoreCase = true)) return false
+        }
+        val path = url.path?.lowercase() ?: return false
+        if (scriptExtensions.any { path.endsWith(it) }) return true
+        return scriptPathSuffixes.any { path.endsWith(it) }
+    }
+
+    private fun isStyleSheet(request: WebResourceRequest, url: Uri): Boolean {
+        if (isNavigationRequest(request)) return false
+        val dest = headerValue(request, "Sec-Fetch-Dest")
+        if (dest != null && dest.equals("style", ignoreCase = true)) return true
+        val accept = headerValue(request, "Accept")
+        if (accept != null && accept.startsWith("text/css", ignoreCase = true)) return true
+        val path = url.path?.lowercase() ?: return false
+        return styleExtensions.any { path.endsWith(it) }
     }
 
     private fun isHeavyFont(url: Uri): Boolean {

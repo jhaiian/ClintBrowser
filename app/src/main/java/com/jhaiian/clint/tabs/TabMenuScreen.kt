@@ -157,6 +157,23 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
         if (uiState.selectionMode) uiState.exitSelectionMode() else onDismiss()
     }
 
+    var showProfilePicker by remember { mutableStateOf(false) }
+    if (showProfilePicker) {
+        val dialogPrefs = remember { androidx.preference.PreferenceManager.getDefaultSharedPreferences(activity) }
+        com.jhaiian.clint.profiles.ProfilePickerDialog(
+            profiles = remember { com.jhaiian.clint.profiles.ProfileRepository.all(activity) },
+            hideStatusBar = dialogPrefs.getBoolean("hide_status_bar", false),
+            hideSystemNavigation = dialogPrefs.getBoolean("hide_system_navigation", false),
+            onPick = { id -> showProfilePicker = false; activity.onNewTabInProfile(id); onDismiss() },
+            onManage = {
+                showProfilePicker = false
+                activity.startActivity(android.content.Intent(activity, com.jhaiian.clint.profiles.ProfilesActivity::class.java))
+                onDismiss()
+            },
+            onDismiss = { showProfilePicker = false }
+        )
+    }
+
     Column(Modifier.fillMaxSize().background(colors.surface).statusBarsPadding().navigationBarsPadding()) {
         TabMenuTopBar(
             tabCount = tabs.size,
@@ -168,6 +185,14 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
             onDeleteSelected = { closeTabs(uiState.selectedIds.toList()); uiState.exitSelectionMode() },
             onNewTab = { activity.onNewTab(); onDismiss() },
             onNewIncognitoTab = { activity.onNewIncognitoTab(); onDismiss() },
+            onNewProfileTab = {
+                if (com.jhaiian.clint.profiles.ProfileRepository.all(activity).isEmpty()) {
+                    activity.startActivity(android.content.Intent(activity, com.jhaiian.clint.profiles.ProfilesActivity::class.java))
+                    onDismiss()
+                } else {
+                    showProfilePicker = true
+                }
+            },
             onCloseAllTabs = { closeAllTabs() }
         )
 
@@ -320,6 +345,7 @@ private fun TabMenuTopBar(
     onDeleteSelected: () -> Unit,
     onNewTab: () -> Unit,
     onNewIncognitoTab: () -> Unit,
+    onNewProfileTab: () -> Unit,
     onCloseAllTabs: () -> Unit
 ) {
     val colors = LocalClintColors.current
@@ -374,7 +400,9 @@ private fun TabMenuTopBar(
                         onNewTab = onNewTab,
                         onNewIncognitoTab = onNewIncognitoTab,
                         onCloseAllTabs = onCloseAllTabs,
-                        onSelectTabs = onToggleSelectionMode
+                        onSelectTabs = onToggleSelectionMode,
+                        showProfileTab = com.jhaiian.clint.profiles.WebProfiles.isSupported(),
+                        onNewProfileTab = onNewProfileTab
                     )
                 }
             }

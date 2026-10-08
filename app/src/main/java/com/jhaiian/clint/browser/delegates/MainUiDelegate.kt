@@ -99,7 +99,8 @@ internal fun MainActivity.onSearchQueryChanged(query: String) {
             runOnUiThread { uiState.suggestions = combineSuggestions(bookmarks, history, emptyList()) }
             return@post
         }
-        val onlineBlocked = DataSaverMode.isActive(prefs) && prefs.getBoolean("data_saver_disable_suggestions", true)
+        val suggestionsApi = prefs.getString("search_suggestions_api", "duckduckgo") ?: "duckduckgo"
+        val onlineBlocked = suggestionsApi == "off" || (DataSaverMode.isActive(prefs) && prefs.getBoolean("data_saver_disable_suggestions", true))
         if (onlineBlocked) {
             suggestionFetcher?.cancel()
             lastOnlineSuggestions = emptyList()
@@ -108,7 +109,6 @@ internal fun MainActivity.onSearchQueryChanged(query: String) {
         val bookmarks = BookmarkManager.search(this, query).take(SUGGESTION_BOOKMARK_LIMIT)
         runOnUiThread { uiState.suggestions = combineSuggestions(bookmarks, history, lastOnlineSuggestions) }
         if (onlineBlocked) return@post
-        val suggestionsApi = prefs.getString("search_suggestions_api", "duckduckgo") ?: "duckduckgo"
         val customSuggestionsUrl = if (suggestionsApi == "custom") {
             customSearchSuggestionsApiQueryUrl(prefs, android.net.Uri.encode(query))
         } else null
@@ -405,6 +405,10 @@ internal fun MainActivity.updateMediaCaptureEnabledState() {
     uiState.isMediaCaptureEnabled = prefs.getBoolean(
         com.jhaiian.clint.mediacapture.MEDIA_CAPTURE_ENABLED_PREF, true
     )
+}
+
+internal fun MainActivity.updateHomeButtonState() {
+    uiState.showHomeButton = prefs.getBoolean("show_home_button", true)
 }
 
 internal fun MainActivity.updateSwipeRefreshColors(isIncognito: Boolean) {
