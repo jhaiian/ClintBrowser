@@ -13,7 +13,7 @@ All notable changes to Clint Browser are documented here.
 You can now download straight from MEGA links!
 
 - Open a MEGA file or folder link and Clint offers to download it for you.
-- Folder links open a picker where you can select all, keep the folder structure, skip files you already added, and download on Wi-Fi only.
+- Folder links open a picker where you can select all, keep the folder structure, skip files you already added, and download on Wi‑Fi only.
 - MEGA downloads can be paused, resumed, and split into multiple parts like any other download.
 - Files are decrypted on your device while they download. The key in the link never leaves your phone.
 - Clint gets a fresh download link from MEGA every time a download starts or retries, so old links don't break your downloads.
