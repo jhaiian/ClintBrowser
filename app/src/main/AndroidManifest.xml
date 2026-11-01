@@ -287,6 +287,10 @@
             android:name=".downloads.DownloadCustomScheduleReceiver"
             android:exported="false" />
 
+        <receiver
+            android:name=".privacy.IncognitoCloseReceiver"
+            android:exported="false" />
+
         <activity
             android:name=".privacy.AppLockActivity"
             android:exported="false"

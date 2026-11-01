@@ -146,10 +146,11 @@ class ClintWebViewClient(
 
     override fun doUpdateVisitedHistory(view: WebView, url: String, isReload: Boolean) {
         super.doUpdateVisitedHistory(view, url, isReload)
+        val changed = cachedPageUrl?.substringBefore('#') != url.substringBefore('#')
         cachedPageUrl = url
         quiverGuardPageUrl = url
         MediaCaptureStore.updatePageUrl(getTabId(), url)
-        MediaCaptureStore.clearForTab(getTabId())
+        if (changed) MediaCaptureStore.clearForTab(getTabId())
         onTabUrlUpdatedCallback(view, url)
     }
 

@@ -1,6 +1,6 @@
 # Privacy Policy for Clint Browser
 
-*Last updated: October 27, 2026*
+*Last updated: November 1, 2026*
 
 ## Overview
 
@@ -30,7 +30,13 @@ Clint Browser does not collect, store, transmit, or share any personal data. The
 
 ## Browsing Data
 
-All browsing data — including history, cookies, cached content, and site storage — is stored locally on your device only. You can clear this data at any time through your device's app settings. Incognito tabs do not save cookies, cached content, or browsing history to your device. You can also have the app delete selected data automatically when you close it, as described in Privacy and Security Settings below.
+All browsing data, including history, cookies, cached content, and site storage, is stored locally on your device only. You can clear this data at any time through your device's app settings. Incognito tabs do not save cookies, cached content, or browsing history to your device. Downloads you finish in Incognito tabs still show up in your Downloads list unless you turn that off, as explained in the Downloads section below. You can also have the app delete selected data automatically when you close it, as described in Privacy and Security Settings below.
+
+**Incognito notification.** While Incognito tabs are open, Clint Browser shows a notification. Tapping it closes all of your Incognito tabs without opening the app. The notification is handled by your device and nothing is sent anywhere.
+
+**Remember browsing mode.** This is off by default. When you turn it on, Clint Browser remembers whether you were last using Incognito or normal mode and opens in that mode next time. Only that choice is saved on your device. Your Incognito tabs are not saved.
+
+**Copy and paste in the address bar.** When you long press the address bar, you can copy the page link or paste from your clipboard. Clint Browser only reads your clipboard when you tap Paste or Paste & Go.
 
 **Tab groups.** Group names, colors, and which tabs belong to each group are stored locally on your device along with your open tabs. Incognito groups are kept in memory only and are gone when you close the app.
 
@@ -110,7 +116,7 @@ You can customize the homepage in Settings.
 
 ## Search History
 
-When you perform searches in the address or search bar, Clint Browser saves your search history locally to improve your experience. **All search history data is stored exclusively on your local device using SQLite**, a lightweight file-based database. This data never leaves your device — it is not uploaded to any server, shared with any third party, or transmitted anywhere else.
+When you perform searches in the address or search bar, Clint Browser saves your search history locally to improve your experience. **All search history data is stored exclusively on your local device using SQLite**, a lightweight file-based database. This data never leaves your device. It is not uploaded to any server, shared with any third party, or transmitted anywhere else.
 
 You can clear your search history at any time through the app's settings or by clearing the app's storage from your device settings.
 
@@ -127,6 +133,8 @@ You can choose which search engine handles the searches you type in the address 
 - **Custom**, a URL template you enter yourself
 
 When you search, your query is sent as part of the request URL to whichever engine you've selected. If you configure a custom engine, your query is sent to whatever URL you entered, since the app has no way to know what that service does with it. Review that service's own privacy policy before using it.
+
+**Incognito search engine.** You can pick a different search engine for Incognito tabs. By default Incognito uses the same engine as normal browsing. If you pick a different one, your Incognito searches go to that engine instead.
 
 ---
 
@@ -145,6 +153,8 @@ You can choose which provider these suggestions come from in Settings:
 - No search history, cookies, or personal identifiers from Clint Browser are included
 - Neither provider receives requests associated with your Clint Browser identity, since the app has none to send
 - If you configure a custom suggestions provider, each keystroke you type may be sent to that URL as you type, so only point this at a service you trust
+
+You can also pick a different suggestions provider for Incognito tabs. By default Incognito uses the same provider as normal browsing. If you pick a different one, what you type in Incognito tabs goes to that provider instead.
 
 Your saved search history is completely separate and never sent to DuckDuckGo, Google, or any other service.
 
@@ -198,6 +208,22 @@ Files you download are saved directly to your device. Clint Browser does not upl
 
 **Auto mode.** When the connection settings are set to **Auto**, Clint Browser adjusts how many connections a download uses based on its speed and on your device's state, such as whether you're on mobile data, in battery saver, or whether your phone is running hot. These checks are read from Android on your device. To start the next download from the same server at the right number, Clint Browser remembers the number of connections that worked best for each server's domain name. This is stored locally on your device, limited to a small number of recent servers, and never transmitted.
 
+**Download history.** Finished downloads are kept in your Downloads list so you can find them later. You can turn this off for normal tabs and for Incognito tabs separately in the download settings. Both are on by default. When one is off, finished downloads from that mode aren't kept in the list. The files themselves stay on your device either way.
+
+**Download page.** Each download remembers the page it was started from, so you can go back there later if you need a fresh link. This is saved on your device with the rest of your download history. When you update a download's link, Clint Browser checks the new link using the same browser details, Referer, and cookies the download already uses. The website sees that request the same way it saw the original download.
+
+---
+
+## MEGA Downloads
+
+When you open a MEGA file or folder link, Clint Browser can offer to download it for you. This is on by default, and you can turn it off with Detect MEGA links in the download settings.
+
+- **What MEGA sees.** To read the link, Clint Browser asks MEGA's servers (`g.api.mega.co.nz`) for the file or folder details using the ID in the link. The files are then downloaded from MEGA's storage servers. MEGA can see your IP address and which file or folder you're getting, the same as when you open the link on their website.
+- **The key stays on your device.** The key at the end of a MEGA link is what unlocks the files. It's never sent to MEGA or anywhere else. File names and file contents are decrypted on your device.
+- **No account and no uploads.** Clint Browser doesn't sign you in to MEGA and doesn't upload anything to it.
+
+You can review MEGA's privacy policy at https://mega.io/privacy
+
 ---
 
 ## Media Capture
@@ -205,6 +231,8 @@ Files you download are saved directly to your device. Clint Browser does not upl
 Media Capture detects media resources used by websites, such as video, audio, subtitles, and streaming formats like HLS/M3U8 and DASH, and lets you download them directly. For example, when a page plays a video, Media Capture inspects the page and its network requests to find available media streams and lists them as downloadable options. When Media Capture is turned on, it also reads the page's content, such as media players, links, and player settings, to find every available quality and subtitle, not just the one that is playing. Clint Browser may contact the website to check a found link's size and format, the same way the page itself would. Some sites serve video and audio as separate streams, and where supported, Media Capture can combine them into a single file.
 
 **Combining video and audio.** Some sites deliver a video with no sound as one stream and the audio as a separate track. When you choose to combine them, Clint Browser downloads both streams and merges them into a single playable video file on your device. The merge is done locally using your device's media components, either through the hardware codec or the software codec depending on your codec setting, and nothing is sent to an external server.
+
+**YouTube.** YouTube protects its videos in a way Media Capture can't save. If you open Media Capture on a YouTube page and the YTDLnis app is installed, Clint Browser sends the page link to YTDLnis so you can download the video there. Only the link is shared, and what YTDLnis does with it is covered by that app's own privacy policy. If YTDLnis isn't installed, Clint Browser explains why and can open the YTDLnis download page on GitHub.
 
 All of this detection happens locally on your device. Clint Browser does not intentionally upload captured media, browsing data, or any information about detected media to an external server.
 
@@ -261,19 +289,19 @@ Clint Browser allows websites to request access to certain device features. Thes
 
 When a website requests access, you can choose how the browser handles it:
 
-- **Ask first** — The browser will show a prompt every time a website requests access (Default)  
-- **Always deny** — All website requests for that permission will be blocked automatically without prompting  
-- **Always allow** — All website requests for that permission will be granted automatically without prompting  
+- **Ask first.** The browser shows a prompt every time a website asks for access. This is the default.
+- **Always deny.** Every request for that permission is blocked automatically without asking you.
+- **Always allow.** Every request for that permission is granted automatically without asking you.
 
 ### Available Website Permissions
 
 Websites may request access to:
 
-- **Camera** — Used for taking photos or recording video directly from websites  
-- **Microphone** — Used for voice input, calls, or audio recording features on websites  
-- **Location** — Used for location-based services such as maps or nearby results  
-- **Notifications** — Used by websites to send push notifications if you allow them  
-- **Clipboard** — Used when a website wants to read text from your clipboard, for example to let you paste into a form with one tap
+- **Camera** for taking photos or recording video directly from websites
+- **Microphone** for voice input, calls, or audio recording on websites
+- **Location** for location based services such as maps or nearby results
+- **Notifications** so websites can send you push notifications if you allow them
+- **Clipboard** when a website wants to read text from your clipboard, for example to let you paste into a form with one tap
 
 ### Site Exceptions
 
@@ -297,7 +325,7 @@ Clint Browser requests the following permissions:
 
 ## Storage & Downloads
 - **WRITE_EXTERNAL_STORAGE** – Saves downloaded files to your Downloads folder. *(Android 9 and below only)*
-- **POST_NOTIFICATIONS** – Shows download progress, completion, and failure alerts in your notification bar.
+- **POST_NOTIFICATIONS** – Shows download progress, completion, and failure alerts, the media controls for background playback, and the notification that closes your Incognito tabs, in your notification bar.
 - **REQUEST_INSTALL_PACKAGES** – Installs APK files downloaded from the download screen and installing updates from GitHub.
 - **SCHEDULE_EXACT_ALARM** – Download Scheduler
 - **MANAGE_EXTERNAL_STORAGE** – Allow the download manager to write directly to a custom location without requiring SAF (exclusively available in the GitHub Release).
@@ -344,7 +372,7 @@ Clint Browser does not knowingly collect any personal information from anyone, i
 
 Clint Browser does not include analytics, advertising, or tracking SDKs.
 
-However, the search engine or services you choose (such as DuckDuckGo, Brave Search, Ecosia, Google, or a custom one you configure) may collect data according to their own privacy policies. Clint Browser has no control over those services. Additionally, the search suggestions feature uses DuckDuckGo's or Google's public suggestion API, or a custom one you configure, depending on which provider you've selected, and the favicon fallback feature uses DuckDuckGo's public API, while high-resolution icons may also use Google's favicon service, as described above. Any user scripts you install can also communicate with third party services on their own, as described in the User Scripts section above. If you set a custom homepage, that website is also a third party and is subject to its own privacy policy. Page Translation downloads its language and engine files from Mozilla, as described in the Page Translation section above, and those requests are subject to Mozilla's privacy policy.
+However, the search engine or services you choose (such as DuckDuckGo, Brave Search, Ecosia, Google, or a custom one you configure) may collect data according to their own privacy policies. Clint Browser has no control over those services. Additionally, the search suggestions feature uses DuckDuckGo's or Google's public suggestion API, or a custom one you configure, depending on which provider you've selected, and the favicon fallback feature uses DuckDuckGo's public API, while high-resolution icons may also use Google's favicon service, as described above. Any user scripts you install can also communicate with third party services on their own, as described in the User Scripts section above. If you set a custom homepage, that website is also a third party and is subject to its own privacy policy. Page Translation downloads its language and engine files from Mozilla, as described in the Page Translation section above, and those requests are subject to Mozilla's privacy policy. MEGA downloads contact MEGA's servers, as described in the MEGA Downloads section above. On YouTube pages, Media Capture can pass the page link to the YTDLnis app, which has its own privacy policy.
 
 ---
 

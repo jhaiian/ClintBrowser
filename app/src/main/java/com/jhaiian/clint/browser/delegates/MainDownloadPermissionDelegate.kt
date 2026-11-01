@@ -33,25 +33,31 @@ internal fun MainActivity.initiateDownload(
     scheduledStartAtMillis: Long = 0L,
     onDismiss: () -> Unit = {},
     onRename: () -> Unit = {},
-    onStarted: () -> Unit = {}
+    onStarted: () -> Unit = {},
+    pageUrl: String = "",
+    startPaused: Boolean = false
 ) {
+    if (startPaused) {
+        doEnqueueDownload(url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, 0L, onDismiss, onRename, onStarted, pageUrl, startPaused)
+        return
+    }
     if (unmeteredOnly && isNetworkMetered()) {
         uiState.confirmDialogConfig = com.jhaiian.clint.ui.listscreen.ConfirmDialogConfig(
             title = getString(R.string.download_metered_warning_title),
             message = getString(R.string.download_metered_warning_message),
             positiveLabel = getString(R.string.action_yes),
             onPositive = {
-                proceedWithDownload(url, filename, userAgent, referer, cookies, retryEnabled, false, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, scheduledStartAtMillis, onDismiss, onRename, onStarted)
+                proceedWithDownload(url, filename, userAgent, referer, cookies, retryEnabled, false, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, scheduledStartAtMillis, onDismiss, onRename, onStarted, pageUrl, startPaused)
             },
             negativeLabel = getString(R.string.action_no),
             onNegative = {
-                proceedWithDownload(url, filename, userAgent, referer, cookies, retryEnabled, true, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, scheduledStartAtMillis, onDismiss, onRename, onStarted)
+                proceedWithDownload(url, filename, userAgent, referer, cookies, retryEnabled, true, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, scheduledStartAtMillis, onDismiss, onRename, onStarted, pageUrl, startPaused)
             },
             neutralLabel = getString(R.string.action_cancel)
         )
         return
     }
-    proceedWithDownload(url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, scheduledStartAtMillis, onDismiss, onRename, onStarted)
+    proceedWithDownload(url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, scheduledStartAtMillis, onDismiss, onRename, onStarted, pageUrl, startPaused)
 }
 
 private fun MainActivity.proceedWithDownload(
@@ -71,7 +77,9 @@ private fun MainActivity.proceedWithDownload(
     scheduledStartAtMillis: Long,
     onDismiss: () -> Unit,
     onRename: () -> Unit,
-    onStarted: () -> Unit
+    onStarted: () -> Unit,
+    pageUrl: String,
+    startPaused: Boolean
 ) {
     val prefs = PreferenceManager.getDefaultSharedPreferences(this)
     val pm = getSystemService(PowerManager::class.java)
@@ -89,16 +97,16 @@ private fun MainActivity.proceedWithDownload(
                     data = Uri.parse("package:$packageName")
                 }
                 startActivity(intent)
-                doEnqueueDownload(url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, scheduledStartAtMillis, onDismiss, onRename, onStarted)
+                doEnqueueDownload(url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, scheduledStartAtMillis, onDismiss, onRename, onStarted, pageUrl, startPaused)
             },
             negativeLabel = getString(R.string.action_not_now),
             onNegative = {
-                doEnqueueDownload(url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, scheduledStartAtMillis, onDismiss, onRename, onStarted)
+                doEnqueueDownload(url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, scheduledStartAtMillis, onDismiss, onRename, onStarted, pageUrl, startPaused)
             }
         )
         return
     }
-    doEnqueueDownload(url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, scheduledStartAtMillis, onDismiss, onRename, onStarted)
+    doEnqueueDownload(url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, scheduledStartAtMillis, onDismiss, onRename, onStarted, pageUrl, startPaused)
 }
 
 private fun MainActivity.doEnqueueDownload(
@@ -118,13 +126,15 @@ private fun MainActivity.doEnqueueDownload(
     scheduledStartAtMillis: Long,
     onDismiss: () -> Unit,
     onRename: () -> Unit,
-    onStarted: () -> Unit
+    onStarted: () -> Unit,
+    pageUrl: String,
+    startPaused: Boolean
 ) {
     if (ClintDownloadManager.requestStoragePermissionIfNeeded(this, locationMode) {
-            doEnqueueDownload(url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, scheduledStartAtMillis, onDismiss, onRename, onStarted)
+            doEnqueueDownload(url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, scheduledStartAtMillis, onDismiss, onRename, onStarted, pageUrl, startPaused)
         }
     ) return
-    checkConflictAndEnqueue(url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, scheduledStartAtMillis, onDismiss, onRename, onStarted)
+    checkConflictAndEnqueue(url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, scheduledStartAtMillis, onDismiss, onRename, onStarted, pageUrl, startPaused)
 }
 
 private fun MainActivity.checkConflictAndEnqueue(
@@ -144,7 +154,9 @@ private fun MainActivity.checkConflictAndEnqueue(
     scheduledStartAtMillis: Long,
     onDismiss: () -> Unit,
     onRename: () -> Unit,
-    onStarted: () -> Unit
+    onStarted: () -> Unit,
+    pageUrl: String,
+    startPaused: Boolean
 ) {
     val existing = ClintDownloadManager.findActiveDownloadForUrl(url)
     if (existing != null) {
@@ -153,13 +165,13 @@ private fun MainActivity.checkConflictAndEnqueue(
             message = getString(R.string.download_already_active_message, existing.filename),
             positiveLabel = getString(R.string.action_download_anyway),
             onPositive = {
-                checkFilenameConflictAndEnqueue(url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, scheduledStartAtMillis, onDismiss, onRename, onStarted)
+                checkFilenameConflictAndEnqueue(url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, scheduledStartAtMillis, onDismiss, onRename, onStarted, pageUrl, startPaused)
             },
             negativeLabel = getString(R.string.action_cancel)
         )
         return
     }
-    checkFilenameConflictAndEnqueue(url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, scheduledStartAtMillis, onDismiss, onRename, onStarted)
+    checkFilenameConflictAndEnqueue(url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, categorizeEnabled, scheduledStartAtMillis, onDismiss, onRename, onStarted, pageUrl, startPaused)
 }
 
 private fun MainActivity.checkFilenameConflictAndEnqueue(
@@ -179,7 +191,9 @@ private fun MainActivity.checkFilenameConflictAndEnqueue(
     scheduledStartAtMillis: Long,
     onDismiss: () -> Unit,
     onRename: () -> Unit,
-    onStarted: () -> Unit
+    onStarted: () -> Unit,
+    pageUrl: String,
+    startPaused: Boolean
 ) {
     val pendingMatch = ClintDownloadManager.downloadsFlow.value.firstOrNull {
         it.status in com.jhaiian.clint.downloads.DownloadStatus.NOT_FINISHED && it.url == url
@@ -196,22 +210,23 @@ private fun MainActivity.checkFilenameConflictAndEnqueue(
 
     if (!fileExists && pendingMatch == null) {
         onDismiss()
-        ClintDownloadManager.enqueue(this, url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, scheduledStartAtMillis, categorizeEnabled)
+        ClintDownloadManager.enqueue(this, url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, scheduledStartAtMillis, categorizeEnabled, pageUrl, startPaused = startPaused)
         onStarted()
         return
     }
 
-    uiState.conflictDialogRequest = com.jhaiian.clint.downloads.DownloadConflictDialogRequest(
+    val existingFinished = pendingMatch == null && !com.jhaiian.clint.downloads.hasUnfinishedDownloadNamed(filename)
+    uiState.conflictDialogRequest = com.jhaiian.clint.downloads.resolveDownloadConflict(this, existingFinished, com.jhaiian.clint.downloads.DownloadConflictDialogRequest(
         onAddDuplicate = {
             onDismiss()
-            ClintDownloadManager.enqueue(this, url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, scheduledStartAtMillis, categorizeEnabled)
+            ClintDownloadManager.enqueue(this, url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, scheduledStartAtMillis, categorizeEnabled, pageUrl, startPaused = startPaused)
             onStarted()
         },
         onOverride = {
             if (pendingMatch != null) ClintDownloadManager.remove(this, pendingMatch.id, deleteFile = true)
             else deleteExistingDownload(filename, locationMode, customLocationUri)
             onDismiss()
-            ClintDownloadManager.enqueue(this, url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, scheduledStartAtMillis, categorizeEnabled)
+            ClintDownloadManager.enqueue(this, url, filename, userAgent, referer, cookies, retryEnabled, unmeteredOnly, splitParts, multithreadingParts, speedLimitBytesPerSec, locationMode, customLocationUri, scheduledStartAtMillis, categorizeEnabled, pageUrl, startPaused = startPaused)
             onStarted()
         },
         onRename = onRename,
@@ -222,7 +237,7 @@ private fun MainActivity.checkFilenameConflictAndEnqueue(
                 showClintSnackbar(message = getString(R.string.media_capture_duplicate_link_updated))
             }
         }
-    )
+    ))
 }
 
 private fun MainActivity.deleteExistingDownload(

@@ -121,6 +121,18 @@
     <string name="incognito_search_history_title">Mostrar histórico de pesquisa no modo anônimo</string>
     <string name="incognito_search_history_summary">Incluir seu histórico de pesquisa salvo como sugestões ao navegar no modo anônimo</string>
     <string name="privacy_settings_summary">Cookies, proteção contra rastreamento, somente HTTPS, bloqueio do app e preenchimento automático</string>
+    <string name="remember_browsing_mode_title">Lembrar o modo de navegação</string>
+    <string name="remember_browsing_mode_summary">Abrir o Clint no modo anônimo ou normal, de acordo com o último que você usou</string>
+    <string name="incognito_notification_channel_name">Abas anônimas</string>
+    <string name="incognito_notification_channel_desc">Aparece enquanto houver abas anônimas abertas, para você fechar todas com um toque</string>
+    <string name="incognito_notification_title">Você tem abas anônimas abertas</string>
+    <string name="incognito_notification_text">Toque para fechar todas as abas anônimas</string>
+    <string name="incognito_search_engine_title">Mecanismo de pesquisa no modo anônimo</string>
+    <string name="incognito_search_suggestions_api_title">Sugestões de pesquisa no modo anônimo</string>
+    <string name="search_same_as_normal">Igual ao modo normal</string>
+    <string name="search_same_as_normal_summary">Igual ao modo normal (%1$s)</string>
+    <string name="search_engine_same_as_normal_desc">Usar o mecanismo de pesquisa que você escolheu para a navegação normal</string>
+    <string name="suggestions_api_same_as_normal_desc">Usar o provedor de sugestões que você escolheu para a navegação normal</string>
     <string name="javascript_enabled">Ativar JavaScript</string>
     <string name="javascript_enabled_summary">Permitir que os sites executem JavaScript</string>
     <string name="background_playback_title">Reprodução em segundo plano</string>
@@ -344,6 +356,11 @@
     <string name="download_section_notifications">NOTIFICAÇÕES</string>
     <string name="download_push_notifications_title">Notificações push</string>
     <string name="download_push_notifications_summary">Receba um alerta quando um download terminar, falhar ou começar a tentar novamente</string>
+    <string name="download_section_history">HISTÓRICO</string>
+    <string name="download_history_normal_title">Salvar histórico de downloads</string>
+    <string name="download_history_normal_summary">Manter os downloads concluídos na sua lista de downloads. Os arquivos continuam salvos de qualquer jeito</string>
+    <string name="download_history_incognito_title">Salvar histórico de downloads anônimos</string>
+    <string name="download_history_incognito_summary">Manter na sua lista os downloads concluídos em abas anônimas. Os arquivos continuam salvos de qualquer jeito</string>
     <string name="download_section_general">GERAL</string>
     <string name="download_section_dialog_ui">CAIXA DE DOWNLOAD</string>
     <string name="download_dialog_ui_title">Interface</string>
@@ -351,6 +368,13 @@
     <string name="download_dialog_ui_standard_desc">Layout espaçoso com títulos de seção e descrições</string>
     <string name="download_dialog_ui_compact">Compacto</string>
     <string name="download_dialog_ui_compact_desc">Layout mais enxuto, com controles menores e menos rolagem</string>
+    <string name="download_duplicate_handling_title">Arquivos duplicados</string>
+    <string name="download_duplicate_handling_ask">Sempre perguntar</string>
+    <string name="download_duplicate_handling_ask_desc">Escolha o que fazer sempre que já existir um arquivo com o mesmo nome</string>
+    <string name="download_duplicate_handling_add">Adicionar cópia</string>
+    <string name="download_duplicate_handling_add_desc">Se o download anterior já tiver terminado, mantém os dois arquivos e salva o novo com um número no nome</string>
+    <string name="download_duplicate_handling_overwrite">Substituir arquivo existente</string>
+    <string name="download_duplicate_handling_overwrite_desc">Se o download anterior já tiver terminado, troca o arquivo antigo pelo novo download</string>
     <string name="download_quick_download_title">Download rápido</string>
     <string name="download_quick_download_summary">Pular a caixa de download e começar a baixar na hora usando suas configurações gerais de download</string>
     <string name="download_quick_download_images_title">Download rápido de imagens</string>
@@ -544,6 +568,7 @@
     <string name="download_update_link_dialog_size_unverifiable">Não foi possível verificar o tamanho do arquivo</string>
     <string name="download_update_link_dialog_size_mismatch">O tamanho do arquivo não corresponde (%1$s x %2$s bytes)</string>
     <string name="download_update_link_dialog_not_a_manifest">Este link não aponta para uma playlist de stream válida</string>
+    <string name="download_update_link_dialog_not_a_file">Este link abre uma página da web, não o arquivo</string>
     <string name="download_update_link_dialog_positive">Atualizar</string>
     <string name="download_menu_redownload">Baixar novamente</string>
     <string name="download_menu_redownload_options">Baixar novamente com opções adicionais</string>
@@ -589,6 +614,7 @@
     <string name="download_props_label_video_url">Link de download do vídeo</string>
     <string name="download_props_label_audio_url">Link de download do áudio</string>
     <string name="download_props_label_page">Página do download</string>
+    <string name="download_props_label_referer">Cabeçalho Referer</string>
     <string name="download_props_label_avg_speed">Velocidade média</string>
     <string name="download_props_label_active_time">Tempo ativo</string>
     <string name="download_props_label_segments">Segmentos baixados</string>
@@ -665,6 +691,7 @@
     <string name="voice_search_not_available">A pesquisa por voz não está disponível neste dispositivo</string>
 
     <string name="toast_downloading">Baixando %1$s</string>
+    <string name="download_added_paused">%1$s foi adicionado aos downloads, pausado</string>
     <string name="download_started_view_action">Ver</string>
 
     <string name="install_apk_dialog_title">Instalar APK</string>
@@ -1435,6 +1462,7 @@
     <string name="tab_menu_search_no_results">Nenhuma guia corresponde à sua pesquisa</string>
     <string name="tab_menu_list_view">Mostrar como lista</string>
     <string name="tab_menu_buttons_at_bottom">Botões embaixo</string>
+    <string name="tab_menu_tabs_at_bottom">Abas a partir de baixo</string>
     <string name="tab_menu_close_duplicates">Fechar guias duplicadas</string>
     <plurals name="tab_menu_closed_duplicates">
         <item quantity="one">%1$d guia duplicada fechada</item>
@@ -1926,6 +1954,9 @@
     <string name="media_capture_scanning">Procurando mídia nesta página…</string>
     <string name="media_capture_close">Fechar</string>
     <string name="media_capture_empty_state">Nenhuma mídia detectada nesta página ainda. Reproduza um vídeo ou áudio para detectá-lo aqui.</string>
+    <string name="media_capture_youtube_title">Não é possível capturar vídeos do YouTube</string>
+    <string name="media_capture_youtube_message">O YouTube divide os vídeos em partes protegidas que o Media Capture não consegue salvar. Instale o YTDLnis para baixá-los, e o Media Capture vai mandar os vídeos do YouTube direto para ele.</string>
+    <string name="media_capture_youtube_get_ytdlnis">Baixar o YTDLnis</string>
     <string name="media_capture_section_video">VÍDEO</string>
     <string name="media_capture_section_audio">ÁUDIO</string>
     <string name="media_capture_section_subtitles">LEGENDAS</string>
@@ -1987,6 +2018,8 @@
     <string name="homepage_design_image_desc">Use uma foto sua, suavizada para que tudo continue fácil de ler</string>
     <string name="homepage_image_title">Imagem da página inicial</string>
     <string name="homepage_image_summary">Toque para escolher outra foto</string>
+    <string name="homepage_image_full_brightness_title">Imagem sem escurecimento</string>
+    <string name="homepage_image_full_brightness_summary">Mostra sua foto do jeito que ela é, sem a camada que escurece</string>
     <string name="homepage_show_favorites_title">Mostrar favoritos</string>
     <string name="homepage_show_favorites_summary">Mostrar seus sites e pastas fixados na página inicial do Clint Browser</string>
     <string name="homepage_show_quick_actions_title">Mostrar ações rápidas</string>
@@ -2287,4 +2320,46 @@
         <item quantity="one">%d site</item>
         <item quantity="other">%d sites</item>
     </plurals>
+    <string name="download_detect_mega_title">Detectar links do MEGA</string>
+    <string name="download_detect_mega_summary">Oferecer o download ao abrir um link de arquivo ou pasta do MEGA</string>
+    <string name="mega_dialog_title_file">Arquivo do MEGA</string>
+    <string name="mega_dialog_title_folder">Pasta do MEGA</string>
+    <string name="mega_dialog_loading">Lendo o link do MEGA…</string>
+    <string name="mega_folder_selected_count">Selecionados: %1$d de %2$d arquivos</string>
+    <string name="mega_folder_selected_size">Tamanho: %1$s de %2$s</string>
+    <string name="mega_select_all">Selecionar tudo</string>
+    <string name="mega_keep_structure_title">Manter a estrutura de pastas</string>
+    <string name="mega_keep_structure_summary">Salvar os arquivos nas mesmas pastas em que estão no MEGA</string>
+    <string name="mega_skip_existing_title">Pular arquivos já adicionados</string>
+    <string name="mega_skip_existing_summary">Deixar de fora os arquivos que já estão na sua lista de downloads</string>
+    <string name="mega_folder_empty">Esta pasta não tem nenhum arquivo</string>
+    <string name="mega_all_skipped">Todos os arquivos selecionados já estão nos seus downloads</string>
+    <string name="mega_action_try_again">Tentar de novo</string>
+    <string name="mega_error_not_found">Este arquivo ou pasta do MEGA não existe mais</string>
+    <string name="mega_error_blocked">O MEGA bloqueou o acesso a este link</string>
+    <string name="mega_error_quota">Você atingiu o limite de transferência do MEGA por enquanto. Tente de novo mais tarde.</string>
+    <string name="mega_error_invalid_key">A chave de descriptografia deste link está errada ou incompleta</string>
+    <string name="mega_error_unsupported">O Clint ainda não consegue baixar este arquivo do MEGA</string>
+    <string name="mega_error_busy">O MEGA está sobrecarregado agora. Tente de novo daqui a pouco.</string>
+    <string name="mega_error_generic">O MEGA não conseguiu abrir este link (erro %d)</string>
+    <string name="mega_error_network">Não foi possível conectar ao MEGA. Verifique sua conexão e tente de novo.</string>
+    <plurals name="mega_folder_file_count">
+        <item quantity="one">%1$d arquivo · %2$s</item>
+        <item quantity="many">%1$d arquivos · %2$s</item>
+        <item quantity="other">%1$d arquivos · %2$s</item>
+    </plurals>
+    <plurals name="mega_folder_started">
+        <item quantity="one">Baixando %d arquivo</item>
+        <item quantity="many">Baixando %d arquivos</item>
+        <item quantity="other">Baixando %d arquivos</item>
+    </plurals>
+    <plurals name="mega_folder_added_paused">
+        <item quantity="one">%d arquivo foi adicionado aos downloads, pausado</item>
+        <item quantity="many">%d arquivos foram adicionados aos downloads, pausados</item>
+        <item quantity="other">%d arquivos foram adicionados aos downloads, pausados</item>
+    </plurals>
+    <string name="address_bar_copy_link">Copiar link da página</string>
+    <string name="address_bar_link_copied">Link da página copiado</string>
+    <string name="address_bar_paste">Colar</string>
+    <string name="address_bar_paste_and_go">Colar e acessar</string>
 </resources>

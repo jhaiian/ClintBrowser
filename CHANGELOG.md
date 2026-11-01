@@ -4,6 +4,156 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.2.6
+
+## What's New
+
+### MEGA Downloads
+
+You can now download straight from MEGA links!
+
+- Open a MEGA file or folder link and Clint offers to download it for you.
+- Folder links open a picker where you can select all, keep the folder structure, skip files you already added, and download on Wi-Fi only.
+- MEGA downloads can be paused, resumed, and split into multiple parts like any other download.
+- Files are decrypted on your device while they download. The key in the link never leaves your phone.
+- Clint gets a fresh download link from MEGA every time a download starts or retries, so old links don't break your downloads.
+- Quota limits and broken links now show a clear message instead of a vague error.
+- Don't want it? Turn off **Detect MEGA links** in Settings › Downloads.
+
+---
+
+### Download Manager
+
+#### Add Without Starting
+
+New **Add** button in the bottom left of every download dialog. It puts the download in your list paused so you can start it later.
+
+- It works for links, streams and Media Capture, blobs, MEGA files and folders, redownloads, and manual downloads.
+- It skips the mobile data and battery prompts, since nothing is downloading yet.
+- It's turned off while you have a scheduled start set.
+- Paused blob downloads are kept safe in app storage, so they survive a restart.
+
+(Thanks to @anonymous-shanks for suggesting this [#32](https://github.com/jhaiian/ClintGecko/issues/32))
+
+#### Refreshing Links
+
+- Each download now remembers the page it came from, separately from the Referer header. Refreshing a link takes you back to the right page instead of just the site's home page or the video player's site. The Properties dialog shows both.
+- While you're refreshing a link, picking a video in Media Capture offers to update the paused download right away.
+- Updating a link now sends the same User-Agent, Referer, and cookies as the download, skips the check when the link didn't change, ignores error pages, and tells you when a link opens a web page instead of a file.
+
+(Thanks to @DarkHorse313 for reporting this [#16](https://github.com/jhaiian/ClintGecko/issues/16))
+
+#### Download History
+
+New **Save download history** and **Save Incognito download history** switches in Settings › Downloads. Turn one off and finished downloads from that mode won't stay in your Downloads list. The file and the completion notification stay either way. Unfinished, paused, and failed downloads are always kept so you can resume or retry them.
+
+(Thanks to @anonymous-shanks for suggesting this [#32](https://github.com/jhaiian/ClintGecko/issues/32))
+
+#### Duplicate File Handling
+
+New **Duplicate file handling** setting in Settings › Downloads.
+
+- **Always ask** lets you choose what to do each time.
+- **Add a duplicate** keeps both files and adds a number to the new one.
+- **Overwrite existing file** replaces the old file.
+
+The automatic options only kick in when the existing download is already finished.
+
+#### Other Download Changes
+
+- The Downloads library remembers whether you used grid or list view.
+
+(Thanks to @anonymous-shanks for suggesting this [#32](https://github.com/jhaiian/ClintGecko/issues/32))
+
+---
+
+### Media Capture
+
+#### Better Detection
+
+Media Capture now finds streams on a lot more sites.
+
+- It catches playlists served without a file extension or with an unusual file type.
+- It recognizes DASH manifests by their content.
+- It no longer misses media that loads before a tab is fully set up, or media loaded by a service worker.
+- It skips links it already listed.
+- It keeps your results when a page only changes the part after `#` in its address.
+
+(Thanks to @Ahmedal2022 for the patch that started this [#36](https://github.com/jhaiian/ClintGecko/issues/36))
+
+#### YouTube
+
+YouTube protects its videos in a way Media Capture can't save.
+
+- If YTDLnis is installed, opening Media Capture on YouTube sends the page straight to YTDLnis.
+- If it isn't, Media Capture explains why YouTube can't be captured and shows a **Get YTDLnis** button that opens its latest release.
+
+---
+
+### Incognito
+
+- New **Incognito search engine** and **Incognito search suggestions** settings. Incognito can now use a different search engine and suggestions provider than normal browsing, and each one can have its own custom entry. Both start as **Same as normal**, so nothing changes until you pick something. Searches, suggestions, the search hint, and the search engine homepage all follow the mode of the tab you're in.
+- A silent notification now shows while Incognito tabs are open. Tap it to close all of them at once. It works right from the notification, so you stay in whatever app you're using.
+- New **Remember browsing mode** option. If you were last using Incognito, Clint opens in a fresh Incognito tab on the homepage. Your Incognito tabs are still never saved. It's off by default.
+
+(Thanks to @anonymous-shanks for suggesting the notification and Remember browsing mode [#32](https://github.com/jhaiian/ClintGecko/issues/32))
+
+---
+
+## Improvements
+
+- **Delete browsing data** now actually follows the time range you pick. Before, cookies, site data, cache, site settings, and tabs were always deleted for all time. Now only cookies from that range, data from sites you visited in that range, site settings you changed in that range, and tabs you used in that range are removed.
+- **Tabs start at bottom** now really reverses the tab order, with your first tab at the bottom and newer tabs above it. Groups and drag and drop follow the new order too. An incomplete row now sits at the top of the grid instead of the bottom.
+- Long press the address bar to **Copy** the link, **Paste**, or **Paste & Go**.
+- The toolbars now hide and show when you scroll, even while a page is still loading.
+- New **Full Brightness Image** option in Homepage settings when you use a custom image. It shows your photo as it is, without the dark overlay.
+
+(Thanks to @sankhababu21 for suggesting this [#19](https://github.com/jhaiian/ClintGecko/issues/19))
+
+- Long press the tab counter to open a new tab.
+
+(Thanks to @akshaymaurya26 for suggesting this [#27](https://github.com/jhaiian/ClintGecko/issues/27))
+
+---
+
+## Other Changes
+
+- Updated Privacy Policy and Terms of Service.
+
+I added MEGA downloads, the YTDLnis handoff, unverified extensions, the new Incognito settings, address bar paste, and the download history switches to the Privacy Policy. I also fixed the Delete browsing data part, since it now follows your time range. The Terms of Service now has a MEGA section and covers unverified extensions and YTDLnis. As always, nothing leaves your device except what each feature needs to work.
+
+---
+
+## Dependency Updates
+
+- Bump `com.android.application` from 9.4.1 to 9.5.0
+- Bump `androidx.webkit:webkit` from 1.17.0 to 1.18.0
+- Bump `gradle-wrapper` from 9.8.1 to 9.8.2
+- Bump `com.squareup.okhttp3:okhttp` from 5.5.0 to 5.5.1
+
+---
+
+## Bug Fixes
+
+- Fixed your open tabs sometimes being restored from an older save after a restart.
+- Fixed pages going blank after switching your phone between light and dark mode.
+- Fixed the number in the tab counter sitting low and off-center, especially with a larger system font size. With big fonts the counter box now grows to fit the number instead of cutting it off, and the custom theme preview matches.
+- Fixed old tab thumbnails sometimes sticking around after a tab was closed.
+
+---
+
+## Donation
+
+Thank you to an anonymous supporter for donating $20.44 through PayPal!
+
+Thank you to **Sharashka USA** for donating $5 through Ko-fi!
+
+Thank you to **Gianluca Acuña** for becoming a $1 member on Patreon!
+
+Every bit of support helps me keep working on Clint. Thank you all so much!
+
+---
+
 # v1.2.5
 
 ## What's New
@@ -501,7 +651,8 @@ Thank you to @reviewlord for suggesting this [#71](https://github.com/jhaiian/Cl
 ## Bug Fixes
 
 - Fixed Android 10 storage permission.
-- Fixed notification bug. (Thanks to @Woallin [#9](https://github.com/jhaiian/ClintGecko/issues/9))
+- Fixed notification bug. (Thanks to @Woallin [#9](https://github.com/jhaiian/ClintGecko/issues/9))
+
 ---
 
 > There are a lot of requests right now, but I'll get to them eventually. I've just prioritized the donor's request for now because their support helps me personally and supports the project as well. Don't worry, guys! Your issues will be addressed and fixed soon.

@@ -22,6 +22,7 @@ object MediaCaptureDetector {
     private val AUDIO_EXTENSIONS = setOf("mp3", "m4a", "aac", "wav", "flac", "ogg", "oga", "opus", "wma", "weba")
     private val SUBTITLE_EXTENSIONS = setOf("vtt", "srt")
     private val MANIFEST_EXTENSIONS = setOf("m3u8", "mpd")
+    private val SEGMENT_EXTENSIONS = setOf("ts", "m4s", "cmfv", "cmfa")
     private val NON_MEDIA_DESTS = setOf(
         "document", "iframe", "script", "style", "image", "font",
         "worker", "sharedworker", "manifest", "report", "object", "embed", "xslt"
@@ -29,7 +30,7 @@ object MediaCaptureDetector {
     private const val ENRICHMENT_TIMEOUT_MILLIS = 12_000L
     private val enrichmentPermits = Semaphore(3)
     private val UNSUPPORTED_METADATA_FORMATS = setOf("AVI", "FLV", "WMV")
-    private val TRANSPORT_STREAM_CONTENT_TYPES = setOf("video/mp2t", "video/vnd.dlna.mpeg-tts")
+    private val TRANSPORT_STREAM_CONTENT_TYPES = setOf("video/mp2t", "video/vnd.dlna.mpeg-tts", "video/iso.segment", "audio/iso.segment")
     private val MEDIA_DESTS = setOf("video", "audio", "track")
     private val CONTENT_TYPE_FORMATS = mapOf(
         "quicktime" to "MOV", "matroska" to "MKV", "msvideo" to "AVI", "ms-wmv" to "WMV", "ms-asf" to "WMV",
@@ -41,6 +42,7 @@ object MediaCaptureDetector {
     private const val MAX_MANIFEST_CHARS = MAX_MANIFEST_BYTES.toInt()
     private const val MIN_EXTENSIONLESS_MEDIA_BYTES = 20_000L
     private const val MIN_VIDEO_BYTES = 20_000L
+    private const val SNIFF_BYTES = 512
     private val EXCLUDED_HEADERS = setOf(
         "range", "if-range", "if-modified-since", "if-none-match",
         "accept-encoding", "connection", "content-length", "host", "cookie"
@@ -58,6 +60,9 @@ object MediaCaptureDetector {
         if (headers.isNullOrEmpty()) return emptyMap()
         return headers.filterKeys { it.lowercase() !in EXCLUDED_HEADERS }
     }
+
+    private fun extensionOf(uri: Uri): String =
+        (uri.path ?: "").lowercase().substringAfterLast('/').substringAfterLast('.', "")
 
     private fun knownMediaExtension(ext: String): Boolean =
         ext in VIDEO_EXTENSIONS || ext in AUDIO_EXTENSIONS || ext in SUBTITLE_EXTENSIONS || ext in MANIFEST_EXTENSIONS
@@ -88,10 +93,11 @@ object MediaCaptureDetector {
         if (scheme != "http" && scheme != "https") return
 
         val urlString = uri.toString()
-        if (!MediaCaptureStore.markSeen(tabId, urlString)) return
+        var ext = extensionOf(uri)
+        if (ext in SEGMENT_EXTENSIONS) return
+        if (!MediaCaptureStore.markSeen(tabId, "request:$urlString")) return
+        if (MediaCaptureStore.contains(tabId, urlString)) return
 
-        val path = uri.path?.lowercase() ?: ""
-        var ext = path.substringAfterLast('.', "")
         if (!knownMediaExtension(ext)) {
             extensionFromQuery(uri)?.let { ext = it }
         }
@@ -160,8 +166,10 @@ object MediaCaptureDetector {
             val scheme = uri.scheme?.lowercase()
             if (scheme != "http" && scheme != "https") continue
             val urlString = uri.toString()
-            if (!MediaCaptureStore.markSeen(tabId, urlString)) continue
-            var ext = uri.path?.lowercase()?.substringAfterLast('.', "") ?: ""
+            if (!MediaCaptureStore.markSeen(tabId, "page:$urlString")) continue
+            if (MediaCaptureStore.contains(tabId, urlString)) continue
+            var ext = extensionOf(uri)
+            if (ext in SEGMENT_EXTENSIONS) continue
             if (!knownMediaExtension(ext)) ext = extensionFromQuery(uri) ?: ""
             val label = candidate.label?.trim()?.take(MAX_LABEL_CHARS)?.takeIf { it.isNotEmpty() }
             when {
@@ -282,12 +290,12 @@ object MediaCaptureDetector {
     }
 
     private fun sniffLeadingBytes(url: String, headers: Map<String, String>?, refererUrl: String?): ByteArray? = try {
-        val builder = Request.Builder().url(url).header("Range", "bytes=0-15")
+        val builder = Request.Builder().url(url).header("Range", "bytes=0-${SNIFF_BYTES - 1}")
         applyHeaders(builder, headers, url, refererUrl)
         probeHttpClient.newCall(builder.build()).execute().use { resp ->
             if (!resp.isSuccessful) null
             else {
-                val buffer = ByteArray(16)
+                val buffer = ByteArray(SNIFF_BYTES)
                 var total = 0
                 val stream = resp.body.byteStream()
                 while (total < buffer.size) {
@@ -307,10 +315,21 @@ object MediaCaptureDetector {
         return String(bytes, offset, length, Charsets.US_ASCII)
     }
 
-    private fun isHlsPlaylist(bytes: ByteArray): Boolean {
+    private fun textStart(bytes: ByteArray): Int {
         val hasBom = bytes.size >= 3 &&
             bytes[0] == 0xEF.toByte() && bytes[1] == 0xBB.toByte() && bytes[2] == 0xBF.toByte()
-        return asciiAt(bytes, if (hasBom) 3 else 0, 7) == "#EXTM3U"
+        var index = if (hasBom) 3 else 0
+        while (index < bytes.size && bytes[index].toInt().toChar().isWhitespace()) index++
+        return index
+    }
+
+    private fun isHlsPlaylist(bytes: ByteArray): Boolean =
+        asciiAt(bytes, textStart(bytes), 7) == "#EXTM3U"
+
+    private fun isDashManifest(bytes: ByteArray): Boolean {
+        val start = textStart(bytes)
+        if (start >= bytes.size || bytes[start] != '<'.code.toByte()) return false
+        return String(bytes, start, bytes.size - start, Charsets.ISO_8859_1).contains("<MPD")
     }
 
     private fun kindAndFormatFromMagicBytes(bytes: ByteArray): Pair<MediaKind, String>? {
@@ -348,15 +367,16 @@ object MediaCaptureDetector {
         label: String? = null,
         language: String? = null
     ) {
+        val generation = MediaCaptureStore.beginGeneration(tabId)
         ClintDownloadManager.applicationScope.launch {
-            val generation = MediaCaptureStore.beginGeneration(tabId)
             val head = performProbe(url, headers, pageUrl)
+            if (MediaCaptureStore.generation(tabId) != generation) return@launch
             val contentType = head?.contentType?.substringBefore(';')?.trim()?.lowercase()
             when {
-                contentType != null && (contentType.contains("mpegurl") || contentType.contains("x-mpegurl")) ->
-                    fetchAndParseManifest(tabId, pageUrl, url, ManifestType.HLS, headers)
+                contentType != null && contentType.contains("mpegurl") ->
+                    fetchAndParseManifest(tabId, pageUrl, url, ManifestType.HLS, headers, generation)
                 contentType == "application/dash+xml" ->
-                    fetchAndParseManifest(tabId, pageUrl, url, ManifestType.DASH, headers)
+                    fetchAndParseManifest(tabId, pageUrl, url, ManifestType.DASH, headers, generation)
                 else -> {
                     if (extKind == null && contentType != null && contentType in TRANSPORT_STREAM_CONTENT_TYPES) return@launch
                     val cdExt = extensionFromContentDisposition(head?.contentDisposition)
@@ -365,7 +385,11 @@ object MediaCaptureDetector {
                     if (kind == null) {
                         val leading = sniffLeadingBytes(url, headers, pageUrl)
                         if (leading != null && isHlsPlaylist(leading)) {
-                            fetchAndParseManifest(tabId, pageUrl, url, ManifestType.HLS, headers)
+                            fetchAndParseManifest(tabId, pageUrl, url, ManifestType.HLS, headers, generation)
+                            return@launch
+                        }
+                        if (leading != null && isDashManifest(leading)) {
+                            fetchAndParseManifest(tabId, pageUrl, url, ManifestType.DASH, headers, generation)
                             return@launch
                         }
                         val magic = leading?.let(::kindAndFormatFromMagicBytes)
@@ -388,7 +412,7 @@ object MediaCaptureDetector {
                         mimeType = head?.contentType,
                         label = label,
                         language = language,
-                        sizeBytes = head?.contentLength,
+                        sizeBytes = size,
                         pageUrl = pageUrl,
                         detectedAtMillis = System.currentTimeMillis(),
                         requestHeaders = sanitizeHeaders(headers)
@@ -434,10 +458,11 @@ object MediaCaptureDetector {
         pageUrl: String,
         manifestUrl: String,
         type: ManifestType,
-        headers: Map<String, String>?
+        headers: Map<String, String>?,
+        generation: Int = MediaCaptureStore.beginGeneration(tabId)
     ) {
         ClintDownloadManager.applicationScope.launch {
-            val generation = MediaCaptureStore.beginGeneration(tabId)
+            if (MediaCaptureStore.generation(tabId) != generation) return@launch
             val text = requestManifestBody(manifestUrl, headers, pageUrl, useRange = true)
                 ?: requestManifestBody(manifestUrl, headers, pageUrl, useRange = false)
                 ?: return@launch

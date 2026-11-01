@@ -24,6 +24,6 @@ internal fun MainActivity.dismissWebsiteBlockedOverlay() {
     if (tab.webView.canGoBack()) {
         tab.webView.goBack()
     } else {
-        tab.webView.loadUrl(getHomepageUrl())
+        tab.webView.loadUrl(getHomepageUrl(tab.isIncognito))
     }
 }

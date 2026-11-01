@@ -1,6 +1,6 @@
 # Terms of Service for Clint Browser
 
-*Last updated: October 27, 2026*
+*Last updated: November 1, 2026*
 
 ## 1. What These Terms Cover
 
@@ -15,10 +15,11 @@ Clint Browser is a **free, open‑source Android browser** built around privacy.
 - No backend servers, everything runs on your device.
 - Block ads and trackers with Quiver Guard.
 - Block entire categories of sites at the domain level with Website Blocker.
+- Download files and folders from MEGA links.
 - Set your own search engine and search suggestions provider, including fully custom ones you point at any URL.
 - Run your own user scripts to customize how pages behave.
 - Translate pages on your device with Page Translation.
-- Incognito sessions are completely isolated..
+- Incognito sessions are completely isolated.
 - You can view, modify, or share the source code under the GPL‑v3 license.
 
 Your browsing data belongs to you. The developer never sees it.
@@ -71,13 +72,19 @@ Media Capture works by inspecting webpage content and network requests, and by i
 
 You are responsible for making sure your use of Media Capture, including any content you download with it, complies with the terms of the websites you visit and any applicable copyright or other laws.
 
-## 9. Page Translation
+Media Capture can't save YouTube videos. On YouTube pages it can send the page link to YTDLnis, a separate app made by someone else. The developer of Clint Browser doesn't make, control, or support YTDLnis, and your use of it is covered by its own terms.
+
+## 9. MEGA Downloads
+
+Clint Browser can download files and folders from MEGA links. MEGA is a separate service, and Clint Browser isn't affiliated with it. Using MEGA links also means following MEGA's own terms. The developer doesn't control MEGA's servers and doesn't guarantee that MEGA downloads will always work, for example if MEGA changes how its service works or limits how much you can download. You are responsible for making sure you have the right to download what you get from MEGA.
+
+## 10. Page Translation
 
 Clint Browser can translate web pages using Firefox's translation engine, which runs on your device. The language files it needs are downloaded from Mozilla, a third party the developer doesn't control.
 
 Translations are produced automatically by machine translation and **can be inaccurate, incomplete, or misleading**. They may change the meaning of the original text. Don't rely on a translation for anything important, such as legal, medical, financial, or safety information, without checking the original page. The developer is not responsible for errors in translations or for any decisions you make based on them.
 
-## 10. No Warranty
+## 11. No Warranty
 
 Clint Browser is provided **"as is"** and **"as available"**. To the maximum extent permitted by law, the developer disclaims all warranties, express or implied, including:
 
@@ -88,20 +95,20 @@ Clint Browser is provided **"as is"** and **"as available"**. To the maximum ext
 
 You use the app entirely at your own risk.
 
-## 11. Limitation of Liability
+## 12. Limitation of Liability
 
 In no event shall the developer be liable for any damages arising from your use of Clint Browser, including but not limited to:
 
 - Data loss or corruption
 - Device damage
 - Security breaches caused by websites you visit
-- Issues with third‑party services (such as search engines, search suggestions providers, user script sources, or translation file downloads)
+- Issues with third‑party services or apps (such as search engines, search suggestions providers, user script sources, translation file downloads, MEGA, or YTDLnis)
 - Inaccurate machine translations
 - Any indirect, incidental, or consequential damages
 
 Some jurisdictions do not allow certain liability exclusions. In those cases, this limitation applies to the fullest extent permitted by law.
 
-## 12. Third‑Party Content
+## 13. Third‑Party Content
 
 Clint Browser is a **browser**, it renders content from websites, search engines, and online services that are completely outside the developer's control. We do not:
 
@@ -110,15 +117,15 @@ Clint Browser is a **browser**, it renders content from websites, search engines
 
 You are responsible for your own browsing choices.
 
-## 13. Changes to These Terms
+## 14. Changes to These Terms
 
 These Terms may be updated occasionally. Changes will be posted on the GitHub repository. The app will always link to the latest version. If you continue using Clint Browser after an update, you accept the new Terms.
 
-## 14. Governing Law
+## 15. Governing Law
 
 These Terms are governed by the laws of the Philippines. If you live elsewhere, your local consumer rights may also apply.
 
-## 15. Contact
+## 16. Contact
 
 For questions or permission requests:
 

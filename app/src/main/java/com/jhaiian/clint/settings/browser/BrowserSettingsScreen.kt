@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material.icons.filled.AutoDelete
 import com.jhaiian.clint.tabs.InactiveTabsPolicy
+import androidx.compose.material.icons.filled.BrightnessHigh
 import androidx.compose.material.icons.filled.Gradient
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Bookmark
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.automirrored.filled.AddToHomeScreen
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.VerticalAlignCenter
 import androidx.compose.material.icons.filled.VisibilityOff
 
@@ -51,11 +53,16 @@ fun BrowserSettingsScreen(
     onHomepageShowQuickActionsClicked: () -> Unit,
     onHomepageShowRecentClicked: () -> Unit,
     onHomepageCenterContentClicked: () -> Unit,
+    onHomepageImageFullBrightnessClicked: () -> Unit,
     onDeleteInactiveTabsConfirmed: (String) -> Unit,
     onSearchEngineConfirmed: (String) -> Unit,
     onCustomSearchEngineSaved: (name: String, url: String) -> Unit,
     onSearchSuggestionsApiConfirmed: (String) -> Unit,
     onCustomSearchSuggestionsApiSaved: (name: String, url: String) -> Unit,
+    onIncognitoSearchEngineConfirmed: (String) -> Unit,
+    onIncognitoCustomSearchEngineSaved: (name: String, url: String) -> Unit,
+    onIncognitoSearchSuggestionsApiConfirmed: (String) -> Unit,
+    onIncognitoCustomSearchSuggestionsApiSaved: (name: String, url: String) -> Unit,
     onSuggestionsShowHistoryClicked: () -> Unit,
     onSuggestionsShowBookmarksClicked: () -> Unit,
     onJavascriptRowClicked: () -> Unit,
@@ -65,6 +72,7 @@ fun BrowserSettingsScreen(
     onQuiverGuardRowClicked: () -> Unit,
     onIncognitoSearchHistoryRowClicked: () -> Unit,
     onUserScriptsRowClicked: () -> Unit,
+    onRememberBrowsingModeRowClicked: () -> Unit,
     onProfilesRowClicked: () -> Unit,
     onCustomSelectMenusRowClicked: () -> Unit,
     onCustomJsDialogsRowClicked: () -> Unit,
@@ -124,6 +132,32 @@ fun BrowserSettingsScreen(
                     onConfirm = onSearchSuggestionsApiConfirmed,
                     onCustomSearchSuggestionsApiSaved = onCustomSearchSuggestionsApiSaved,
                     onDismiss = { state.searchSuggestionsApiDialogOpen = false }
+                )
+            }
+            if (state.incognitoSearchEngineDialogOpen) {
+                SearchEngineDialog(
+                    current = state.incognitoSearchEngine,
+                    customName = state.incognitoCustomSearchEngineName,
+                    customUrl = state.incognitoCustomSearchEngineUrl,
+                    hideStatusBar = state.hideStatusBar, hideSystemNavigation = state.hideSystemNavigation,
+                    onConfirm = onIncognitoSearchEngineConfirmed,
+                    onCustomSearchEngineSaved = onIncognitoCustomSearchEngineSaved,
+                    onDismiss = { state.incognitoSearchEngineDialogOpen = false },
+                    titleRes = R.string.incognito_search_engine_title,
+                    showSameAsNormal = true
+                )
+            }
+            if (state.incognitoSearchSuggestionsApiDialogOpen) {
+                SearchSuggestionsApiDialog(
+                    current = state.incognitoSearchSuggestionsApi,
+                    customName = state.incognitoCustomSearchSuggestionsApiName,
+                    customUrl = state.incognitoCustomSearchSuggestionsApiUrl,
+                    hideStatusBar = state.hideStatusBar, hideSystemNavigation = state.hideSystemNavigation,
+                    onConfirm = onIncognitoSearchSuggestionsApiConfirmed,
+                    onCustomSearchSuggestionsApiSaved = onIncognitoCustomSearchSuggestionsApiSaved,
+                    onDismiss = { state.incognitoSearchSuggestionsApiDialogOpen = false },
+                    titleRes = R.string.incognito_search_suggestions_api_title,
+                    showSameAsNormal = true
                 )
             }
         }
@@ -191,6 +225,17 @@ fun BrowserSettingsScreen(
                     colors = colors,
                     enabled = homepageOptionsEnabled,
                     onClick = { if (homepageOptionsEnabled) onHomepageImageRowClicked() }
+                )
+                SettingsRow(
+                    icon = androidx.compose.material.icons.Icons.Filled.BrightnessHigh,
+                    title = stringResource(R.string.homepage_image_full_brightness_title),
+                    summary = stringResource(R.string.homepage_image_full_brightness_summary),
+                    colors = colors,
+                    enabled = homepageOptionsEnabled,
+                    onClick = { if (homepageOptionsEnabled) onHomepageImageFullBrightnessClicked() },
+                    trailing = {
+                        ClintSwitch(checked = state.homepageImageFullBrightness && homepageOptionsEnabled)
+                    }
                 )
             }
             SettingsRow(
@@ -327,6 +372,31 @@ fun BrowserSettingsScreen(
         SettingsSectionLabel(stringResource(R.string.pref_category_incognito))
         SettingsSection(colors.cardBackground) {
             SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.Search,
+                title = stringResource(R.string.incognito_search_engine_title),
+                summary = if (state.incognitoSearchEngine == com.jhaiian.clint.browser.SameAsNormalMode) {
+                    stringResource(R.string.search_same_as_normal_summary, engineSummaryText(state.searchEngine, state.customSearchEngineName))
+                } else {
+                    engineSummaryText(state.incognitoSearchEngine, state.incognitoCustomSearchEngineName)
+                },
+                colors = colors,
+                onClick = { state.incognitoSearchEngineDialogOpen = true }
+            )
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.AutoMirrored.Filled.ManageSearch,
+                title = stringResource(R.string.incognito_search_suggestions_api_title),
+                summary = when (state.incognitoSearchSuggestionsApi) {
+                    com.jhaiian.clint.browser.SameAsNormalMode -> stringResource(
+                        R.string.search_same_as_normal_summary,
+                        if (state.searchSuggestionsApi == "off") stringResource(R.string.suggestions_api_off) else engineSummaryText(state.searchSuggestionsApi, state.customSearchSuggestionsApiName)
+                    )
+                    "off" -> stringResource(R.string.suggestions_api_off)
+                    else -> engineSummaryText(state.incognitoSearchSuggestionsApi, state.incognitoCustomSearchSuggestionsApiName)
+                },
+                colors = colors,
+                onClick = { state.incognitoSearchSuggestionsApiDialogOpen = true }
+            )
+            SettingsRow(
                 icon = androidx.compose.material.icons.Icons.Filled.VisibilityOff,
                 title = stringResource(R.string.incognito_search_history_title),
                 summary = stringResource(R.string.incognito_search_history_summary),
@@ -334,6 +404,16 @@ fun BrowserSettingsScreen(
                 onClick = onIncognitoSearchHistoryRowClicked,
                 trailing = {
                     ClintSwitch(checked = state.incognitoSearchHistory)
+                }
+            )
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.Restore,
+                title = stringResource(R.string.remember_browsing_mode_title),
+                summary = stringResource(R.string.remember_browsing_mode_summary),
+                colors = colors,
+                onClick = onRememberBrowsingModeRowClicked,
+                trailing = {
+                    ClintSwitch(checked = state.rememberBrowsingMode)
                 }
             )
         }

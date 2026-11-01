@@ -121,6 +121,18 @@
     <string name="incognito_search_history_title">गुप्त मोड में सर्च इतिहास दिखाएं</string>
     <string name="incognito_search_history_summary">गुप्त मोड में ब्राउज़ करते समय सेव किए गए सर्च इतिहास को सुझावों में शामिल करें</string>
     <string name="privacy_settings_summary">कुकी, ट्रैकिंग से सुरक्षा, सिर्फ़ HTTPS, ऐप लॉक और ऑटोफ़िल</string>
+    <string name="remember_browsing_mode_title">ब्राउज़िंग मोड याद रखें</string>
+    <string name="remember_browsing_mode_summary">Clint को उसी मोड में दोबारा खोलें जो आपने आखिरी बार इस्तेमाल किया था, चाहे गुप्त हो या सामान्य</string>
+    <string name="incognito_notification_channel_name">गुप्त टैब</string>
+    <string name="incognito_notification_channel_desc">गुप्त टैब खुले रहने पर दिखता है, ताकि आप एक टैप में सभी को बंद कर सकें</string>
+    <string name="incognito_notification_title">गुप्त टैब खुले हैं</string>
+    <string name="incognito_notification_text">सभी गुप्त टैब बंद करने के लिए टैप करें</string>
+    <string name="incognito_search_engine_title">गुप्त मोड का सर्च इंजन</string>
+    <string name="incognito_search_suggestions_api_title">गुप्त मोड के सर्च सुझाव</string>
+    <string name="search_same_as_normal">सामान्य मोड जैसा</string>
+    <string name="search_same_as_normal_summary">सामान्य मोड जैसा (%1$s)</string>
+    <string name="search_engine_same_as_normal_desc">सामान्य ब्राउज़िंग के लिए चुना गया सर्च इंजन इस्तेमाल करें</string>
+    <string name="suggestions_api_same_as_normal_desc">सामान्य ब्राउज़िंग के लिए चुना गया सुझाव देने वाला इस्तेमाल करें</string>
     <string name="javascript_enabled">JavaScript चालू करें</string>
     <string name="javascript_enabled_summary">वेबसाइटों को JavaScript चलाने दें</string>
     <string name="background_playback_title">बैकग्राउंड में चलाएं</string>
@@ -344,6 +356,11 @@
     <string name="download_section_notifications">सूचनाएं</string>
     <string name="download_push_notifications_title">पुश सूचनाएं</string>
     <string name="download_push_notifications_summary">डाउनलोड पूरा होने, फ़ेल होने या फिर से कोशिश शुरू होने पर सूचना पाएं</string>
+    <string name="download_section_history">हिस्ट्री</string>
+    <string name="download_history_normal_title">डाउनलोड हिस्ट्री सेव करें</string>
+    <string name="download_history_normal_summary">पूरे हो चुके डाउनलोड आपकी डाउनलोड सूची में बने रहें. फ़ाइलें हर हाल में रहती हैं</string>
+    <string name="download_history_incognito_title">गुप्त मोड की डाउनलोड हिस्ट्री सेव करें</string>
+    <string name="download_history_incognito_summary">गुप्त टैब से पूरे हुए डाउनलोड आपकी डाउनलोड सूची में बने रहें. फ़ाइलें हर हाल में रहती हैं</string>
     <string name="download_section_general">सामान्य</string>
     <string name="download_section_dialog_ui">डाउनलोड डायलॉग</string>
     <string name="download_dialog_ui_title">इंटरफ़ेस</string>
@@ -351,6 +368,13 @@
     <string name="download_dialog_ui_standard_desc">सेक्शन के शीर्षक और जानकारी के साथ खुला-खुला लेआउट</string>
     <string name="download_dialog_ui_compact">कॉम्पैक्ट</string>
     <string name="download_dialog_ui_compact_desc">छोटे कंट्रोल और कम स्क्रोलिंग वाला कसा हुआ लेआउट</string>
+    <string name="download_duplicate_handling_title">डुप्लिकेट फ़ाइलें</string>
+    <string name="download_duplicate_handling_ask">हर बार पूछें</string>
+    <string name="download_duplicate_handling_ask_desc">जब भी इसी नाम की फ़ाइल पहले से मौजूद हो, तब चुनें कि क्या करना है</string>
+    <string name="download_duplicate_handling_add">एक और कॉपी जोड़ें</string>
+    <string name="download_duplicate_handling_add_desc">अगर पिछला डाउनलोड पूरा हो चुका है, तो दोनों फ़ाइलें रखें, नई फ़ाइल के नाम में एक नंबर जुड़ जाएगा</string>
+    <string name="download_duplicate_handling_overwrite">मौजूदा फ़ाइल की जगह सेव करें</string>
+    <string name="download_duplicate_handling_overwrite_desc">अगर पिछला डाउनलोड पूरा हो चुका है, तो पुरानी फ़ाइल को नए डाउनलोड से बदल दें</string>
     <string name="download_quick_download_title">झटपट डाउनलोड</string>
     <string name="download_quick_download_summary">डाउनलोड डायलॉग छोड़कर, आपकी सामान्य डाउनलोड सेटिंग से तुरंत डाउनलोड शुरू करें</string>
     <string name="download_quick_download_images_title">इमेज झटपट डाउनलोड करें</string>
@@ -544,6 +568,7 @@
     <string name="download_update_link_dialog_size_unverifiable">फ़ाइल के साइज़ की पुष्टि नहीं हो सकी</string>
     <string name="download_update_link_dialog_size_mismatch">फ़ाइल का साइज़ मेल नहीं खाता (%1$s बनाम %2$s बाइट)</string>
     <string name="download_update_link_dialog_not_a_manifest">यह लिंक किसी मान्य स्ट्रीम प्लेलिस्ट का नहीं है</string>
+    <string name="download_update_link_dialog_not_a_file">यह लिंक फ़ाइल की जगह एक वेब पेज खोलता है</string>
     <string name="download_update_link_dialog_positive">अपडेट करें</string>
     <string name="download_menu_redownload">फिर से डाउनलोड करें</string>
     <string name="download_menu_redownload_options">ज़्यादा विकल्पों के साथ फिर से डाउनलोड करें</string>
@@ -589,6 +614,7 @@
     <string name="download_props_label_video_url">वीडियो डाउनलोड लिंक</string>
     <string name="download_props_label_audio_url">ऑडियो डाउनलोड लिंक</string>
     <string name="download_props_label_page">डाउनलोड पेज</string>
+    <string name="download_props_label_referer">Referer हेडर</string>
     <string name="download_props_label_avg_speed">औसत स्पीड</string>
     <string name="download_props_label_active_time">सक्रिय समय</string>
     <string name="download_props_label_segments">डाउनलोड हुए सेगमेंट</string>
@@ -665,6 +691,7 @@
     <string name="voice_search_not_available">इस डिवाइस पर बोलकर खोजने की सुविधा उपलब्ध नहीं है</string>
 
     <string name="toast_downloading">%1$s डाउनलोड हो रहा है</string>
+    <string name="download_added_paused">%1$s को डाउनलोड में रोककर जोड़ा गया</string>
     <string name="download_started_view_action">देखें</string>
 
     <string name="install_apk_dialog_title">APK इंस्टॉल करें</string>
@@ -1435,6 +1462,7 @@
     <string name="tab_menu_search_no_results">आपकी खोज से कोई टैब मेल नहीं खाता</string>
     <string name="tab_menu_list_view">सूची के रूप में दिखाएं</string>
     <string name="tab_menu_buttons_at_bottom">बटन नीचे रखें</string>
+    <string name="tab_menu_tabs_at_bottom">टैब नीचे से शुरू करें</string>
     <string name="tab_menu_close_duplicates">डुप्लिकेट टैब बंद करें</string>
     <plurals name="tab_menu_closed_duplicates">
         <item quantity="one">%1$d डुप्लिकेट टैब बंद किया गया</item>
@@ -1926,6 +1954,9 @@
     <string name="media_capture_scanning">इस पेज पर मीडिया ढूंढा जा रहा है…</string>
     <string name="media_capture_close">बंद करें</string>
     <string name="media_capture_empty_state">इस पेज पर अभी तक कोई मीडिया नहीं मिला। इसे यहां दिखाने के लिए कोई वीडियो या ऑडियो चलाएं।</string>
+    <string name="media_capture_youtube_title">YouTube वीडियो कैप्चर नहीं किए जा सकते</string>
+    <string name="media_capture_youtube_message">YouTube अपने वीडियो को सुरक्षित टुकड़ों में बांटकर चलाता है, जिन्हें Media Capture सेव नहीं कर सकता। इन्हें डाउनलोड करने के लिए YTDLnis इंस्टॉल करें, फिर Media Capture YouTube वीडियो सीधे उसी में भेज देगा।</string>
+    <string name="media_capture_youtube_get_ytdlnis">YTDLnis पाएं</string>
     <string name="media_capture_section_video">वीडियो</string>
     <string name="media_capture_section_audio">ऑडियो</string>
     <string name="media_capture_section_subtitles">सबटाइटल</string>
@@ -1987,6 +2018,8 @@
     <string name="homepage_design_image_desc">अपनी फ़ोटो इस्तेमाल करें, जिसे हल्का किया जाता है ताकि सब कुछ आसानी से पढ़ा जा सके</string>
     <string name="homepage_image_title">होमपेज इमेज</string>
     <string name="homepage_image_summary">कोई दूसरी फ़ोटो चुनने के लिए टैप करें</string>
+    <string name="homepage_image_full_brightness_title">इमेज पूरी चमक में</string>
+    <string name="homepage_image_full_brightness_summary">अपनी फ़ोटो बिना धुंधली परत के, जैसी है वैसी ही दिखाएँ</string>
     <string name="homepage_show_favorites_title">पसंदीदा दिखाएं</string>
     <string name="homepage_show_favorites_summary">Clint Browser के होमपेज पर आपकी पिन की गई साइटें और फ़ोल्डर दिखाएं</string>
     <string name="homepage_show_quick_actions_title">झटपट कार्रवाइयां दिखाएं</string>
@@ -2287,4 +2320,43 @@
         <item quantity="one">%d साइट</item>
         <item quantity="other">%d साइटें</item>
     </plurals>
+    <string name="download_detect_mega_title">MEGA लिंक पहचानें</string>
+    <string name="download_detect_mega_summary">MEGA फ़ाइल या फ़ोल्डर का लिंक खोलने पर फ़ाइलें डाउनलोड करने का विकल्प दिखाएं</string>
+    <string name="mega_dialog_title_file">MEGA फ़ाइल</string>
+    <string name="mega_dialog_title_folder">MEGA फ़ोल्डर</string>
+    <string name="mega_dialog_loading">MEGA लिंक पढ़ा जा रहा है…</string>
+    <string name="mega_folder_selected_count">चुनी गई फ़ाइलें: %2$d में से %1$d</string>
+    <string name="mega_folder_selected_size">साइज़: %2$s में से %1$s</string>
+    <string name="mega_select_all">सभी चुनें</string>
+    <string name="mega_keep_structure_title">फ़ोल्डर का ढांचा बनाए रखें</string>
+    <string name="mega_keep_structure_summary">फ़ाइलों को उन्हीं फ़ोल्डर में सेव करें जिनमें वे MEGA पर हैं</string>
+    <string name="mega_skip_existing_title">पहले से जोड़ी गई फ़ाइलें छोड़ें</string>
+    <string name="mega_skip_existing_summary">जो फ़ाइलें पहले से डाउनलोड सूची में हैं, उन्हें शामिल न करें</string>
+    <string name="mega_folder_empty">इस फ़ोल्डर में कोई फ़ाइल नहीं है</string>
+    <string name="mega_all_skipped">चुनी गई सभी फ़ाइलें पहले से आपके डाउनलोड में हैं</string>
+    <string name="mega_action_try_again">फिर से कोशिश करें</string>
+    <string name="mega_error_not_found">यह MEGA फ़ाइल या फ़ोल्डर अब मौजूद नहीं है</string>
+    <string name="mega_error_blocked">MEGA ने इस लिंक का ऐक्सेस ब्लॉक कर दिया है</string>
+    <string name="mega_error_quota">फ़िलहाल MEGA की ट्रांसफ़र सीमा पूरी हो गई है. बाद में फिर से कोशिश करें.</string>
+    <string name="mega_error_invalid_key">इस लिंक में डिक्रिप्शन कुंजी गलत या अधूरी है</string>
+    <string name="mega_error_unsupported">Clint अभी यह MEGA फ़ाइल डाउनलोड नहीं कर सकता</string>
+    <string name="mega_error_busy">MEGA अभी व्यस्त है. थोड़ी देर बाद फिर से कोशिश करें.</string>
+    <string name="mega_error_generic">MEGA यह लिंक नहीं खोल सका (गड़बड़ी %d)</string>
+    <string name="mega_error_network">MEGA से कनेक्ट नहीं हो सका. अपना इंटरनेट कनेक्शन देखें और फिर से कोशिश करें.</string>
+    <plurals name="mega_folder_file_count">
+        <item quantity="one">%1$d फ़ाइल · %2$s</item>
+        <item quantity="other">%1$d फ़ाइलें · %2$s</item>
+    </plurals>
+    <plurals name="mega_folder_started">
+        <item quantity="one">%d फ़ाइल डाउनलोड हो रही है</item>
+        <item quantity="other">%d फ़ाइलें डाउनलोड हो रही हैं</item>
+    </plurals>
+    <plurals name="mega_folder_added_paused">
+        <item quantity="one">%d फ़ाइल डाउनलोड में रोककर जोड़ी गई</item>
+        <item quantity="other">%d फ़ाइलें डाउनलोड में रोककर जोड़ी गईं</item>
+    </plurals>
+    <string name="address_bar_copy_link">पेज का लिंक कॉपी करें</string>
+    <string name="address_bar_link_copied">पेज का लिंक कॉपी हो गया</string>
+    <string name="address_bar_paste">पेस्ट करें</string>
+    <string name="address_bar_paste_and_go">पेस्ट करके खोलें</string>
 </resources>

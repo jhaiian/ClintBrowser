@@ -27,7 +27,7 @@ internal fun MainActivity.syncFramelessShortcuts() {
             tabManager.switchTo(target)
             attachActiveWebView()
         } else {
-            openNewTab(isIncognito = false, url = getHomepageUrl())
+            openNewTab(isIncognito = false, url = getHomepageUrl(false))
         }
     }
     updateTabCount()
@@ -93,7 +93,7 @@ internal fun MainActivity.openOrResumeShortcutTab(shortcutId: String, fallbackUr
         attachActiveWebView()
         return
     }
-    val url = record?.url ?: fallbackUrl ?: getHomepageUrl()
+    val url = record?.url ?: fallbackUrl ?: getHomepageUrl(false)
     val previousTabId = tabManager.activeTab?.id
     openNewTab(isIncognito = false, url = url, shortcutId = shortcutId, previousTabId = previousTabId, profileId = shortcutProfile)
     val name = record?.name
@@ -115,7 +115,7 @@ internal fun MainActivity.exitShortcutFramelessToNormal() {
         tabManager.switchTo(targetIndex)
         attachActiveWebView()
     } else {
-        openNewTab(isIncognito = false, url = getHomepageUrl())
+        openNewTab(isIncognito = false, url = getHomepageUrl(false))
     }
 }
 
