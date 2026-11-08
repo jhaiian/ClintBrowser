@@ -150,7 +150,6 @@ fun BackupRestorePane(activity: SettingsActivity) {
     val okLabel = stringResource(R.string.backup_generic_ok)
     val cancelLabel = stringResource(R.string.action_cancel)
     val authTitle = stringResource(R.string.backup_auth_title)
-    val authSubtitleBackup = stringResource(R.string.backup_auth_subtitle_backup)
     val authSubtitleRestore = stringResource(R.string.backup_auth_subtitle_restore)
     val authUnavailableTitle = stringResource(R.string.backup_auth_unavailable_title)
     val authUnavailableMessage = stringResource(R.string.backup_auth_unavailable_message)
@@ -342,10 +341,10 @@ fun BackupRestorePane(activity: SettingsActivity) {
     }
 
     fun startBackupFlow() {
-        requireAuthThen(authSubtitleBackup) {
-            uiState.resetBackupFlow()
-            uiState.stage.value = BackupRestoreStage.SELECT_BACKUP_CATEGORIES
-        }
+        // Creating a backup deliberately requires no lock-screen authentication, so it
+        // also works on devices without a secure lock screen. Restoring stays protected.
+        uiState.resetBackupFlow()
+        uiState.stage.value = BackupRestoreStage.SELECT_BACKUP_CATEGORIES
     }
 
     fun startRestoreFlow() {
