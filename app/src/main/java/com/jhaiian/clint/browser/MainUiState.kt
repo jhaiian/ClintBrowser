@@ -31,6 +31,11 @@ internal class MainUiState {
     var searchQuery by mutableStateOf("")
     var suggestions by mutableStateOf<List<SuggestionItem>>(emptyList())
 
+    var findBarOpen by mutableStateOf(false)
+    var findQuery by mutableStateOf("")
+    var findMatchOrdinal by mutableIntStateOf(0)
+    var findMatchCount by mutableIntStateOf(0)
+
 
     var pageLoadProgress by mutableIntStateOf(0)
     var isPageLoading by mutableStateOf(false)

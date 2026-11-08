@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.DataSaverOn
 import androidx.compose.material.icons.filled.DesktopWindows
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Shield
@@ -40,6 +41,7 @@ enum class CustomizableMenuItem(val id: String) {
     BOOKMARKS("bookmarks"),
     HISTORY("history"),
     READER_MODE("reader_mode"),
+    FIND_IN_PAGE("find_in_page"),
     TRANSLATE("translate"),
     DESKTOP_MODE("desktop_mode"),
     DATA_SAVER("data_saver"),
@@ -69,6 +71,7 @@ fun CustomizableMenuItem.icon(): ImageVector = when (this) {
     CustomizableMenuItem.BOOKMARKS -> Icons.Filled.BookmarkBorder
     CustomizableMenuItem.HISTORY -> Icons.Filled.History
     CustomizableMenuItem.READER_MODE -> Icons.AutoMirrored.Filled.ChromeReaderMode
+    CustomizableMenuItem.FIND_IN_PAGE -> Icons.Filled.Search
     CustomizableMenuItem.TRANSLATE -> Icons.Filled.Translate
     CustomizableMenuItem.DESKTOP_MODE -> Icons.Filled.DesktopWindows
     CustomizableMenuItem.DATA_SAVER -> Icons.Filled.DataSaverOn
@@ -93,6 +96,7 @@ fun CustomizableMenuItem.titleRes(): Int = when (this) {
     CustomizableMenuItem.BOOKMARKS -> R.string.menu_bookmarks
     CustomizableMenuItem.HISTORY -> R.string.menu_history
     CustomizableMenuItem.READER_MODE -> R.string.reader_mode
+    CustomizableMenuItem.FIND_IN_PAGE -> R.string.menu_find_in_page
     CustomizableMenuItem.TRANSLATE -> R.string.translation_menu_translate
     CustomizableMenuItem.DESKTOP_MODE -> R.string.desktop_mode
     CustomizableMenuItem.DATA_SAVER -> R.string.menu_data_saver

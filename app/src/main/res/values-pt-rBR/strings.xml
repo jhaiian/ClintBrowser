@@ -503,6 +503,11 @@
     <string name="menu_bookmarks">Favoritos</string>
     <string name="menu_history">Histórico</string>
     <string name="reader_mode">Modo de leitura</string>
+    <string name="menu_find_in_page">Localizar na página</string>
+    <string name="find_in_page_hint">Localizar na página</string>
+    <string name="find_previous_match">Correspondência anterior</string>
+    <string name="find_next_match">Próxima correspondência</string>
+    <string name="find_match_count_desc">Correspondência %1$d de %2$d</string>
 
     <string name="action_ok">OK</string>
     <string name="action_add">Adicionar</string>

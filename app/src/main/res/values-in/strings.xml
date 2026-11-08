@@ -500,6 +500,11 @@
     <string name="menu_bookmarks">Bookmark</string>
     <string name="menu_history">Histori</string>
     <string name="reader_mode">Mode Baca</string>
+    <string name="menu_find_in_page">Temukan di halaman</string>
+    <string name="find_in_page_hint">Temukan di halaman</string>
+    <string name="find_previous_match">Kecocokan sebelumnya</string>
+    <string name="find_next_match">Kecocokan berikutnya</string>
+    <string name="find_match_count_desc">Kecocokan %1$d dari %2$d</string>
 
     <string name="action_ok">OK</string>
     <string name="action_add">Tambah</string>

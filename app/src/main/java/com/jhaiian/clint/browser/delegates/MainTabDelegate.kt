@@ -403,6 +403,7 @@ internal fun MainActivity.attachActiveWebView() {
     uiState.isPageLoading = tab.webView.progress < 100
     updateNavigationState()
     updateBookmarkIcon()
+    if (uiState.findBarOpen) refreshFindMatches()
     BlockedRequestCounter.setActiveTab(tab.id)
     if (tab.isIncognito) {
         android.webkit.CookieManager.getInstance().setAcceptCookie(false)

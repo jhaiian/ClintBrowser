@@ -79,6 +79,12 @@ internal fun MainActivity.createWebView(isIncognito: Boolean, profileId: String 
     installBackgroundPlaybackBridge(webView)
     webView.destroyListener = { onBackgroundPlaybackWebViewDestroyed(webView) }
     webView.keepVisibleInBackground = { keepsMediaAlive(webView) }
+    webView.setFindListener { activeMatchOrdinal, numberOfMatches, _ ->
+        if (tabManager.activeTab?.webView === webView && uiState.findBarOpen) {
+            uiState.findMatchOrdinal = activeMatchOrdinal
+            uiState.findMatchCount = numberOfMatches
+        }
+    }
 
     QuiverGuardWebIntegration.attach(this, webView) {
         runCatching { tabManager.tabs.find { it.webView === webView }?.id }.getOrNull()

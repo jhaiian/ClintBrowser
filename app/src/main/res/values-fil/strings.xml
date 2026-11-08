@@ -502,6 +502,11 @@
     <string name="menu_bookmarks">Mga Bookmark</string>
     <string name="menu_history">History</string>
     <string name="reader_mode">Reader Mode</string>
+    <string name="menu_find_in_page">Maghanap sa pahina</string>
+    <string name="find_in_page_hint">Maghanap sa pahina</string>
+    <string name="find_previous_match">Naunang tugma</string>
+    <string name="find_next_match">Susunod na tugma</string>
+    <string name="find_match_count_desc">Tugma %1$d ng %2$d</string>
 
     <string name="action_ok">OK</string>
     <string name="action_add">Idagdag</string>

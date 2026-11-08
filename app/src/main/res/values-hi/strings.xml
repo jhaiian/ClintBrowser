@@ -503,6 +503,11 @@
     <string name="menu_bookmarks">बुकमार्क</string>
     <string name="menu_history">इतिहास</string>
     <string name="reader_mode">रीडर मोड</string>
+    <string name="menu_find_in_page">पेज में खोजें</string>
+    <string name="find_in_page_hint">पेज में खोजें</string>
+    <string name="find_previous_match">पिछला मिलान</string>
+    <string name="find_next_match">अगला मिलान</string>
+    <string name="find_match_count_desc">%2$d में से %1$d मिलान</string>
 
     <string name="action_ok">ठीक है</string>
     <string name="action_add">जोड़ें</string>

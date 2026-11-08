@@ -509,6 +509,11 @@
     <string name="menu_bookmarks">Закладки</string>
     <string name="menu_history">История</string>
     <string name="reader_mode">Режим чтения</string>
+    <string name="menu_find_in_page">Найти на странице</string>
+    <string name="find_in_page_hint">Найти на странице</string>
+    <string name="find_previous_match">Предыдущее совпадение</string>
+    <string name="find_next_match">Следующее совпадение</string>
+    <string name="find_match_count_desc">Совпадение %1$d из %2$d</string>
 
     <string name="action_ok">ОК</string>
     <string name="action_add">Добавить</string>

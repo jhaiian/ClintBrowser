@@ -505,6 +505,11 @@
     <string name="menu_bookmarks">Marcadores</string>
     <string name="menu_history">Historial</string>
     <string name="reader_mode">Modo lectura</string>
+    <string name="menu_find_in_page">Buscar en la página</string>
+    <string name="find_in_page_hint">Buscar en la página</string>
+    <string name="find_previous_match">Coincidencia anterior</string>
+    <string name="find_next_match">Coincidencia siguiente</string>
+    <string name="find_match_count_desc">Coincidencia %1$d de %2$d</string>
 
     <string name="action_ok">Aceptar</string>
     <string name="action_add">Agregar</string>

@@ -128,6 +128,8 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
     private var backPressedOnce = false
     private val backPressHandler = Handler(Looper.getMainLooper())
 
+    internal val findHandler = Handler(Looper.getMainLooper())
+
     internal var pendingFileChooserCallback: android.webkit.ValueCallback<Array<android.net.Uri>>? = null
     internal var pendingFileChooserParams: android.webkit.WebChromeClient.FileChooserParams? = null
     internal var filePathCallback: android.webkit.ValueCallback<Array<android.net.Uri>>? = null
@@ -536,6 +538,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         DataSaverMode.onActiveChanged = null
         teardownTranslations()
         detachBackgroundPlayback()
+        findHandler.removeCallbacksAndMessages(null)
         if (refreshLinkSession != null) {
             cleanupRefreshLinkTabs()
             refreshLinkSession = null
@@ -600,6 +603,10 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
                 }
                 if (fullscreenView != null) {
                     exitFullscreen()
+                    return
+                }
+                if (uiState.findBarOpen) {
+                    closeFindBar()
                     return
                 }
                 if (uiState.searchOverlayOpen) {
@@ -895,6 +902,9 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
     }
     fun onMenuCookiesControl() {
         openCookiesControl()
+    }
+    fun onMenuFindInPage() {
+        openFindBar()
     }
     fun onMenuTranslate() {
         openTranslatePage()

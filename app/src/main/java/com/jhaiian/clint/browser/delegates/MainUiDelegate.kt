@@ -70,6 +70,7 @@ private fun combineSuggestions(
 }
 
 internal fun MainActivity.openSearchOverlay(isBottom: Boolean) {
+    if (uiState.findBarOpen) dismissFindBar()
     uiState.searchOverlayIsBottom = isBottom
     val current = tabManager.activeTab?.webView?.url?.takeUnless { isClintHomeUrl(it) } ?: ""
     uiState.searchOverlayOpen = true
@@ -97,6 +98,7 @@ private fun MainActivity.clipboardText(): String? {
 
 internal fun MainActivity.pasteIntoSearch(isBottom: Boolean) {
     val text = clipboardText() ?: return
+    if (uiState.findBarOpen) dismissFindBar()
     uiState.searchOverlayIsBottom = isBottom
     uiState.searchOverlayOpen = true
     onSearchQueryChanged(text)
@@ -324,6 +326,7 @@ internal fun MainActivity.onPageFinished(url: String) {
     updateAddressBar(url)
     uiState.isPageLoading = false
     updateNavigationState()
+    if (uiState.findBarOpen) refreshFindMatches()
     tabManager.activeTab?.webView?.let { wv ->
         injectScrollTracker(wv)
         injectBottomNavDetector(wv)

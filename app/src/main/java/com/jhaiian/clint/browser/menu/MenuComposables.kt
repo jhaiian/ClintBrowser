@@ -123,6 +123,7 @@ internal data class BrowserMenuSnapshot(
     val canCreateShortcut: Boolean,
     val canUseCookiesControl: Boolean,
     val canTranslatePage: Boolean,
+    val canFindInPage: Boolean,
     val isPageTranslated: Boolean,
     val canToggleTabMute: Boolean,
     val isTabMuted: Boolean,
@@ -166,6 +167,7 @@ internal class BrowserMenuActions(
     val onOpenWebsiteBlockerSettings: () -> Unit,
     val onToggleTabMute: () -> Unit,
     val onCookiesControl: () -> Unit,
+    val onFindInPage: () -> Unit,
     val onTranslate: () -> Unit,
     val onOpenTranslationSettings: () -> Unit
 )
@@ -204,6 +206,7 @@ internal fun MainActivity.buildMenuSnapshot(previous: BrowserMenuSnapshot?): Bro
         canUseCookiesControl = tabManager.activeTab?.isIncognito == false &&
             (currentUrl.startsWith("http://") || currentUrl.startsWith("https://")),
         canTranslatePage = currentUrl.startsWith("http://") || currentUrl.startsWith("https://"),
+        canFindInPage = currentUrl.startsWith("http://") || currentUrl.startsWith("https://"),
         isPageTranslated = (wv as? com.jhaiian.clint.browser.webview.ClintWebView)?.translator?.state?.value?.isRequested == true,
         canToggleTabMute = (wv as? com.jhaiian.clint.browser.webview.ClintWebView)?.audioState?.let { it.audible || it.muted } == true,
         isTabMuted = (wv as? com.jhaiian.clint.browser.webview.ClintWebView)?.audioState?.muted == true,
@@ -275,6 +278,7 @@ internal fun MainActivity.buildMenuActions(dismiss: () -> Unit): BrowserMenuActi
     onOpenWebsiteBlockerSettings = { dismiss(); onMenuOpenWebsiteBlockerSettings() },
     onToggleTabMute = { dismiss(); onMenuToggleTabMute() },
     onCookiesControl = { dismiss(); onMenuCookiesControl() },
+    onFindInPage = { dismiss(); onMenuFindInPage() },
     onTranslate = { dismiss(); onMenuTranslate() },
     onOpenTranslationSettings = { dismiss(); onMenuOpenTranslationSettings() }
 )
@@ -495,6 +499,12 @@ private fun MenuItemRowFor(item: CustomizableMenuItem, snapshot: BrowserMenuSnap
         CustomizableMenuItem.BOOKMARKS -> MenuItemRow(item.icon(), stringResource(item.titleRes()), onClick = actions.onBookmarks)
         CustomizableMenuItem.HISTORY -> MenuItemRow(item.icon(), stringResource(item.titleRes()), onClick = actions.onHistory)
         CustomizableMenuItem.READER_MODE -> MenuItemRow(item.icon(), stringResource(item.titleRes()), onClick = actions.onReaderMode)
+        CustomizableMenuItem.FIND_IN_PAGE -> MenuItemRow(
+            item.icon(),
+            stringResource(item.titleRes()),
+            enabled = snapshot.canFindInPage,
+            onClick = actions.onFindInPage
+        )
         CustomizableMenuItem.TRANSLATE -> MenuItemRow(
             item.icon(),
             stringResource(item.titleRes()),

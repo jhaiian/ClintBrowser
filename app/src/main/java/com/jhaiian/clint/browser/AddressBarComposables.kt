@@ -96,6 +96,11 @@ internal fun AddressBarRow(
     isBottomBar: Boolean = false,
     modifier: Modifier = Modifier
 ) {
+    if (activity.uiState.findBarOpen) {
+        // The find bar takes over the whole row, like the search overlay field.
+        FindInPageBar(activity = activity, modifier = modifier)
+        return
+    }
     val colors = LocalClintColors.current
     val density = LocalDensity.current
     val mediaCaptureCount = if (isMediaCaptureEnabled && activeTabId != null) {
