@@ -1174,6 +1174,8 @@
     <string name="link_open_in_new_tab">Buksan sa bagong tab</string>
     <string name="link_open_new_tab_background">Buksan ang bagong tab sa background</string>
     <string name="link_open_incognito">Buksan sa incognito</string>
+    <string name="link_open_new_incognito_tab">Buksan sa Bagong Incognito Tab</string>
+    <string name="link_open_new_incognito_tab_background">Buksan sa Bagong Incognito Tab sa Background</string>
     <string name="link_preview_page">I-preview ang pahina</string>
     <string name="preview_link_open_in_current_tab">Buksan sa kasalukuyang tab</string>
     <string name="link_copy_address">Kopyahin ang address ng link</string>

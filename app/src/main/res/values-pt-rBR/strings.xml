@@ -1175,6 +1175,8 @@
     <string name="link_open_in_new_tab">Abrir em nova guia</string>
     <string name="link_open_new_tab_background">Abrir nova guia em segundo plano</string>
     <string name="link_open_incognito">Abrir em guia anônima</string>
+    <string name="link_open_new_incognito_tab">Abrir em nova guia anônima</string>
+    <string name="link_open_new_incognito_tab_background">Abrir em nova guia anônima em segundo plano</string>
     <string name="link_preview_page">Visualizar página</string>
     <string name="preview_link_open_in_current_tab">Abrir na guia atual</string>
     <string name="link_copy_address">Copiar endereço do link</string>

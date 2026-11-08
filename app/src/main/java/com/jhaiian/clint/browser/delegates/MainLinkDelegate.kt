@@ -76,6 +76,10 @@ internal fun MainActivity.handleLinkOpenNewTabBackground(url: String) {
     openNewTabInBackground(url)
 }
 
+internal fun MainActivity.handleLinkOpenNewIncognitoTabBackground(url: String) {
+    openNewTabInBackground(url, isIncognito = true)
+}
+
 internal fun MainActivity.handleLinkPreviewPage(url: String) {
     if (uiState.contentPreviewRequest != null) return
     uiState.contentPreviewRequest = ContentPreviewRequest.forPage(url, isDesktopMode)

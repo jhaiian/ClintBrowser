@@ -64,12 +64,19 @@ internal fun PreviewLinkLongPressSheet(request: PreviewLinkLongPressRequest, act
             }
 
             ActionSheetDivider()
-            ActionSheetRow(androidx.compose.material.icons.Icons.AutoMirrored.Filled.OpenInNew, stringResource(R.string.link_open_in_new_tab)) {
-                dismissAnd { activity.onPreviewLinkOpenInNewTab(request.url) }
-            }
-            ActionSheetDivider()
-            ActionSheetRow(androidx.compose.material.icons.Icons.Filled.VisibilityOff, stringResource(R.string.link_open_incognito)) {
-                dismissAnd { activity.onPreviewLinkOpenIncognito(request.url) }
+            if (activity.uiState.isIncognito) {
+                // No normal-tab actions in incognito: never leak the link into a regular tab.
+                ActionSheetRow(androidx.compose.material.icons.Icons.Filled.VisibilityOff, stringResource(R.string.link_open_new_incognito_tab)) {
+                    dismissAnd { activity.onPreviewLinkOpenIncognito(request.url) }
+                }
+            } else {
+                ActionSheetRow(androidx.compose.material.icons.Icons.AutoMirrored.Filled.OpenInNew, stringResource(R.string.link_open_in_new_tab)) {
+                    dismissAnd { activity.onPreviewLinkOpenInNewTab(request.url) }
+                }
+                ActionSheetDivider()
+                ActionSheetRow(androidx.compose.material.icons.Icons.Filled.VisibilityOff, stringResource(R.string.link_open_incognito)) {
+                    dismissAnd { activity.onPreviewLinkOpenIncognito(request.url) }
+                }
             }
             ActionSheetDivider()
             ActionSheetRow(androidx.compose.material.icons.Icons.Filled.Tab, stringResource(R.string.preview_link_open_in_current_tab)) {

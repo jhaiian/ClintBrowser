@@ -1182,6 +1182,8 @@
     <string name="link_open_in_new_tab">Abrir en una nueva pestaña</string>
     <string name="link_open_new_tab_background">Abrir nueva pestaña en segundo plano</string>
     <string name="link_open_incognito">Abrir en incógnito</string>
+    <string name="link_open_new_incognito_tab">Abrir en nueva pestaña de incógnito</string>
+    <string name="link_open_new_incognito_tab_background">Abrir en nueva pestaña de incógnito en segundo plano</string>
     <string name="link_preview_page">Vista previa de la página</string>
     <string name="preview_link_open_in_current_tab">Abrir en la pestaña actual</string>
     <string name="link_copy_address">Copiar dirección del enlace</string>

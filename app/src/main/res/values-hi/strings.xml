@@ -1175,6 +1175,8 @@
     <string name="link_open_in_new_tab">नए टैब में खोलें</string>
     <string name="link_open_new_tab_background">बैकग्राउंड में नया टैब खोलें</string>
     <string name="link_open_incognito">गुप्त टैब में खोलें</string>
+    <string name="link_open_new_incognito_tab">नए गुप्त टैब में खोलें</string>
+    <string name="link_open_new_incognito_tab_background">नए बैकग्राउंड गुप्त टैब में खोलें</string>
     <string name="link_preview_page">पेज की झलक देखें</string>
     <string name="preview_link_open_in_current_tab">इसी टैब में खोलें</string>
     <string name="link_copy_address">लिंक का पता कॉपी करें</string>
