@@ -1330,6 +1330,7 @@ td,th{border:1px solid $secondaryColor;padding:6px 8px;}
     fun onLinkOpenInNewTab(url: String) { handleLinkOpenInNewTab(url) }
     fun onLinkOpenIncognito(url: String) { handleLinkOpenIncognito(url) }
     fun onLinkOpenNewTabBackground(url: String) { handleLinkOpenNewTabBackground(url) }
+    fun onLinkOpenNewIncognitoTabBackground(url: String) { handleLinkOpenNewIncognitoTabBackground(url) }
     fun onLinkPreviewPage(url: String) { handleLinkPreviewPage(url) }
     fun onLinkCopyAddress(url: String) { handleLinkCopyAddress(url) }
     fun onLinkCopyText(url: String, text: String) { handleLinkCopyText(text) }

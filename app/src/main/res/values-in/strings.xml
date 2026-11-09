@@ -1167,6 +1167,8 @@
     <string name="link_open_in_new_tab">Buka di tab baru</string>
     <string name="link_open_new_tab_background">Buka tab baru di latar belakang</string>
     <string name="link_open_incognito">Buka di tab Samaran</string>
+    <string name="link_open_new_incognito_tab">Buka di Tab Samaran Baru</string>
+    <string name="link_open_new_incognito_tab_background">Buka di Tab Samaran Latar Belakang Baru</string>
     <string name="link_preview_page">Pratinjau halaman</string>
     <string name="preview_link_open_in_current_tab">Buka di tab ini</string>
     <string name="link_copy_address">Salin alamat link</string>

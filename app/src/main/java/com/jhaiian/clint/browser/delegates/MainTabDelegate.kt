@@ -236,12 +236,16 @@ internal fun MainActivity.openNewTabSilent(
     }
 }
 
-internal fun MainActivity.openNewTabInBackground(url: String, openerTabId: String? = null) {
+internal fun MainActivity.openNewTabInBackground(url: String, openerTabId: String? = null, isIncognito: Boolean = false) {
     val sourceTab = openerTabId?.let { id -> tabManager.tabs.firstOrNull { it.id == id } } ?: tabManager.activeTab
-    val sourceProfile = sourceTab?.takeIf { !it.isIncognito }?.profileId ?: WebProfiles.DEFAULT_ID
-    val webView = createWebView(false, WebProfiles.resolve(this, sourceProfile))
-    val inheritedGroupId = sourceTab?.takeIf { !it.isIncognito }?.groupId
-    val tab = BrowserTab(url = url, openerTabId = openerTabId, profileId = WebProfiles.profileOf(webView), groupId = inheritedGroupId, webView = webView)
+    val sourceProfile = if (isIncognito) {
+        WebProfiles.DEFAULT_ID
+    } else {
+        sourceTab?.takeIf { !it.isIncognito }?.profileId ?: WebProfiles.DEFAULT_ID
+    }
+    val webView = createWebView(isIncognito, WebProfiles.resolve(this, sourceProfile))
+    val inheritedGroupId = if (isIncognito) null else sourceTab?.takeIf { !it.isIncognito }?.groupId
+    val tab = BrowserTab(isIncognito = isIncognito, url = url, openerTabId = openerTabId, profileId = WebProfiles.profileOf(webView), groupId = inheritedGroupId, webView = webView)
     tabManager.addInBackground(tab)
     if (isDesktopMode) addDesktopScript(tab)
     addAutoplayScript(tab)
@@ -284,7 +288,7 @@ internal fun MainActivity.openNewTabInBackground(url: String, openerTabId: Strin
         onJsDialog = { request -> onJsDialogRequest(request) },
         isFullscreenActive = { uiState.isFullscreen },
         onNewWindowRequest = { newUrl ->
-            showPopupAlertDialog(newUrl, false, tab.id)
+            showPopupAlertDialog(newUrl, tab.isIncognito, tab.id)
         }
     )
     prepareCacheForNavigation(tab, url)

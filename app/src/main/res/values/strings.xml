@@ -1175,6 +1175,8 @@
     <string name="link_open_in_new_tab">Open in new tab</string>
     <string name="link_open_new_tab_background">Open new tab in background</string>
     <string name="link_open_incognito">Open in incognito</string>
+    <string name="link_open_new_incognito_tab">Open in New Incognito Tab</string>
+    <string name="link_open_new_incognito_tab_background">Open in New Background Incognito Tab</string>
     <string name="link_preview_page">Preview page</string>
     <string name="preview_link_open_in_current_tab">Open in current tab</string>
     <string name="link_copy_address">Copy link address</string>
