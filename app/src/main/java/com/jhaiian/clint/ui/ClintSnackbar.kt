@@ -134,6 +134,7 @@ fun <T> T.showClintDestinationSnackbar(
     }
 }
 
+@Suppress("DEPRECATION")
 @Composable
 fun ClintSnackbarHost(hostState: SnackbarHostState) {
     val colors = LocalClintColors.current
@@ -145,57 +146,76 @@ fun ClintSnackbarHost(hostState: SnackbarHostState) {
         contentAlignment = Alignment.BottomCenter
     ) {
         SnackbarHost(hostState) { data ->
-            val visuals = data.visuals
-            if (visuals is ClintDestinationSnackbarVisuals) {
-                Snackbar(
-                    action = {
-                        TextButton(onClick = { data.performAction() }) {
-                            Text(visuals.actionLabel, color = colors.primary, fontWeight = FontWeight.Medium)
+            androidx.compose.runtime.key(data) {
+                val dismissState = androidx.compose.material3.rememberSwipeToDismissBoxState(
+                    confirmValueChange = { value ->
+                        if (value == androidx.compose.material3.SwipeToDismissBoxValue.Settled) {
+                            true
+                        } else {
+                            data.dismiss()
+                            true
                         }
-                    },
-                    shape = RoundedCornerShape(12.dp),
-                    containerColor = colors.popupBackground,
-                    contentColor = colors.popupText
+                    }
+                )
+                androidx.compose.material3.SwipeToDismissBox(
+                    state = dismissState,
+                    backgroundContent = {},
+                    enableDismissFromStartToEnd = true,
+                    enableDismissFromEndToStart = true
                 ) {
-                    Column {
-                        Text(visuals.message, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                        Text(
-                            visuals.destination,
-                            color = colors.primary,
-                            fontSize = 12.sp,
-                            fontFamily = FontFamily.Monospace,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.padding(top = 4.dp)
+                    val visuals = data.visuals
+                    if (visuals is ClintDestinationSnackbarVisuals) {
+                        Snackbar(
+                            action = {
+                                TextButton(onClick = { data.performAction() }) {
+                                    Text(visuals.actionLabel, color = colors.primary, fontWeight = FontWeight.Medium)
+                                }
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            containerColor = colors.popupBackground,
+                            contentColor = colors.popupText
+                        ) {
+                            Column {
+                                Text(visuals.message, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                Text(
+                                    visuals.destination,
+                                    color = colors.primary,
+                                    fontSize = 12.sp,
+                                    fontFamily = FontFamily.Monospace,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
+                        }
+                    } else if (visuals is ClintTwoActionSnackbarVisuals) {
+                        Snackbar(
+                            action = {
+                                Row {
+                                    TextButton(onClick = { data.dismiss(); visuals.onSecondaryAction() }) {
+                                        Text(visuals.secondaryActionLabel, color = colors.primary, fontWeight = FontWeight.Medium)
+                                    }
+                                    TextButton(onClick = { data.performAction() }) {
+                                        Text(visuals.actionLabel, color = colors.primary, fontWeight = FontWeight.Medium)
+                                    }
+                                }
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            containerColor = colors.popupBackground,
+                            contentColor = colors.popupText
+                        ) {
+                            Text(visuals.message, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        }
+                    } else {
+                        Snackbar(
+                            snackbarData = data,
+                            shape = RoundedCornerShape(12.dp),
+                            containerColor = colors.popupBackground,
+                            contentColor = colors.popupText,
+                            actionColor = colors.primary
                         )
                     }
                 }
-            } else if (visuals is ClintTwoActionSnackbarVisuals) {
-                Snackbar(
-                    action = {
-                        Row {
-                            TextButton(onClick = { data.dismiss(); visuals.onSecondaryAction() }) {
-                                Text(visuals.secondaryActionLabel, color = colors.primary, fontWeight = FontWeight.Medium)
-                            }
-                            TextButton(onClick = { data.performAction() }) {
-                                Text(visuals.actionLabel, color = colors.primary, fontWeight = FontWeight.Medium)
-                            }
-                        }
-                    },
-                    shape = RoundedCornerShape(12.dp),
-                    containerColor = colors.popupBackground,
-                    contentColor = colors.popupText
-                ) {
-                    Text(visuals.message, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                }
-            } else {
-                Snackbar(
-                    snackbarData = data,
-                    shape = RoundedCornerShape(12.dp),
-                    containerColor = colors.popupBackground,
-                    contentColor = colors.popupText,
-                    actionColor = colors.primary
-                )
             }
         }
     }
