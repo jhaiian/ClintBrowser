@@ -96,5 +96,7 @@ fun MiscScreen(
                 onClick = onRerunSetupClick
             )
         }
+
+        NetworkRecoverySection()
     }
 }

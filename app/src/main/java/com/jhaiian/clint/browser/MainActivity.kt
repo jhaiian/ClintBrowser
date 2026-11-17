@@ -72,6 +72,8 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
     )
 
     internal var refreshLinkSession: RefreshLinkSession? = null
+    internal var networkSwitchMonitor: com.jhaiian.clint.browser.network.NetworkSwitchMonitor? = null
+    internal var pendingEngineRestart = false
 
     internal val uiState = MainUiState()
 
@@ -343,6 +345,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
             return
         }
         prefs.registerOnSharedPreferenceChangeListener(prefsListener)
+        startNetworkSwitchMonitor()
         ClintDownloadManager.incognitoSource = downloadIncognitoSource
         DataSaverMode.onActiveChanged = { applyDataSaverSettings() }
         attachBackgroundPlayback()
@@ -388,7 +391,8 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         setupSwipeRefresh()
         setupAddressBar()
         applyAddressBarPosition()
-        if (savedInstanceState == null && com.jhaiian.clint.privacy.PrivacyPrefs.closesTabsOnExit(prefs)) discardSavedTabs()
+        val isEngineRestart = intent.getBooleanExtra(com.jhaiian.clint.browser.network.BrowserEngineRestart.EXTRA_ENGINE_RESTART, false)
+        if (savedInstanceState == null && !isEngineRestart && com.jhaiian.clint.privacy.PrivacyPrefs.closesTabsOnExit(prefs)) discardSavedTabs()
         com.jhaiian.clint.privacy.IncognitoNotification.closeTabsHandler = closeIncognitoTabsHandler
         val isRefreshLinkMode = intent.getBooleanExtra(EXTRA_REFRESH_LINK_MODE, false)
         val shortcutId = intent.getStringExtra(EXTRA_SHORTCUT_ID)
@@ -511,6 +515,11 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         if (hasFocus) applySystemUiVisibility()
     }
 
+    override fun onStart() {
+        super.onStart()
+        consumePendingEngineRestart()
+    }
+
     override fun onStop() {
         super.onStop()
         recordBrowsingMode()
@@ -532,6 +541,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
     }
 
     override fun onDestroy() {
+        stopNetworkSwitchMonitor()
         prefs.unregisterOnSharedPreferenceChangeListener(prefsListener)
         DataSaverMode.onActiveChanged = null
         teardownTranslations()

@@ -50,7 +50,7 @@ internal fun MainActivity.closeAllIncognitoTabs() {
     }
 }
 
-internal fun MainActivity.saveTabs() {
+internal fun MainActivity.saveTabs(blocking: Boolean = false) {
     tabManager.touchActive()
     val activeTab = tabManager.activeTab
     val restoreActiveId = if (activeTab != null && tabManager.isGhostTab(activeTab)) {
@@ -78,7 +78,8 @@ internal fun MainActivity.saveTabs() {
         }
     val savedGroupIds = savedTabs.mapNotNull { it.groupId }.toSet()
     val savedGroups = tabManager.groups.filter { !it.isIncognito && it.id in savedGroupIds }
-    Thread { TabSessionManager.save(this, savedTabs, savedGroups) }.start()
+    if (blocking) TabSessionManager.save(this, savedTabs, savedGroups)
+    else Thread { TabSessionManager.save(this, savedTabs, savedGroups) }.start()
     persistAllShortcutTabGroups()
 }
 
