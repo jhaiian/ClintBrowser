@@ -10,6 +10,7 @@ object LocaleHelper {
     const val PREF_APP_LANGUAGE = "app_language"
     const val LANGUAGE_SYSTEM = "system"
     const val LANGUAGE_ENGLISH = "en"
+    const val LANGUAGE_CHINESE_SIMPLIFIED = "zh-CN"
     const val LANGUAGE_FILIPINO = "fil"
     const val LANGUAGE_HINDI = "hi"
     const val LANGUAGE_INDONESIAN = "id"
@@ -20,6 +21,7 @@ object LocaleHelper {
 
     private val SUPPORTED_LANGUAGE_TAGS = listOf(
         LANGUAGE_ENGLISH,
+        LANGUAGE_CHINESE_SIMPLIFIED,
         LANGUAGE_FILIPINO,
         LANGUAGE_HINDI,
         LANGUAGE_INDONESIAN,
@@ -46,6 +48,7 @@ object LocaleHelper {
     private fun supportedSystemLocale(): Locale {
         val system = Resources.getSystem().configuration.locales[0]
         return when (system.language) {
+            "zh" -> Locale.forLanguageTag(LANGUAGE_CHINESE_SIMPLIFIED)
             "tl" -> Locale.forLanguageTag(LANGUAGE_FILIPINO)
             "in", "id" -> Locale.forLanguageTag(LANGUAGE_INDONESIAN)
             "pt" -> Locale.forLanguageTag(LANGUAGE_PORTUGUESE_BRAZIL)

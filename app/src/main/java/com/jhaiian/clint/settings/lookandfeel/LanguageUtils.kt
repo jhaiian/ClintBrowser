@@ -8,6 +8,7 @@ data class LanguageOption(val tag: String, @StringRes val nameRes: Int)
 
 val languageOptions = listOf(
     LanguageOption(LocaleHelper.LANGUAGE_ENGLISH, R.string.language_name_english),
+    LanguageOption(LocaleHelper.LANGUAGE_CHINESE_SIMPLIFIED, R.string.language_name_chinese_simplified),
     LanguageOption(LocaleHelper.LANGUAGE_FILIPINO, R.string.language_name_filipino),
     LanguageOption(LocaleHelper.LANGUAGE_HINDI, R.string.language_name_hindi),
     LanguageOption(LocaleHelper.LANGUAGE_INDONESIAN, R.string.language_name_indonesian),

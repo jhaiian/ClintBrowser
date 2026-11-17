@@ -238,6 +238,7 @@
     <string name="language_system_desc">Susundan ang wika ng device mo; English ang gagamitin kung hindi ito suportado</string>
     <string name="language_base_desc">Orihinal na wika</string>
     <string name="language_name_english">English</string>
+    <string name="language_name_chinese_simplified">简体中文</string>
     <string name="language_name_filipino">Filipino</string>
     <string name="language_name_hindi">हिन्दी</string>
     <string name="language_name_indonesian">Bahasa Indonesia</string>
