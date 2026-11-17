@@ -2382,4 +2382,9 @@
     <string name="address_bar_link_copied">Page link copied</string>
     <string name="address_bar_paste">Paste</string>
     <string name="address_bar_paste_and_go">Paste &amp; Go</string>
+    <string name="network_switch_section">Network</string>
+    <string name="network_switch_recovery_title">Recover after network switch</string>
+    <string name="network_switch_recovery_summary">When the network or VPN changes, silently restart the browser engine so pages reconnect (tabs are restored; skipped while incognito tabs, downloads or background playback are active)</string>
+    <string name="network_switch_restart_title">Restart browser engine</string>
+    <string name="network_switch_restart_summary">Clears stuck connections after switching VPN or network. Open tabs are restored; incognito tabs are closed</string>
 </resources>
