@@ -219,6 +219,7 @@ object ClintDownloadManager {
     fun findItem(id: Int): DownloadItem? = downloadsFlow.value.find { it.id == id } ?: unrecordedItems[id]
 
     internal fun onDownloadCompleted(context: Context, item: DownloadItem) {
+        scanIntoMediaStore(context, item)
         DownloadNotificationHelper.showCompleteNotification(context, item)
         if (recordsHistory(context, item.isIncognito)) return
         DownloadLog.i(item.id, "HISTORY") { "Finished download not kept in the list" }
@@ -227,6 +228,20 @@ object ClintDownloadManager {
         _downloads.update { list -> list.filterNot { it.id == item.id } }
         DownloadLog.deleteItemLog(item.id)
         applicationScope.launch { deletePersistedDownload(item.id) }
+    }
+
+    // Every finished download goes through here (direct HTTP, SAF copy, blob/data: saves and
+    // captured media streams), so index the file once here and galleries / file pickers see it.
+    private fun scanIntoMediaStore(context: Context, item: DownloadItem) {
+        val path = item.file?.absolutePath ?: run {
+            val uri = item.contentUri?.let(android.net.Uri::parse) ?: return
+            if (!android.provider.DocumentsContract.isDocumentUri(context, uri)) return
+            val docId = runCatching { android.provider.DocumentsContract.getDocumentId(uri) }.getOrNull() ?: return
+            val parts = docId.split(":")
+            if (parts.size != 2 || parts[0] != "primary") return
+            java.io.File(android.os.Environment.getExternalStorageDirectory(), parts[1]).absolutePath
+        }
+        runCatching { android.media.MediaScannerConnection.scanFile(context.applicationContext, arrayOf(path), null, null) }
     }
 
     private fun addNew(item: DownloadItem) {

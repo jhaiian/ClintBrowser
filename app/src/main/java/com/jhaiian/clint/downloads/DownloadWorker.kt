@@ -2,10 +2,7 @@ package com.jhaiian.clint.downloads
 
 import android.app.NotificationManager
 import android.content.Context
-import android.media.MediaScannerConnection
 import android.net.Uri
-import android.os.Environment
-import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
 import androidx.preference.PreferenceManager
 import com.jhaiian.clint.R
@@ -102,7 +99,6 @@ internal object DownloadWorker {
         ClintDownloadManager.publish(item)
         ClintDownloadManager.onDownloadCompleted(context, item)
         ClintDownloadManager.tryDequeueNext(context)
-        scanCompletedFile(context, item)
     }
 
     private suspend fun finishDocument(context: Context, downloaded: DownloadItem) {
@@ -123,7 +119,6 @@ internal object DownloadWorker {
         ClintDownloadManager.publish(item)
         ClintDownloadManager.onDownloadCompleted(context, item)
         ClintDownloadManager.tryDequeueNext(context)
-        scanCompletedFile(context, item)
     }
 
     private suspend fun restartFromScratch(context: Context, item: DownloadItem) {
@@ -741,7 +736,6 @@ internal object DownloadWorker {
             ClintDownloadManager.publish(item)
             ClintDownloadManager.onDownloadCompleted(context, item)
             ClintDownloadManager.tryDequeueNext(context)
-            scanCompletedFile(context, item)
         } catch (e: Throwable) {
             if (copied) {
                 runCatching { tempFile.delete() }
@@ -962,18 +956,5 @@ internal object DownloadWorker {
             DownloadNotificationHelper.showFailedNotification(context, item)
             ClintDownloadManager.tryDequeueNext(context)
         }
-    }
-
-    private fun scanCompletedFile(context: Context, item: DownloadItem) {
-        val path = item.file?.absolutePath ?: run {
-            val uriStr = item.contentUri ?: return
-            val uri = android.net.Uri.parse(uriStr)
-            if (!DocumentsContract.isDocumentUri(context, uri)) return
-            val docId = runCatching { DocumentsContract.getDocumentId(uri) }.getOrNull() ?: return
-            val parts = docId.split(":")
-            if (parts.size != 2 || parts[0] != "primary") return
-            File(Environment.getExternalStorageDirectory(), parts[1]).absolutePath
-        }
-        MediaScannerConnection.scanFile(context, arrayOf(path), null, null)
     }
 }
