@@ -1,5 +1,6 @@
 package com.jhaiian.clint.settings.about
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,9 @@ private const val CONTACT_EMAIL_URL = "mailto:jhaiian@proton.me"
 private const val CONTRIBUTORS_URL = "https://github.com/jhaiian/ClintBrowser/blob/main/Contributors.md"
 private const val APACHE_2_LICENSE_URL = "https://www.apache.org/licenses/LICENSE-2.0.txt"
 private const val MARKWON_URL = "https://github.com/noties/Markwon"
+private const val CLINT_GECKO_URL = "https://github.com/jhaiian/ClintGecko"
+private const val KATE_URL = "https://github.com/jhaiian/Kate"
+private const val LUCKY_URL = "https://github.com/jhaiian/Lucky"
 private const val ANDROIDX_URL = "https://developer.android.com/jetpack/androidx"
 private const val MATERIAL_URL = "https://github.com/material-components/material-components-android"
 private const val OKHTTP_URL = "https://github.com/square/okhttp"
@@ -52,6 +56,14 @@ private const val CODEVIEW_URL = "https://github.com/AmrDeveloper/CodeView"
 private const val CODEVIEW_LICENSE_URL = "https://opensource.org/licenses/MIT"
 private const val MEDIA3_URL = "https://developer.android.com/guide/topics/media/media3"
 private const val COLORPICKER_URL = "https://github.com/skydoves/colorpicker-compose"
+
+private class MoreApp(@StringRes val name: Int, @StringRes val summary: Int, val url: String)
+
+private val MoreApps = listOf(
+    MoreApp(R.string.about_app_clint_gecko, R.string.about_app_clint_gecko_summary, CLINT_GECKO_URL),
+    MoreApp(R.string.about_app_kate, R.string.about_app_kate_summary, KATE_URL),
+    MoreApp(R.string.about_app_lucky, R.string.about_app_lucky_summary, LUCKY_URL)
+)
 
 @Composable
 private fun AboutCard(label: String, colors: ClintColors, content: @Composable () -> Unit) {
@@ -259,6 +271,19 @@ fun AboutScreen(
 
         AboutCard(stringResource(R.string.about_section_contact), colors) {
             AboutLinkRow(stringResource(R.string.about_contact_email_label), stringResource(R.string.about_contact_email), colors, { onLinkClick(CONTACT_EMAIL_URL) })
+        }
+
+        AboutCard(stringResource(R.string.about_section_more_apps), colors) {
+            MoreApps.forEachIndexed { index, app ->
+                if (index > 0) AboutThinDivider(colors.surfaceVariant)
+                AboutStandaloneLink(stringResource(app.name), colors) { onLinkClick(app.url) }
+                Text(
+                    stringResource(app.summary),
+                    color = colors.secondaryText,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 4.dp, start = 4.dp, end = 4.dp)
+                )
+            }
         }
 
         AboutCard(stringResource(R.string.about_section_contributors), colors) {

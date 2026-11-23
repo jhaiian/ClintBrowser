@@ -1,8 +1,10 @@
 package com.jhaiian.clint.browser
+import com.jhaiian.clint.browser.network.NetworkSwitchMonitor
 import com.jhaiian.clint.settings.datasaver.DataSaverMode
 import com.jhaiian.clint.browser.home.CLINT_HOME_HOST
 import com.jhaiian.clint.browser.home.isClintHomeUrl
 import com.jhaiian.clint.browser.delegates.*
+import com.jhaiian.clint.browser.find.*
 import com.jhaiian.clint.browser.sheets.*
 import com.jhaiian.clint.browser.suggestions.*
 import com.jhaiian.clint.browser.webview.*
@@ -60,6 +62,8 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         const val EXTRA_REFRESH_LINK_ORIGINAL_REFERER = "extra_refresh_link_original_referer"
         const val EXTRA_REFRESH_LINK_PAGE_URL = "extra_refresh_link_page_url"
         const val EXTRA_SHORTCUT_ID = "extra_shortcut_id"
+        const val EXTRA_ENGINE_RESTART = "extra_engine_restart"
+        const val EXTRA_ENGINE_RESTART_REQUEST = "extra_engine_restart_request"
     }
 
     data class RefreshLinkSession(
@@ -72,8 +76,6 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
     )
 
     internal var refreshLinkSession: RefreshLinkSession? = null
-    internal var networkSwitchMonitor: com.jhaiian.clint.browser.network.NetworkSwitchMonitor? = null
-    internal var pendingEngineRestart = false
 
     internal val uiState = MainUiState()
 
@@ -106,9 +108,16 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
     internal val dataSaverScriptBlockHandlers = mutableMapOf<String, ScriptHandler>()
     internal val userScriptHandlers = mutableMapOf<String, ScriptHandler>()
     internal val backgroundPlaybackScriptHandlers = mutableMapOf<String, ScriptHandler>()
+    internal val videoTakeoverScriptHandlers = mutableMapOf<String, ScriptHandler>()
+    internal var appliedVideoTakeoverKey: String? = null
+    internal var videoPipReceiver: android.content.BroadcastReceiver? = null
+    internal var fullscreenWebView: android.webkit.WebView? = null
     internal val backgroundPlaybackTracker = com.jhaiian.clint.browser.media.BackgroundPlaybackTracker()
     internal var backgroundPlaybackCommandHandler: ((com.jhaiian.clint.browser.media.BackgroundPlayback.Command) -> Unit)? = null
     private var lastUserScriptsDataVersion = 0L
+    private var appliedWebAppearance = ""
+    internal var webThemeSessionFollow: Boolean? = null
+    internal val incognitoWebThemeOverrides = mutableMapOf<String, Boolean>()
     internal val quiverGuardJobs = mutableMapOf<String, kotlinx.coroutines.Job>()
 
     internal var bottomBarAnimator2: android.animation.ValueAnimator? = null
@@ -236,9 +245,11 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
     internal val voiceSearchLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
+        val forFind = uiState.find.voicePending
+        uiState.find.voicePending = false
         if (result.resultCode == android.app.Activity.RESULT_OK) {
             val matches = result.data?.getStringArrayListExtra(android.speech.RecognizerIntent.EXTRA_RESULTS)
-            matches?.firstOrNull()?.takeIf { it.isNotBlank() }?.let { onSearchSubmitted(it) }
+            matches?.firstOrNull()?.takeIf { it.isNotBlank() }?.let { if (forFind) openFind(it.trim()) else onSearchSubmitted(it) }
         }
     }
 
@@ -306,10 +317,15 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
             "quiver_guard_enabled" -> onQuiverGuardEnabled(prefs.getBoolean("quiver_guard_enabled", false))
             com.jhaiian.clint.mediacapture.MEDIA_CAPTURE_ENABLED_PREF -> updateMediaCaptureEnabledState()
             "show_home_button" -> updateHomeButtonState()
+            com.jhaiian.clint.util.PREF_STRIP_URL_SCHEME -> updateStripUrlSchemeState()
             com.jhaiian.clint.tabs.TabGroupPrefs.PREF_SHOW_GROUP_BAR, com.jhaiian.clint.tabs.TabStripPrefs.PREF_SHOW_TAB_STRIP -> updateTabCount()
             com.jhaiian.clint.tabs.TabGroupPrefs.PREF_TAB_GROUPS_ENABLED -> applyTabGroupsSetting()
             com.jhaiian.clint.tabs.TabBarPlacement.PREF_TAB_STRIP_POSITION, com.jhaiian.clint.tabs.TabBarPlacement.PREF_TAB_GROUP_BAR_POSITION -> updateTabBarPositions()
             "user_scripts_enabled" -> applyUserScripts()
+            com.jhaiian.clint.settings.accessibility.AccessibilityPrefs.PREF_AUTO_FONT_SIZE,
+            com.jhaiian.clint.settings.accessibility.AccessibilityPrefs.PREF_FONT_SIZE_PERCENT,
+            com.jhaiian.clint.settings.accessibility.AccessibilityPrefs.PREF_FORCE_ZOOM,
+            com.jhaiian.clint.settings.accessibility.AccessibilityPrefs.PREF_COLOR_FILTER -> applyWebAccessibilityToAllTabs()
             com.jhaiian.clint.translation.PREF_TRANSLATION_SHOW_BUTTON -> onTranslationPrefChanged(key)
             com.jhaiian.clint.browser.media.BackgroundPlayback.PREF_ENABLED -> applyBackgroundPlaybackSetting()
             "data_saver_enabled", "data_saver_metered_only", "data_saver_disable_images", "data_saver_disable_autoplay", "data_saver_send_header", "data_saver_block_fonts", "data_saver_block_frames", "data_saver_block_preload", "data_saver_block_video", "data_saver_block_scripts", "data_saver_block_css" -> applyDataSaverSettings()
@@ -318,12 +334,9 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
                     animateBottomBarTo(0f, animated = false)
                 }
             }
-            "scroll_hide_mode" -> {
-                if (prefs.getString("scroll_hide_mode", "off") == "off") {
-                    animateBottomBarTo(0f, animated = false)
-                }
-            }
+            "scroll_hide_mode", "address_bar_position" -> animateBottomBarTo(0f, animated = false)
         }
+        if (com.jhaiian.clint.browser.toolbar.ToolbarCustomizationStore.isLayoutKey(key)) updateToolbarLayout()
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -339,18 +352,23 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         fullscreenContainerView = FrameLayout(this)
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        tabManager.activeProfileId = com.jhaiian.clint.profiles.ActiveProfile.id(this)
         if (!prefs.getBoolean("setup_complete", false)) {
             startActivity(android.content.Intent(this, com.jhaiian.clint.setup.SetupActivity::class.java))
             finish()
             return
         }
         prefs.registerOnSharedPreferenceChangeListener(prefsListener)
-        startNetworkSwitchMonitor()
+        appliedWebAppearance = com.jhaiian.clint.browser.webview.WebAppearance.signature(prefs)
         ClintDownloadManager.incognitoSource = downloadIncognitoSource
         DataSaverMode.onActiveChanged = { applyDataSaverSettings() }
+        attachNetworkSwitchMonitor()
+        consumeEngineRestartIntent(intent)
         attachBackgroundPlayback()
         updateMediaCaptureEnabledState()
         updateHomeButtonState()
+        updateStripUrlSchemeState()
+        uiState.toolbarLayout = com.jhaiian.clint.browser.toolbar.ToolbarCustomizationStore.read(prefs)
         updateTabBarPositions()
         setupTranslations()
         tabManager.framelessShortcutIds = com.jhaiian.clint.shortcuts.ShortcutStore.framelessIds(this)
@@ -374,6 +392,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         observeQuiverGuardCounter()
         createWebNotificationChannel()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            !prefs.getBoolean(com.jhaiian.clint.setup.SetupActivity.PREF_NOTIFICATIONS_ASKED, false) &&
             ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
                 != android.content.pm.PackageManager.PERMISSION_GRANTED
         ) {
@@ -391,9 +410,10 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         setupSwipeRefresh()
         setupAddressBar()
         applyAddressBarPosition()
-        val isEngineRestart = intent.getBooleanExtra(com.jhaiian.clint.browser.network.BrowserEngineRestart.EXTRA_ENGINE_RESTART, false)
+        val isEngineRestart = intent.getBooleanExtra(EXTRA_ENGINE_RESTART, false)
         if (savedInstanceState == null && !isEngineRestart && com.jhaiian.clint.privacy.PrivacyPrefs.closesTabsOnExit(prefs)) discardSavedTabs()
         com.jhaiian.clint.privacy.IncognitoNotification.closeTabsHandler = closeIncognitoTabsHandler
+        if (savedInstanceState == null && !isEngineRestart) com.jhaiian.clint.profiles.ProfileWiper.purgeTemporary(this, synchronous = true)
         val isRefreshLinkMode = intent.getBooleanExtra(EXTRA_REFRESH_LINK_MODE, false)
         val shortcutId = intent.getStringExtra(EXTRA_SHORTCUT_ID)
         applyShortcutFrameless(shortcutId)
@@ -441,6 +461,10 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
 
     override fun onNewIntent(intent: android.content.Intent) {
         super.onNewIntent(intent)
+        if (consumeEngineRestartIntent(intent)) {
+            setIntent(android.content.Intent())
+            return
+        }
         syncFramelessShortcuts()
         val isRefreshLinkMode = intent.getBooleanExtra(EXTRA_REFRESH_LINK_MODE, false)
         val shortcutId = intent.getStringExtra(EXTRA_SHORTCUT_ID)
@@ -475,13 +499,34 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         }
     }
 
+    private fun recreateIfWebAppearanceChanged(): Boolean {
+        if (!::prefs.isInitialized || isFinishing) return false
+        val current = com.jhaiian.clint.browser.webview.WebAppearance.signature(prefs)
+        if (current == appliedWebAppearance) return false
+        appliedWebAppearance = current
+        window.setWindowAnimations(0)
+        recreate()
+        return true
+    }
+
+    override fun onSystemUiModeChanged() {
+        if (!recreateIfWebAppearanceChanged() && ::prefs.isInitialized) applyWebThemeToAllTabs()
+    }
+
     override fun onResume() {
         super.onResume()
         if (isFinishing) return
+        if (recreateIfWebAppearanceChanged()) return
+        tabManager.activeTab?.let { applyWebTheme(it) }
+        applyWebAccessibilityToAllTabs()
         ClintDownloadManager.resumeTimeoutPaused(this)
         refreshBackgroundPlaybackVisibility()
+        applyVideoTakeoverSettings()
         syncFramelessShortcuts()
+        val storedProfile = com.jhaiian.clint.profiles.ActiveProfile.id(this)
+        if (storedProfile != tabManager.activeProfileId) switchProfile(storedProfile)
         closeInactiveTabs()
+        performPendingEngineRestart()
         if (com.jhaiian.clint.privacy.BrowsingDataCleaner.consumeCloseAllTabsRequest()) {
             val ids = tabManager.previews().map { it.id }
             if (ids.isNotEmpty()) closeTabsWithUndo(ids, resources.getQuantityString(R.plurals.tab_menu_closed_tabs, ids.size, ids.size))
@@ -496,18 +541,13 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         hasWebBottomNav = false
         swipeRefreshView.isEnabled = true
         updateMainContentInsets()
-        uiState.homepageDesign = com.jhaiian.clint.browser.home.readHomepageDesign(this, prefs)
-        uiState.homepageImageVersion = prefs.getLong(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_IMAGE_VERSION, 0L)
-        uiState.homepageShowFavorites = prefs.getBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_SHOW_FAVORITES, true)
-        uiState.homepageShowQuickActions = prefs.getBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_SHOW_QUICK_ACTIONS, true)
-        uiState.homepageShowRecent = prefs.getBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_SHOW_RECENT, true)
-        uiState.homepageCenterContent = prefs.getBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_CENTER_CONTENT, true)
+        uiState.homepageRefresh++
+        uiState.profileRevision++
         val currentUserScriptsVersion = com.jhaiian.clint.userscripts.UserScriptState.getDataVersion(this)
         if (currentUserScriptsVersion != lastUserScriptsDataVersion) {
             lastUserScriptsDataVersion = currentUserScriptsVersion
             applyUserScripts()
         }
-        uiState.homepageImageFullBrightness = prefs.getBoolean(com.jhaiian.clint.browser.home.PREF_HOMEPAGE_IMAGE_FULL_BRIGHTNESS, false)
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -515,16 +555,22 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         if (hasFocus) applySystemUiVisibility()
     }
 
-    override fun onStart() {
-        super.onStart()
-        consumePendingEngineRestart()
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        onVideoUserLeaveHint()
+    }
+
+    override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: android.content.res.Configuration) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        onVideoPipModeChanged(isInPictureInPictureMode)
     }
 
     override fun onStop() {
         super.onStop()
+        if (isInPictureInPictureMode || uiState.video.inPip) scheduleVideoPipDismissCheck()
         recordBrowsingMode()
         refreshBackgroundPlaybackVisibility()
-        if (isFinishing && com.jhaiian.clint.privacy.PrivacyPrefs.closesTabsOnExit(prefs)) {
+        if (isFinishing && !NetworkSwitchMonitor.engineRestarting && com.jhaiian.clint.privacy.PrivacyPrefs.closesTabsOnExit(prefs)) {
             Thread { discardSavedTabs() }.start()
         } else {
             saveTabs()
@@ -541,9 +587,11 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
     }
 
     override fun onDestroy() {
-        stopNetworkSwitchMonitor()
+        if (isFinishing && !NetworkSwitchMonitor.engineRestarting) com.jhaiian.clint.profiles.ProfileWiper.purgeTemporary(this, synchronous = false)
+        releaseVideoPipReceiver()
         prefs.unregisterOnSharedPreferenceChangeListener(prefsListener)
         DataSaverMode.onActiveChanged = null
+        detachNetworkSwitchMonitor()
         teardownTranslations()
         detachBackgroundPlayback()
         if (refreshLinkSession != null) {
@@ -597,6 +645,11 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         return super.dispatchTouchEvent(ev)
     }
 
+    override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
+        if (event.action == android.view.KeyEvent.ACTION_DOWN && handleFindShortcut(event)) return true
+        return super.dispatchKeyEvent(event)
+    }
+
     private fun setupBackPressedDispatcher() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -608,8 +661,12 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
                     dismissQuiverGuardBlockedOverlay()
                     return
                 }
-                if (fullscreenView != null) {
+                if (isVideoFullscreen()) {
                     exitFullscreen()
+                    return
+                }
+                if (uiState.find.open && !uiState.searchOverlayOpen) {
+                    if (uiState.find.listOpen) uiState.find.listOpen = false else closeFind()
                     return
                 }
                 if (uiState.searchOverlayOpen) {
@@ -622,7 +679,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
                     wv.goBack()
                     return
                 }
-                if (activeTab != null && closePopupTabToOpener(activeTab)) {
+                if (activeTab != null && closeTabOnBack(activeTab)) {
                     return
                 }
                 handleExitConfirmation()
@@ -688,27 +745,32 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         val tab = tabManager.tabs.getOrNull(index)
         tab?.let {
             removeDesktopScript(it)
+            uiState.megaOffers.remove(it.id)
             onQuiverGuardTabClosed(it)
             com.jhaiian.clint.mediacapture.MediaCaptureStore.removeTab(it.id)
             if (!it.isIncognito) com.jhaiian.clint.ui.FaviconCache.evict(this, it.url)
             com.jhaiian.clint.tabs.TabThumbnailCache.evict(this, it.id)
         }
         val wasActive = index == tabManager.activeIndex
+        val closedProfile = tab?.takeIf { !it.isIncognito }?.profileId
         tabManager.closeTab(index)
         resetProgressBar()
         if (tabManager.previews().isEmpty()) {
-            openNewTab(false)
+            openNewTab(false, profileId = com.jhaiian.clint.profiles.WebProfiles.DEFAULT_ID)
+            closedProfile?.let { wipeTemporaryIfUnused(it) }
             return
         }
         val activeTab = tabManager.activeTab
         if (activeTab != null && tabManager.isGhostTab(activeTab)) {
             val idx = tabManager.tabs.indexOfFirst { !tabManager.isGhostTab(it) }
-            if (idx != -1) { tabManager.switchTo(idx); attachActiveWebView() } else openNewTab(false)
+            if (idx != -1) { tabManager.switchTo(idx); attachActiveWebView() } else openNewTab(false, profileId = com.jhaiian.clint.profiles.WebProfiles.DEFAULT_ID)
         } else if (wasActive) attachActiveWebView()
         else updateTabCount()
+        closedProfile?.let { wipeTemporaryIfUnused(it) }
     }
     fun onNewTab() { openNewTab(false) }
     fun onNewTabInProfile(profileId: String) { openNewTab(isIncognito = false, profileId = profileId) }
+    fun onSwitchProfile(profileId: String) { switchProfile(profileId) }
     fun onNewIncognitoTab() { openNewTab(true) }
 
     fun onMenuGoBack() { navGoBack() }
@@ -724,6 +786,8 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
     fun onMenuOpenDesktopModeSettings() {
         startActivity(android.content.Intent(this, com.jhaiian.clint.settings.desktopmode.DesktopModeActivity::class.java))
     }
+    fun onMenuWebTheme() { toggleWebTheme() }
+    fun onMenuOpenWebThemeSettings() { openWebThemeSettings() }
     fun onMenuOpenDataSaverSiteSettings() {
         startActivity(android.content.Intent(this, com.jhaiian.clint.settings.datasaver.DataSaverExceptionActivity::class.java))
     }
@@ -772,6 +836,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
             initialName = tab.title.ifBlank { url }
         )
     }
+    fun onMenuCreateFavorite() { openCreateFavorite() }
     fun onMenuDownloads() { startActivity(android.content.Intent(this, com.jhaiian.clint.downloads.DownloadsActivity::class.java)) }
     fun onMenuBookmarks() { startActivity(android.content.Intent(this, com.jhaiian.clint.bookmarks.BookmarksActivity::class.java)) }
     fun onMenuHistory() { startActivity(android.content.Intent(this, com.jhaiian.clint.history.HistoryActivity::class.java)) }
@@ -814,6 +879,7 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         } else wv?.reload()
     }
     fun onMenuSettings() { startActivity(android.content.Intent(this, com.jhaiian.clint.settings.SettingsActivity::class.java)) }
+    fun onMenuCustomize() { startActivity(android.content.Intent(this, com.jhaiian.clint.settings.menucustomization.MenuCustomizationActivity::class.java)) }
     fun onMenuDataSaver() {
         val enabled = !prefs.getBoolean("data_saver_enabled", false)
         prefs.edit().putBoolean("data_saver_enabled", enabled).apply()
@@ -913,12 +979,23 @@ class MainActivity : ClintActivity(), OverlayHostActivity, SnackbarHostActivity,
         openTranslationSettings()
     }
     fun onMenuWebsiteBlocker() {
-        val enabled = !prefs.getBoolean("website_blocker_enabled", false)
-        prefs.edit().putBoolean("website_blocker_enabled", enabled).apply()
+        if (prefs.getBoolean("website_blocker_enabled", false)) {
+            startActivity(
+                android.content.Intent(this, com.jhaiian.clint.blocker.WebsiteBlockerActivity::class.java)
+                    .putExtra(com.jhaiian.clint.blocker.WebsiteBlockerActivity.EXTRA_REQUEST_DISABLE, true)
+            )
+        } else {
+            prefs.edit().putBoolean("website_blocker_enabled", true).apply()
+        }
     }
     fun onMenuOpenWebsiteBlockerSettings() {
         startActivity(android.content.Intent(this, com.jhaiian.clint.blocker.WebsiteBlockerActivity::class.java))
     }
+
+    fun onMenuFindInPage() {
+        openFind()
+    }
+
     fun onMenuReaderMode() {
         val wv = tabManager.activeTab?.webView ?: return
         val pageUrl = wv.url ?: return
@@ -1174,6 +1251,9 @@ td,th{border:1px solid $secondaryColor;padding:6px 8px;}
 
         @android.webkit.JavascriptInterface
         fun onError(error: String) {
+            runOnUiThread {
+                Toast.makeText(this@MainActivity, R.string.download_response_failed, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -1340,13 +1420,12 @@ td,th{border:1px solid $secondaryColor;padding:6px 8px;}
     fun onLinkOpenInNewTab(url: String) { handleLinkOpenInNewTab(url) }
     fun onLinkOpenIncognito(url: String) { handleLinkOpenIncognito(url) }
     fun onLinkOpenNewTabBackground(url: String) { handleLinkOpenNewTabBackground(url) }
-    fun onLinkOpenNewIncognitoTabBackground(url: String) { handleLinkOpenNewIncognitoTabBackground(url) }
     fun onLinkPreviewPage(url: String) { handleLinkPreviewPage(url) }
     fun onLinkCopyAddress(url: String) { handleLinkCopyAddress(url) }
     fun onLinkCopyText(url: String, text: String) { handleLinkCopyText(text) }
     fun onLinkShare(url: String) { handleLinkShare(url) }
 
-    fun onPreviewOpenInNewTab(url: String) { openNewTab(isIncognito = false, url = url, profileId = activeProfileId()) }
+    fun onPreviewOpenInNewTab(url: String) { handleLinkOpenInNewTab(url) }
 
     fun onPreviewLinkOpenInNewTab(url: String) { dismissContentPreview(); handleLinkOpenInNewTab(url) }
     fun onPreviewLinkOpenIncognito(url: String) { dismissContentPreview(); handleLinkOpenIncognito(url) }

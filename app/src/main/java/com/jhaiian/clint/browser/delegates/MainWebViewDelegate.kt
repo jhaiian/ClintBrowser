@@ -2,7 +2,7 @@ package com.jhaiian.clint.browser.delegates
 import com.jhaiian.clint.settings.datasaver.DataSaverBridge
 import com.jhaiian.clint.settings.datasaver.DataSaverMode
 import com.jhaiian.clint.settings.datasaver.DataSaverSiteException
-import com.jhaiian.clint.ui.theme.ThemeMode
+import com.jhaiian.clint.browser.find.openFind
 import com.jhaiian.clint.browser.webview.*
 import com.jhaiian.clint.browser.MainActivity
 
@@ -32,8 +32,10 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 @SuppressLint("SetJavaScriptEnabled")
 internal fun MainActivity.createWebView(isIncognito: Boolean, profileId: String = WebProfiles.DEFAULT_ID): WebView {
-    val webView = ClintWebView(this)
+    val webFollowsAppTheme = resolveWebThemeFollow(null, isIncognito)
+    val webView = ClintWebView(WebAppearance.trackedContentContext(this, prefs, webFollowsAppTheme))
     webView.incognitoTab = isIncognito
+    webView.findRequestHandler = { text -> if (tabManager.activeTab?.webView === webView) openFind(text) }
     if (!isIncognito) WebProfiles.bind(webView, profileId)
     val settings = webView.settings
     settings.javaScriptEnabled = prefs.getBoolean("javascript_enabled", true)
@@ -64,6 +66,7 @@ internal fun MainActivity.createWebView(isIncognito: Boolean, profileId: String 
     }
     ClintAutofill.apply(webView, isIncognito, prefs.getBoolean(ClintAutofill.PREF_AUTOFILL_ENABLED, ClintAutofill.DEFAULT_AUTOFILL_ENABLED))
     webView.addJavascriptInterface(NestedScrollBridge(), "NestedScrollBridge")
+    webView.addJavascriptInterface(com.jhaiian.clint.browser.video.VideoTakeoverBridge(this, webView), "ClintVideoBridge")
     webView.addJavascriptInterface(CanvasTouchBridge(), "CanvasTouchBridge")
     webView.addJavascriptInterface(BottomNavBridge(), "BottomNavBridge")
     webView.addJavascriptInterface(NotificationBridge(webView), "ClintNotificationBridge")
@@ -77,7 +80,10 @@ internal fun MainActivity.createWebView(isIncognito: Boolean, profileId: String 
     webView.addJavascriptInterface(MediaScanBridge(prefs) { runCatching { tabManager.tabs.find { it.webView === webView }?.id }.getOrNull() }, MediaScanBridge.NAME)
     webView.addJavascriptInterface(webView.translator.bridge, "ClintTranslateBridge")
     installBackgroundPlaybackBridge(webView)
-    webView.destroyListener = { onBackgroundPlaybackWebViewDestroyed(webView) }
+    webView.destroyListener = {
+        tabManager.tabs.firstOrNull { it.webView === webView }?.let { videoTakeoverScriptHandlers.remove(it.id) }
+        onBackgroundPlaybackWebViewDestroyed(webView)
+    }
     webView.keepVisibleInBackground = { keepsMediaAlive(webView) }
 
     QuiverGuardWebIntegration.attach(this, webView) {
@@ -117,10 +123,13 @@ internal fun MainActivity.createWebView(isIncognito: Boolean, profileId: String 
             showDownloadDialog(url, filename, userAgent, referer, cookies)
         }
     }
-    applyWebDarkMode(webView)
+    WebAppearance.applyDarkMode(webView.settings, prefs, webFollowsAppTheme)
     setupImageLongPress(webView)
+    com.jhaiian.clint.browser.webview.WebAccessibility.apply(this, webView)
     if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
         WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("link_touch_tracker.js"), setOf("*"))
+        WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("image_hit_test.js"), setOf("*"))
+        WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("blob_url_keeper.js"), setOf("*"))
         WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("web_notification_bridge.js"), setOf("*"))
         WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("web_clipboard_bridge.js"), setOf("*"))
         WebViewCompat.addDocumentStartJavaScript(webView, loadJsAsset("select_picker.js"), setOf("*"))
@@ -269,27 +278,13 @@ internal fun MainActivity.buildUserAgent(): String {
     }
 }
 
-@Suppress("DEPRECATION")
-internal fun MainActivity.applyWebDarkMode(webView: WebView) {
-    val theme = prefs.getString("app_theme", "system") ?: "system"
-    val enabled = !ThemeMode.isLight(theme)
-    val settings = webView.settings
-    when {
-        WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING) ->
-            WebSettingsCompat.setAlgorithmicDarkeningAllowed(settings, enabled)
-        WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK) ->
-            WebSettingsCompat.setForceDark(
-                settings,
-                if (enabled) WebSettingsCompat.FORCE_DARK_ON else WebSettingsCompat.FORCE_DARK_OFF
-            )
-    }
+internal fun MainActivity.applyWebAccessibilityToAllTabs() {
+    com.jhaiian.clint.browser.webview.WebAccessibility.applyAll(this, tabManager.tabs.map { it.webView })
 }
 
 internal fun MainActivity.applyWebDarkModeToAllTabs() {
-    tabManager.tabs.forEach { applyWebDarkMode(it.webView) }
-    if (!WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING) &&
-        !WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)
-    ) {
+    applyWebThemeToAllTabs()
+    if (!WebAppearance.hasNativeDarkening()) {
         tabManager.activeTab?.webView?.reload()
     }
 }
@@ -458,26 +453,14 @@ internal fun MainActivity.getHomepageUrl(incognito: Boolean = tabManager.activeT
     }
 }
 
-internal fun MainActivity.getSearchEngineHomeUrl(incognito: Boolean = tabManager.activeTab?.isIncognito == true): String {
-    return when (com.jhaiian.clint.browser.searchEngineFor(prefs, incognito)) {
-        "brave" -> "https://search.brave.com"
-        "ecosia" -> "https://www.ecosia.org"
-        "google" -> "https://www.google.com"
-        "custom" -> com.jhaiian.clint.browser.customSearchEngineHomeUrl(prefs, incognito)
-        else -> "https://duckduckgo.com"
-    }
-}
+internal fun MainActivity.getSearchEngineHomeUrl(incognito: Boolean = tabManager.activeTab?.isIncognito == true): String =
+    com.jhaiian.clint.browser.searchHomeUrlFor(prefs, com.jhaiian.clint.browser.searchEngineFor(prefs, incognito))
 
-internal fun MainActivity.getSearchQueryUrl(query: String, incognito: Boolean = tabManager.activeTab?.isIncognito == true): String {
-    val encoded = android.net.Uri.encode(query)
-    return when (com.jhaiian.clint.browser.searchEngineFor(prefs, incognito)) {
-        "brave" -> "https://search.brave.com/search?q=$encoded"
-        "ecosia" -> "https://www.ecosia.org/search?q=$encoded"
-        "google" -> "https://www.google.com/search?q=$encoded"
-        "custom" -> com.jhaiian.clint.browser.customSearchEngineQueryUrl(prefs, encoded, incognito)
-        else -> "https://duckduckgo.com/?q=$encoded"
-    }
-}
+internal fun MainActivity.getSearchQueryUrl(
+    query: String,
+    incognito: Boolean = tabManager.activeTab?.isIncognito == true,
+    engine: String = com.jhaiian.clint.browser.searchEngineFor(prefs, incognito)
+): String = com.jhaiian.clint.browser.searchQueryUrlFor(prefs, engine, android.net.Uri.encode(query))
 
 internal fun isRelatedToSession(
     downloadUrl: String,

@@ -7,6 +7,7 @@ import androidx.preference.PreferenceManager
 import com.jhaiian.clint.history.SearchHistoryManager
 import com.jhaiian.clint.settings.datasaver.DataSaverSiteException
 import com.jhaiian.clint.settings.sitepermissions.SitePermissionManager
+import com.jhaiian.clint.tabs.TabSessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -99,6 +100,7 @@ object BrowsingDataCleaner {
                 runCatching {
                     if (range == BrowsingDataRange.ALL_TIME) SearchHistoryManager.clear(app)
                     else SearchHistoryManager.deleteSince(app, range.since())
+                    if (range == BrowsingDataRange.ALL_TIME) TabSessionManager.clearClosed(app) else TabSessionManager.deleteClosedSince(app, range.since())
                 }
             }
         }

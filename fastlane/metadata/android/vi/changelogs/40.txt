@@ -1,0 +1,5 @@
+• Thêm Hồ sơ: duy trì đăng nhập nhiều tài khoản trên cùng một trang web, mỗi hồ sơ có cookie và dữ liệu trang web riêng
+• Mở thẻ mới và lối tắt trong hồ sơ do bạn chọn
+• Thêm Trình quản lý lối tắt để xem và quản lý các lối tắt trên màn hình chính
+• Chế độ không khung giờ được đặt riêng cho từng lối tắt, với màn hình cài đặt riêng
+• Thêm Chặn tập lệnh và Chặn CSS vào Tiết kiệm dữ liệu

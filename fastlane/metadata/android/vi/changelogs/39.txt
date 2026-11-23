@@ -1,0 +1,8 @@
+• Cải tiến mạnh Tiết kiệm dữ liệu: tắt hình ảnh, chặn video, tắt tự động phát, chặn tải trước phương tiện, phông chữ web và khung của bên thứ ba, và nhiều hơn nữa
+• Thêm Gửi yêu cầu Không theo dõi
+• Thêm công tắc Tự động điền và hỗ trợ Passkeys
+• Thêm Căn giữa nội dung cho trang chủ Clint
+• Thêm Xóa thẻ không hoạt động
+• Thêm Tải xuống nhanh và hộp thoại tải xuống Gọn
+• Sửa lỗi Swipe Refresh Layout không theo chủ đề
+• Sửa các lỗi Snackbar tải xuống

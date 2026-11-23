@@ -7,14 +7,17 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
+internal data class MegaOffer(val link: com.jhaiian.clint.downloads.mega.MegaLink, val userAgent: String)
+
 internal enum class AddressBarPosition { TOP, BOTTOM, SPLIT }
 
-internal enum class SuggestionType { BOOKMARK, HISTORY, SUGGESTION }
+internal enum class SuggestionType { FIND_IN_PAGE, TAB, BOOKMARK, HISTORY, SUGGESTION }
 
 internal data class SuggestionItem(
     val query: String,
     val displayText: String,
-    val type: SuggestionType
+    val type: SuggestionType,
+    val tabId: String? = null
 )
 
 internal class MainUiState {
@@ -41,13 +44,7 @@ internal class MainUiState {
     var hasActiveUrl by mutableStateOf(false)
     var isHomePage by mutableStateOf(false)
     var isDesktopMode by mutableStateOf(false)
-    var homepageDesign by mutableStateOf("plain")
-    var homepageImageVersion by mutableLongStateOf(0L)
-    var homepageShowFavorites by mutableStateOf(true)
-    var homepageShowQuickActions by mutableStateOf(true)
-    var homepageShowRecent by mutableStateOf(true)
-    var homepageCenterContent by mutableStateOf(true)
-    var homepageImageFullBrightness by mutableStateOf(false)
+    var homepageRefresh by mutableIntStateOf(0)
 
     var bookmarkFolderDialogOpen by mutableStateOf(false)
     var bookmarkFolderTree by mutableStateOf<List<com.jhaiian.clint.bookmarks.FolderTreeEntry>>(emptyList())
@@ -58,7 +55,10 @@ internal class MainUiState {
     var isIncognito by mutableStateOf(false)
     var isMediaCaptureEnabled by mutableStateOf(true)
     var showHomeButton by mutableStateOf(true)
+    var stripUrlScheme by mutableStateOf(true)
+    var toolbarLayout by mutableStateOf(com.jhaiian.clint.browser.toolbar.ToolbarLayout.DEFAULT)
     var activeTabId by mutableStateOf<String?>(null)
+    val megaOffers = androidx.compose.runtime.mutableStateMapOf<String, MegaOffer>()
 
     var topBarFraction by mutableFloatStateOf(0f)
     var bottomBarFraction by mutableFloatStateOf(0f)
@@ -78,8 +78,11 @@ internal class MainUiState {
 
     var contentPaddingTopPx by mutableIntStateOf(0)
     var contentPaddingBottomPx by mutableIntStateOf(0)
+    var imeInsetPx by mutableIntStateOf(0)
 
     var isFullscreen by mutableStateOf(false)
+    val video = com.jhaiian.clint.browser.video.VideoUiState()
+    val find = com.jhaiian.clint.browser.find.FindUiState()
     var isShortcutFrameless by mutableStateOf(false)
 
     var imageLongPressRequest by mutableStateOf<com.jhaiian.clint.browser.sheets.ImageLongPressRequest?>(null)
@@ -99,6 +102,7 @@ internal class MainUiState {
     var popupAlertRequest by mutableStateOf<com.jhaiian.clint.browser.dialogs.PopupAlertRequest?>(null)
     var refreshLinkDialogRequest by mutableStateOf<com.jhaiian.clint.browser.dialogs.RefreshLinkDialogRequest?>(null)
     var profilePickerOpen by mutableStateOf(false)
+    var profileRevision by mutableIntStateOf(0)
     var tabGroupBar by mutableStateOf<com.jhaiian.clint.tabs.TabGroupBarState?>(null)
     var tabMenuFocusGroupId by mutableStateOf<String?>(null)
     var tabsRevision by mutableIntStateOf(0)
@@ -111,9 +115,11 @@ internal class MainUiState {
     var cookiesControlExportRequest by mutableStateOf<com.jhaiian.clint.browser.dialogs.CookiesControlExportRequest?>(null)
     var cookiesControlImportRequest by mutableStateOf<com.jhaiian.clint.browser.dialogs.CookiesControlImportRequest?>(null)
     var createShortcutRequest by mutableStateOf<com.jhaiian.clint.browser.dialogs.CreateShortcutRequest?>(null)
+    var favoriteRequest by mutableStateOf<com.jhaiian.clint.browser.home.HomeEditRequest?>(null)
     var openInAppRequest by mutableStateOf<com.jhaiian.clint.browser.webview.OpenInAppRequest?>(null)
     var userScriptInstallPromptRequest by mutableStateOf<com.jhaiian.clint.userscripts.UserScriptInstallPromptRequest?>(null)
     var websiteBlockedRequest by mutableStateOf<com.jhaiian.clint.blocker.blockedpage.WebsiteBlockedRequest?>(null)
+    var parentalGate by mutableStateOf<com.jhaiian.clint.parental.ParentalGateRequest?>(null)
     var quiverGuardBlockedRequest by mutableStateOf<com.jhaiian.clint.quiver.QuiverGuardBlockedRequest?>(null)
     var translateBarRequest by mutableStateOf<com.jhaiian.clint.translation.TranslateBarRequest?>(null)
     var showTranslateButton by mutableStateOf(true)

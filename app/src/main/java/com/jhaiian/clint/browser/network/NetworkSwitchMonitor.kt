@@ -1,131 +1,141 @@
 package com.jhaiian.clint.browser.network
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.net.ConnectivityManager
 import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
+import androidx.preference.PreferenceManager
 
-/**
- * Watches the default network (including VPNs that apply to this app) and reports a debounced
- * "network switched" event when the route the WebViews use actually changes: a different network
- * becomes default, a VPN comes up or goes away, or the default network's interface / DNS servers change.
- *
- * WebView keeps process-wide network state (pooled HTTP/2 + QUIC sessions, its host cache).
- * When a VPN is toggled, or a VPN app restarts its tunnel to switch servers, that state can stay
- * bound to the old route, and pages on the affected origins stop loading until the process is
- * restarted. Reloading does not help because the reload reuses the same stale state.
- */
-class NetworkSwitchMonitor(
-    context: Context,
-    private val onSwitched: (Change) -> Unit
-) {
-    data class Snapshot(
-        val networkId: String,
-        val isVpn: Boolean,
-        val interfaceName: String?,
-        val dnsServers: List<String>
+object NetworkSwitchMonitor {
+
+    const val PREF_AUTO_RECOVERY = "network_auto_recovery"
+    const val DEFAULT_AUTO_RECOVERY = true
+
+    enum class Change { LOST, RESTORED, SWITCHED }
+
+    enum class RestartRequest { NONE, AUTO, MANUAL }
+
+    private const val DEBOUNCE_MS = 1500L
+    private const val NO_NETWORK = ""
+
+    private val TRANSPORTS = intArrayOf(
+        NetworkCapabilities.TRANSPORT_WIFI,
+        NetworkCapabilities.TRANSPORT_CELLULAR,
+        NetworkCapabilities.TRANSPORT_VPN,
+        NetworkCapabilities.TRANSPORT_ETHERNET,
+        NetworkCapabilities.TRANSPORT_BLUETOOTH,
+        NetworkCapabilities.TRANSPORT_WIFI_AWARE
     )
 
-    data class Change(val from: Snapshot?, val to: Snapshot?) {
-        val vpnToggled: Boolean get() = (from?.isVpn ?: false) != (to?.isVpn ?: false)
-    }
-
-    private val cm = context.applicationContext.getSystemService(ConnectivityManager::class.java)
-    private val main = Handler(Looper.getMainLooper())
+    private val mainHandler = Handler(Looper.getMainLooper())
     private var registered = false
+    private var prefs: SharedPreferences? = null
 
-    /** Last snapshot that was reported (or the baseline taken at registration). */
-    private var committed: Snapshot? = null
-    private var baselineTaken = false
-    private var pending: Snapshot? = null
-    private var pendingLost = false
+    private var network: Network? = null
+    private var capabilities: NetworkCapabilities? = null
+    private var linkProperties: LinkProperties? = null
 
-    private val caps = HashMap<Network, NetworkCapabilities>()
-    private val links = HashMap<Network, LinkProperties>()
-    private var current: Network? = null
+    private var latest = NO_NETWORK
+    private var settled: String? = null
+    private var lastRoute: String? = null
 
-    private val emit = Runnable {
-        val next = if (pendingLost) null else pending
-        val prev = committed
-        if (!baselineTaken) {
-            baselineTaken = true
-            committed = next
-            return@Runnable
-        }
-        // Losing the network and getting the very same one back is not a route change.
-        if (next == null || next == prev) {
-            if (next != null) committed = next
-            return@Runnable
-        }
-        committed = next
-        Log.i(TAG, "network switched: $prev -> $next")
-        onSwitched(Change(prev, next))
+    @Volatile
+    var listener: ((Change) -> Unit)? = null
+
+    @Volatile
+    var restartRequest = RestartRequest.NONE
+
+    @Volatile
+    var engineRestarting = false
+
+    fun isAutoRecoveryEnabled(prefs: SharedPreferences): Boolean =
+        prefs.getBoolean(PREF_AUTO_RECOVERY, DEFAULT_AUTO_RECOVERY)
+
+    fun requestRestart(request: RestartRequest) {
+        if (request == RestartRequest.AUTO && restartRequest == RestartRequest.MANUAL) return
+        restartRequest = request
     }
 
-    private val callback = object : ConnectivityManager.NetworkCallback() {
-        override fun onAvailable(network: Network) {
-            main.post { current = network; pendingLost = false; update() }
-        }
-
-        override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
-            main.post { caps[network] = networkCapabilities; if (network == current) update() }
-        }
-
-        override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
-            main.post { links[network] = linkProperties; if (network == current) update() }
-        }
-
-        override fun onLost(network: Network) {
-            main.post {
-                caps.remove(network); links.remove(network)
-                if (network == current) {
-                    current = null
-                    pendingLost = true
-                    schedule()
+    fun register(context: Context) {
+        if (registered) return
+        val appContext = context.applicationContext
+        val manager = appContext.getSystemService(ConnectivityManager::class.java) ?: return
+        prefs = PreferenceManager.getDefaultSharedPreferences(appContext)
+        registered = true
+        runCatching {
+            manager.registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {
+                override fun onAvailable(network: Network) {
+                    this@NetworkSwitchMonitor.network = network
+                    capabilities = null
+                    linkProperties = null
+                    refresh()
                 }
-            }
+
+                override fun onCapabilitiesChanged(network: Network, capabilities: NetworkCapabilities) {
+                    if (network != this@NetworkSwitchMonitor.network) return
+                    this@NetworkSwitchMonitor.capabilities = capabilities
+                    refresh()
+                }
+
+                override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
+                    if (network != this@NetworkSwitchMonitor.network) return
+                    this@NetworkSwitchMonitor.linkProperties = linkProperties
+                    refresh()
+                }
+
+                override fun onLost(network: Network) {
+                    if (network != this@NetworkSwitchMonitor.network) return
+                    this@NetworkSwitchMonitor.network = null
+                    capabilities = null
+                    linkProperties = null
+                    refresh()
+                }
+            }, mainHandler)
         }
     }
 
-    private fun update() {
-        val network = current ?: return
-        val c = caps[network] ?: cm?.getNetworkCapabilities(network)
-        val l = links[network] ?: cm?.getLinkProperties(network)
-        pending = Snapshot(
-            networkId = network.toString(),
-            isVpn = c?.hasTransport(NetworkCapabilities.TRANSPORT_VPN) == true,
-            interfaceName = l?.interfaceName,
-            dnsServers = l?.dnsServers?.map { it.hostAddress.orEmpty() }?.sorted().orEmpty()
-        )
-        schedule()
+    private fun refresh() {
+        latest = signature()
+        mainHandler.removeCallbacks(settle)
+        mainHandler.postDelayed(settle, DEBOUNCE_MS)
     }
 
-    private fun schedule() {
-        main.removeCallbacks(emit)
-        main.postDelayed(emit, if (baselineTaken) DEBOUNCE_MS else BASELINE_MS)
+    private fun signature(): String {
+        val current = network ?: return NO_NETWORK
+        val caps = capabilities
+        val link = linkProperties
+        val transports = if (caps == null) "" else TRANSPORTS.filter { caps.hasTransport(it) }.joinToString(",")
+        val dns = link?.dnsServers?.map { it.hostAddress.orEmpty() }?.sorted()?.joinToString(",").orEmpty()
+        return "${current.networkHandle}|$transports|${link?.interfaceName.orEmpty()}|$dns"
     }
 
-    fun start() {
-        if (registered || cm == null) return
-        runCatching { cm.registerDefaultNetworkCallback(callback) }
-            .onSuccess { registered = true }
-            .onFailure { Log.w(TAG, "registerDefaultNetworkCallback failed", it) }
+    private val settle = Runnable {
+        val now = latest
+        val before = settled
+        settled = now
+        if (now != NO_NETWORK) {
+            val previousRoute = lastRoute
+            lastRoute = now
+            if (before == null || now == before) return@Runnable
+            val change = if (before == NO_NETWORK && (previousRoute == null || previousRoute == now)) Change.RESTORED else Change.SWITCHED
+            dispatch(change)
+        } else if (before != null && before != NO_NETWORK) {
+            dispatch(Change.LOST)
+        }
     }
 
-    fun stop() {
-        if (!registered || cm == null) return
-        runCatching { cm.unregisterNetworkCallback(callback) }
-        registered = false
-        main.removeCallbacks(emit)
-    }
-
-    companion object {
-        private const val TAG = "ClintNetSwitch"
-        private const val DEBOUNCE_MS = 1500L
-        private const val BASELINE_MS = 800L
+    private fun dispatch(change: Change) {
+        val enabled = prefs?.let { isAutoRecoveryEnabled(it) } ?: DEFAULT_AUTO_RECOVERY
+        if (!enabled) return
+        val target = listener
+        if (target != null) {
+            target(change)
+        } else if (change == Change.SWITCHED) {
+            requestRestart(RestartRequest.AUTO)
+        }
     }
 }

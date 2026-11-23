@@ -77,13 +77,18 @@ abstract class ClintActivity : AppCompatActivity() {
         val systemDark = ThemeMode.isSystemDark()
         if (systemDark == appliedSystemDark) return
         appliedSystemDark = systemDark
+        onSystemUiModeChanged()
         if (appliedTheme == ThemeMode.SYSTEM) {
             applyWindowChrome()
             onSystemThemeChanged()
         }
     }
 
+    protected open fun onSystemUiModeChanged() {}
+
     protected open fun onSystemThemeChanged() {}
+
+    protected open val translucentWindow: Boolean get() = false
 
     override fun onResume() {
         super.onResume()
@@ -113,6 +118,10 @@ abstract class ClintActivity : AppCompatActivity() {
         val theme = appliedTheme ?: "system"
         val accent = appliedAccent ?: "material_you"
         val intensity = appliedIntensity ?: "soft_tint"
+        if (translucentWindow) {
+            window.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
+            return
+        }
         val chrome = resolveThemeChrome(this, theme, accent, intensity)
         window.setBackgroundDrawable(ColorDrawable(chrome.background))
         window.statusBarColor = chrome.statusBar

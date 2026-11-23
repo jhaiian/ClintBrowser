@@ -1,0 +1,8 @@
+• Économiseur de données nettement amélioré : désactivation des images, blocage des vidéos, désactivation de la lecture automatique, blocage du préchargement des médias, des polices web et des cadres tiers, et plus encore
+• Ajout de l'envoi d'une demande « Ne pas me suivre »
+• Ajout de l'option Remplissage automatique et prise en charge des clés d'accès (Passkeys)
+• Ajout de Centrer le contenu pour la page d'accueil de Clint
+• Ajout de Supprimer les onglets inactifs
+• Ajout du téléchargement rapide et d'une boîte de dialogue de téléchargement compacte
+• Correction du Swipe Refresh Layout qui ne suivait pas le thème
+• Correction de problèmes de Snackbar de téléchargement

@@ -141,7 +141,7 @@ internal fun MainActivity.persistShortcutTabsSession(shortcutId: String, async: 
     else ShortcutTabSessionManager.save(this, shortcutId, saved)
 }
 
-internal fun MainActivity.persistAllShortcutTabGroups() {
+internal fun MainActivity.persistAllShortcutTabGroups(async: Boolean = true) {
     val shortcutIds = tabManager.tabs.mapNotNull { tabManager.effectiveShortcutId(it) }.distinct()
-    shortcutIds.forEach { persistShortcutTabsSession(it) }
+    shortcutIds.forEach { persistShortcutTabsSession(it, async) }
 }

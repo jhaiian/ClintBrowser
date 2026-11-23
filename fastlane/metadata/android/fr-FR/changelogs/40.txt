@@ -1,0 +1,5 @@
+• Ajout des profils : restez connecté à plusieurs comptes sur le même site web, chacun avec ses propres cookies et données de sites
+• Ouvrez de nouveaux onglets et des raccourcis dans le profil de votre choix
+• Ajout du gestionnaire de raccourcis pour afficher et gérer les raccourcis de votre écran d'accueil
+• Le mode sans cadre se règle désormais par raccourci, avec son propre écran de paramètres
+• Ajout de Bloquer les scripts et Bloquer le CSS à l'économiseur de données

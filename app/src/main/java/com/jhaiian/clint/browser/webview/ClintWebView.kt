@@ -18,6 +18,51 @@ class ClintWebView(context: Context) : WebView(context) {
 
     var incognitoTab: Boolean = false
 
+    var findRequestHandler: ((String) -> Unit)? = null
+
+    override fun startActionMode(callback: android.view.ActionMode.Callback?, type: Int): android.view.ActionMode? {
+        val wrapped = if (callback != null && findRequestHandler != null) FindMenuCallback(callback) else callback
+        return super.startActionMode(wrapped, type)
+    }
+
+    private inner class FindMenuCallback(private val base: android.view.ActionMode.Callback) : android.view.ActionMode.Callback2() {
+        override fun onCreateActionMode(mode: android.view.ActionMode, menu: android.view.Menu): Boolean =
+            base.onCreateActionMode(mode, menu)
+
+        override fun onPrepareActionMode(mode: android.view.ActionMode, menu: android.view.Menu): Boolean {
+            val changed = base.onPrepareActionMode(mode, menu)
+            if (menu.findItem(FIND_MENU_ID) != null) return changed
+            menu.add(android.view.Menu.NONE, FIND_MENU_ID, FIND_MENU_ORDER, context.getString(com.jhaiian.clint.R.string.menu_find_in_page))
+                .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_NEVER)
+            return true
+        }
+
+        override fun onActionItemClicked(mode: android.view.ActionMode, item: android.view.MenuItem): Boolean {
+            if (item.itemId != FIND_MENU_ID) return base.onActionItemClicked(mode, item)
+            evaluateJavascript("window.getSelection().toString()") { raw ->
+                val text = runCatching { org.json.JSONTokener(raw.orEmpty()).nextValue() as? String }.getOrNull()
+                    ?.replace(Regex("\\s+"), " ")?.trim()?.take(FIND_SELECTION_MAX_CHARS).orEmpty()
+                if (text.isNotEmpty()) findRequestHandler?.invoke(text)
+            }
+            mode.finish()
+            return true
+        }
+
+        override fun onDestroyActionMode(mode: android.view.ActionMode) {
+            base.onDestroyActionMode(mode)
+        }
+
+        override fun onGetContentRect(mode: android.view.ActionMode, view: android.view.View, outRect: android.graphics.Rect) {
+            if (base is android.view.ActionMode.Callback2) base.onGetContentRect(mode, view, outRect) else super.onGetContentRect(mode, view, outRect)
+        }
+    }
+
+    private companion object {
+        const val FIND_MENU_ID = 0x4C46
+        const val FIND_MENU_ORDER = 100
+        const val FIND_SELECTION_MAX_CHARS = 200
+    }
+
     override fun onCreateInputConnection(outAttrs: android.view.inputmethod.EditorInfo): android.view.inputmethod.InputConnection? {
         val connection = super.onCreateInputConnection(outAttrs)
         if (incognitoTab && com.jhaiian.clint.privacy.IncognitoKeyboard.isEnabled(context)) {
@@ -27,6 +72,7 @@ class ClintWebView(context: Context) : WebView(context) {
     }
 
     var scrollListener: ((Int, Int) -> Unit)? = null
+    var touchObserver: ((MotionEvent) -> Unit)? = null
 
     private var touchDownTime = -1L
     private var touchStartedAtTop = false
@@ -86,6 +132,7 @@ class ClintWebView(context: Context) : WebView(context) {
 
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
         if (parked) return false
+        touchObserver?.invoke(event)
         return super.dispatchTouchEvent(event)
     }
 
@@ -110,6 +157,8 @@ class ClintWebView(context: Context) : WebView(context) {
 
     override fun destroy() {
         scrollListener = null
+        touchObserver = null
+        findRequestHandler = null
         translator.destroy()
         destroyListener?.let { listener ->
             destroyListener = null

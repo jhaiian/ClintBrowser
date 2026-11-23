@@ -1,0 +1,5 @@
+• Profile hinzugefügt: Bleibe bei mehreren Konten auf derselben Website angemeldet, jedes mit eigenen Cookies und Websitedaten
+• Neue Tabs und Verknüpfungen in einem Profil deiner Wahl öffnen
+• Verknüpfungsverwaltung hinzugefügt, um die Verknüpfungen auf deinem Startbildschirm anzuzeigen und zu verwalten
+• Der rahmenlose Modus wird jetzt pro Verknüpfung festgelegt, mit eigenem Einstellungsbildschirm
+• „Skripte blockieren“ und „CSS blockieren“ zum Datensparmodus hinzugefügt

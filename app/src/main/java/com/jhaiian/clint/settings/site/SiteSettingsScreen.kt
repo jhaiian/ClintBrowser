@@ -1,6 +1,7 @@
 package com.jhaiian.clint.settings.site
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.ContentPaste
+import androidx.compose.material.icons.filled.Contrast
 import androidx.compose.material.icons.filled.DataSaverOff
 import androidx.compose.material.icons.filled.DesktopWindows
 import androidx.compose.material.icons.filled.LocationOn
@@ -18,6 +19,7 @@ import com.jhaiian.clint.settings.common.SettingsScreenScaffold
 import com.jhaiian.clint.settings.common.SettingsSection
 import com.jhaiian.clint.settings.desktopmode.DesktopModeActivity
 import com.jhaiian.clint.settings.sitepermissions.SitePermissionActivity
+import com.jhaiian.clint.settings.webtheme.WebThemeActivity
 import com.jhaiian.clint.settings.common.SettingsSectionLabel
 import com.jhaiian.clint.ui.theme.LocalClintColors
 
@@ -31,6 +33,7 @@ fun SiteSettingsScreen(
     onClipboardClick: () -> Unit,
     onOpenInAppClick: () -> Unit,
     onDesktopModeClick: () -> Unit,
+    onWebThemeClick: () -> Unit,
     onDataSaverClick: () -> Unit,
     onQuiverGuardClick: () -> Unit
 ) {
@@ -104,6 +107,22 @@ fun SiteSettingsScreen(
                 ),
                 colors = colors,
                 onClick = onDesktopModeClick
+            )
+        }
+
+        SettingsSectionLabel(stringResource(R.string.site_section_web_theme))
+        SettingsSection(colors.cardBackground) {
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.Contrast,
+                title = stringResource(R.string.web_theme),
+                summary = stringResource(
+                    if (state.webThemeSaveState == WebThemeActivity.VALUE_SAVE_STATE)
+                        R.string.desktop_mode_save_state
+                    else
+                        R.string.desktop_mode_do_not_save_state
+                ),
+                colors = colors,
+                onClick = onWebThemeClick
             )
         }
 

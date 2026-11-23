@@ -1,6 +1,8 @@
 package com.jhaiian.clint.settings.misc
+import androidx.compose.material.icons.filled.Autorenew
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.RestartAlt
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -22,6 +24,7 @@ import com.jhaiian.clint.settings.common.SettingsScreenScaffold
 import com.jhaiian.clint.settings.common.SettingsSection
 import com.jhaiian.clint.settings.common.SettingsSectionLabel
 import com.jhaiian.clint.ui.ClintDialog
+import com.jhaiian.clint.ui.ClintSwitch
 import com.jhaiian.clint.ui.theme.LocalClintColors
 
 @Composable
@@ -56,9 +59,43 @@ private fun RerunSetupConfirmDialog(hideStatusBar: Boolean, hideSystemNavigation
 }
 
 @Composable
+private fun RestartEngineConfirmDialog(hideStatusBar: Boolean, hideSystemNavigation: Boolean, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    val colors = LocalClintColors.current
+    ClintDialog(
+        title = stringResource(R.string.network_restart_confirm_title),
+        hideStatusBar = hideStatusBar, hideSystemNavigation = hideSystemNavigation,
+        onDismiss = onDismiss,
+        footer = {
+            Row(
+                Modifier.fillMaxWidth().padding(end = 12.dp, bottom = 8.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.action_cancel), color = colors.secondaryText, fontWeight = FontWeight.Medium)
+                }
+                Spacer(Modifier.width(8.dp))
+                TextButton(onClick = onConfirm) {
+                    Text(stringResource(R.string.restart_required_confirm), color = colors.primary, fontWeight = FontWeight.Medium)
+                }
+            }
+        }
+    ) {
+        Text(
+            stringResource(R.string.network_restart_confirm_message),
+            color = colors.onSurface,
+            fontSize = 14.sp,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+    }
+}
+
+@Composable
 fun MiscScreen(
     state: MiscUiState,
     onDefaultBrowserClick: () -> Unit,
+    onNetworkAutoRecoveryClick: () -> Unit,
+    onRestartEngineClick: () -> Unit,
+    onRestartEngineConfirm: () -> Unit,
     onRerunSetupClick: () -> Unit,
     onRerunSetupConfirm: () -> Unit
 ) {
@@ -71,6 +108,13 @@ fun MiscScreen(
                     hideStatusBar = state.hideStatusBar, hideSystemNavigation = state.hideSystemNavigation,
                     onConfirm = onRerunSetupConfirm,
                     onDismiss = { state.rerunSetupConfirmDialogOpen = false }
+                )
+            }
+            if (state.restartEngineConfirmDialogOpen) {
+                RestartEngineConfirmDialog(
+                    hideStatusBar = state.hideStatusBar, hideSystemNavigation = state.hideSystemNavigation,
+                    onConfirm = onRestartEngineConfirm,
+                    onDismiss = { state.restartEngineConfirmDialogOpen = false }
                 )
             }
         }
@@ -86,6 +130,25 @@ fun MiscScreen(
             )
         }
 
+        SettingsSectionLabel(stringResource(R.string.misc_section_network))
+        SettingsSection(colors.cardBackground) {
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.Autorenew,
+                title = stringResource(R.string.network_auto_recovery_title),
+                summary = stringResource(R.string.network_auto_recovery_summary),
+                colors = colors,
+                onClick = onNetworkAutoRecoveryClick,
+                trailing = { ClintSwitch(checked = state.networkAutoRecovery) }
+            )
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.RestartAlt,
+                title = stringResource(R.string.network_restart_engine_title),
+                summary = stringResource(R.string.network_restart_engine_summary),
+                colors = colors,
+                onClick = onRestartEngineClick
+            )
+        }
+
         SettingsSectionLabel(stringResource(R.string.misc_section_setup))
         SettingsSection(colors.cardBackground) {
             SettingsRow(
@@ -96,7 +159,5 @@ fun MiscScreen(
                 onClick = onRerunSetupClick
             )
         }
-
-        NetworkRecoverySection()
     }
 }

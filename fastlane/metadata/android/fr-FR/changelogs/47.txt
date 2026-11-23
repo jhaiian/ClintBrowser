@@ -1,0 +1,11 @@
+• Lecteur vidéo, gestes et PiP
+• Profils séparés, faciles à changer
+• Menu repensé et barre d'outils personnalisable
+• Plus d'options d'accueil et de suggestions
+• Rechercher dans la page
+• Épingler, trier et rouvrir les onglets fermés
+• Prise en charge des Custom Tabs
+• Vues des téléchargements, mises à jour en direct, autre gestionnaire
+• Sélection multiple et filtre de taille en capture de médias
+• Contrôle parental, accessibilité, thème des sites
+• Récupération réseau, 5 nouvelles langues

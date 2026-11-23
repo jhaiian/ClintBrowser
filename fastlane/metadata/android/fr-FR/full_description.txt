@@ -1,0 +1,67 @@
+Clint Browser est un navigateur Android open source doté d'une interface Material 3 moderne et de très nombreuses fonctionnalités. Il n'a pas de backend, ne collecte aucune donnée et ne contient ni publicités ni abonnement obligatoire. Entièrement gratuit.
+
+<b>CAPTURE DE MÉDIAS</b>
+• Détecte les flux vidéo, audio et de sous-titres sur les pages que vous visitez
+• Prend en charge les vidéos classiques et les flux HLS/M3U8 et DASH
+• Téléchargez les médias détectés directement depuis le navigateur
+
+<b>GESTIONNAIRE DE TÉLÉCHARGEMENTS</b>
+• Téléchargements multithread et en plusieurs parties
+• Pause et reprise
+• Planificateur de téléchargements et limiteur de débit
+• Emplacements de téléchargement personnalisés
+• Met automatiquement en pause et reprend les téléchargements bloqués
+
+<b>SCRIPTS UTILISATEUR</b>
+• Installez des scripts utilisateur depuis une URL ou écrivez les vôtres avec l'éditeur de code intégré
+• Métadonnées de type Tampermonkey (@match, @include, @exclude, @require, @resource, @grant)
+• Prise en charge de l'API GM, dont GM.setValue, GM.getValue, GM.xmlHttpRequest et GM.notification
+• Recherche automatique de mises à jour pour les scripts installés depuis une URL
+• Activez ou désactivez chaque script à tout moment
+
+<b>QUIVER GUARD</b>
+• Bloqueur de publicités et de traqueurs intégré
+• Filtrage cosmétique et réseau
+• Plusieurs listes de filtres
+• Contrôles par site
+
+<b>BLOQUEUR DE SITES WEB</b>
+• Bloque la pornographie, les jeux d'argent et d'autres catégories indésirables
+• Listes de filtres par catégorie
+• Ajoutez vos propres sites web à bloquer
+
+<b>ÉCONOMISEUR DE DONNÉES</b>
+• Uniquement sur les réseaux limités
+• Désactivation des images, blocage des vidéos et arrêt de la lecture automatique
+• Blocage du préchargement des médias, des polices web et des cadres tiers
+• Réutilisation des pages enregistrées et demande de pages plus légères
+• Désactivation des suggestions de recherche en ligne et des favicons
+• Blocage des scripts et du CSS
+
+<b>CONFIDENTIALITÉ ET SÉCURITÉ</b>
+• Navigation privée
+• Protection contre les fenêtres contextuelles
+• Envoi d'une demande « Ne pas me suivre »
+• Prise en charge des clés d'accès (Passkeys)
+• Le remplissage automatique peut être désactivé
+
+<b>PERSONNALISATION</b>
+• 50 couleurs d'accent, thèmes clair et sombre et 5 intensités de surface
+• 500 combinaisons de thèmes possibles
+• Choisissez entre la page d'accueil de Clint Browser et celle de votre moteur de recherche
+• Arrière-plans de page d'accueil en couleur unie, en dégradé ou avec image personnalisée
+
+<b>PROFILS</b>
+• Restez connecté à plusieurs comptes sur le même site web en même temps
+• Chaque profil conserve ses propres cookies et données de sites
+• Ouvrez de nouveaux onglets et des raccourcis dans n'importe quel profil
+
+<b>NAVIGATEUR</b>
+• Navigation multi-onglets
+• Mode lecture
+• Mode ordinateur
+• Suppression automatique des onglets inactifs
+• Téléchargement rapide
+• Gestionnaire de raccourcis avec raccourcis sans cadre
+
+Nécessite Android 8.0 ou version ultérieure et une implémentation de WebView.

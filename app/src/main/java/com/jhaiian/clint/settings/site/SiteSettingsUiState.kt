@@ -11,6 +11,7 @@ class SiteSettingsUiState(
     initialNotificationsBehavior: String,
     initialClipboardBehavior: String,
     initialDesktopModeSaveState: String,
+    initialWebThemeSaveState: String,
     initialOpenInAppBehavior: String
 ) {
     var cameraBehavior by mutableStateOf(initialCameraBehavior)
@@ -19,5 +20,6 @@ class SiteSettingsUiState(
     var notificationsBehavior by mutableStateOf(initialNotificationsBehavior)
     var clipboardBehavior by mutableStateOf(initialClipboardBehavior)
     var desktopModeSaveState by mutableStateOf(initialDesktopModeSaveState)
+    var webThemeSaveState by mutableStateOf(initialWebThemeSaveState)
     var openInAppBehavior by mutableStateOf(initialOpenInAppBehavior)
 }

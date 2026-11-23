@@ -1,39 +1,22 @@
 package com.jhaiian.clint.browser.menu
+
 import android.content.res.Configuration
 import android.net.Uri
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddToHomeScreen
-import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.BookmarkBorder
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.automirrored.filled.ChromeReaderMode
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.DataSaverOn
-import androidx.compose.material.icons.filled.DesktopWindows
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
-
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,15 +27,29 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -65,34 +62,50 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.Velocity
 import androidx.preference.PreferenceManager
 import com.jhaiian.clint.R
 import com.jhaiian.clint.bookmarks.BookmarkManager
 import com.jhaiian.clint.browser.MainActivity
+import com.jhaiian.clint.browser.delegates.openSiteInfo
+import com.jhaiian.clint.browser.delegates.resolveWebThemeFollow
+import com.jhaiian.clint.browser.home.isClintHomeUrl
 import com.jhaiian.clint.browser.sheets.LongPressContentMaxWidth
+import com.jhaiian.clint.browser.webview.ClintWebView
 import com.jhaiian.clint.browser.webview.ClintWebViewClient
 import com.jhaiian.clint.downloads.ClintDownloadManager
 import com.jhaiian.clint.downloads.DownloadStatus
 import com.jhaiian.clint.quiver.engine.BlockedRequestCounter
+import com.jhaiian.clint.settings.datasaver.DataSaverSiteException
 import com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase
 import com.jhaiian.clint.settings.sitepermissions.SitePermissionManager
-import com.jhaiian.clint.settings.datasaver.DataSaverSiteException
-import com.jhaiian.clint.userscripts.UserScriptState
 import com.jhaiian.clint.ui.ClintDialogStatusBarEffect
+import com.jhaiian.clint.ui.ClintSheetWindowInsets
+import com.jhaiian.clint.ui.ClintSwitch
 import com.jhaiian.clint.ui.listscreen.PopupShape
+import com.jhaiian.clint.ui.rememberClintFavicon
+import com.jhaiian.clint.ui.rememberSheetFlingConnection
 import com.jhaiian.clint.ui.theme.LocalClintColors
+import com.jhaiian.clint.userscripts.UserScriptState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -106,73 +119,83 @@ internal data class BrowserMenuPageState(
 
 internal data class BrowserMenuSnapshot(
     val url: String,
+    val title: String,
+    val isSecure: Boolean,
+    val isWebPage: Boolean,
     val showNavRow: Boolean,
     val canGoBack: Boolean,
     val canGoForward: Boolean,
     val page: BrowserMenuPageState,
     val isLoading: Boolean,
     val isDesktopMode: Boolean,
+    val isWebThemeFollowingApp: Boolean,
     val isDataSaverEnabled: Boolean,
     val pendingDownloadCount: Long,
-    val mediaCaptureCount: Long,
     val isMediaCaptureEnabled: Boolean,
     val isUserScriptsEnabled: Boolean,
     val isQuiverGuardEnabled: Boolean,
     val quiverGuardBlockedCount: Long,
     val isWebsiteBlockerEnabled: Boolean,
     val canCreateShortcut: Boolean,
+    val canToggleTabMute: Boolean,
+    val isTabMuted: Boolean,
     val canUseCookiesControl: Boolean,
     val canTranslatePage: Boolean,
     val isPageTranslated: Boolean,
-    val canToggleTabMute: Boolean,
-    val isTabMuted: Boolean,
-    val visibleMenuItems: List<CustomizableMenuItem>
+    val layout: BrowserMenuLayout
 )
 
 internal class BrowserMenuActions(
-    val onGoBack: () -> Unit,
-    val onGoForward: () -> Unit,
-    val onHome: () -> Unit,
-    val onRefreshOrStop: () -> Unit,
-    val onToggleBookmark: () -> Unit,
-    val onNewTab: () -> Unit,
-    val onIncognito: () -> Unit,
-    val onNewProfileTab: () -> Unit,
-    val onOpenProfiles: () -> Unit,
-    val onShare: () -> Unit,
-    val onOpenInApp: () -> Unit,
-    val onCreateShortcut: () -> Unit,
-    val onOpenShortcutManager: () -> Unit,
-    val onDownloads: () -> Unit,
-    val onOpenDownloadSettings: () -> Unit,
-    val onMediaCapture: () -> Unit,
-    val onUserScripts: () -> Unit,
-    val onOpenUserScriptsSettings: () -> Unit,
-    val onBookmarks: () -> Unit,
-    val onHistory: () -> Unit,
-    val onDesktopMode: () -> Unit,
-    val onSettings: () -> Unit,
-    val onReaderMode: () -> Unit,
-    val onDataSaver: () -> Unit,
-    val onOpenDataSaverSettings: () -> Unit,
-    val onQuiverGuard: () -> Unit,
-    val onOpenQuiverGuardSettings: () -> Unit,
-    val onDisableQuiverGuardForSite: () -> Unit,
-    val onOpenQuiverGuardSiteSettings: () -> Unit,
-    val onOpenDesktopModeSettings: () -> Unit,
-    val onOpenDataSaverSiteSettings: () -> Unit,
-    val onDisableDataSaverForSite: () -> Unit,
-    val onWebsiteBlocker: () -> Unit,
-    val onOpenWebsiteBlockerSettings: () -> Unit,
-    val onToggleTabMute: () -> Unit,
-    val onCookiesControl: () -> Unit,
-    val onTranslate: () -> Unit,
-    val onOpenTranslationSettings: () -> Unit
+    val onGoBack: () -> Unit = {},
+    val onGoForward: () -> Unit = {},
+    val onHome: () -> Unit = {},
+    val onRefreshOrStop: () -> Unit = {},
+    val onToggleBookmark: () -> Unit = {},
+    val onNewTab: () -> Unit = {},
+    val onIncognito: () -> Unit = {},
+    val onNewProfileTab: () -> Unit = {},
+    val onOpenProfiles: () -> Unit = {},
+    val onShare: () -> Unit = {},
+    val onOpenInApp: () -> Unit = {},
+    val onCreateShortcut: () -> Unit = {},
+    val onCreateFavorite: () -> Unit = {},
+    val onOpenShortcutManager: () -> Unit = {},
+    val onDownloads: () -> Unit = {},
+    val onOpenDownloadSettings: () -> Unit = {},
+    val onMediaCapture: () -> Unit = {},
+    val onUserScripts: () -> Unit = {},
+    val onOpenUserScriptsSettings: () -> Unit = {},
+    val onQuiverGuard: () -> Unit = {},
+    val onOpenQuiverGuardSettings: () -> Unit = {},
+    val onDisableQuiverGuardForSite: () -> Unit = {},
+    val onOpenQuiverGuardSiteSettings: () -> Unit = {},
+    val onBookmarks: () -> Unit = {},
+    val onHistory: () -> Unit = {},
+    val onDesktopMode: () -> Unit = {},
+    val onWebTheme: () -> Unit = {},
+    val onSettings: () -> Unit = {},
+    val onReaderMode: () -> Unit = {},
+    val onFindInPage: () -> Unit = {},
+    val onDataSaver: () -> Unit = {},
+    val onOpenDataSaverSettings: () -> Unit = {},
+    val onOpenDesktopModeSettings: () -> Unit = {},
+    val onOpenWebThemeSettings: () -> Unit = {},
+    val onOpenDataSaverSiteSettings: () -> Unit = {},
+    val onDisableDataSaverForSite: () -> Unit = {},
+    val onToggleTabMute: () -> Unit = {},
+    val onWebsiteBlocker: () -> Unit = {},
+    val onOpenWebsiteBlockerSettings: () -> Unit = {},
+    val onCookiesControl: () -> Unit = {},
+    val onTranslate: () -> Unit = {},
+    val onOpenTranslationSettings: () -> Unit = {},
+    val onSiteInfo: () -> Unit = {},
+    val onCustomize: () -> Unit = {}
 )
 
 internal fun MainActivity.buildMenuSnapshot(previous: BrowserMenuSnapshot?): BrowserMenuSnapshot {
     val position = prefs.getString("address_bar_position", "top") ?: "top"
-    val wv = tabManager.activeTab?.webView
+    val tab = tabManager.activeTab
+    val wv = tab?.webView
     val currentUrl = wv?.url ?: ""
     val cachedPage = previous?.takeIf { it.url == currentUrl }?.page
     val page = BrowserMenuPageState(
@@ -182,32 +205,35 @@ internal fun MainActivity.buildMenuSnapshot(previous: BrowserMenuSnapshot?): Bro
         openInAppEnabled = cachedPage?.openInAppEnabled ?: false,
         openInAppLabel = cachedPage?.openInAppLabel
     )
+    val isHttp = currentUrl.startsWith("http://") || currentUrl.startsWith("https://")
 
     return BrowserMenuSnapshot(
         url = currentUrl,
+        title = tab?.title.orEmpty(),
+        isSecure = currentUrl.startsWith("https://"),
+        isWebPage = isHttp && !isClintHomeUrl(currentUrl),
         showNavRow = position != "split",
         canGoBack = wv?.canGoBack() == true,
         canGoForward = wv?.canGoForward() == true,
         page = page,
         isLoading = uiState.isPageLoading,
         isDesktopMode = isDesktopMode,
+        isWebThemeFollowingApp = resolveWebThemeFollow(currentUrl, tab?.isIncognito == true),
         isDataSaverEnabled = prefs.getBoolean("data_saver_enabled", false),
         pendingDownloadCount = ClintDownloadManager.downloadsFlow.value
             .count { it.status in DownloadStatus.RUNNING_OR_QUEUED }.toLong(),
-        mediaCaptureCount = com.jhaiian.clint.mediacapture.MediaCaptureStore.countForTab(tabManager.activeTab?.id).toLong(),
         isMediaCaptureEnabled = prefs.getBoolean(com.jhaiian.clint.mediacapture.MEDIA_CAPTURE_ENABLED_PREF, true),
         isUserScriptsEnabled = UserScriptState.isEnabled(this),
         isQuiverGuardEnabled = prefs.getBoolean("quiver_guard_enabled", false),
-        quiverGuardBlockedCount = tabManager.activeTab?.id?.let { BlockedRequestCounter.getTabCount(it) } ?: 0L,
+        quiverGuardBlockedCount = tab?.id?.let { BlockedRequestCounter.getTabCount(it) } ?: 0L,
         isWebsiteBlockerEnabled = prefs.getBoolean("website_blocker_enabled", false),
         canCreateShortcut = currentUrl.isNotEmpty(),
-        canUseCookiesControl = tabManager.activeTab?.isIncognito == false &&
-            (currentUrl.startsWith("http://") || currentUrl.startsWith("https://")),
-        canTranslatePage = currentUrl.startsWith("http://") || currentUrl.startsWith("https://"),
-        isPageTranslated = (wv as? com.jhaiian.clint.browser.webview.ClintWebView)?.translator?.state?.value?.isRequested == true,
-        canToggleTabMute = (wv as? com.jhaiian.clint.browser.webview.ClintWebView)?.audioState?.let { it.audible || it.muted } == true,
-        isTabMuted = (wv as? com.jhaiian.clint.browser.webview.ClintWebView)?.audioState?.muted == true,
-        visibleMenuItems = BrowserMenuCustomizationStore.visibleOrderedItems(prefs)
+        canToggleTabMute = (wv as? ClintWebView)?.audioState?.let { it.audible || it.muted } == true,
+        isTabMuted = (wv as? ClintWebView)?.audioState?.muted == true,
+        canUseCookiesControl = tab?.isIncognito == false && isHttp,
+        canTranslatePage = isHttp,
+        isPageTranslated = (wv as? ClintWebView)?.translator?.state?.value?.isRequested == true,
+        layout = BrowserMenuCustomizationStore.readLayout(prefs)
     )
 }
 
@@ -251,6 +277,7 @@ internal fun MainActivity.buildMenuActions(dismiss: () -> Unit): BrowserMenuActi
     onShare = { dismiss(); onMenuShare() },
     onOpenInApp = { dismiss(); onMenuOpenInApp() },
     onCreateShortcut = { dismiss(); onMenuCreateShortcut() },
+    onCreateFavorite = { dismiss(); onMenuCreateFavorite() },
     onOpenShortcutManager = { dismiss(); onMenuOpenShortcutManager() },
     onDownloads = { dismiss(); onMenuDownloads() },
     onOpenDownloadSettings = { dismiss(); onMenuOpenDownloadSettings() },
@@ -260,8 +287,10 @@ internal fun MainActivity.buildMenuActions(dismiss: () -> Unit): BrowserMenuActi
     onBookmarks = { dismiss(); onMenuBookmarks() },
     onHistory = { dismiss(); onMenuHistory() },
     onDesktopMode = { dismiss(); onMenuDesktopMode() },
+    onWebTheme = { dismiss(); onMenuWebTheme() },
     onSettings = { dismiss(); onMenuSettings() },
     onReaderMode = { dismiss(); onMenuReaderMode() },
+    onFindInPage = { dismiss(); onMenuFindInPage() },
     onDataSaver = { dismiss(); onMenuDataSaver() },
     onOpenDataSaverSettings = { dismiss(); onMenuOpenDataSaverSettings() },
     onQuiverGuard = { dismiss(); onMenuQuiverGuard() },
@@ -269,6 +298,7 @@ internal fun MainActivity.buildMenuActions(dismiss: () -> Unit): BrowserMenuActi
     onDisableQuiverGuardForSite = { dismiss(); onMenuDisableQuiverGuardForSite() },
     onOpenQuiverGuardSiteSettings = { dismiss(); onMenuOpenQuiverGuardSiteSettings() },
     onOpenDesktopModeSettings = { dismiss(); onMenuOpenDesktopModeSettings() },
+    onOpenWebThemeSettings = { dismiss(); onMenuOpenWebThemeSettings() },
     onOpenDataSaverSiteSettings = { dismiss(); onMenuOpenDataSaverSiteSettings() },
     onDisableDataSaverForSite = { dismiss(); onMenuDisableDataSaverForSite() },
     onWebsiteBlocker = { dismiss(); onMenuWebsiteBlocker() },
@@ -276,7 +306,9 @@ internal fun MainActivity.buildMenuActions(dismiss: () -> Unit): BrowserMenuActi
     onToggleTabMute = { dismiss(); onMenuToggleTabMute() },
     onCookiesControl = { dismiss(); onMenuCookiesControl() },
     onTranslate = { dismiss(); onMenuTranslate() },
-    onOpenTranslationSettings = { dismiss(); onMenuOpenTranslationSettings() }
+    onOpenTranslationSettings = { dismiss(); onMenuOpenTranslationSettings() },
+    onSiteInfo = { dismiss(); openSiteInfo() },
+    onCustomize = { dismiss(); onMenuCustomize() }
 )
 
 @Composable
@@ -301,7 +333,7 @@ internal fun MenuTriggerButton(activity: MainActivity, modifier: Modifier = Modi
             expanded = true
         }) {
             Icon(
-                imageVector = androidx.compose.material.icons.Icons.Filled.MoreVert,
+                imageVector = Icons.Filled.MoreVert,
                 contentDescription = stringResource(R.string.menu),
                 tint = colors.iconTint
             )
@@ -317,16 +349,18 @@ internal fun MenuTriggerButton(activity: MainActivity, modifier: Modifier = Modi
             DropdownMenu(
                 expanded = expanded && currentSnapshot != null,
                 onDismissRequest = { expanded = false },
-                modifier = Modifier.width(240.dp).heightIn(max = maxMenuHeight),
+                modifier = Modifier.width(PopupMenuWidth).heightIn(max = maxMenuHeight),
                 shape = PopupShape,
                 containerColor = colors.popupBackground,
                 border = BorderStroke(1.dp, colors.popupStroke)
             ) {
-                if (currentSnapshot != null) BrowserMenuContent(currentSnapshot, actions)
+                if (currentSnapshot != null) BrowserMenuContent(currentSnapshot, actions, popup = true)
             }
         }
     }
 }
+
+internal val PopupMenuWidth = 288.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -346,22 +380,18 @@ private fun BrowserMenuBottomSheet(
     }
     val listState = rememberLazyListState()
 
-    val flingBoundaryConnection = remember {
-        object : NestedScrollConnection {
-            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity = available
-        }
-    }
-
     val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
     val maxSheetHeight = if (isPortrait) {
-        (configuration.screenHeightDp.dp * 0.8f).coerceAtLeast(320.dp)
+        (configuration.screenHeightDp.dp * 0.85f).coerceAtLeast(320.dp)
     } else {
         (configuration.screenHeightDp.dp - 96.dp).coerceAtLeast(320.dp)
     }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val flingBoundaryConnection = rememberSheetFlingConnection(sheetState)
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
+        contentWindowInsets = { ClintSheetWindowInsets },
         containerColor = colors.popupBackground,
         dragHandle = { BottomSheetDefaults.DragHandle(color = colors.divider) }
     ) {
@@ -372,7 +402,12 @@ private fun BrowserMenuBottomSheet(
         ) {
             item {
                 Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
-                    BrowserMenuContent(snapshot, actions, modifier = Modifier.fillMaxWidth().widthIn(max = LongPressContentMaxWidth))
+                    BrowserMenuContent(
+                        snapshot,
+                        actions,
+                        popup = false,
+                        modifier = Modifier.fillMaxWidth().widthIn(max = LongPressContentMaxWidth)
+                    )
                 }
             }
         }
@@ -380,97 +415,124 @@ private fun BrowserMenuBottomSheet(
 }
 
 @Composable
-private fun BrowserMenuContent(
-    snapshot: BrowserMenuSnapshot,
-    actions: BrowserMenuActions,
-    modifier: Modifier = Modifier
-) {
+internal fun BrowserMenuPreview(layout: BrowserMenuLayout, popup: Boolean, modifier: Modifier = Modifier) {
     val colors = LocalClintColors.current
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(colors.popupBackground)
-            .padding(vertical = 6.dp)
-    ) {
-        if (snapshot.showNavRow) {
-            Row(
-                modifier = Modifier.fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(colors.surfaceVariant)
-                    .height(52.dp),
-                verticalAlignment = Alignment.CenterVertically
+    val snapshot = BrowserMenuSnapshot(
+        url = "https://example.com",
+        title = stringResource(R.string.app_name),
+        isSecure = true,
+        isWebPage = true,
+        showNavRow = true,
+        canGoBack = true,
+        canGoForward = false,
+        page = BrowserMenuPageState(isBookmarked = false, isDataSaverExceptionForSite = false, isQuiverGuardExceptionForSite = false, openInAppEnabled = false, openInAppLabel = null),
+        isLoading = false,
+        isDesktopMode = false,
+        isWebThemeFollowingApp = true,
+        isDataSaverEnabled = false,
+        pendingDownloadCount = 2L,
+        isMediaCaptureEnabled = true,
+        isUserScriptsEnabled = true,
+        isQuiverGuardEnabled = true,
+        quiverGuardBlockedCount = 12L,
+        isWebsiteBlockerEnabled = true,
+        canCreateShortcut = true,
+        canToggleTabMute = true,
+        isTabMuted = false,
+        canUseCookiesControl = true,
+        canTranslatePage = true,
+        isPageTranslated = false,
+        layout = layout
+    )
+    val actions = remember { BrowserMenuActions() }
+    Box(modifier.clearAndSetSemantics {}) {
+        if (popup) {
+            Box(
+                Modifier
+                    .widthIn(max = PopupMenuWidth)
+                    .fillMaxWidth()
+                    .clip(PopupShape)
+                    .background(colors.popupBackground)
+                    .border(1.dp, colors.popupStroke, PopupShape)
+                    .padding(vertical = 8.dp)
             ) {
-                MenuNavIcon(androidx.compose.material.icons.Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back), snapshot.canGoBack, actions.onGoBack)
-                MenuNavIcon(androidx.compose.material.icons.Icons.AutoMirrored.Filled.ArrowForward, stringResource(R.string.forward), snapshot.canGoForward, actions.onGoForward)
-                MenuNavIcon(androidx.compose.material.icons.Icons.Filled.Home, stringResource(R.string.home), true, actions.onHome)
-                MenuNavIcon(
-                    if (snapshot.isLoading) androidx.compose.material.icons.Icons.Filled.Close else androidx.compose.material.icons.Icons.Filled.Refresh,
-                    stringResource(R.string.refresh), true, actions.onRefreshOrStop
-                )
-                MenuNavIcon(
-                    if (snapshot.page.isBookmarked) androidx.compose.material.icons.Icons.Filled.Bookmark else androidx.compose.material.icons.Icons.Filled.BookmarkBorder,
-                    stringResource(R.string.content_desc_bookmark), true, actions.onToggleBookmark
-                )
+                BrowserMenuContent(snapshot, actions, popup = true, preview = true)
             }
-            MenuDivider()
+        } else {
+            BrowserMenuContent(snapshot, actions, popup = false, preview = true, modifier = Modifier.fillMaxWidth())
         }
-        snapshot.visibleMenuItems.forEach { item -> MenuItemRowFor(item, snapshot, actions) }
-        MenuDivider()
-        MenuItemRow(androidx.compose.material.icons.Icons.Filled.Settings, stringResource(R.string.settings), onClick = actions.onSettings)
+        Box(
+            Modifier.matchParentSize().pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) awaitPointerEvent()
+                }
+            }
+        )
     }
 }
 
+internal class MenuEntryUi(
+    val item: CustomizableMenuItem?,
+    val icon: ImageVector,
+    val label: String,
+    val enabled: Boolean = true,
+    val checked: Boolean? = null,
+    val badge: String? = null,
+    val onClick: () -> Unit,
+    val onLongClick: (() -> Unit)? = null
+) {
+    val active: Boolean get() = checked == true
+}
+
 @Composable
-private fun MenuItemRowFor(item: CustomizableMenuItem, snapshot: BrowserMenuSnapshot, actions: BrowserMenuActions) {
-    when (item) {
-        CustomizableMenuItem.NEW_TAB -> MenuItemRow(item.icon(), stringResource(item.titleRes()), onClick = actions.onNewTab)
-        CustomizableMenuItem.NEW_INCOGNITO_TAB -> MenuItemRow(item.icon(), stringResource(item.titleRes()), onClick = actions.onIncognito)
+private fun menuEntryFor(
+    item: CustomizableMenuItem,
+    snapshot: BrowserMenuSnapshot,
+    actions: BrowserMenuActions
+): MenuEntryUi? {
+    val label = stringResource(item.titleRes())
+    return when (item) {
+        CustomizableMenuItem.NEW_TAB -> MenuEntryUi(item, item.icon(), label, onClick = actions.onNewTab)
+        CustomizableMenuItem.NEW_INCOGNITO_TAB -> MenuEntryUi(item, item.icon(), label, onClick = actions.onIncognito)
         CustomizableMenuItem.NEW_PROFILE_TAB -> if (com.jhaiian.clint.profiles.WebProfiles.isSupported()) {
-            MenuItemRow(
-                item.icon(),
-                stringResource(item.titleRes()),
-                onClick = actions.onNewProfileTab,
-                onLongClick = actions.onOpenProfiles
-            )
-        }
-        CustomizableMenuItem.SHARE -> MenuItemRow(item.icon(), stringResource(item.titleRes()), onClick = actions.onShare)
-        CustomizableMenuItem.OPEN_IN_APP -> MenuItemRow(
-            item.icon(),
-            snapshot.page.openInAppLabel ?: stringResource(item.titleRes()),
+            MenuEntryUi(item, item.icon(), label, onClick = actions.onNewProfileTab, onLongClick = actions.onOpenProfiles)
+        } else null
+        CustomizableMenuItem.SHARE -> MenuEntryUi(item, item.icon(), label, enabled = snapshot.isWebPage, onClick = actions.onShare)
+        CustomizableMenuItem.OPEN_IN_APP -> MenuEntryUi(
+            item, item.icon(), snapshot.page.openInAppLabel ?: label,
             enabled = snapshot.page.openInAppEnabled,
             onClick = actions.onOpenInApp
         )
-        CustomizableMenuItem.CREATE_SHORTCUT -> MenuItemRow(
-            item.icon(),
-            stringResource(item.titleRes()),
+        CustomizableMenuItem.CREATE_SHORTCUT -> MenuEntryUi(
+            item, item.icon(), label,
             enabled = snapshot.canCreateShortcut,
             onClick = actions.onCreateShortcut,
             onLongClick = actions.onOpenShortcutManager
         )
-        CustomizableMenuItem.DOWNLOADS -> MenuItemRow(
-            item.icon(),
-            stringResource(item.titleRes()),
+        CustomizableMenuItem.CREATE_FAVORITE -> MenuEntryUi(
+            item, item.icon(), label,
+            enabled = snapshot.isWebPage,
+            onClick = actions.onCreateFavorite
+        )
+        CustomizableMenuItem.DOWNLOADS -> MenuEntryUi(
+            item, item.icon(), label,
             badge = if (snapshot.pendingDownloadCount > 0L) BlockedRequestCounter.formatCount(snapshot.pendingDownloadCount) else null,
             onClick = actions.onDownloads,
             onLongClick = actions.onOpenDownloadSettings
         )
-        CustomizableMenuItem.MEDIA_CAPTURE -> MenuItemRow(
-            item.icon(),
-            stringResource(item.titleRes()),
+        CustomizableMenuItem.MEDIA_CAPTURE -> MenuEntryUi(
+            item, item.icon(), label,
             checked = snapshot.isMediaCaptureEnabled,
             onClick = actions.onMediaCapture
         )
-        CustomizableMenuItem.USER_SCRIPTS -> MenuItemRow(
-            item.icon(),
-            stringResource(item.titleRes()),
+        CustomizableMenuItem.USER_SCRIPTS -> MenuEntryUi(
+            item, item.icon(), label,
             checked = snapshot.isUserScriptsEnabled,
             onClick = actions.onUserScripts,
             onLongClick = actions.onOpenUserScriptsSettings
         )
-        CustomizableMenuItem.QUIVER_GUARD -> MenuItemRow(
-            item.icon(),
-            stringResource(item.titleRes()),
+        CustomizableMenuItem.QUIVER_GUARD -> MenuEntryUi(
+            item, item.icon(), label,
             checked = snapshot.isQuiverGuardEnabled,
             badge = if (snapshot.isQuiverGuardEnabled && !snapshot.page.isQuiverGuardExceptionForSite && snapshot.quiverGuardBlockedCount > 0L) {
                 BlockedRequestCounter.formatCount(snapshot.quiverGuardBlockedCount)
@@ -478,82 +540,282 @@ private fun MenuItemRowFor(item: CustomizableMenuItem, snapshot: BrowserMenuSnap
             onClick = actions.onQuiverGuard,
             onLongClick = actions.onOpenQuiverGuardSettings
         )
-        CustomizableMenuItem.DISABLE_QUIVER_GUARD_FOR_SITE -> MenuItemRow(
-            item.icon(),
-            stringResource(item.titleRes()),
+        CustomizableMenuItem.DISABLE_QUIVER_GUARD_FOR_SITE -> MenuEntryUi(
+            item, item.icon(), label,
             checked = snapshot.page.isQuiverGuardExceptionForSite,
             onClick = actions.onDisableQuiverGuardForSite,
             onLongClick = actions.onOpenQuiverGuardSiteSettings
         )
-        CustomizableMenuItem.WEBSITE_BLOCKER -> MenuItemRow(
-            item.icon(),
-            stringResource(item.titleRes()),
+        CustomizableMenuItem.WEBSITE_BLOCKER -> MenuEntryUi(
+            item, item.icon(), label,
             checked = snapshot.isWebsiteBlockerEnabled,
             onClick = actions.onWebsiteBlocker,
             onLongClick = actions.onOpenWebsiteBlockerSettings
         )
-        CustomizableMenuItem.BOOKMARKS -> MenuItemRow(item.icon(), stringResource(item.titleRes()), onClick = actions.onBookmarks)
-        CustomizableMenuItem.HISTORY -> MenuItemRow(item.icon(), stringResource(item.titleRes()), onClick = actions.onHistory)
-        CustomizableMenuItem.READER_MODE -> MenuItemRow(item.icon(), stringResource(item.titleRes()), onClick = actions.onReaderMode)
-        CustomizableMenuItem.TRANSLATE -> MenuItemRow(
-            item.icon(),
-            stringResource(item.titleRes()),
+        CustomizableMenuItem.BOOKMARKS -> MenuEntryUi(item, item.icon(), label, onClick = actions.onBookmarks)
+        CustomizableMenuItem.HISTORY -> MenuEntryUi(item, item.icon(), label, onClick = actions.onHistory)
+        CustomizableMenuItem.READER_MODE -> MenuEntryUi(item, item.icon(), label, onClick = actions.onReaderMode)
+        CustomizableMenuItem.FIND_IN_PAGE -> MenuEntryUi(item, item.icon(), label, enabled = snapshot.isWebPage, onClick = actions.onFindInPage)
+        CustomizableMenuItem.TRANSLATE -> MenuEntryUi(
+            item, item.icon(), label,
             enabled = snapshot.canTranslatePage,
             checked = snapshot.isPageTranslated,
             onClick = actions.onTranslate,
             onLongClick = actions.onOpenTranslationSettings
         )
-        CustomizableMenuItem.DESKTOP_MODE -> MenuItemRow(
-            item.icon(),
-            stringResource(item.titleRes()),
+        CustomizableMenuItem.DESKTOP_MODE -> MenuEntryUi(
+            item, item.icon(), label,
             checked = snapshot.isDesktopMode,
             onClick = actions.onDesktopMode,
             onLongClick = actions.onOpenDesktopModeSettings
         )
-        CustomizableMenuItem.DATA_SAVER -> MenuItemRow(
-            item.icon(),
-            stringResource(item.titleRes()),
+        CustomizableMenuItem.WEB_THEME -> MenuEntryUi(
+            item, item.icon(), label,
+            checked = snapshot.isWebThemeFollowingApp,
+            onClick = actions.onWebTheme,
+            onLongClick = actions.onOpenWebThemeSettings
+        )
+        CustomizableMenuItem.DATA_SAVER -> MenuEntryUi(
+            item, item.icon(), label,
             checked = snapshot.isDataSaverEnabled,
             onClick = actions.onDataSaver,
             onLongClick = actions.onOpenDataSaverSettings
         )
-        CustomizableMenuItem.DISABLE_DATA_SAVER_FOR_SITE -> MenuItemRow(
-            item.icon(),
-            stringResource(item.titleRes()),
-            checked = snapshot.page.isDataSaverExceptionForSite,
-            onClick = actions.onDisableDataSaverForSite,
-            onLongClick = actions.onOpenDataSaverSiteSettings
-        )
         CustomizableMenuItem.MUTE_TAB -> if (snapshot.canToggleTabMute) {
-            MenuItemRow(
-                if (snapshot.isTabMuted) androidx.compose.material.icons.Icons.AutoMirrored.Filled.VolumeUp else item.icon(),
+            MenuEntryUi(
+                item,
+                if (snapshot.isTabMuted) Icons.AutoMirrored.Filled.VolumeUp else item.icon(),
                 stringResource(if (snapshot.isTabMuted) R.string.menu_unmute_tab else item.titleRes()),
                 onClick = actions.onToggleTabMute
             )
-        }
-        CustomizableMenuItem.COOKIES_CONTROL -> MenuItemRow(
-            item.icon(),
-            stringResource(item.titleRes()),
+        } else null
+        CustomizableMenuItem.COOKIES_CONTROL -> MenuEntryUi(
+            item, item.icon(), label,
             enabled = snapshot.canUseCookiesControl,
             onClick = actions.onCookiesControl
+        )
+        CustomizableMenuItem.DISABLE_DATA_SAVER_FOR_SITE -> MenuEntryUi(
+            item, item.icon(), label,
+            checked = snapshot.page.isDataSaverExceptionForSite,
+            onClick = actions.onDisableDataSaverForSite,
+            onLongClick = actions.onOpenDataSaverSiteSettings
         )
     }
 }
 
 @Composable
-private fun MenuDivider() {
-    HorizontalDivider(
-        color = LocalClintColors.current.popupStroke,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp)
-    )
+private fun BrowserMenuContent(
+    snapshot: BrowserMenuSnapshot,
+    actions: BrowserMenuActions,
+    popup: Boolean,
+    modifier: Modifier = Modifier,
+    preview: Boolean = false
+) {
+    val layout = snapshot.layout
+    val grid = layout.itemsIn(MenuSection.GRID).mapNotNull { menuEntryFor(it, snapshot, actions) }
+    val toggles = layout.itemsIn(MenuSection.TOGGLES).mapNotNull { menuEntryFor(it, snapshot, actions) }
+    val list = layout.itemsIn(MenuSection.LIST).mapNotNull { menuEntryFor(it, snapshot, actions) }
+    if (popup) {
+        PopupMenuLayout(snapshot, actions, grid, toggles, list, modifier)
+    } else {
+        SheetMenuLayout(snapshot, actions, grid, toggles, list, preview, modifier)
+    }
 }
 
 @Composable
-private fun RowScope.MenuNavIcon(iconRes: androidx.compose.ui.graphics.vector.ImageVector, description: String, enabled: Boolean, onClick: () -> Unit) {
+private fun SheetMenuLayout(
+    snapshot: BrowserMenuSnapshot,
+    actions: BrowserMenuActions,
+    grid: List<MenuEntryUi>,
+    toggles: List<MenuEntryUi>,
+    list: List<MenuEntryUi>,
+    preview: Boolean,
+    modifier: Modifier
+) {
+    val layout = snapshot.layout
+    val compact = layout.compact
+    Column(
+        modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(if (compact) 12.dp else 16.dp)
+    ) {
+        if (layout.showHeader && snapshot.isWebPage) {
+            MenuPageHeader(snapshot, preview, actions.onSiteInfo)
+        }
+        if (snapshot.showNavRow && snapshot.layout.showNavBar) {
+            MenuNavRow(snapshot, actions, height = if (compact) 48.dp else 56.dp, corner = 20.dp)
+        }
+        if (grid.isNotEmpty()) {
+            MenuGrid(
+                grid,
+                columns = layout.gridColumns,
+                iconBox = if (compact) 44.dp else 52.dp,
+                labels = layout.gridLabels,
+                rowGap = if (compact) 4.dp else 8.dp
+            )
+        }
+        if (toggles.isNotEmpty()) {
+            MenuChips(toggles, compact)
+        }
+        if (list.isNotEmpty()) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(LocalClintColors.current.surfaceVariant.copy(alpha = 0.5f))
+                    .padding(vertical = 4.dp)
+            ) {
+                list.forEach { entry -> MenuItemRow(entry, height = if (compact) 46.dp else 52.dp) }
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            MenuFooterButton(Icons.Filled.Settings, stringResource(R.string.settings), filled = true, onClick = actions.onSettings, modifier = Modifier.weight(1f))
+            MenuFooterButton(Icons.Filled.Edit, stringResource(R.string.menu_customize), filled = false, onClick = actions.onCustomize, modifier = Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun PopupMenuLayout(
+    snapshot: BrowserMenuSnapshot,
+    actions: BrowserMenuActions,
+    grid: List<MenuEntryUi>,
+    toggles: List<MenuEntryUi>,
+    list: List<MenuEntryUi>,
+    modifier: Modifier
+) {
+    val colors = LocalClintColors.current
+    val layout = snapshot.layout
+    val rowHeight = if (layout.compact) 42.dp else 46.dp
+    Column(modifier.padding(horizontal = 8.dp)) {
+        if (snapshot.showNavRow && snapshot.layout.showNavBar) {
+            MenuNavRow(snapshot, actions, height = 48.dp, corner = 16.dp)
+        }
+        if (grid.isNotEmpty()) {
+            Box(Modifier.padding(top = 6.dp, bottom = 2.dp)) {
+                MenuGrid(
+                    grid,
+                    columns = layout.gridColumns.coerceAtMost(4),
+                    iconBox = if (layout.compact) 38.dp else 44.dp,
+                    labels = layout.gridLabels,
+                    rowGap = 2.dp
+                )
+            }
+        }
+        if (toggles.isNotEmpty()) {
+            MenuDivider()
+            toggles.forEach { entry -> MenuItemRow(entry, height = rowHeight, switchStyle = true) }
+        }
+        if (list.isNotEmpty()) {
+            MenuDivider()
+            list.forEach { entry -> MenuItemRow(entry, height = rowHeight) }
+        }
+        MenuDivider()
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.weight(1f)) {
+                MenuItemRow(
+                    MenuEntryUi(null, Icons.Filled.Settings, stringResource(R.string.settings), onClick = actions.onSettings),
+                    height = rowHeight
+                )
+            }
+            IconButton(
+                onClick = actions.onCustomize,
+                modifier = Modifier.padding(start = 4.dp).size(42.dp).clip(CircleShape).background(colors.surfaceVariant)
+            ) {
+                Icon(Icons.Filled.Edit, contentDescription = stringResource(R.string.menu_customize), tint = colors.iconTint, modifier = Modifier.size(18.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun MenuPageHeader(snapshot: BrowserMenuSnapshot, preview: Boolean, onSiteInfo: () -> Unit) {
+    val colors = LocalClintColors.current
+    val favicon = if (preview) null else rememberClintFavicon(snapshot.url)
+    val host = remember(snapshot.url) {
+        runCatching { Uri.parse(snapshot.url).host }.getOrNull().orEmpty().removePrefix("www.")
+    }
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Box(
+            Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)).background(colors.surfaceVariant),
+            contentAlignment = Alignment.Center
+        ) {
+            if (favicon != null) {
+                Image(favicon.asImageBitmap(), contentDescription = null, modifier = Modifier.size(24.dp))
+            } else {
+                Text(
+                    host.firstOrNull()?.uppercase().orEmpty(),
+                    color = colors.primary,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+        Column(Modifier.weight(1f)) {
+            Text(
+                snapshot.title.ifBlank { host },
+                color = colors.popupText,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 2.dp)) {
+                Icon(
+                    if (snapshot.isSecure) Icons.Filled.Lock else Icons.Filled.LockOpen,
+                    contentDescription = null,
+                    tint = if (snapshot.isSecure) colors.secondaryText else colors.colorError,
+                    modifier = Modifier.size(13.dp)
+                )
+                Text(
+                    host,
+                    color = colors.secondaryText,
+                    fontSize = 13.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            }
+        }
+        IconButton(
+            onClick = onSiteInfo,
+            modifier = Modifier.size(44.dp).clip(CircleShape).background(colors.surfaceVariant)
+        ) {
+            Icon(Icons.Filled.Info, contentDescription = stringResource(R.string.site_info_title), tint = colors.iconTint, modifier = Modifier.size(20.dp))
+        }
+    }
+}
+
+@Composable
+private fun MenuNavRow(snapshot: BrowserMenuSnapshot, actions: BrowserMenuActions, height: Dp, corner: Dp) {
+    val colors = LocalClintColors.current
+    Row(
+        modifier = Modifier.fillMaxWidth()
+            .clip(RoundedCornerShape(corner))
+            .background(colors.surfaceVariant)
+            .height(height),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        snapshot.layout.navSlots.forEach { slot ->
+            val label = stringResource(slot.titleRes())
+            when (slot) {
+                MenuNavSlot.BACK -> MenuNavIcon(slot.icon(), label, snapshot.canGoBack, actions.onGoBack)
+                MenuNavSlot.FORWARD -> MenuNavIcon(slot.icon(), label, snapshot.canGoForward, actions.onGoForward)
+                MenuNavSlot.HOME -> MenuNavIcon(slot.icon(), label, true, actions.onHome)
+                MenuNavSlot.RELOAD -> MenuNavIcon(if (snapshot.isLoading) Icons.Filled.Close else slot.icon(), label, true, actions.onRefreshOrStop)
+                MenuNavSlot.BOOKMARK -> MenuNavIcon(if (snapshot.page.isBookmarked) Icons.Filled.Bookmark else slot.icon(), label, true, actions.onToggleBookmark)
+                MenuNavSlot.SHARE -> MenuNavIcon(slot.icon(), label, snapshot.isWebPage, actions.onShare)
+                MenuNavSlot.NEW_TAB -> MenuNavIcon(slot.icon(), label, true, actions.onNewTab)
+            }
+        }
+    }
+}
+
+@Composable
+private fun RowScope.MenuNavIcon(icon: ImageVector, description: String, enabled: Boolean, onClick: () -> Unit) {
     val colors = LocalClintColors.current
     IconButton(onClick = onClick, modifier = Modifier.weight(1f).fillMaxHeight()) {
         Icon(
-            imageVector = iconRes,
+            imageVector = icon,
             contentDescription = description,
             tint = colors.iconTint,
             modifier = Modifier.alpha(if (enabled) 1.0f else 0.38f)
@@ -562,25 +824,178 @@ private fun RowScope.MenuNavIcon(iconRes: androidx.compose.ui.graphics.vector.Im
 }
 
 @OptIn(ExperimentalFoundationApi::class)
+private fun Modifier.menuClickable(entry: MenuEntryUi): Modifier {
+    val toggle = entry.checked
+    val base = if (toggle != null) semantics { toggleableState = ToggleableState(toggle) } else this
+    return if (entry.enabled) {
+        base.combinedClickable(
+            role = if (toggle != null) Role.Switch else Role.Button,
+            onClick = entry.onClick,
+            onLongClick = entry.onLongClick
+        )
+    } else base
+}
+
 @Composable
-private fun MenuItemRow(
-    iconRes: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    enabled: Boolean = true,
-    checked: Boolean? = null,
-    badge: String? = null,
-    onClick: () -> Unit,
-    onLongClick: (() -> Unit)? = null
-) {
+private fun MenuGrid(entries: List<MenuEntryUi>, columns: Int, iconBox: Dp, labels: Boolean, rowGap: Dp) {
+    Column(verticalArrangement = Arrangement.spacedBy(rowGap)) {
+        entries.chunked(columns).forEach { row ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                row.forEach { entry -> MenuGridTile(entry, iconBox, labels, Modifier.weight(1f)) }
+                repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MenuGridTile(entry: MenuEntryUi, iconBox: Dp, labels: Boolean, modifier: Modifier) {
+    val colors = LocalClintColors.current
+    Column(
+        modifier
+            .clip(RoundedCornerShape(16.dp))
+            .menuClickable(entry)
+            .alpha(if (entry.enabled) 1f else 0.38f)
+            .padding(vertical = 6.dp, horizontal = 2.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Box(Modifier.size(iconBox)) {
+            Box(
+                Modifier
+                    .matchParentSize()
+                    .clip(RoundedCornerShape(iconBox * 0.34f))
+                    .background(if (entry.active) colors.primary else colors.primary.copy(alpha = 0.14f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    entry.icon,
+                    contentDescription = if (labels) null else entry.label,
+                    tint = if (entry.active) colors.onPrimary else colors.primary,
+                    modifier = Modifier.size(iconBox * 0.42f)
+                )
+            }
+            entry.badge?.let { MenuBadge(it, Modifier.align(Alignment.TopEnd).offset(x = 6.dp, y = (-4).dp)) }
+        }
+        if (labels) {
+            Text(
+                entry.label,
+                color = colors.popupText,
+                fontSize = 12.sp,
+                lineHeight = 15.sp,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun MenuChips(entries: List<MenuEntryUi>, compact: Boolean) {
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        entries.forEach { MenuChip(it, compact) }
+    }
+}
+
+@Composable
+private fun MenuChip(entry: MenuEntryUi, compact: Boolean) {
+    val colors = LocalClintColors.current
+    val shape = RoundedCornerShape(50)
+    val content = if (entry.active) colors.onPrimary else colors.popupText
+    Row(
+        Modifier
+            .height(if (compact) 36.dp else 40.dp)
+            .clip(shape)
+            .then(if (entry.active) Modifier.background(colors.primary) else Modifier.border(1.dp, colors.popupStroke, shape))
+            .menuClickable(entry)
+            .alpha(if (entry.enabled) 1f else 0.38f)
+            .padding(start = 12.dp, end = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Icon(entry.icon, contentDescription = null, tint = if (entry.active) colors.onPrimary else colors.primary, modifier = Modifier.size(18.dp))
+        Text(entry.label, color = content, fontSize = 14.sp, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        entry.badge?.let { MenuBadge(it) }
+    }
+}
+
+@Composable
+private fun MenuFooterButton(icon: ImageVector, label: String, filled: Boolean, onClick: () -> Unit, modifier: Modifier) {
+    val colors = LocalClintColors.current
+    val shape = RoundedCornerShape(50)
+    Row(
+        modifier
+            .height(48.dp)
+            .clip(shape)
+            .then(if (filled) Modifier.background(colors.primary.copy(alpha = 0.14f)) else Modifier.border(1.dp, colors.popupStroke, shape))
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Icon(icon, contentDescription = null, tint = colors.primary, modifier = Modifier.size(18.dp))
+        Text(
+            label,
+            color = colors.popupText,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(start = 8.dp)
+        )
+    }
+}
+
+@Composable
+private fun MenuDivider() {
+    HorizontalDivider(
+        color = LocalClintColors.current.popupStroke,
+        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+    )
+}
+
+@Composable
+private fun MenuBadge(text: String, modifier: Modifier = Modifier) {
+    val colors = LocalClintColors.current
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .defaultMinSize(minWidth = 18.dp)
+            .height(18.dp)
+            .clip(RoundedCornerShape(9.dp))
+            .background(colors.primary)
+            .border(2.dp, colors.popupBackground, RoundedCornerShape(9.dp))
+            .padding(horizontal = 4.dp)
+    ) {
+        Text(
+            text = text,
+            color = colors.onPrimary,
+            fontSize = 10.sp,
+            lineHeight = 10.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            style = LocalTextStyle.current.copy(platformStyle = PlatformTextStyle(includeFontPadding = false))
+        )
+    }
+}
+
+@Composable
+private fun MenuItemRow(entry: MenuEntryUi, height: Dp, switchStyle: Boolean = false) {
     val colors = LocalClintColors.current
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
-            .let { if (enabled) it.combinedClickable(onClick = onClick, onLongClick = onLongClick) else it }
-            .alpha(if (enabled) 1f else 0.38f)
-            .padding(horizontal = 16.dp)
+            .height(height)
+            .clip(RoundedCornerShape(14.dp))
+            .menuClickable(entry)
+            .alpha(if (entry.enabled) 1f else 0.38f)
+            .padding(horizontal = 10.dp)
     ) {
         Box(modifier = Modifier.size(34.dp)) {
             Box(
@@ -590,50 +1005,26 @@ private fun MenuItemRow(
                     .background(colors.primary.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = iconRes,
-                    contentDescription = null,
-                    tint = colors.primary,
-                    modifier = Modifier.size(18.dp)
-                )
+                Icon(entry.icon, contentDescription = null, tint = colors.primary, modifier = Modifier.size(18.dp))
             }
-            if (badge != null) {
-
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .offset(x = 5.dp, y = (-5).dp)
-                        .defaultMinSize(minWidth = 13.dp)
-                        .height(13.dp)
-                        .clip(RoundedCornerShape(6.5.dp))
-                        .background(colors.primary)
-                        .padding(horizontal = 3.dp)
-                ) {
-                    Text(
-                        text = badge,
-                        color = colors.onPrimary,
-                        fontSize = 7.sp,
-                        lineHeight = 7.sp,
-                        fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center,
-                        style = LocalTextStyle.current.copy(
-                            platformStyle = PlatformTextStyle(includeFontPadding = false)
-                        )
-                    )
-                }
-            }
+            entry.badge?.let { MenuBadge(it, Modifier.align(Alignment.TopEnd).offset(x = 5.dp, y = (-5).dp)) }
         }
         Text(
-            text = label,
+            text = entry.label,
             color = colors.popupText,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f).padding(start = 14.dp)
         )
-        if (checked == true) {
-            Icon(
-                imageVector = androidx.compose.material.icons.Icons.Filled.Check,
+        when {
+            switchStyle && entry.checked != null -> ClintSwitch(
+                checked = entry.checked,
+                modifier = Modifier.graphicsLayer { scaleX = 0.8f; scaleY = 0.8f }
+            )
+            entry.checked == true -> Icon(
+                imageVector = Icons.Filled.Check,
                 contentDescription = null,
                 tint = colors.popupCheck,
                 modifier = Modifier.size(18.dp)

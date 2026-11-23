@@ -1,54 +1,89 @@
 package com.jhaiian.clint.browser.delegates
 
+import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.Lifecycle
+import com.jhaiian.clint.R
 import com.jhaiian.clint.browser.MainActivity
-import com.jhaiian.clint.browser.network.BrowserEngineRestart
+import com.jhaiian.clint.browser.media.BackgroundPlayback
 import com.jhaiian.clint.browser.network.NetworkSwitchMonitor
 import com.jhaiian.clint.downloads.ClintDownloadManager
+import com.jhaiian.clint.ui.showClintSnackbar
 
-internal fun MainActivity.startNetworkSwitchMonitor() {
-    if (networkSwitchMonitor != null) return
-    networkSwitchMonitor = NetworkSwitchMonitor(this) { change -> onNetworkSwitched(change) }.also { it.start() }
+private const val NETWORK_REAVAILABLE_DELAY_MS = 600L
+
+private val networkHandler = Handler(Looper.getMainLooper())
+
+internal fun MainActivity.attachNetworkSwitchMonitor() {
+    NetworkSwitchMonitor.listener = { change -> onNetworkChanged(change) }
 }
 
-internal fun MainActivity.stopNetworkSwitchMonitor() {
-    networkSwitchMonitor?.stop()
-    networkSwitchMonitor = null
+internal fun MainActivity.detachNetworkSwitchMonitor() {
+    NetworkSwitchMonitor.listener = null
+    networkHandler.removeCallbacksAndMessages(null)
 }
 
-private fun MainActivity.onNetworkSwitched(@Suppress("UNUSED_PARAMETER") change: NetworkSwitchMonitor.Change) {
-    if (isFinishing || isDestroyed) return
-    // Fire offline -> online in every page so web apps drop and re-open their connections.
-    tabManager.tabs.forEach { tab -> runCatching { tab.webView.setNetworkAvailable(false) } }
-    window.decorView.postDelayed({
-        tabManager.tabs.forEach { tab -> runCatching { tab.webView.setNetworkAvailable(true) } }
-    }, 300)
-
-    if (!prefs.getBoolean(BrowserEngineRestart.PREF_NETWORK_SWITCH_RECOVERY, BrowserEngineRestart.DEFAULT_NETWORK_SWITCH_RECOVERY)) return
-    // Silent recovery: no UI. In the foreground restart right away; in the background restart on return.
-    if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-        if (canRestartEngineQuietly()) restartBrowserEngine()
-    } else {
-        pendingEngineRestart = true
-    }
-}
-
-/** Called from onStart: after a network switch that happened while we were in the background, restart quietly. */
-internal fun MainActivity.consumePendingEngineRestart(): Boolean {
-    if (!pendingEngineRestart) return false
-    pendingEngineRestart = false
-    if (!canRestartEngineQuietly()) return false
-    restartBrowserEngine()
+internal fun MainActivity.consumeEngineRestartIntent(source: Intent?): Boolean {
+    if (source?.getBooleanExtra(MainActivity.EXTRA_ENGINE_RESTART_REQUEST, false) != true) return false
+    NetworkSwitchMonitor.requestRestart(NetworkSwitchMonitor.RestartRequest.MANUAL)
     return true
 }
 
-/** A quiet restart must not lose anything that lives only in this process. */
-internal fun MainActivity.canRestartEngineQuietly(): Boolean =
-    tabManager.tabs.none { it.isIncognito } &&
-        ClintDownloadManager.activeCount() == 0 &&
-        tabManager.tabs.none { backgroundPlaybackTracker.isPlaying(it.id) }
+internal fun MainActivity.performPendingEngineRestart(foreground: Boolean = true) {
+    val request = NetworkSwitchMonitor.restartRequest
+    if (request == NetworkSwitchMonitor.RestartRequest.NONE || !foreground) return
+    NetworkSwitchMonitor.restartRequest = NetworkSwitchMonitor.RestartRequest.NONE
+    if (request == NetworkSwitchMonitor.RestartRequest.AUTO && !NetworkSwitchMonitor.isAutoRecoveryEnabled(prefs)) return
+    if (engineRestartBlocked()) {
+        if (request == NetworkSwitchMonitor.RestartRequest.MANUAL) {
+            showClintSnackbar(getString(R.string.network_restart_blocked))
+        }
+        return
+    }
+    restartEngine()
+}
 
-internal fun MainActivity.restartBrowserEngine() {
+private fun MainActivity.setTabsNetworkAvailable(available: Boolean) {
+    tabManager.tabs.forEach { tab -> runCatching { tab.webView.setNetworkAvailable(available) } }
+}
+
+private fun MainActivity.onNetworkChanged(change: NetworkSwitchMonitor.Change) {
+    if (isFinishing || isDestroyed) return
+    when (change) {
+        NetworkSwitchMonitor.Change.LOST -> setTabsNetworkAvailable(false)
+        NetworkSwitchMonitor.Change.RESTORED -> setTabsNetworkAvailable(true)
+        NetworkSwitchMonitor.Change.SWITCHED -> {
+            setTabsNetworkAvailable(false)
+            networkHandler.postDelayed({
+                if (!isFinishing && !isDestroyed) setTabsNetworkAvailable(true)
+            }, NETWORK_REAVAILABLE_DELAY_MS)
+            NetworkSwitchMonitor.requestRestart(NetworkSwitchMonitor.RestartRequest.AUTO)
+            performPendingEngineRestart(lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
+        }
+    }
+}
+
+private fun MainActivity.engineRestartBlocked(): Boolean =
+    tabManager.tabs.any { it.isIncognito } ||
+        ClintDownloadManager.activeCount() > 0 ||
+        BackgroundPlayback.session.value != null ||
+        isVideoFullscreen()
+
+private fun MainActivity.restartEngine() {
+    NetworkSwitchMonitor.engineRestarting = true
     saveTabs(blocking = true)
-    BrowserEngineRestart.relaunch(this)
+    runCatching { android.webkit.CookieManager.getInstance().flush() }
+    val relaunch = Intent(this, MainActivity::class.java)
+        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+        .putExtra(MainActivity.EXTRA_ENGINE_RESTART, true)
+    tabManager.activeTab
+        ?.let { tabManager.effectiveShortcutId(it) }
+        ?.let { relaunch.putExtra(MainActivity.EXTRA_SHORTCUT_ID, it) }
+    val started = runCatching { startActivity(relaunch) }.isSuccess
+    if (!started) {
+        NetworkSwitchMonitor.engineRestarting = false
+        return
+    }
+    android.os.Process.killProcess(android.os.Process.myPid())
 }

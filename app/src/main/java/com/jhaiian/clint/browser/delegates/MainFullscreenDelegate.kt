@@ -11,6 +11,7 @@ internal fun MainActivity.onShowCustomView(view: View, callback: WebChromeClient
     if (fullscreenView != null) { callback.onCustomViewHidden(); return }
     fullscreenCallback = callback
     fullscreenView = view
+    fullscreenWebView = tabManager.activeTab?.webView
     fullscreenContainerView.addView(view, android.view.ViewGroup.LayoutParams(
         android.view.ViewGroup.LayoutParams.MATCH_PARENT,
         android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -46,6 +47,7 @@ internal fun MainActivity.exitFullscreen() {
     fullscreenView?.let { fullscreenContainerView.removeView(it) }
     fullscreenView = null
     uiState.isFullscreen = false
+    onVideoTakeoverEnded()
     bottomBarAnimator2?.cancel()
     uiState.topBarFraction = 0f
     uiState.bottomBarFraction = 0f

@@ -1,0 +1,67 @@
+Clint Browser là trình duyệt Android mã nguồn mở với giao diện Material 3 hiện đại và vô vàn tính năng. Không có backend, không thu thập dữ liệu, không quảng cáo và không tường phí. Hoàn toàn miễn phí.
+
+<b>MEDIA CAPTURE (THU THẬP PHƯƠNG TIỆN)</b>
+• Phát hiện luồng video, âm thanh và phụ đề trên các trang bạn truy cập
+• Hỗ trợ video thường, luồng HLS/M3U8 và DASH
+• Tải xuống phương tiện đã phát hiện trực tiếp từ trình duyệt
+
+<b>TRÌNH QUẢN LÝ TẢI XUỐNG</b>
+• Tải xuống đa luồng và nhiều phần
+• Tạm dừng và tiếp tục
+• Lên lịch tải xuống và giới hạn tốc độ
+• Vị trí tải xuống tùy chỉnh
+• Tự động tạm dừng và tiếp tục các lượt tải xuống bị kẹt
+
+<b>TẬP LỆNH NGƯỜI DÙNG</b>
+• Cài đặt userscript từ URL hoặc tự viết bằng trình soạn mã tích hợp
+• Siêu dữ liệu kiểu Tampermonkey (@match, @include, @exclude, @require, @resource, @grant)
+• Hỗ trợ GM API, gồm GM.setValue, GM.getValue, GM.xmlHttpRequest và GM.notification
+• Tự động kiểm tra cập nhật cho các tập lệnh cài từ URL
+• Bật hoặc tắt từng tập lệnh bất cứ lúc nào
+
+<b>QUIVER GUARD</b>
+• Trình chặn quảng cáo và trình theo dõi tích hợp sẵn
+• Lọc giao diện và lọc mạng
+• Nhiều danh sách bộ lọc
+• Kiểm soát theo từng trang web
+
+<b>TRÌNH CHẶN TRANG WEB</b>
+• Chặn nội dung khiêu dâm, cờ bạc và các danh mục không mong muốn khác
+• Danh sách bộ lọc theo danh mục
+• Thêm các trang web tùy chỉnh của riêng bạn để chặn
+
+<b>TIẾT KIỆM DỮ LIỆU</b>
+• Chỉ trên mạng tính phí theo dung lượng
+• Tắt hình ảnh, chặn video và dừng tự động phát
+• Chặn tải trước phương tiện, phông chữ web và khung của bên thứ ba
+• Tái sử dụng trang đã lưu và yêu cầu trang nhẹ hơn
+• Tắt gợi ý tìm kiếm trực tuyến và favicon
+• Chặn tập lệnh và CSS
+
+<b>QUYỀN RIÊNG TƯ VÀ BẢO MẬT</b>
+• Chế độ ẩn danh
+• Bảo vệ cửa sổ bật lên
+• Gửi yêu cầu Không theo dõi
+• Hỗ trợ Passkeys
+• Có thể tắt tự động điền
+
+<b>TÙY BIẾN</b>
+• 50 màu nhấn, chủ đề Sáng và Tối và 5 mức độ đậm của bề mặt
+• 500 tổ hợp chủ đề
+• Chọn giữa trang chủ Clint Browser và trang chủ của công cụ tìm kiếm
+• Nền trang chủ dạng màu trơn, chuyển sắc hoặc ảnh tùy chỉnh
+
+<b>HỒ SƠ</b>
+• Duy trì đăng nhập nhiều tài khoản trên cùng một trang web cùng lúc
+• Mỗi hồ sơ có cookie và dữ liệu trang web riêng
+• Mở thẻ mới và lối tắt trong bất kỳ hồ sơ nào
+
+<b>TRÌNH DUYỆT</b>
+• Duyệt nhiều thẻ
+• Chế độ đọc
+• Chế độ máy tính
+• Tự động xóa thẻ không hoạt động
+• Tải xuống nhanh
+• Trình quản lý lối tắt với lối tắt không khung
+
+Yêu cầu Android 8.0 trở lên và một bản triển khai WebView.

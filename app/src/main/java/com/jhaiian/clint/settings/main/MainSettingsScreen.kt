@@ -1,5 +1,6 @@
 package com.jhaiian.clint.settings.main
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Accessibility
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.DataSaverOn
 import androidx.compose.material.icons.filled.Download
@@ -13,6 +14,7 @@ import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.filled.VolunteerActivism
+import androidx.compose.material.icons.filled.SupervisorAccount
 import androidx.compose.material.icons.filled.WebAsset
 
 import androidx.compose.foundation.background
@@ -49,7 +51,7 @@ import com.jhaiian.clint.settings.common.settingsSearchHighlight
 import com.jhaiian.clint.ui.theme.LocalClintColors
 
 enum class MainSettingsEntry {
-    BROWSER, LOOK_AND_FEEL, PRIVACY, SITE_SETTINGS, DOWNLOADS, DATA_SAVER, BACKUP_RESTORE, UPDATES, MISC, DEBUG, ABOUT
+    BROWSER, LOOK_AND_FEEL, ACCESSIBILITY, PRIVACY, SITE_SETTINGS, PARENTAL_CONTROLS, DOWNLOADS, DATA_SAVER, BACKUP_RESTORE, UPDATES, MISC, DEBUG, ABOUT
 }
 
 private class MainSettingsItem(
@@ -66,9 +68,11 @@ fun MainSettingsScreen(
     selectedEntry: MainSettingsEntry? = null,
     onSearchClick: () -> Unit,
     onLookAndFeelClick: () -> Unit,
+    onAccessibilityClick: () -> Unit,
     onBrowserClick: () -> Unit,
     onPrivacyClick: () -> Unit,
     onSiteSettingsClick: () -> Unit,
+    onParentalControlsClick: () -> Unit,
     onDataSaverClick: () -> Unit,
     onDownloadsClick: () -> Unit,
     onBackupRestoreClick: () -> Unit,
@@ -99,6 +103,10 @@ fun MainSettingsScreen(
             MainSettingsItem(
                 MainSettingsEntry.LOOK_AND_FEEL, androidx.compose.material.icons.Icons.Filled.Palette,
                 stringResource(R.string.look_and_feel), stringResource(R.string.look_and_feel_summary), onLookAndFeelClick
+            ),
+            MainSettingsItem(
+                MainSettingsEntry.ACCESSIBILITY, androidx.compose.material.icons.Icons.Filled.Accessibility,
+                stringResource(R.string.accessibility_title), stringResource(R.string.accessibility_summary), onAccessibilityClick
             )
         ),
         stringResource(R.string.settings_group_privacy) to listOf(
@@ -109,6 +117,10 @@ fun MainSettingsScreen(
             MainSettingsItem(
                 MainSettingsEntry.SITE_SETTINGS, androidx.compose.material.icons.Icons.Filled.WebAsset,
                 stringResource(R.string.site_settings), stringResource(R.string.site_settings_summary), onSiteSettingsClick
+            ),
+            MainSettingsItem(
+                MainSettingsEntry.PARENTAL_CONTROLS, androidx.compose.material.icons.Icons.Filled.SupervisorAccount,
+                stringResource(R.string.parental_controls_title), stringResource(R.string.parental_controls_summary), onParentalControlsClick
             )
         ),
         stringResource(R.string.settings_group_data) to listOf(

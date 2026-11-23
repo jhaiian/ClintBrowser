@@ -30,6 +30,7 @@ import com.jhaiian.clint.quiver.engine.QuiverGuardWebIntegration
 import com.jhaiian.clint.settings.sitepermissions.SitePermissionActivity
 import com.jhaiian.clint.settings.sitepermissions.SitePermissionDatabase
 import com.jhaiian.clint.settings.sitepermissions.SitePermissionManager
+import com.jhaiian.clint.ui.findActivity
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 class ClintWebViewClient(
@@ -285,7 +286,7 @@ class ClintWebViewClient(
             }
             val pm = view.context.packageManager
             val resolveInfo = resolveActivityCompat(pm, intent)
-            val activity = view.context as? android.app.Activity
+            val activity = view.context.findActivity()
 
             if (resolveInfo != null && activity != null) {
                 val pageHost = view.url?.let { runCatching { Uri.parse(it).host }.getOrNull() }
@@ -308,7 +309,7 @@ class ClintWebViewClient(
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         val resolveInfo = resolveActivityCompat(pm, intent)
-        val activity = context as? android.app.Activity
+        val activity = context.findActivity()
 
         if (resolveInfo != null && activity != null) {
             val pageHost = view.url?.let { runCatching { Uri.parse(it).host }.getOrNull() }
@@ -400,7 +401,7 @@ class ClintWebViewClient(
 
         if (appMatches.isEmpty()) return false
 
-        val activity = context as? com.jhaiian.clint.browser.MainActivity ?: return false
+        val activity = context.findActivity() as? com.jhaiian.clint.browser.MainActivity ?: return false
 
         if (mode == SitePermissionDatabase.STATE_OPEN && appMatches.size == 1) {
             val directIntent = Intent(Intent.ACTION_VIEW, uri)

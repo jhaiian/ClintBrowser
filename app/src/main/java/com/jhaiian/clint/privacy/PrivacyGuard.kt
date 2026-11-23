@@ -156,7 +156,7 @@ object PrivacyGuard {
         if (cookies) clearCookiesAndSiteData()
         if (cache) clearCache(context)
         Thread {
-            if (history) runCatching { SearchHistoryManager.clear(context) }
+            if (history) runCatching { SearchHistoryManager.clearAllProfiles(context) }
             main.post {
                 prefs.edit().putBoolean(PrivacyPrefs.EXIT_CLEAR_PENDING, false).apply()
                 clearRunning = false

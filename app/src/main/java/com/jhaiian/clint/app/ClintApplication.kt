@@ -27,6 +27,7 @@ class ClintApplication : Application() {
         SystemDarkState.install(this)
         loadMeasurementSystemPreference(this)
         DataSaverMode.register(this)
+        com.jhaiian.clint.browser.network.NetworkSwitchMonitor.register(this)
         com.jhaiian.clint.privacy.PrivacyGuard.install(this)
         com.jhaiian.clint.downloads.ClintDownloadManager.init(this)
         com.jhaiian.clint.quiver.QuiverGuardAutoUpdater.schedule(this)

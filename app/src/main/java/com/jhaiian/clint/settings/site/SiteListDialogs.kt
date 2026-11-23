@@ -31,7 +31,9 @@ fun AddSiteDialog(
     hideStatusBar: Boolean, hideSystemNavigation: Boolean,
     showStateChoice: Boolean,
     onConfirm: (origin: String, allowed: Boolean) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    allowedLabelRes: Int = R.string.site_permission_state_allowed,
+    deniedLabelRes: Int = R.string.site_permission_state_denied
 ) {
     val colors = LocalClintColors.current
     var origin by remember { mutableStateOf("") }
@@ -67,7 +69,7 @@ fun AddSiteDialog(
                 ) {
                     ClintRadioButton(selected = allowed)
                     Text(
-                        stringResource(R.string.site_permission_state_allowed),
+                        stringResource(allowedLabelRes),
                         color = colors.onSurface, fontSize = 14.sp, modifier = Modifier.padding(start = 8.dp)
                     )
                 }
@@ -77,7 +79,7 @@ fun AddSiteDialog(
                 ) {
                     ClintRadioButton(selected = !allowed)
                     Text(
-                        stringResource(R.string.site_permission_state_denied),
+                        stringResource(deniedLabelRes),
                         color = colors.onSurface, fontSize = 14.sp, modifier = Modifier.padding(start = 8.dp)
                     )
                 }

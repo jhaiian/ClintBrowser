@@ -1,0 +1,67 @@
+Clint Browser ist ein Open-Source-Android-Browser mit moderner Material-3-Oberfläche und unzähligen Funktionen. Er hat kein Backend, erfasst keinerlei Daten und enthält weder Werbung noch Bezahlschranken. Völlig kostenlos.
+
+<b>MEDIENERFASSUNG</b>
+• Erkennt Video-, Audio- und Untertitel-Streams auf den von dir besuchten Seiten
+• Unterstützt normale Videos sowie HLS/M3U8- und DASH-Streams
+• Erkannte Medien direkt aus dem Browser herunterladen
+
+<b>DOWNLOAD-MANAGER</b>
+• Multithread- und Mehrteil-Downloads
+• Pausieren und Fortsetzen
+• Download-Planer und Geschwindigkeitsbegrenzung
+• Eigene Download-Speicherorte
+• Pausiert und setzt hängende Downloads automatisch fort
+
+<b>BENUTZERSKRIPTE</b>
+• Benutzerskripte über eine URL installieren oder mit dem integrierten Code-Editor selbst schreiben
+• Metadaten im Tampermonkey-Stil (@match, @include, @exclude, @require, @resource, @grant)
+• Unterstützung der GM-API, darunter GM.setValue, GM.getValue, GM.xmlHttpRequest und GM.notification
+• Automatische Update-Prüfung für Skripte, die über eine URL installiert wurden
+• Einzelne Skripte jederzeit aktivieren oder deaktivieren
+
+<b>QUIVER GUARD</b>
+• Integrierter Werbe- und Tracker-Blocker
+• Kosmetische und netzwerkbasierte Filterung
+• Mehrere Filterlisten
+• Steuerung pro Website
+
+<b>WEBSITE-BLOCKER</b>
+• Blockiert Pornografie, Glücksspiel und andere unerwünschte Kategorien
+• Filterlisten nach Kategorien
+• Eigene Websites zum Blockieren hinzufügen
+
+<b>DATENSPARMODUS</b>
+• Nur in getakteten Netzwerken
+• Bilder deaktivieren, Videos blockieren und Autoplay stoppen
+• Vorladen von Medien, Web-Schriftarten und Frames von Drittanbietern blockieren
+• Gespeicherte Seiten wiederverwenden und schlankere Seiten anfordern
+• Online-Suchvorschläge und Favicons deaktivieren
+• Skripte und CSS blockieren
+
+<b>DATENSCHUTZ UND SICHERHEIT</b>
+• Inkognito-Modus
+• Popup-Schutz
+• „Do Not Track“-Anfrage senden
+• Unterstützung für Passkeys
+• Automatisches Ausfüllen lässt sich ausschalten
+
+<b>ANPASSUNG</b>
+• 50 Akzentfarben, helles und dunkles Design und 5 Flächenintensitäten
+• 500 mögliche Designkombinationen
+• Wähle zwischen der Clint-Browser-Startseite und der Startseite deiner Suchmaschine
+• Startseitenhintergründe als einfarbige Fläche, Farbverlauf oder eigenes Bild
+
+<b>PROFILE</b>
+• Bleibe bei mehreren Konten auf derselben Website gleichzeitig angemeldet
+• Jedes Profil behält seine eigenen Cookies und Websitedaten
+• Neue Tabs und Verknüpfungen in jedem Profil öffnen
+
+<b>BROWSER</b>
+• Surfen in mehreren Tabs
+• Lesemodus
+• Desktop-Modus
+• Inaktive Tabs automatisch löschen
+• Schnell-Download
+• Verknüpfungsverwaltung mit rahmenlosen Verknüpfungen
+
+Erfordert Android 8.0 oder höher und eine WebView-Implementierung.

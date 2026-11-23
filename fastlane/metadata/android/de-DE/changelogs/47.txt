@@ -1,0 +1,11 @@
+• Videoplayer mit Gesten und Bild-im-Bild
+• Getrennte Profile mit schnellem Wechsel
+• Neues Menü und anpassbare Symbolleiste
+• Mehr Optionen für Startseite und Vorschläge
+• Auf Seite suchen
+• Tabs anheften und sortieren, zuletzt geschlossene Tabs
+• Unterstützung für Custom Tabs
+• Download-Ansichten, Live-Updates, eigener Download-Manager
+• Mehrfachauswahl und Größenfilter in der Medienerfassung
+• Kindersicherung, Bedienungshilfen und Website-Design
+• Netzwerk-Wiederherstellung, 5 neue Sprachen

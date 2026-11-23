@@ -53,12 +53,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.preference.PreferenceManager
 import com.jhaiian.clint.settings.datasaver.DataSaverMode
-import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 import com.jhaiian.clint.R
 import com.jhaiian.clint.browser.MainActivity
 import com.jhaiian.clint.browser.webview.ClintWebViewClient
+import com.jhaiian.clint.browser.webview.WebAppearance
 import com.jhaiian.clint.browser.webview.loadJsAsset
 import com.jhaiian.clint.quiver.engine.BlockedRequestCounter
 import com.jhaiian.clint.quiver.engine.QuiverGuardWebIntegration
@@ -218,7 +218,7 @@ private fun PreviewWebView(
                     val dataSaverEnabled = DataSaverMode.isActive(prefs)
                     val disableImages = dataSaverEnabled && prefs.getBoolean("data_saver_disable_images", false)
                     val disableAutoplay = dataSaverEnabled && prefs.getBoolean("data_saver_disable_autoplay", true)
-                    val wv = WebView(ctx)
+                    val wv = WebView(WebAppearance.contentContext(ctx, prefs))
                     onWebViewCreated(wv)
 
                     QuiverGuardWebIntegration.attach(ctx, wv) { quiverGuardPreviewTabId }
@@ -377,20 +377,6 @@ private fun buildDesktopHeaders(webView: WebView): Map<String, String> {
     )
 }
 
-@Suppress("DEPRECATION")
 private fun applyPreviewDarkMode(context: android.content.Context, webView: WebView, systemDark: Boolean) {
-    val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-    val theme = prefs.getString("app_theme", "system") ?: "system"
-    val enabled = when (theme) {
-        "dark" -> true
-        "light" -> false
-        else -> systemDark
-    }
-    val settings = webView.settings
-    when {
-        WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING) ->
-            WebSettingsCompat.setAlgorithmicDarkeningAllowed(settings, enabled)
-        WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK) ->
-            WebSettingsCompat.setForceDark(settings, if (enabled) WebSettingsCompat.FORCE_DARK_ON else WebSettingsCompat.FORCE_DARK_OFF)
-    }
+    WebAppearance.applyDarkMode(webView.settings, PreferenceManager.getDefaultSharedPreferences(context), systemDark = systemDark)
 }

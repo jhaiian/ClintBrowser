@@ -1,0 +1,8 @@
+• Stark verbesserter Datensparmodus: Bilder deaktivieren, Videos blockieren, Autoplay deaktivieren, Vorladen von Medien, Web-Schriftarten und Frames von Drittanbietern blockieren und mehr
+• „Do Not Track“-Anfrage senden hinzugefügt
+• Schalter für automatisches Ausfüllen und Unterstützung für Passkeys hinzugefügt
+• „Inhalt zentrieren“ für die Clint-Startseite hinzugefügt
+• „Inaktive Tabs löschen“ hinzugefügt
+• Schnell-Download und kompakter Download-Dialog hinzugefügt
+• Swipe Refresh Layout folgte nicht dem Design – behoben
+• Probleme mit der Download-Snackbar behoben

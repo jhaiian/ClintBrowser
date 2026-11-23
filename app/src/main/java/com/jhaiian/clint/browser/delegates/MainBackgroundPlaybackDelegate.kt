@@ -224,6 +224,7 @@ private fun MainActivity.onBackgroundPlaybackCommand(command: BackgroundPlayback
 }
 
 private fun MainActivity.runBackgroundPlaybackAction(tab: BrowserTab, action: String, time: Double = 0.0) {
+    if (handleVideoTakeoverPlayback(tab, action)) return
     val frame = backgroundPlaybackTracker.lastFrame(tab.id).orEmpty()
     tab.webView.evaluateJavascript(
         "(function(){var c=window.__clintBackgroundPlayback;if(c)c.run({action:'$action',frame:'$frame',time:$time});})();",

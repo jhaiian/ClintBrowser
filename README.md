@@ -10,8 +10,8 @@ Lightweight browser with ADM, ad blocking, media capture, and multi-profile supp
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blueviolet.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B-blueviolet.svg)](https://developer.android.com)
-[![Stable](https://img.shields.io/badge/Stable-1.2.5-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.2.5)
-[![Beta](https://img.shields.io/badge/Beta-1.2.5-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.2.5)
+[![Stable](https://img.shields.io/badge/Stable-1.2.7-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.2.7)
+[![Beta](https://img.shields.io/badge/Beta-1.2.7-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.2.7)
 [![Downloads](https://img.shields.io/github/downloads/jhaiian/ClintBrowser/total?color=blueviolet)](https://github.com/jhaiian/ClintBrowser/releases)
 [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser)
 
@@ -149,7 +149,10 @@ Clint will always remain free. Thank you for being part of this journey. 💜
 
 ## Installation
 
-Download the latest APK from the [Releases](https://github.com/jhaiian/ClintBrowser/releases) page.
+Download the latest APK from GitHub, or add Clint Browser to Obtainium to get updates automatically.
+
+<a href="https://github.com/jhaiian/ClintBrowser/releases/latest"><img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" alt="Get it on GitHub" height="80" /></a>
+<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/jhaiian/ClintBrowser"><img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="80" /></a>
 
 ---
 
@@ -171,6 +174,18 @@ Join the official Clint Browser community on Discord and Reddit to share feedbac
 
 - **Discord** – [discord.gg/4kUe4yPQ32](https://discord.gg/4kUe4yPQ32)
 - **Reddit** – [reddit.com/r/ClintBrowser](https://reddit.com/r/ClintBrowser)
+
+---
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=jhaiian%2Fclintbrowser&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=jhaiian/clintbrowser&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=jhaiian/clintbrowser&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=jhaiian/clintbrowser&type=date&legend=top-left" />
+ </picture>
+</a>
 
 ---
 
