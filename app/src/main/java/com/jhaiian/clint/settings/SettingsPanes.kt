@@ -170,7 +170,8 @@ fun LookAndFeelPane(activity: SettingsActivity) {
             initialTabGroupBarPosition = com.jhaiian.clint.tabs.TabBarPlacement.normalize(prefs.getString(com.jhaiian.clint.tabs.TabBarPlacement.PREF_TAB_GROUP_BAR_POSITION, null)),
             initialExitConfirmation = prefs.getString("exit_confirmation", "toast") ?: "toast",
             initialBackCloseTab = prefs.getString("back_close_tab", "opener") ?: "opener",
-            initialPopupAlertStyle = prefs.getString("popup_alert_style", "dialog") ?: "dialog"
+            initialPopupAlertStyle = prefs.getString("popup_alert_style", "dialog") ?: "dialog",
+            initialPopupQuiverGuardFirst = prefs.getBoolean("popup_quiver_guard_first", true)
         )
     }
     var confirmDialog by remember { mutableStateOf<ConfirmDialogConfig?>(null) }
@@ -191,6 +192,7 @@ fun LookAndFeelPane(activity: SettingsActivity) {
         uiState.exitConfirmation = prefs.getString("exit_confirmation", "toast") ?: "toast"
         uiState.backCloseTab = prefs.getString("back_close_tab", "opener") ?: "opener"
         uiState.popupAlertStyle = prefs.getString("popup_alert_style", "dialog") ?: "dialog"
+        uiState.popupQuiverGuardFirst = prefs.getBoolean("popup_quiver_guard_first", true)
         uiState.language = prefs.getString(LocaleHelper.PREF_APP_LANGUAGE, LocaleHelper.LANGUAGE_SYSTEM) ?: LocaleHelper.LANGUAGE_SYSTEM
     }
 
@@ -392,6 +394,11 @@ fun LookAndFeelPane(activity: SettingsActivity) {
             prefs.edit().putString("popup_alert_style", value).apply()
             uiState.popupAlertStyle = value
             uiState.openDialog = null
+        },
+        onPopupQuiverGuardFirstRowClicked = {
+            val value = !uiState.popupQuiverGuardFirst
+            prefs.edit().putBoolean("popup_quiver_guard_first", value).apply()
+            uiState.popupQuiverGuardFirst = value
         }
     )
     ConfirmDialogHost(confirmDialog, uiState.hideStatusBar, uiState.hideSystemNavigation) { confirmDialog = null }

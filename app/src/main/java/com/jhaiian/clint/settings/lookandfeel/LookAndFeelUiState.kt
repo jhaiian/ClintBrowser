@@ -27,7 +27,8 @@ class LookAndFeelUiState(
     initialTabGroupBarPosition: String,
     initialExitConfirmation: String,
     initialBackCloseTab: String,
-    initialPopupAlertStyle: String
+    initialPopupAlertStyle: String,
+    initialPopupQuiverGuardFirst: Boolean
 ) {
     var theme by mutableStateOf(initialTheme)
     var accent by mutableStateOf(initialAccent)
@@ -50,6 +51,7 @@ class LookAndFeelUiState(
     var exitConfirmation by mutableStateOf(initialExitConfirmation)
     var backCloseTab by mutableStateOf(initialBackCloseTab)
     var popupAlertStyle by mutableStateOf(initialPopupAlertStyle)
+    var popupQuiverGuardFirst by mutableStateOf(initialPopupQuiverGuardFirst)
 
     var openDialog by mutableStateOf<LookAndFeelDialog?>(null)
 }

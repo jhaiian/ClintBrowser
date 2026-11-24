@@ -10,8 +10,8 @@ Lightweight browser with ADM, ad blocking, media capture, and multi-profile supp
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blueviolet.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B-blueviolet.svg)](https://developer.android.com)
-[![Stable](https://img.shields.io/badge/Stable-1.2.7-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.2.7)
-[![Beta](https://img.shields.io/badge/Beta-1.2.7-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.2.7)
+[![Stable](https://img.shields.io/badge/Stable-1.2.7--r2-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.2.7-r2)
+[![Beta](https://img.shields.io/badge/Beta-1.2.7--r2-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser/releases/tag/v1.2.7-r2)
 [![Downloads](https://img.shields.io/github/downloads/jhaiian/ClintBrowser/total?color=blueviolet)](https://github.com/jhaiian/ClintBrowser/releases)
 [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-blueviolet.svg)](https://github.com/jhaiian/ClintBrowser)
 

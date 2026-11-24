@@ -795,6 +795,8 @@
     <string name="popup_alert_style_dialog">Dialog</string>
     <string name="popup_alert_style_dialog_desc">Magpapakita ng prompt na may destination URL at mga button na Oo at Hindi</string>
     <string name="popup_alert_style_snackbar">Snackbar</string>
+    <string name="pref_popup_quiver_guard_first_title">Hayaang Quiver Guard ang humawak sa mga popup</string>
+    <string name="pref_popup_quiver_guard_first_summary">Kapag naka-on ang Quiver Guard, ito na ang magba-block sa mga ad popup at bubuksan na lang ang iba nang hindi ka tinatanong</string>
     <string name="popup_alert_style_snackbar_desc">Magpapakita ng maliit na bar sa ibaba na may destination URL at isang button na Buksan</string>
     <string name="popup_alert_snackbar_message">Gustong magbukas ng bagong window ng %1$s</string>
     <string name="popup_alert_snackbar_action">Buksan</string>
@@ -1355,6 +1357,7 @@
 
     <string name="image_open_in_new_tab">Buksan ang larawan sa bagong tab</string>
     <string name="image_open_incognito">Buksan ang larawan sa incognito</string>
+    <string name="image_open_in_normal_tab">Buksan ang larawan sa normal na tab</string>
     <string name="image_open_in_current_tab">Buksan ang larawan sa kasalukuyang tab</string>
     <string name="image_preview">I-preview ang larawan</string>
     <string name="image_copy">Kopyahin ang larawan</string>
@@ -1366,7 +1369,9 @@
 
     <string name="link_open_in_new_tab">Buksan sa bagong tab</string>
     <string name="link_open_new_tab_background">Buksan ang bagong tab sa background</string>
+    <string name="link_open_in_new_tab_in_group">Buksan sa bagong tab sa grupo</string>
     <string name="link_open_incognito">Buksan sa incognito</string>
+    <string name="link_open_in_normal_tab">Buksan sa normal na tab</string>
     <string name="link_preview_page">I-preview ang pahina</string>
     <string name="preview_link_open_in_current_tab">Buksan sa kasalukuyang tab</string>
     <string name="link_copy_address">Kopyahin ang address ng link</string>

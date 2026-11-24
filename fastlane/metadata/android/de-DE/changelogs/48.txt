@@ -1,0 +1,4 @@
+• Absturz beim Download auf manchen Android-16-Geräten behoben
+• Neue Einstellung: Quiver Guard verwaltet Pop-ups
+• Neu im Linkmenü: In neuem Tab in der Gruppe öffnen
+• In normalem Tab öffnen, wenn du im Inkognito-Modus bist

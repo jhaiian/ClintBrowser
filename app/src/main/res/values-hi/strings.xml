@@ -795,6 +795,8 @@
     <string name="popup_alert_style_dialog">डायलॉग</string>
     <string name="popup_alert_style_dialog_desc">मंज़िल का URL और हां व नहीं बटन के साथ एक प्रॉम्प्ट दिखाता है</string>
     <string name="popup_alert_style_snackbar">स्नैकबार</string>
+    <string name="pref_popup_quiver_guard_first_title">पॉपअप को Quiver Guard संभालने दें</string>
+    <string name="pref_popup_quiver_guard_first_summary">Quiver Guard चालू होने पर वह खुद विज्ञापन वाले पॉपअप ब्लॉक करेगा, और बाकी बिना पूछे खुल जाएंगे</string>
     <string name="popup_alert_style_snackbar_desc">नीचे मंज़िल के URL और एक \"खोलें\" बटन के साथ छोटा बार दिखाता है</string>
     <string name="popup_alert_snackbar_message">%1$s एक नई विंडो खोलना चाहता है</string>
     <string name="popup_alert_snackbar_action">खोलें</string>
@@ -1355,6 +1357,7 @@
 
     <string name="image_open_in_new_tab">इमेज नए टैब में खोलें</string>
     <string name="image_open_incognito">इमेज गुप्त टैब में खोलें</string>
+    <string name="image_open_in_normal_tab">इमेज सामान्य टैब में खोलें</string>
     <string name="image_open_in_current_tab">इमेज इसी टैब में खोलें</string>
     <string name="image_preview">इमेज की झलक देखें</string>
     <string name="image_copy">इमेज कॉपी करें</string>
@@ -1366,7 +1369,9 @@
 
     <string name="link_open_in_new_tab">नए टैब में खोलें</string>
     <string name="link_open_new_tab_background">बैकग्राउंड में नया टैब खोलें</string>
+    <string name="link_open_in_new_tab_in_group">ग्रुप में नए टैब में खोलें</string>
     <string name="link_open_incognito">गुप्त टैब में खोलें</string>
+    <string name="link_open_in_normal_tab">सामान्य टैब में खोलें</string>
     <string name="link_preview_page">पेज की झलक देखें</string>
     <string name="preview_link_open_in_current_tab">इसी टैब में खोलें</string>
     <string name="link_copy_address">लिंक का पता कॉपी करें</string>

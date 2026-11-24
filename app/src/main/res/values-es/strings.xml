@@ -798,6 +798,8 @@
     <string name="popup_alert_style_dialog">Diálogo</string>
     <string name="popup_alert_style_dialog_desc">Muestra un aviso con la URL de destino y los botones Sí y No</string>
     <string name="popup_alert_style_snackbar">Barra inferior</string>
+    <string name="pref_popup_quiver_guard_first_title">Dejar que Quiver Guard gestione las ventanas emergentes</string>
+    <string name="pref_popup_quiver_guard_first_summary">Con Quiver Guard activado, este bloquea por sí solo las ventanas emergentes de anuncios y las demás se abren sin preguntarte</string>
     <string name="popup_alert_style_snackbar_desc">Muestra una barra compacta abajo con la URL de destino y un único botón Abrir</string>
     <string name="popup_alert_snackbar_message">%1$s quiere abrir una nueva ventana</string>
     <string name="popup_alert_snackbar_action">Abrir</string>
@@ -1363,6 +1365,7 @@
 
     <string name="image_open_in_new_tab">Abrir imagen en una nueva pestaña</string>
     <string name="image_open_incognito">Abrir imagen en incógnito</string>
+    <string name="image_open_in_normal_tab">Abrir imagen en una pestaña normal</string>
     <string name="image_open_in_current_tab">Abrir imagen en la pestaña actual</string>
     <string name="image_preview">Vista previa de la imagen</string>
     <string name="image_copy">Copiar imagen</string>
@@ -1374,7 +1377,9 @@
 
     <string name="link_open_in_new_tab">Abrir en una nueva pestaña</string>
     <string name="link_open_new_tab_background">Abrir nueva pestaña en segundo plano</string>
+    <string name="link_open_in_new_tab_in_group">Abrir en una pestaña nueva del grupo</string>
     <string name="link_open_incognito">Abrir en incógnito</string>
+    <string name="link_open_in_normal_tab">Abrir en una pestaña normal</string>
     <string name="link_preview_page">Vista previa de la página</string>
     <string name="preview_link_open_in_current_tab">Abrir en la pestaña actual</string>
     <string name="link_copy_address">Copiar dirección del enlace</string>

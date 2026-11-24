@@ -794,6 +794,8 @@
     <string name="popup_alert_style_dialog">Dialog</string>
     <string name="popup_alert_style_dialog_desc">Zeigt eine Abfrage mit der Ziel-URL und den Schaltflächen „Ja“ und „Nein“</string>
     <string name="popup_alert_style_snackbar">Snackbar</string>
+    <string name="pref_popup_quiver_guard_first_title">Quiver Guard Popups verwalten lassen</string>
+    <string name="pref_popup_quiver_guard_first_summary">Ist Quiver Guard aktiv, blockiert es Werbe-Popups selbst und die übrigen öffnen sich ohne Nachfrage</string>
     <string name="popup_alert_style_snackbar_desc">Zeigt unten eine kompakte Leiste mit der Ziel-URL und einer einzigen Schaltfläche „Öffnen“</string>
     <string name="popup_alert_snackbar_message">%1$s möchte ein neues Fenster öffnen</string>
     <string name="popup_alert_snackbar_action">Öffnen</string>
@@ -1336,6 +1338,7 @@
     <string name="exit_dialog_confirm">Beenden</string>
     <string name="image_open_in_new_tab">Bild in neuem Tab öffnen</string>
     <string name="image_open_incognito">Bild im Inkognito-Modus öffnen</string>
+    <string name="image_open_in_normal_tab">Bild in normalem Tab öffnen</string>
     <string name="image_open_in_current_tab">Bild im aktuellen Tab öffnen</string>
     <string name="image_preview">Bildvorschau</string>
     <string name="image_copy">Bild kopieren</string>
@@ -1346,7 +1349,9 @@
     <string name="image_embedded_title">Eingebettetes Bild</string>
     <string name="link_open_in_new_tab">In neuem Tab öffnen</string>
     <string name="link_open_new_tab_background">Neuen Tab im Hintergrund öffnen</string>
+    <string name="link_open_in_new_tab_in_group">In neuem Tab in der Gruppe öffnen</string>
     <string name="link_open_incognito">Im Inkognito-Modus öffnen</string>
+    <string name="link_open_in_normal_tab">In normalem Tab öffnen</string>
     <string name="link_preview_page">Seitenvorschau</string>
     <string name="preview_link_open_in_current_tab">Im aktuellen Tab öffnen</string>
     <string name="link_copy_address">Linkadresse kopieren</string>

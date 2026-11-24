@@ -795,6 +795,8 @@
     <string name="popup_alert_style_dialog">Dialog</string>
     <string name="popup_alert_style_dialog_desc">Shows a prompt with the destination URL and Yes and No buttons</string>
     <string name="popup_alert_style_snackbar">Snackbar</string>
+    <string name="pref_popup_quiver_guard_first_title">Let Quiver Guard handle popups</string>
+    <string name="pref_popup_quiver_guard_first_summary">When Quiver Guard is on, it blocks ad popups on its own and the rest open without asking</string>
     <string name="popup_alert_style_snackbar_desc">Shows a compact bar at the bottom with the destination URL and a single Open button</string>
     <string name="popup_alert_snackbar_message">%1$s wants to open a new window</string>
     <string name="popup_alert_snackbar_action">Open</string>
@@ -1355,6 +1357,7 @@
 
     <string name="image_open_in_new_tab">Open image in new tab</string>
     <string name="image_open_incognito">Open image in incognito</string>
+    <string name="image_open_in_normal_tab">Open image in normal tab</string>
     <string name="image_open_in_current_tab">Open image in current tab</string>
     <string name="image_preview">Preview image</string>
     <string name="image_copy">Copy image</string>
@@ -1366,7 +1369,9 @@
 
     <string name="link_open_in_new_tab">Open in new tab</string>
     <string name="link_open_new_tab_background">Open new tab in background</string>
+    <string name="link_open_in_new_tab_in_group">Open in new tab in group</string>
     <string name="link_open_incognito">Open in incognito</string>
+    <string name="link_open_in_normal_tab">Open in normal tab</string>
     <string name="link_preview_page">Preview page</string>
     <string name="preview_link_open_in_current_tab">Open in current tab</string>
     <string name="link_copy_address">Copy link address</string>

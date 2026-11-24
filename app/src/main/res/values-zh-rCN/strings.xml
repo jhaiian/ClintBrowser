@@ -791,6 +791,8 @@
     <string name="popup_alert_style_dialog">对话框</string>
     <string name="popup_alert_style_dialog_desc">显示提示框，包含目标网址以及“是”和“否”按钮</string>
     <string name="popup_alert_style_snackbar">底部提示条</string>
+    <string name="pref_popup_quiver_guard_first_title">让箭袋卫士处理弹出窗口</string>
+    <string name="pref_popup_quiver_guard_first_summary">开启箭袋卫士后，它会自动拦截广告弹窗，其余的会直接打开，不再询问</string>
     <string name="popup_alert_style_snackbar_desc">在底部显示简洁提示条，包含目标网址和一个“打开”按钮</string>
     <string name="popup_alert_snackbar_message">%1$s 请求打开新窗口</string>
     <string name="popup_alert_snackbar_action">打开</string>
@@ -1328,6 +1330,7 @@
     <string name="exit_dialog_confirm">退出</string>
     <string name="image_open_in_new_tab">在新标签页中打开图片</string>
     <string name="image_open_incognito">在无痕标签页中打开图片</string>
+    <string name="image_open_in_normal_tab">在普通标签页中打开图片</string>
     <string name="image_open_in_current_tab">在当前标签页中打开图片</string>
     <string name="image_preview">预览图片</string>
     <string name="image_copy">复制图片</string>
@@ -1338,7 +1341,9 @@
     <string name="image_embedded_title">内嵌图片</string>
     <string name="link_open_in_new_tab">在新标签页中打开</string>
     <string name="link_open_new_tab_background">在后台打开新标签页</string>
+    <string name="link_open_in_new_tab_in_group">在分组的新标签页中打开</string>
     <string name="link_open_incognito">在无痕标签页中打开</string>
+    <string name="link_open_in_normal_tab">在普通标签页中打开</string>
     <string name="link_preview_page">预览网页</string>
     <string name="preview_link_open_in_current_tab">在当前标签页中打开</string>
     <string name="link_copy_address">复制链接地址</string>

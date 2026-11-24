@@ -1,0 +1,4 @@
+• Sửa lỗi ứng dụng bị đóng đột ngột khi tải xuống trên một số điện thoại Android 16
+• Cài đặt mới: để Quiver Guard xử lý cửa sổ bật lên
+• Mới trong menu liên kết: Mở trong thẻ mới trong nhóm
+• Mở trong thẻ thường khi bạn đang ở chế độ ẩn danh

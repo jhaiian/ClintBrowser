@@ -33,6 +33,13 @@ internal fun MainActivity.showPopupAlertDialog(newUrl: String, isIncognito: Bool
         return
     }
 
+    if (prefs.getBoolean("popup_quiver_guard_first", true) &&
+        com.jhaiian.clint.quiver.engine.QuiverGuardWebIntegration.isActiveFor(this, sourceUrl)
+    ) {
+        onAllow()
+        return
+    }
+
     if (prefs.getString("popup_alert_style", "dialog") == "snackbar") {
         uiState.popupAlertRequest = null
         showClintDestinationSnackbar(

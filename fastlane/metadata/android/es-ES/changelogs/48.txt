@@ -1,0 +1,4 @@
+• Corregido un cierre inesperado al descargar en algunos móviles con Android 16
+• Nuevo ajuste para que Quiver Guard gestione las ventanas emergentes
+• Novedad en el menú de enlaces: Abrir en una pestaña nueva del grupo
+• Abrir en una pestaña normal desde incógnito

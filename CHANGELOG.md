@@ -4,6 +4,30 @@ All notable changes to Clint Browser are documented here.
 
 ---
 
+# v1.2.7-r2
+
+This is a small emergency update for v1.2.7. It fixes a problem you reported right after the release and adds a few things you asked for. Thank you all for the quick reports!
+
+---
+
+## Improvements
+
+- New **Let Quiver Guard handle popups** setting in Settings › Look and feel. It's on by default. When Quiver Guard is on, it blocks ad popups on its own and the rest open without asking. Turn it off if you want every pop-up to another site to ask first.
+(Thanks to @anonymous-shanks for reporting this [#79](https://github.com/jhaiian/ClintGecko/issues/79))
+- The link, image, and link preview menus now show **Open in normal tab** instead of **Open in incognito** when you're already in an Incognito tab, so you can move a link out of Incognito in one tap.
+(Thanks to @anonymous-shanks for suggesting this [#93](https://github.com/jhaiian/ClintGecko/issues/93))
+- New **Open in new tab in group** in the link menu. It opens the link in the background and puts it in a group with the tab you're on. It shows up when tab groups are turned on.
+(Thanks to @anonymous-shanks for suggesting this [#93](https://github.com/jhaiian/ClintGecko/issues/93))
+
+---
+
+## Bug Fixes
+
+- Fixed Clint crashing when a download started on some Android 16 phones. Those phones only have part of the Live Updates support, so Clint now checks for it first and uses a normal download notification when it's missing. The **Live updates** setting is hidden on those phones too.
+(Thanks to @cabinz3q for reporting this [#91](https://github.com/jhaiian/ClintGecko/issues/91))
+
+---
+
 # v1.2.7
 
 ## Announcement

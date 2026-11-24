@@ -171,6 +171,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jhaiian.clint.BuildConfig
 import com.jhaiian.clint.R
+import com.jhaiian.clint.downloads.DownloadNotificationHelper
 import com.jhaiian.clint.browser.webview.ClintAutofill
 import com.jhaiian.clint.settings.DEST_ABOUT
 import com.jhaiian.clint.settings.DEST_ACCESSIBILITY
@@ -403,6 +404,7 @@ internal fun buildSettingsSearchEntries(context: Context): List<SettingsSearchEn
             R.string.pref_popup_alert_style_title, section = R.string.pref_category_navigation,
             extras = listOf(R.string.popup_alert_style_dialog, R.string.popup_alert_style_snackbar)
         )
+        item(R.string.pref_popup_quiver_guard_first_title, R.string.pref_popup_quiver_guard_first_summary, R.string.pref_category_navigation, icon = Icons.Filled.Shield)
     }
 
     page(DEST_BROWSER, R.string.browser_settings, Icons.Filled.Explore) {
@@ -639,7 +641,7 @@ internal fun buildSettingsSearchEntries(context: Context): List<SettingsSearchEn
         item(R.string.download_appearance_notif_speed_title, R.string.download_appearance_notif_speed_summary, R.string.download_section_notifications, icon = Icons.Filled.Speed)
         item(R.string.download_appearance_notif_progress_title, R.string.download_appearance_notif_progress_summary, R.string.download_section_notifications, icon = Icons.Filled.LinearScale)
         item(R.string.download_appearance_notif_quiet_title, R.string.download_appearance_notif_quiet_summary, R.string.download_section_notifications, icon = Icons.Filled.NotificationsOff)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+        if (DownloadNotificationHelper.supportsLiveUpdates()) {
             item(R.string.download_appearance_notif_live_title, R.string.download_appearance_notif_live_summary, R.string.download_section_notifications, icon = Icons.Filled.Bolt)
         }
     }

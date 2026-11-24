@@ -795,6 +795,8 @@
     <string name="popup_alert_style_dialog">Caixa de diálogo</string>
     <string name="popup_alert_style_dialog_desc">Mostra um aviso com o URL de destino e os botões Sim e Não</string>
     <string name="popup_alert_style_snackbar">Snackbar</string>
+    <string name="pref_popup_quiver_guard_first_title">Deixar o Quiver Guard cuidar dos pop-ups</string>
+    <string name="pref_popup_quiver_guard_first_summary">Com o Quiver Guard ativado, ele mesmo bloqueia os pop-ups de anúncio e o resto abre sem perguntar</string>
     <string name="popup_alert_style_snackbar_desc">Mostra uma barra compacta na parte de baixo com o URL de destino e um único botão Abrir</string>
     <string name="popup_alert_snackbar_message">%1$s quer abrir uma nova janela</string>
     <string name="popup_alert_snackbar_action">Abrir</string>
@@ -1355,6 +1357,7 @@
 
     <string name="image_open_in_new_tab">Abrir imagem em nova guia</string>
     <string name="image_open_incognito">Abrir imagem em guia anônima</string>
+    <string name="image_open_in_normal_tab">Abrir imagem em aba normal</string>
     <string name="image_open_in_current_tab">Abrir imagem na guia atual</string>
     <string name="image_preview">Visualizar imagem</string>
     <string name="image_copy">Copiar imagem</string>
@@ -1366,7 +1369,9 @@
 
     <string name="link_open_in_new_tab">Abrir em nova guia</string>
     <string name="link_open_new_tab_background">Abrir nova guia em segundo plano</string>
+    <string name="link_open_in_new_tab_in_group">Abrir em nova aba no grupo</string>
     <string name="link_open_incognito">Abrir em guia anônima</string>
+    <string name="link_open_in_normal_tab">Abrir em aba normal</string>
     <string name="link_preview_page">Visualizar página</string>
     <string name="preview_link_open_in_current_tab">Abrir na guia atual</string>
     <string name="link_copy_address">Copiar endereço do link</string>

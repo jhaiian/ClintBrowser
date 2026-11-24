@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Reorder
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material.icons.filled.WebAsset
@@ -55,7 +56,8 @@ fun LookAndFeelScreen(
     onCustomizeToolbarRowClicked: () -> Unit,
     onExitConfirmationConfirmed: (String) -> Unit,
     onBackCloseTabSelected: (String) -> Unit,
-    onPopupAlertStyleSelected: (String) -> Unit
+    onPopupAlertStyleSelected: (String) -> Unit,
+    onPopupQuiverGuardFirstRowClicked: () -> Unit
 ) {
     val colors = LocalClintColors.current
     val intensityEnabled = ThemeSwatchUtils.isSurfaceIntensityEnabled(state.theme, state.accent)
@@ -338,6 +340,17 @@ fun LookAndFeelScreen(
                 summary = stringResource(popupAlertStyleSummaryRes(state.popupAlertStyle)),
                 colors = colors,
                 onClick = { state.openDialog = LookAndFeelDialog.POPUP_ALERT_STYLE }
+            )
+            RowDivider(colors.divider)
+            SettingsRow(
+                icon = androidx.compose.material.icons.Icons.Filled.Shield,
+                title = stringResource(R.string.pref_popup_quiver_guard_first_title),
+                summary = stringResource(R.string.pref_popup_quiver_guard_first_summary),
+                colors = colors,
+                onClick = onPopupQuiverGuardFirstRowClicked,
+                trailing = {
+                    ClintSwitch(checked = state.popupQuiverGuardFirst)
+                }
             )
         }
     }

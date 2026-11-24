@@ -1,0 +1,4 @@
+• Correction d'un plantage lors des téléchargements sur certains téléphones Android 16
+• Nouveau réglage : laisser Quiver Guard gérer les pop-ups
+• Nouveau dans le menu des liens : Ouvrir dans un nouvel onglet du groupe
+• Ouvrir dans un onglet normal depuis la navigation privée
