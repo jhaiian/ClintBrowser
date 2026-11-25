@@ -1079,7 +1079,7 @@
     <string name="surface_intensity_amoled_no_tint_dark_desc">纯黑底色，仅核心控制按钮和高亮图标保留强调色</string>
     <string name="surface_intensity_amoled_no_tint_light_desc">纯白底色，仅核心控制按钮和高亮图标保留强调色</string>
     <string name="pref_misc_title">其他杂项</string>
-    <string name="pref_misc_summary">设为默认浏览器、重新运行初始设置向导或开启 AI 远程自动化</string>
+    <string name="pref_misc_summary">将 Clint 设为默认浏览器或重新运行初始设置向导</string>
     <string name="pref_rerun_setup_title">重新运行初始向导</string>
     <string name="pref_rerun_setup_summary">重新打开首次启动时的配置流程</string>
     <string name="rerun_setup_confirm_title">重新运行设置向导？</string>
