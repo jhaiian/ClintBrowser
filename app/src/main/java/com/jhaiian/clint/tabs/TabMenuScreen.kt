@@ -1609,7 +1609,14 @@ private fun DragZoneOverlay(
     if (visible <= 0f) return
     val density = LocalDensity.current
     val edgeVertical = dragState.zoneEdgeVertical
-    Canvas(modifier.graphicsLayer { alpha = visible }) {
+    val label = when {
+        merging -> "松手成组"
+        holding -> "停住成组"
+        edge != 0 -> "放在旁边"
+        else -> "移到中间成组"
+    }
+    Box(modifier.graphicsLayer { alpha = visible }) {
+    Canvas(Modifier.matchParentSize()) {
         val w = size.width
         val h = size.height
         val left = if (listRow) w * 0.04f else w * 0.25f
@@ -1657,5 +1664,17 @@ private fun DragZoneOverlay(
                 drawRoundRect(accent, Offset(w * 0.1f, y), Size(w * 0.8f, bar), CornerRadius(bar / 2f, bar / 2f))
             }
         }
+    }
+    Text(
+        text = label,
+        color = Color.White,
+        fontSize = 11.sp,
+        fontWeight = FontWeight.Medium,
+        maxLines = 1,
+        modifier = Modifier
+            .align(Alignment.Center)
+            .background(accent.copy(alpha = if (holding || merging) 0.95f else 0.8f), RoundedCornerShape(50))
+            .padding(horizontal = 8.dp, vertical = 3.dp)
+    )
     }
 }
