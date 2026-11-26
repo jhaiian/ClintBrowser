@@ -61,6 +61,11 @@ internal class TabDragState(private val gridState: LazyGridState) {
         private set
 
     var gridOriginInRoot: Offset = Offset.Zero
+    /**
+     * LazyGrid reports item offsets without its content padding, but places items after it.
+     * Add this to an item offset to get where the item is actually drawn inside the grid box.
+     */
+    var contentPaddingOffset: Offset = Offset.Zero
     val chipBounds = mutableMapOf<String, Rect>()
     val handleOrigins = mutableMapOf<String, Offset>()
     var collapsedGroupIds: Set<String> = emptySet()
@@ -70,6 +75,7 @@ internal class TabDragState(private val gridState: LazyGridState) {
     var groupOfTab: (String) -> String? = { null }
     var primaryPointerId: PointerId? = null
     private var pointerStartInRoot: Offset = Offset.Zero
+    private var cardCenterStartInRoot: Offset = Offset.Zero
     private var mergeCandidate: String? = null
     private var mergeCandidateSince = 0L
 
@@ -88,10 +94,12 @@ internal class TabDragState(private val gridState: LazyGridState) {
     private fun begin(itemKey: String, handleKey: String, touchOffset: Offset): Boolean {
         val info = gridState.layoutInfo.visibleItemsInfo.find { it.key == itemKey } ?: return false
         dragOffset = Offset.Zero
-        originOffset = Offset(info.offset.x.toFloat(), info.offset.y.toFloat())
+        // Drawn position of the cell inside the grid box (item offset + content padding), so the
+        // lifted overlay starts exactly on top of the card instead of a padding-width off.
+        originOffset = Offset(info.offset.x.toFloat(), info.offset.y.toFloat()) + contentPaddingOffset
         originSize = info.size
-        pointerStartInRoot = handleOrigins[handleKey]?.plus(touchOffset)
-            ?: (gridOriginInRoot + originOffset + Offset(originSize.width / 2f, originSize.height / 2f))
+        cardCenterStartInRoot = gridOriginInRoot + originOffset + Offset(originSize.width / 2f, originSize.height / 2f)
+        pointerStartInRoot = handleOrigins[handleKey]?.plus(touchOffset) ?: cardCenterStartInRoot
         hoverKey = null
         mergeCandidate = null
         return true
@@ -101,7 +109,10 @@ internal class TabDragState(private val gridState: LazyGridState) {
         if (!active) return
         dragOffset += delta
         val pointer = pointerStartInRoot + dragOffset
-        val inGrid = pointer - gridOriginInRoot
+        // Targets are judged by the centre of the lifted card, not by where the finger grabbed
+        // it: grabbing a card near its edge no longer shifts every before/merge/after zone.
+        // Coordinates are in LazyGrid item space (content padding removed).
+        val inGrid = cardCenterStartInRoot + dragOffset - gridOriginInRoot - contentPaddingOffset
         val visible = gridState.layoutInfo.visibleItemsInfo
         var probe = inGrid
         var item = visible.firstOrNull { candidate ->
@@ -134,7 +145,11 @@ internal class TabDragState(private val gridState: LazyGridState) {
         }
         hoverKey = chipBounds.entries.firstOrNull { it.value.contains(pointer) }?.let { groupChipKey(it.key) }
             ?: if (item != null) refineItemKey(item, probe) else edgeDropKey(inGrid)
-        if ((hoverKey as? String)?.startsWith("hold:") != true) mergeCandidate = null
+        // Keep the dwell timer while the card stays over the same tab, both during the hold and
+        // after it turned into a merge; otherwise every small move would restart the dwell and
+        // the merge highlight would flicker back to "hold".
+        val hovered = hoverKey as? String
+        if (hovered == null || !(hovered.startsWith("hold:") || hovered.startsWith("merge:"))) mergeCandidate = null
     }
 
     private fun edgeDropKey(inGrid: Offset): Any? = startDropKey(inGrid) ?: endDropKey(inGrid)
@@ -231,7 +246,7 @@ internal class TabDragState(private val gridState: LazyGridState) {
     fun autoScrollStep(edge: Float, maxStep: Float): Float {
         if (!active || edge <= 0f) return 0f
         if ((hoverKey as? String)?.startsWith("chip:") == true) return 0f
-        val y = (pointerStartInRoot + dragOffset - gridOriginInRoot).y
+        val y = (pointerStartInRoot + dragOffset - gridOriginInRoot).y // the finger drives auto-scroll
         val height = gridState.layoutInfo.viewportSize.height.toFloat()
         return when {
             y < edge -> {

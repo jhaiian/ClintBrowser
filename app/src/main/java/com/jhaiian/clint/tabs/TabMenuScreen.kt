@@ -587,6 +587,7 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
         val collapsedGroupIds = groups.filter { it.collapsed }.map { it.id }.toSet()
         SideEffect {
             dragState.collapsedGroupIds = collapsedGroupIds
+            dragState.contentPaddingOffset = with(density) { GridEdgePadding.toPx() }.let { Offset(it, it) }
             dragState.columns = columns
             dragState.mergeEnabled = groupsEnabled
             dragState.canMergeWith = { targetId ->
@@ -644,23 +645,23 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
                 hoverKey == START_DROP_KEY -> startDropIndex(others, dragged.isIncognito)
                 hoverKey.startsWith("before:") -> {
                     val groupId = hoverKey.removePrefix("before:")
-                    if (!sameModeGroup(groupId)) return
-                    others.indexOfFirst { it.groupId == groupId }.takeIf { it >= 0 } ?: return
+                    if (!sameModeGroup(groupId)) return reorderSettle.clear()
+                    others.indexOfFirst { it.groupId == groupId }.takeIf { it >= 0 } ?: return reorderSettle.clear()
                 }
                 hoverKey.startsWith("after:") -> {
                     val groupId = hoverKey.removePrefix("after:")
-                    if (!sameModeGroup(groupId)) return
-                    (others.indexOfLast { it.groupId == groupId }.takeIf { it >= 0 } ?: return) + 1
+                    if (!sameModeGroup(groupId)) return reorderSettle.clear()
+                    (others.indexOfLast { it.groupId == groupId }.takeIf { it >= 0 } ?: return reorderSettle.clear()) + 1
                 }
                 hoverKey.startsWith("tabBefore:") || hoverKey.startsWith("tabAfter:") -> {
                     val after = hoverKey.startsWith("tabAfter:")
                     val targetId = hoverKey.substringAfter(':')
-                    val target = others.find { it.id == targetId } ?: return
-                    if (target.isIncognito != dragged.isIncognito) return
+                    val target = others.find { it.id == targetId } ?: return reorderSettle.clear()
+                    if (target.isIncognito != dragged.isIncognito) return reorderSettle.clear()
                     targetGroupId = target.groupId
                     others.indexOf(target) + if (after) 1 else 0
                 }
-                else -> return
+                else -> return reorderSettle.clear()
             }
             val arranged = others.toMutableList().apply { add(insertAt.coerceIn(0, size), dragged.copy(groupId = targetGroupId)) }
             if (arranged.map { it.id to it.groupId } != tabs.map { it.id to it.groupId }) {
@@ -749,19 +750,19 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
                 hoverKey == START_DROP_KEY -> startDropIndex(others, group.isIncognito)
                 hoverKey.startsWith("before:") -> {
                     val targetId = hoverKey.removePrefix("before:")
-                    others.indexOfFirst { it.groupId == targetId && it.isIncognito == group.isIncognito }.takeIf { it >= 0 } ?: return
+                    others.indexOfFirst { it.groupId == targetId && it.isIncognito == group.isIncognito }.takeIf { it >= 0 } ?: return reorderSettle.clear()
                 }
                 hoverKey.startsWith("after:") -> {
                     val targetId = hoverKey.removePrefix("after:")
-                    (others.indexOfLast { it.groupId == targetId && it.isIncognito == group.isIncognito }.takeIf { it >= 0 } ?: return) + 1
+                    (others.indexOfLast { it.groupId == targetId && it.isIncognito == group.isIncognito }.takeIf { it >= 0 } ?: return reorderSettle.clear()) + 1
                 }
                 hoverKey.startsWith("tabBefore:") || hoverKey.startsWith("tabAfter:") -> {
                     val targetId = hoverKey.substringAfter(':')
-                    val target = others.find { it.id == targetId } ?: return
-                    if (target.isIncognito != group.isIncognito || target.groupId != null) return
+                    val target = others.find { it.id == targetId } ?: return reorderSettle.clear()
+                    if (target.isIncognito != group.isIncognito || target.groupId != null) return reorderSettle.clear()
                     others.indexOf(target) + if (hoverKey.startsWith("tabAfter:")) 1 else 0
                 }
-                else -> return
+                else -> return reorderSettle.clear()
             }
             val arranged = others.toMutableList().apply { addAll(insertAt.coerceIn(0, size), members) }
             if (arranged.map { it.id } != tabs.map { it.id }) {
@@ -801,7 +802,7 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
             if (index < 0) return@LaunchedEffect
             gridState.scrollToItem(index)
             val info = gridState.layoutInfo.visibleItemsInfo.find { it.key == groupHeaderKey(groupId) } ?: return@LaunchedEffect
-            gridState.scrollBy(info.offset.y - dragState.originOffset.y)
+            gridState.scrollBy(info.offset.y + dragState.contentPaddingOffset.y - dragState.originOffset.y)
             dragState.drag(Offset.Zero)
         }
 
