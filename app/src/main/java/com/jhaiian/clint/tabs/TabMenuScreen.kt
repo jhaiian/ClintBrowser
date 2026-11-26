@@ -1297,7 +1297,13 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
                                 .offset { (dragState.originOffset + dragState.dragOffset).round() }
                                 .size(cardWidth, cardHeight)
                                 .padding(CellPadding)
-                                .graphicsLayer { scaleX = liftScale.value; scaleY = liftScale.value }
+                                // Translucent while lifted so the slot and merge zone underneath stay visible;
+                                // the layer composites shadow + card together, so the shadow doesn't show through.
+                                .graphicsLayer {
+                                    scaleX = liftScale.value
+                                    scaleY = liftScale.value
+                                    alpha = 1f - (liftScale.value - 1f) / 0.06f * 0.3f
+                                }
                                 .zIndex(10f)
                                 .shadow(12.dp, RoundedCornerShape(if (listView) 14.dp else 16.dp))
                         ) {
