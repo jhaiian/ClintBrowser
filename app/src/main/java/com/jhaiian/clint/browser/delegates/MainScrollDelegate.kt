@@ -68,41 +68,9 @@ private const val BAR_SETTLE_MS = 160L
 private const val BAR_MIN_ANIMATION_MS = 90L
 private const val SNAP_SLOP_DP = 8
 
-private fun scrollHidesTop(mode: String, position: String): Boolean = when (mode) {
-    "search_bar" -> position != "bottom"
-    "both" -> true
-    else -> false
-}
-
-private fun scrollHidesBottom(mode: String, position: String): Boolean = when (mode) {
-    "search_bar" -> position == "bottom"
-    "navigation_bar", "both" -> true
-    else -> false
-}
-
 private fun MainActivity.scrollHideFraction(mode: String, position: String): Float = when (mode) {
     "search_bar" -> if (position == "bottom") uiState.bottomBarFraction else uiState.topBarFraction
     else -> uiState.bottomBarFraction
-}
-
-private fun MainActivity.scrollHideRangePx(mode: String, position: String): Int {
-    val top = if (scrollHidesTop(mode, position)) (uiState.topBarFullHeightPx - uiState.statusBarInsetPx).coerceAtLeast(0) else 0
-    val bottom = if (scrollHidesBottom(mode, position)) (uiState.bottomBarFullHeightPx - maxOf(uiState.systemNavInsetPx, uiState.imeInsetPx)).coerceAtLeast(0) else 0
-    return maxOf(top, bottom)
-}
-
-private fun MainActivity.setScrollHideFraction(mode: String, position: String, fraction: Float) {
-    if (bottomBarAnimator2?.isRunning == true) bottomBarAnimator2?.cancel()
-    when (mode) {
-        "search_bar" -> if (position == "bottom") uiState.bottomBarFraction = fraction else uiState.topBarFraction = fraction
-        "navigation_bar" -> uiState.bottomBarFraction = fraction
-        "both" -> {
-            uiState.topBarFraction = fraction
-            uiState.bottomBarFraction = fraction
-        }
-    }
-    uiState.barsTargetHidden = fraction >= 1f
-    updateMainContentInsets()
 }
 
 private fun MainActivity.scrollHideSettledHidden(mode: String, position: String): Boolean {
@@ -237,20 +205,28 @@ internal fun MainActivity.attachScrollListener(webView: WebView) {
         val now = SystemClock.uptimeMillis()
         if (scrollY <= 0) {
             accumulated = 0
-            if (hidden || scrollHideFraction(mode, position) > 0f) {
+            val alreadyShowing = (uiState.topBarAnimating || uiState.bottomBarAnimating) && !uiState.barsTargetHidden
+            // Already animating back into view: a repeat top-of-page callback (e.g. a sideways
+            // scroll) must not restart it.
+            if (!alreadyShowing && (hidden || scrollHideFraction(mode, position) > 0f)) {
                 animateScrollHideBars(mode, position, 0f)
                 settleUntil = now + BAR_ANIMATION_MS + BAR_SETTLE_MS
             }
             return
         }
-        if (now < settleUntil || delta == 0) {
+        if (delta == 0) return
+        val cooling = now < settleUntil
+        if (cooling && !touching) {
             accumulated = 0
             return
         }
         if (accumulated != 0 && (delta > 0) != (accumulated > 0)) accumulated = 0
         accumulated = (accumulated + delta).coerceIn(-hideThresholdPx, hideThresholdPx)
+        // Right after a bar animation the finger may reverse at once; let it turn the animation
+        // around, but ask for the full hide distance so layout jitter alone cannot flip it.
+        val showAt = if (cooling) hideThresholdPx else showThresholdPx
         val shouldHide = accumulated >= hideThresholdPx && !hidden
-        val shouldShow = accumulated <= -showThresholdPx && hidden
+        val shouldShow = accumulated <= -showAt && hidden
         if (shouldHide || shouldShow) {
             accumulated = 0
             settleUntil = now + BAR_ANIMATION_MS + BAR_SETTLE_MS
