@@ -1267,15 +1267,6 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
                                                     )
                                                 }
                                             }
-                                            if (draggingPreview != null) {
-                                                DragZoneOverlay(
-                                                    dragState = dragState,
-                                                    tabId = preview.id,
-                                                    accent = colors.primary,
-                                                    listRow = listView,
-                                                    modifier = Modifier.matchParentSize()
-                                                )
-                                            }
                                         }
                                     }
                                 }
@@ -1334,6 +1325,37 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
                                     onEnterSelection = {},
                                     onToggleSelect = {},
                                     onClose = {}
+                                )
+                            }
+                        }
+
+                        // Merge zone sits above the lifted card so the translucent card never hides it.
+                        val zoneTabId = dragState.zoneTabId
+                            ?: holdTargetTabId(dragState.hoverKey)
+                            ?: mergeTargetTabId(dragState.hoverKey)
+                        val zoneItem = zoneTabId?.let { id ->
+                            gridState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == tabItemKey(id) }
+                        }
+                        if (zoneTabId != null && zoneItem != null) {
+                            androidx.compose.runtime.key(zoneTabId) {
+                                DragZoneOverlay(
+                                    dragState = dragState,
+                                    tabId = zoneTabId,
+                                    accent = colors.primary,
+                                    listRow = listView,
+                                    modifier = Modifier
+                                        .offset {
+                                            val info = gridState.layoutInfo.visibleItemsInfo
+                                                .firstOrNull { it.key == tabItemKey(zoneTabId) }
+                                            val o = info?.offset ?: zoneItem.offset
+                                            (Offset(o.x.toFloat(), o.y.toFloat()) + dragState.contentPaddingOffset).round()
+                                        }
+                                        .size(
+                                            with(density) { zoneItem.size.width.toDp() },
+                                            with(density) { zoneItem.size.height.toDp() }
+                                        )
+                                        .padding(CellPadding)
+                                        .zIndex(11f)
                                 )
                             }
                         }
