@@ -2922,4 +2922,8 @@
     <string name="accessibility_color_filter_black_white_desc">Only black and white for the strongest contrast</string>
     <string name="accessibility_color_filter_monochrome">Monochrome</string>
     <string name="accessibility_color_filter_monochrome_desc">Shades of a single color that matches your theme</string>
+    <string name="tab_drag_zone_beside">Place beside</string>
+    <string name="tab_drag_zone_hold">Hold to group</string>
+    <string name="tab_drag_zone_release">Release to group</string>
+    <string name="tab_drag_zone_center">Hold in the middle to group</string>
 </resources>

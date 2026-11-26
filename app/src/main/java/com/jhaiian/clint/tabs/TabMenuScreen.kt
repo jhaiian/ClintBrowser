@@ -1610,10 +1610,10 @@ private fun DragZoneOverlay(
     val density = LocalDensity.current
     val edgeVertical = dragState.zoneEdgeVertical
     val label = when {
-        merging -> "松手成组"
-        holding -> "停住成组"
-        edge != 0 -> "放在旁边"
-        else -> "移到中间成组"
+        merging -> stringResource(R.string.tab_drag_zone_release)
+        holding -> stringResource(R.string.tab_drag_zone_hold)
+        edge != 0 -> stringResource(R.string.tab_drag_zone_beside)
+        else -> stringResource(R.string.tab_drag_zone_center)
     }
     Box(modifier.graphicsLayer { alpha = visible }) {
     Canvas(Modifier.matchParentSize()) {

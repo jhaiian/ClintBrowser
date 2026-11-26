@@ -2787,4 +2787,8 @@
     <string name="accessibility_color_filter_black_white_desc">仅保留黑色和白色，对比度最强</string>
     <string name="accessibility_color_filter_monochrome">单色</string>
     <string name="accessibility_color_filter_monochrome_desc">使用与主题相配的单一颜色的不同深浅</string>
+    <string name="tab_drag_zone_beside">放在旁边</string>
+    <string name="tab_drag_zone_hold">停住成组</string>
+    <string name="tab_drag_zone_release">松手成组</string>
+    <string name="tab_drag_zone_center">停在中间成组</string>
 </resources>
