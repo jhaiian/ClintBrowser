@@ -1,6 +1,16 @@
 package com.jhaiian.clint.tabs
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Canvas
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -592,8 +602,8 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
         SideEffect {
             dragState.collapsedGroupIds = collapsedGroupIds
             dragState.contentPaddingOffset = with(density) { GridEdgePadding.toPx() }.let { Offset(it, it) }
-            // ~150 dp/s: slower than this counts as hovering (can merge), faster as moving (swaps).
-            dragState.fastSpeedPxPerMs = with(density) { 0.15.dp.toPx() }
+            // ~600 dp/s: only a quick flick through a card's centre counts as passing over it.
+            dragState.fastSpeedPxPerMs = with(density) { 0.6.dp.toPx() }
             dragState.columns = columns
             dragState.mergeEnabled = groupsEnabled
             dragState.canMergeWith = { targetId ->
@@ -1177,8 +1187,7 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
                                         }
                                         val ghostAlpha by animateFloatAsState(if (isDragging) 0.25f else 1f, label = "ghostAlpha")
                                         val mergeHighlighted = draggingPreview != null &&
-                                            (mergeTargetTabId(dragState.hoverKey) == preview.id ||
-                                                holdTargetTabId(dragState.hoverKey) == preview.id) &&
+                                            mergeTargetTabId(dragState.hoverKey) == preview.id &&
                                             canMergeTabs(draggingPreview, preview)
                                         val handleModifier = Modifier
                                             .onGloballyPositioned { dragState.handleOrigins[preview.id] = it.positionInRoot() }
@@ -1257,6 +1266,15 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
                                                         modifier = Modifier.alpha(ghostAlpha)
                                                     )
                                                 }
+                                            }
+                                            if (draggingPreview != null) {
+                                                DragZoneOverlay(
+                                                    dragState = dragState,
+                                                    tabId = preview.id,
+                                                    accent = colors.primary,
+                                                    listRow = listView,
+                                                    modifier = Modifier.matchParentSize()
+                                                )
                                             }
                                         }
                                     }
@@ -1524,6 +1542,91 @@ private fun TabMenuTopBar(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * Shows where a dragged tab will land on the tab under the finger: an edge bar on the near
+ * side (drop next to it), a dashed centre box that fills while the finger rests there, and a
+ * solid box once letting go would group the two tabs.
+ */
+@Composable
+private fun DragZoneOverlay(
+    dragState: TabDragState,
+    tabId: String,
+    accent: Color,
+    listRow: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val shown = dragState.zoneTabId == tabId
+    val holding = holdTargetTabId(dragState.hoverKey) == tabId
+    val merging = mergeTargetTabId(dragState.hoverKey) == tabId
+    val edge = if (shown && !holding && !merging) dragState.zoneEdge else 0
+    val visible by animateFloatAsState(if (shown || merging) 1f else 0f, tween(120), label = "zoneAlpha")
+    val fill = remember(tabId) { Animatable(0f) }
+    val holdSince = dragState.holdSince
+    LaunchedEffect(holding, merging, holdSince) {
+        when {
+            merging -> fill.animateTo(1f, tween(80))
+            holding -> {
+                val elapsed = (SystemClock.uptimeMillis() - holdSince).coerceAtLeast(0L)
+                val remaining = (dragState.mergeDwellMs - elapsed).coerceAtLeast(0L).toInt()
+                fill.animateTo(1f, tween(remaining, easing = LinearEasing))
+            }
+            else -> fill.snapTo(0f)
+        }
+    }
+    if (visible <= 0f) return
+    val density = LocalDensity.current
+    val edgeVertical = dragState.zoneEdgeVertical
+    Canvas(modifier.graphicsLayer { alpha = visible }) {
+        val w = size.width
+        val h = size.height
+        val left = if (listRow) w * 0.04f else w * 0.25f
+        val right = if (listRow) w * 0.96f else w * 0.75f
+        val top = h * 0.25f
+        val bottom = h * 0.75f
+        val radius = with(density) { 12.dp.toPx() }
+        val stroke = with(density) { 2.dp.toPx() }
+        val active = holding || merging
+        val zoneSize = Size(right - left, bottom - top)
+        if (fill.value > 0f) {
+            val path = Path().apply {
+                addRoundRect(RoundRect(left, top, right, bottom, CornerRadius(radius, radius)))
+            }
+            clipPath(path) {
+                val filled = (bottom - top) * fill.value
+                drawRect(
+                    color = accent.copy(alpha = if (merging) 0.55f else 0.32f),
+                    topLeft = Offset(left, bottom - filled),
+                    size = Size(right - left, filled)
+                )
+            }
+        }
+        drawRoundRect(
+            color = accent.copy(alpha = if (active) 1f else 0.5f),
+            topLeft = Offset(left, top),
+            size = zoneSize,
+            cornerRadius = CornerRadius(radius, radius),
+            style = Stroke(
+                width = stroke,
+                pathEffect = if (merging) null else PathEffect.dashPathEffect(
+                    floatArrayOf(with(density) { 6.dp.toPx() }, with(density) { 4.dp.toPx() })
+                )
+            )
+        )
+        if (edge != 0) {
+            // Inside this cell's own padding, so a neighbour's group tint can't cover it.
+            val gap = with(density) { CellPadding.toPx() }
+            val bar = with(density) { 4.dp.toPx() }
+            if (edgeVertical) {
+                val x = if (edge < 0) -gap / 2f - bar / 2f else w + gap / 2f - bar / 2f
+                drawRoundRect(accent, Offset(x, h * 0.1f), Size(bar, h * 0.8f), CornerRadius(bar / 2f, bar / 2f))
+            } else {
+                val y = if (edge < 0) -gap / 2f - bar / 2f else h + gap / 2f - bar / 2f
+                drawRoundRect(accent, Offset(w * 0.1f, y), Size(w * 0.8f, bar), CornerRadius(bar / 2f, bar / 2f))
             }
         }
     }

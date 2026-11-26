@@ -27,12 +27,15 @@ internal fun tabMergeKey(tabId: String): String = "merge:$tabId"
 internal fun tabMergeHoldKey(tabId: String): String = "hold:$tabId"
 internal const val END_DROP_KEY = "drop:end"
 internal const val START_DROP_KEY = "drop:start"
-private const val MERGE_DWELL_MS = 260L
-// Approach band: the part of a mergeable target the finger enters first. Moving through it
-// quickly swaps right away; a slow finger here waits so it can reach the centre and merge.
-private const val APPROACH_FRACTION = 0.25f
-// Far band: past this the finger has clearly gone over the target, so it always swaps.
-private const val FAR_FRACTION = 0.72f
+private const val MERGE_DWELL_MS = 220L
+// Merge zone: the centre box of a mergeable target (fraction of its width and height).
+private const val ZONE_LO = 0.25f
+private const val ZONE_HI = 0.75f
+// Once a hold started, the finger may wander this much further out before it is lost.
+private const val ZONE_KEEP_LO = 0.17f
+private const val ZONE_KEEP_HI = 0.83f
+// Past this on the far side the finger has clearly gone over the target, so it swaps.
+private const val FAR_FRACTION = 0.75f
 // Non-mergeable targets swap as soon as the finger is this far inside (small hysteresis).
 private const val SWAP_ENTER_FRACTION = 0.1f
 private const val SPEED_WINDOW_MS = 90L
@@ -70,6 +73,20 @@ internal class TabDragState(private val gridState: LazyGridState) {
 
     var hoverKey by mutableStateOf<Any?>(null)
         private set
+
+    /** Mergeable tab under the finger, for drawing its merge zone / edge bar; null otherwise. */
+    var zoneTabId by mutableStateOf<String?>(null)
+        private set
+    /** Edge bar on [zoneTabId]: -1 on its leading side, 1 on its trailing side, 0 none. */
+    var zoneEdge by mutableStateOf(0)
+        private set
+    /** True when the edge bar is vertical (same-row neighbour in a grid). */
+    var zoneEdgeVertical by mutableStateOf(true)
+        private set
+    /** uptimeMillis when the current merge hold started; 0 when none. */
+    var holdSince by mutableStateOf(0L)
+        private set
+    val mergeDwellMs: Long get() = MERGE_DWELL_MS
 
     var gridOriginInRoot: Offset = Offset.Zero
     /**
@@ -152,6 +169,8 @@ internal class TabDragState(private val gridState: LazyGridState) {
                 )
             }
         }
+        zoneTabId = null
+        zoneEdge = 0
         if (draggingGroupId != null) {
             hoverKey = if (item != null) refineGroupDragKey(item, probe) else edgeDropKey(inGrid)
             return
@@ -162,7 +181,10 @@ internal class TabDragState(private val gridState: LazyGridState) {
         // after it turned into a merge; otherwise every small move would restart the dwell and
         // the merge highlight would flicker back to "hold".
         val hovered = hoverKey as? String
-        if (hovered == null || !(hovered.startsWith("hold:") || hovered.startsWith("merge:"))) mergeCandidate = null
+        if (hovered == null || !(hovered.startsWith("hold:") || hovered.startsWith("merge:"))) {
+            mergeCandidate = null
+            holdSince = 0L
+        }
     }
 
     private fun edgeDropKey(inGrid: Offset): Any? = startDropKey(inGrid) ?: endDropKey(inGrid)
@@ -223,13 +245,29 @@ internal class TabDragState(private val gridState: LazyGridState) {
                 val forward = draggedIndex == null || item.index > draggedIndex
                 val swapKey = if (forward) tabAfterKey(tabId) else tabBeforeKey(tabId)
                 val progress = approachProgress(item, inGrid, forward, draggedIndex)
+                if (!mergeEnabled || !canMergeWith(tabId)) {
+                    return if (progress >= SWAP_ENTER_FRACTION) swapKey else stayKey()
+                }
+                val fx = ((inGrid.x - item.offset.x) / item.size.width.coerceAtLeast(1)).coerceIn(0f, 1f)
+                val fy = ((inGrid.y - item.offset.y) / item.size.height.coerceAtLeast(1)).coerceIn(0f, 1f)
+                val keeping = mergeCandidate == tabId
+                val lo = if (keeping) ZONE_KEEP_LO else ZONE_LO
+                val hi = if (keeping) ZONE_KEEP_HI else ZONE_HI
+                // A single-column list row is wide: only its height decides.
+                val inZone = fy in lo..hi && (columns <= 1 || fx in lo..hi)
+                zoneTabId = tabId
+                zoneEdgeVertical = columns > 1 && draggedIndex?.let { idx ->
+                    gridState.layoutInfo.visibleItemsInfo.firstOrNull { it.index == idx }?.offset?.y == item.offset.y
+                } == true
                 when {
-                    !mergeEnabled || !canMergeWith(tabId) ->
-                        if (progress >= SWAP_ENTER_FRACTION) swapKey else stayKey()
-                    progress >= FAR_FRACTION -> swapKey
-                    isMovingFast() -> swapKey
-                    progress < APPROACH_FRACTION -> stayKey()
-                    else -> mergeOrHoldKey(tabId)
+                    inZone && (keeping || !isMovingFast()) -> mergeOrHoldKey(tabId)
+                    progress >= FAR_FRACTION || inZone -> { zoneTabId = null; swapKey }
+                    else -> {
+                        // Near side of the target: sit right next to it without displacing it.
+                        zoneEdge = if (forward) -1 else 1
+                        val adjacent = draggedIndex != null && kotlin.math.abs(item.index - draggedIndex) == 1
+                        if (adjacent) stayKey() else if (forward) tabBeforeKey(tabId) else tabAfterKey(tabId)
+                    }
                 }
             }
             else -> key
@@ -274,9 +312,10 @@ internal class TabDragState(private val gridState: LazyGridState) {
 
     private fun mergeOrHoldKey(tabId: String): String {
         val now = SystemClock.uptimeMillis()
-        if (mergeCandidate != tabId || isMovingFast()) {
+        if (mergeCandidate != tabId) {
             mergeCandidate = tabId
             mergeCandidateSince = now
+            holdSince = now
         }
         return if (now - mergeCandidateSince >= MERGE_DWELL_MS) tabMergeKey(tabId) else tabMergeHoldKey(tabId)
     }
@@ -322,6 +361,9 @@ internal class TabDragState(private val gridState: LazyGridState) {
         hoverKey = null
         primaryPointerId = null
         mergeCandidate = null
+        holdSince = 0L
+        zoneTabId = null
+        zoneEdge = 0
         recentMoves.clear()
     }
 }
