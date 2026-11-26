@@ -83,11 +83,12 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerId
+import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import android.os.SystemClock
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.layout.LocalPinnableContainer
@@ -248,8 +249,43 @@ private fun duplicateTabIds(tabs: List<TabPreview>, activeTabId: String?): List<
             copies.filter { it.id != keeper.id && !it.isPinned }.map { it.id }
         }
 
-// Reorders apply as soon as the finger crosses into a target; hysteresis lives in TabDragState.
-private const val REORDER_SETTLE_MS = 0L
+/** How long a card must be held before it lifts for dragging (system long press is ~400 ms). */
+private const val LIFT_HOLD_MS = 600L
+
+/**
+ * Waits until the pointer [down] has been held still for [holdMs]. Returns the latest change for
+ * it, or null when it lifted, moved past touch slop, or another gesture consumed it first.
+ */
+private suspend fun AwaitPointerEventScope.awaitLongHold(down: PointerInputChange, holdMs: Long): PointerInputChange? {
+    val slop = viewConfiguration.touchSlop
+    var last = down
+    // Finishes (non-null) only when the hold is broken; times out (null) when it lasted.
+    val broken = withTimeoutOrNull(holdMs) {
+        var holding = true
+        while (holding) {
+            val change = awaitPointerEvent().changes.firstOrNull { it.id == down.id }
+            holding = change != null && change.pressed && !change.isConsumed &&
+                (change.position - down.position).getDistance() <= slop
+            if (holding && change != null) last = change
+        }
+    }
+    return if (broken == null) last else null
+}
+
+/** What a drag commit changed, so its undo can put back order, groups and pins together. */
+private data class ArrangementSnapshot(
+    val order: List<String>,
+    val assignments: Map<String, String?>,
+    val groups: List<TabGroup>,
+    val pinned: Map<String, Boolean>
+)
+
+private fun TabManager.arrangementSnapshot(): ArrangementSnapshot = ArrangementSnapshot(
+    order = tabs.map { it.id },
+    assignments = tabs.associate { it.id to it.groupId },
+    groups = groups.toList(),
+    pinned = tabs.associate { it.id to it.isPinned }
+)
 
 /** The finger that lifted a card by long press, followed by the screen-level pointer handler. */
 private class DragPointerSession {
@@ -282,31 +318,6 @@ private class DragPointerSession {
 private class DragCallbacks {
     var moved: () -> Unit = {}
     var cancel: () -> Unit = {}
-}
-
-/** Small time hysteresis so a reorder only happens once the finger rests on a slot briefly. */
-private class ReorderSettle {
-    private var candidate: String? = null
-    private var since = 0L
-    var pending = false
-        private set
-
-    fun ready(key: String): Boolean {
-        if (REORDER_SETTLE_MS <= 0L) return true
-        val now = SystemClock.uptimeMillis()
-        if (candidate != key) {
-            candidate = key
-            since = now
-            pending = true
-            return false
-        }
-        return now - since >= REORDER_SETTLE_MS
-    }
-
-    fun clear() {
-        candidate = null
-        pending = false
-    }
 }
 
 private fun canMergeTabs(dragged: TabPreview, target: TabPreview): Boolean =
@@ -414,36 +425,30 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
 
     var showSortDialog by remember { mutableStateOf(false) }
 
-    fun undoArrangement(
-        previousOrder: List<String>,
-        previousAssignments: Map<String, String?>,
-        previousGroups: List<TabGroup>
-    ) {
+    fun undoArrangement(previous: ArrangementSnapshot) {
         commitGroups {
-            previousGroups.forEach { restoreGroup(it) }
+            previous.groups.forEach { restoreGroup(it) }
+            // Joining a group unpins a tab; give the pin back before restoring order and groups.
+            this.tabs.forEach { tab -> previous.pinned[tab.id]?.let { tab.isPinned = it } }
             val currentIds = this.tabs.map { it.id }
             val currentSet = currentIds.toSet()
-            val previousSet = previousOrder.toSet()
-            applyArrangement(previousOrder.filter { it in currentSet } + currentIds.filter { it !in previousSet }, previousAssignments)
+            val previousSet = previous.order.toSet()
+            applyArrangement(previous.order.filter { it in currentSet } + currentIds.filter { it !in previousSet }, previous.assignments)
         }
     }
 
     fun sortTabsWithUndo(mode: TabSortMode) {
-        val previousOrder = tabManager.tabs.map { it.id }
-        val previousAssignments = tabManager.tabs.associate { it.id to it.groupId }
-        val previousGroups = tabManager.groups.toList()
+        val previous = tabManager.arrangementSnapshot()
         commitGroups { sortTabs(mode) }
         activity.showClintSnackbar(
             message = activity.getString(R.string.tab_menu_tabs_sorted),
             actionLabel = activity.getString(R.string.action_undo),
             timeoutMs = UNDO_SNACKBAR_TIMEOUT_MS
-        ) { undoArrangement(previousOrder, previousAssignments, previousGroups) }
+        ) { undoArrangement(previous) }
     }
 
     fun groupBySiteWithUndo() {
-        val previousOrder = tabManager.tabs.map { it.id }
-        val previousAssignments = tabManager.tabs.associate { it.id to it.groupId }
-        val previousGroups = tabManager.groups.toList()
+        val previous = tabManager.arrangementSnapshot()
         var created = 0
         commitGroups { created = groupBySite() }
         if (created > 0) {
@@ -451,7 +456,7 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
                 message = activity.resources.getQuantityString(R.plurals.tab_menu_grouped_by_site, created, created),
                 actionLabel = activity.getString(R.string.action_undo),
                 timeoutMs = UNDO_SNACKBAR_TIMEOUT_MS
-            ) { undoArrangement(previousOrder, previousAssignments, previousGroups) }
+            ) { undoArrangement(previous) }
         } else {
             activity.showClintSnackbar(message = activity.getString(R.string.tab_menu_nothing_to_group))
         }
@@ -613,7 +618,6 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
             }
             dragState.groupOfTab = { id -> tabs.find { it.id == id }?.groupId }
         }
-        val reorderSettle = remember { ReorderSettle() }
         val dragSession = remember { DragPointerSession() }
         val shownGroups = visibleGroups(tabs, groups)
         val groupCounts = tabs.groupingBy { it.groupId ?: "" }.eachCount()
@@ -648,9 +652,12 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
             if (tabsAtBottom) others.indexOfLast { it.isIncognito == incognito } + 1
             else others.indexOfFirst { it.isIncognito == incognito }.let { if (it < 0) others.size else it }
 
-        fun onDragMoved(force: Boolean = false) {
+        fun onDragMoved() {
             val draggedId = dragState.draggingId ?: return
             val dragged = tabs.find { it.id == draggedId } ?: return
+            // Group the tab belonged to when the drag started. Sliding past the edge of another
+            // group's member must not join that group; only the centre dwell (merge) does.
+            val homeGroupId = tabManager.tabs.firstOrNull { it.id == draggedId }?.groupId
             val hoverKey = orderedHoverKey() ?: return
             val others = tabs.filter { it.id != draggedId }
             var targetGroupId: String? = null
@@ -661,37 +668,42 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
                 hoverKey == START_DROP_KEY -> startDropIndex(others, dragged.isIncognito)
                 hoverKey.startsWith("before:") -> {
                     val groupId = hoverKey.removePrefix("before:")
-                    if (!sameModeGroup(groupId)) return reorderSettle.clear()
-                    others.indexOfFirst { it.groupId == groupId }.takeIf { it >= 0 } ?: return reorderSettle.clear()
+                    if (!sameModeGroup(groupId)) return
+                    others.indexOfFirst { it.groupId == groupId }.takeIf { it >= 0 } ?: return
                 }
                 hoverKey.startsWith("after:") -> {
                     val groupId = hoverKey.removePrefix("after:")
-                    if (!sameModeGroup(groupId)) return reorderSettle.clear()
-                    (others.indexOfLast { it.groupId == groupId }.takeIf { it >= 0 } ?: return reorderSettle.clear()) + 1
+                    if (!sameModeGroup(groupId)) return
+                    (others.indexOfLast { it.groupId == groupId }.takeIf { it >= 0 } ?: return) + 1
                 }
                 hoverKey.startsWith("tabBefore:") || hoverKey.startsWith("tabAfter:") -> {
                     val after = hoverKey.startsWith("tabAfter:")
                     val targetId = hoverKey.substringAfter(':')
-                    val target = others.find { it.id == targetId } ?: return reorderSettle.clear()
-                    if (target.isIncognito != dragged.isIncognito) return reorderSettle.clear()
-                    targetGroupId = target.groupId
-                    others.indexOf(target) + if (after) 1 else 0
+                    val target = others.find { it.id == targetId } ?: return
+                    if (target.isIncognito != dragged.isIncognito) return
+                    val otherGroupId = target.groupId
+                    if (otherGroupId != null && otherGroupId != homeGroupId) {
+                        // Next to a member of another group: land before or after that whole group.
+                        if (after) others.indexOfLast { it.groupId == otherGroupId } + 1
+                        else others.indexOfFirst { it.groupId == otherGroupId }
+                    } else {
+                        targetGroupId = otherGroupId
+                        others.indexOf(target) + if (after) 1 else 0
+                    }
                 }
-                else -> return reorderSettle.clear()
+                else -> return
             }
             val arranged = others.toMutableList().apply { add(insertAt.coerceIn(0, size), dragged.copy(groupId = targetGroupId)) }
             if (arranged.map { it.id to it.groupId } != tabs.map { it.id to it.groupId }) {
-                if (!force && !reorderSettle.ready(hoverKey)) return
-                reorderSettle.clear()
                 tabs.clear()
                 tabs.addAll(arranged)
-            } else {
-                reorderSettle.clear()
             }
         }
 
         fun commitDrag() {
-            onDragMoved(force = true)
+            // Judge the drop at lift time: a dwell that completed since the last frame counts.
+            dragState.drag(Offset.Zero)
+            onDragMoved()
             val draggedId = dragState.draggingId
             val dropKey = dragState.hoverKey
             dragState.end()
@@ -700,9 +712,9 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
             val mergeTarget = mergeTargetTabId(dropKey)?.let { id -> tabs.find { it.id == id } }
                 ?.takeIf { groupsEnabled && dragged != null && canMergeTabs(dragged, it) }
             val dropGroupId = dropTargetGroupId(dropKey) ?: mergeTarget?.groupId
-            val previousOrder = tabManager.tabs.map { it.id }
-            val previousAssignments = tabManager.tabs.associate { it.id to it.groupId }
-            val previousGroups = tabManager.groups.toList()
+            val previous = tabManager.arrangementSnapshot()
+            val previousOrder = previous.order
+            val previousAssignments = previous.assignments
             val orderedIds = tabs.map { it.id }
             val assignments = tabs.associate { it.id to it.groupId }
             var createdGroupId: String? = null
@@ -725,15 +737,7 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
                 activity.showClintTwoActionSnackbar(
                     message = activity.getString(R.string.tab_group_created_message),
                     actionLabel = activity.getString(R.string.action_undo),
-                    onAction = {
-                        commitGroups {
-                            previousGroups.forEach { restoreGroup(it) }
-                            val currentIds = this.tabs.map { it.id }
-                            val currentSet = currentIds.toSet()
-                            val previousSet = previousOrder.toSet()
-                            applyArrangement(previousOrder.filter { it in currentSet } + currentIds.filter { it !in previousSet }, previousAssignments)
-                        }
-                    },
+                    onAction = { undoArrangement(previous) },
                     secondaryActionLabel = activity.getString(R.string.action_edit),
                     onSecondaryAction = { tabManager.group(newGroupId)?.let { editorRequest = TabGroupEditorRequest.Edit(it) } }
                 )
@@ -749,12 +753,12 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
                         message = activity.getString(if (movedIntoGroup) R.string.tab_moved_to_group_message else R.string.tab_moved_message),
                         actionLabel = activity.getString(R.string.action_undo),
                         timeoutMs = UNDO_SNACKBAR_TIMEOUT_MS
-                    ) { undoArrangement(previousOrder, previousAssignments, previousGroups) }
+                    ) { undoArrangement(previous) }
                 }
             }
         }
 
-        fun onGroupDragMoved(force: Boolean = false) {
+        fun onGroupDragMoved() {
             val groupId = dragState.draggingGroupId ?: return
             val group = groups.find { it.id == groupId } ?: return
             val hoverKey = orderedHoverKey() ?: return
@@ -766,49 +770,44 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
                 hoverKey == START_DROP_KEY -> startDropIndex(others, group.isIncognito)
                 hoverKey.startsWith("before:") -> {
                     val targetId = hoverKey.removePrefix("before:")
-                    others.indexOfFirst { it.groupId == targetId && it.isIncognito == group.isIncognito }.takeIf { it >= 0 } ?: return reorderSettle.clear()
+                    others.indexOfFirst { it.groupId == targetId && it.isIncognito == group.isIncognito }.takeIf { it >= 0 } ?: return
                 }
                 hoverKey.startsWith("after:") -> {
                     val targetId = hoverKey.removePrefix("after:")
-                    (others.indexOfLast { it.groupId == targetId && it.isIncognito == group.isIncognito }.takeIf { it >= 0 } ?: return reorderSettle.clear()) + 1
+                    (others.indexOfLast { it.groupId == targetId && it.isIncognito == group.isIncognito }.takeIf { it >= 0 } ?: return) + 1
                 }
                 hoverKey.startsWith("tabBefore:") || hoverKey.startsWith("tabAfter:") -> {
                     val targetId = hoverKey.substringAfter(':')
-                    val target = others.find { it.id == targetId } ?: return reorderSettle.clear()
-                    if (target.isIncognito != group.isIncognito || target.groupId != null) return reorderSettle.clear()
+                    val target = others.find { it.id == targetId } ?: return
+                    if (target.isIncognito != group.isIncognito || target.groupId != null) return
                     others.indexOf(target) + if (hoverKey.startsWith("tabAfter:")) 1 else 0
                 }
-                else -> return reorderSettle.clear()
+                else -> return
             }
             val arranged = others.toMutableList().apply { addAll(insertAt.coerceIn(0, size), members) }
             if (arranged.map { it.id } != tabs.map { it.id }) {
-                if (!force && !reorderSettle.ready(hoverKey)) return
-                reorderSettle.clear()
                 tabs.clear()
                 tabs.addAll(arranged)
-            } else {
-                reorderSettle.clear()
             }
         }
 
         fun commitGroupDrag() {
-            onGroupDragMoved(force = true)
+            dragState.drag(Offset.Zero)
+            onGroupDragMoved()
             val groupId = dragState.draggingGroupId
             dragState.end()
             if (groupId == null) return
-            val previousOrder = tabManager.tabs.map { it.id }
-            val previousAssignments = tabManager.tabs.associate { it.id to it.groupId }
-            val previousGroups = tabManager.groups.toList()
+            val previous = tabManager.arrangementSnapshot()
             val orderedIds = tabs.map { it.id }
             val assignments = tabs.associate { it.id to it.groupId }
             commitGroups { applyArrangement(orderedIds, assignments) }
             scrollToGroupId = groupId
-            if (tabManager.tabs.map { it.id } != previousOrder) {
+            if (tabManager.tabs.map { it.id } != previous.order) {
                 activity.showClintSnackbar(
                     message = activity.getString(R.string.tab_group_moved_message),
                     actionLabel = activity.getString(R.string.action_undo),
                     timeoutMs = UNDO_SNACKBAR_TIMEOUT_MS
-                ) { undoArrangement(previousOrder, previousAssignments, previousGroups) }
+                ) { undoArrangement(previous) }
             }
         }
 
@@ -825,15 +824,13 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
         val autoScrollEdgePx = with(density) { 72.dp.toPx() }
         val autoScrollMaxStepPx = with(density) { 20.dp.toPx() }
         LaunchedEffect(dragState.active) {
-            reorderSettle.clear()
             if (!dragState.active) return@LaunchedEffect
             while (dragState.active) {
                 withFrameNanos { }
                 val step = dragState.autoScrollStep(autoScrollEdgePx, autoScrollMaxStepPx)
                 val scrolled = step != 0f && gridState.scrollBy(step) != 0f
-                if (scrolled || dragState.mergeDwellPending || reorderSettle.pending) {
-                    // Re-evaluate under the still finger: after a scroll, while a merge dwell is
-                    // running, or while a reorder waits for its settle delay.
+                if (scrolled || dragState.mergeDwellPending) {
+                    // Re-evaluate under the still finger: after a scroll, or while a merge dwell runs.
                     dragState.drag(Offset.Zero)
                     if (dragState.draggingGroupId != null) onGroupDragMoved() else onDragMoved()
                 }
@@ -862,23 +859,22 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
 
         fun Modifier.longPressDrag(
             originKey: String,
-            isLifted: () -> Boolean,
-            onLift: (Offset) -> Unit,
-            onMove: () -> Unit,
+            onLift: (Offset, PointerId) -> Boolean,
             onDrop: () -> Unit,
             onLongPress: () -> Unit
         ): Modifier = onGloballyPositioned { dragState.handleOrigins[originKey] = it.positionInRoot() }
             .pointerInput(originKey) {
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
-                    val longPress = awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
+                    // A finger landing while another card is already lifted belongs to scrolling.
+                    if (dragState.active) return@awaitEachGesture
+                    val longPress = awaitLongHold(down, LIFT_HOLD_MS) ?: return@awaitEachGesture
+                    if (dragState.active) return@awaitEachGesture
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     // Lift right away; the screen-level pointer handler follows this finger from
                     // here on, so a second finger can scroll the list meanwhile.
-                    onLift(longPress.position)
-                    if (isLifted()) {
+                    if (onLift(longPress.position, longPress.id)) {
                         longPress.consume()
-                        dragState.primaryPointerId = longPress.id
                         dragSession.arm(longPress.id, onDrop, onLongPress)
                     } else {
                         while (awaitPointerEvent().changes.any { it.id == longPress.id && it.pressed }) Unit
@@ -1016,53 +1012,67 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
                     .onGloballyPositioned { dragState.gridOriginInRoot = it.positionInRoot() }
                     .pointerInput(Unit) {
                         val slop = viewConfiguration.touchSlop
-                        awaitPointerEventScope {
-                            while (true) {
-                                val event = awaitPointerEvent(PointerEventPass.Initial)
-                                if (!dragState.active) {
-                                    dragSession.reset()
-                                    continue
-                                }
-                                val primary = dragState.primaryPointerId
-                                var moved = false
-                                for (change in event.changes) {
-                                    if (primary != null && change.id == primary) {
-                                        // A drag started from a drag handle keeps its own detector.
-                                        if (dragSession.pointerId != primary) continue
-                                        if (change.pressed) {
-                                            val delta = change.positionChange()
-                                            if (delta != Offset.Zero) {
-                                                dragSession.travelled += delta.getDistance()
-                                                dragState.drag(delta)
+                        try {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent(PointerEventPass.Initial)
+                                    if (!dragState.active) {
+                                        dragSession.reset()
+                                        continue
+                                    }
+                                    // A handle drag learns its pointer on its first move; until then
+                                    // leave every finger alone so the handle's detector is not starved.
+                                    val primary = dragState.primaryPointerId ?: continue
+                                    var moved = false
+                                    for (change in event.changes) {
+                                        if (change.id == primary) {
+                                            // A drag started from a drag handle keeps its own detector.
+                                            if (dragSession.pointerId != primary) continue
+                                            if (change.pressed) {
+                                                val delta = change.positionChange()
+                                                if (delta != Offset.Zero) {
+                                                    dragSession.travelled += delta.getDistance()
+                                                    dragState.drag(delta)
+                                                    moved = true
+                                                }
+                                                change.consume()
+                                            } else {
+                                                // Compose delivers a cancelled gesture as an already
+                                                // consumed release: put the preview back, commit nothing.
+                                                val cancelled = change.isConsumed
+                                                change.consume()
+                                                val asLongPress = dragSession.travelled < slop && !dragSession.scrolled
+                                                val onDrop = dragSession.onDrop
+                                                val onLongPress = dragSession.onLongPress
+                                                dragSession.reset()
+                                                if (cancelled) {
+                                                    dragCallbacks.cancel()
+                                                } else if (asLongPress) {
+                                                    dragCallbacks.cancel()
+                                                    onLongPress()
+                                                } else {
+                                                    onDrop()
+                                                }
+                                            }
+                                        } else if (change.pressed) {
+                                            // Any other finger scrolls the list while the card stays under the first one.
+                                            val dy = change.position.y - change.previousPosition.y
+                                            if (change.previousPressed && dy != 0f && gridState.dispatchRawDelta(-dy) != 0f) {
+                                                dragSession.scrolled = true
+                                                dragState.drag(Offset.Zero)
                                                 moved = true
                                             }
                                             change.consume()
-                                        } else {
-                                            change.consume()
-                                            val asLongPress = dragSession.travelled < slop && !dragSession.scrolled
-                                            val onDrop = dragSession.onDrop
-                                            val onLongPress = dragSession.onLongPress
-                                            dragSession.reset()
-                                            if (asLongPress) {
-                                                dragCallbacks.cancel()
-                                                onLongPress()
-                                            } else {
-                                                onDrop()
-                                            }
                                         }
-                                    } else if (change.pressed) {
-                                        // Any other finger scrolls the list while the card stays under the first one.
-                                        val dy = change.position.y - change.previousPosition.y
-                                        if (change.previousPressed && dy != 0f) {
-                                            gridState.dispatchRawDelta(-dy)
-                                            dragSession.scrolled = true
-                                            dragState.drag(Offset.Zero)
-                                            moved = true
-                                        }
-                                        change.consume()
                                     }
+                                    if (moved && dragState.active) dragCallbacks.moved()
                                 }
-                                if (moved && dragState.active) dragCallbacks.moved()
+                            }
+                        } finally {
+                            // Handler torn down mid-drag: drop the preview instead of leaving it lifted.
+                            if (dragSession.pointerId != null) {
+                                dragSession.reset()
+                                dragCallbacks.cancel()
                             }
                         }
                     }
@@ -1133,23 +1143,24 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
                                             dragHandleModifier = if (searching) null else Modifier
                                                 .onGloballyPositioned { dragState.handleOrigins[groupHeaderKey(group.id)] = it.positionInRoot() }
                                                 .pointerInput(group.id) {
+                                                    var owned = false
                                                     detectDragGestures(
-                                                        onDragStart = { offset -> dragState.startGroup(group.id, offset) },
+                                                        onDragStart = { offset -> owned = dragState.startGroup(group.id, offset) },
                                                         onDrag = { change, amount ->
-                                                            if (dragState.primaryPointerId == null) dragState.primaryPointerId = change.id
-                                                            change.consume(); dragState.drag(amount); onGroupDragMoved()
+                                                            if (owned) {
+                                                                if (dragState.primaryPointerId == null) dragState.primaryPointerId = change.id
+                                                                change.consume(); dragState.drag(amount); onGroupDragMoved()
+                                                            }
                                                         },
-                                                        onDragEnd = { commitGroupDrag() },
-                                                        onDragCancel = { cancelDrag() }
+                                                        onDragEnd = { if (owned) { owned = false; commitGroupDrag() } },
+                                                        onDragCancel = { if (owned) { owned = false; cancelDrag() } }
                                                     )
                                                 },
                                             longPressDragModifier = if (dragAllowed) {
                                                 val groupId = group.id
                                                 Modifier.longPressDrag(
                                                     originKey = groupCardOriginKey(groupId),
-                                                    isLifted = { dragState.draggingGroupId == groupId },
-                                                    onLift = { offset -> dragState.startGroup(groupId, offset, groupCardOriginKey(groupId)) },
-                                                    onMove = { onGroupDragMoved() },
+                                                    onLift = { offset, pointer -> dragState.startGroup(groupId, offset, groupCardOriginKey(groupId), pointer) },
                                                     onDrop = { commitGroupDrag() },
                                                     onLongPress = { uiState.setSelected(tabs.filter { it.groupId == groupId }.map { it.id }, true) }
                                                 )
@@ -1192,23 +1203,24 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
                                         val handleModifier = Modifier
                                             .onGloballyPositioned { dragState.handleOrigins[preview.id] = it.positionInRoot() }
                                             .pointerInput(preview.id) {
+                                                var owned = false
                                                 detectDragGestures(
-                                                    onDragStart = { offset -> dragState.start(preview.id, offset) },
+                                                    onDragStart = { offset -> owned = dragState.start(preview.id, offset) },
                                                     onDrag = { change, amount ->
-                                                        if (dragState.primaryPointerId == null) dragState.primaryPointerId = change.id
-                                                        change.consume(); dragState.drag(amount); onDragMoved()
+                                                        if (owned) {
+                                                            if (dragState.primaryPointerId == null) dragState.primaryPointerId = change.id
+                                                            change.consume(); dragState.drag(amount); onDragMoved()
+                                                        }
                                                     },
-                                                    onDragEnd = { commitDrag() },
-                                                    onDragCancel = { cancelDrag() }
+                                                    onDragEnd = { if (owned) { owned = false; commitDrag() } },
+                                                    onDragCancel = { if (owned) { owned = false; cancelDrag() } }
                                                 )
                                             }
                                         val cardDragModifier = if (dragAllowed) {
                                             val tabId = preview.id
                                             Modifier.longPressDrag(
                                                 originKey = tabCardOriginKey(tabId),
-                                                isLifted = { dragState.draggingId == tabId },
-                                                onLift = { offset -> dragState.start(tabId, offset, tabCardOriginKey(tabId)) },
-                                                onMove = { onDragMoved() },
+                                                onLift = { offset, pointer -> dragState.start(tabId, offset, tabCardOriginKey(tabId), pointer) },
                                                 onDrop = { commitDrag() },
                                                 onLongPress = { uiState.enterSelectionMode(tabId) }
                                             )
@@ -1612,8 +1624,7 @@ private fun DragZoneOverlay(
     val label = when {
         merging -> stringResource(R.string.tab_drag_zone_release)
         holding -> stringResource(R.string.tab_drag_zone_hold)
-        edge != 0 -> stringResource(R.string.tab_drag_zone_beside)
-        else -> stringResource(R.string.tab_drag_zone_center)
+        else -> stringResource(R.string.tab_drag_zone_beside)
     }
     Box(modifier.graphicsLayer { alpha = visible }) {
     Canvas(Modifier.matchParentSize()) {

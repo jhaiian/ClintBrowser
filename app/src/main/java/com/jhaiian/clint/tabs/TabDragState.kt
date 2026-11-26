@@ -63,7 +63,6 @@ internal class TabDragState(private val gridState: LazyGridState) {
     var draggingGroupId by mutableStateOf<String?>(null)
         private set
     val active: Boolean get() = draggingId != null || draggingGroupId != null
-    val dragDistance: Float get() = dragOffset.getDistance()
     var dragOffset by mutableStateOf(Offset.Zero)
         private set
     var originOffset: Offset = Offset.Zero
@@ -107,21 +106,33 @@ internal class TabDragState(private val gridState: LazyGridState) {
     var fastSpeedPxPerMs: Float = 0.6f
     private val recentMoves = ArrayDeque<Pair<Long, Offset>>()
     private var mergeCandidate: String? = null
-    private var mergeCandidateSince = 0L
 
     val mergeDwellPending: Boolean get() = (hoverKey as? String)?.startsWith("hold:") == true
 
-    fun start(tabId: String, touchOffset: Offset, originKey: String = tabId) {
-        if (!begin(tabItemKey(tabId), originKey, touchOffset)) return
+    /**
+     * Starts a tab drag. Returns false when another drag already owns the session (a second
+     * finger lifting another card) or the card is not laid out; the caller must then leave the
+     * session alone.
+     */
+    fun start(tabId: String, touchOffset: Offset, originKey: String = tabId, pointer: PointerId? = null): Boolean {
+        if (!begin(tabItemKey(tabId), originKey, touchOffset, pointer)) return false
         draggingId = tabId
+        return true
     }
 
-    fun startGroup(groupId: String, touchOffset: Offset, originKey: String = groupHeaderKey(groupId)) {
-        if (!begin(groupHeaderKey(groupId), originKey, touchOffset)) return
+    fun startGroup(
+        groupId: String,
+        touchOffset: Offset,
+        originKey: String = groupHeaderKey(groupId),
+        pointer: PointerId? = null
+    ): Boolean {
+        if (!begin(groupHeaderKey(groupId), originKey, touchOffset, pointer)) return false
         draggingGroupId = groupId
+        return true
     }
 
-    private fun begin(itemKey: String, handleKey: String, touchOffset: Offset): Boolean {
+    private fun begin(itemKey: String, handleKey: String, touchOffset: Offset, pointer: PointerId?): Boolean {
+        if (active) return false
         val info = gridState.layoutInfo.visibleItemsInfo.find { it.key == itemKey } ?: return false
         dragOffset = Offset.Zero
         // Drawn position of the cell inside the grid box (item offset + content padding), so the
@@ -133,6 +144,8 @@ internal class TabDragState(private val gridState: LazyGridState) {
         recentMoves.clear()
         hoverKey = null
         mergeCandidate = null
+        holdSince = 0L
+        primaryPointerId = pointer
         return true
     }
 
@@ -259,8 +272,9 @@ internal class TabDragState(private val gridState: LazyGridState) {
                 zoneEdgeVertical = columns > 1 && draggedIndex?.let { idx ->
                     gridState.layoutInfo.visibleItemsInfo.firstOrNull { it.index == idx }?.offset?.y == item.offset.y
                 } == true
+                val fast = isMovingFast()
                 when {
-                    inZone && (keeping || !isMovingFast()) -> mergeOrHoldKey(tabId)
+                    inZone && (keeping || !fast) -> mergeOrHoldKey(tabId, fast)
                     progress >= FAR_FRACTION || inZone -> { zoneTabId = null; swapKey }
                     else -> {
                         // Near side of the target: sit right next to it without displacing it.
@@ -310,14 +324,16 @@ internal class TabDragState(private val gridState: LazyGridState) {
         return (last.second - first.second).getDistance() / dt > fastSpeedPxPerMs
     }
 
-    private fun mergeOrHoldKey(tabId: String): String {
+    private fun mergeOrHoldKey(tabId: String, movingFast: Boolean): String {
         val now = SystemClock.uptimeMillis()
         if (mergeCandidate != tabId) {
             mergeCandidate = tabId
-            mergeCandidateSince = now
+            holdSince = now
+        } else if (movingFast && now - holdSince < MERGE_DWELL_MS) {
+            // Still sliding inside the widened box: the dwell only counts while the finger rests.
             holdSince = now
         }
-        return if (now - mergeCandidateSince >= MERGE_DWELL_MS) tabMergeKey(tabId) else tabMergeHoldKey(tabId)
+        return if (now - holdSince >= MERGE_DWELL_MS) tabMergeKey(tabId) else tabMergeHoldKey(tabId)
     }
 
     private fun firstTabAfter(header: LazyGridItemInfo): String? =

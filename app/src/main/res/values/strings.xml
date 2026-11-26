@@ -2925,5 +2925,4 @@
     <string name="tab_drag_zone_beside">Place beside</string>
     <string name="tab_drag_zone_hold">Hold to group</string>
     <string name="tab_drag_zone_release">Release to group</string>
-    <string name="tab_drag_zone_center">Hold in the middle to group</string>
 </resources>

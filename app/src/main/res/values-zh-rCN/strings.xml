@@ -2790,5 +2790,4 @@
     <string name="tab_drag_zone_beside">放在旁边</string>
     <string name="tab_drag_zone_hold">停住成组</string>
     <string name="tab_drag_zone_release">松手成组</string>
-    <string name="tab_drag_zone_center">停在中间成组</string>
 </resources>
