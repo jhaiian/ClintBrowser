@@ -1599,6 +1599,9 @@
     <string name="tab_selection_group">分组</string>
     <string name="tab_selection_move">移动</string>
     <string name="action_undo">撤销</string>
+    <string name="tab_moved_message">已移动标签页</string>
+    <string name="tab_moved_to_group_message">已移入分组</string>
+    <string name="tab_group_moved_message">已移动分组</string>
     <string name="tab_group_color_blue">蓝色</string>
     <string name="tab_group_color_red">红色</string>
     <string name="tab_group_color_yellow">黄色</string>

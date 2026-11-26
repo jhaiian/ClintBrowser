@@ -720,8 +720,20 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
                     secondaryActionLabel = activity.getString(R.string.action_edit),
                     onSecondaryAction = { tabManager.group(newGroupId)?.let { editorRequest = TabGroupEditorRequest.Edit(it) } }
                 )
-            } else if (dropGroupId != null && tabManager.group(dropGroupId)?.collapsed == true) {
-                scrollToGroupId = dropGroupId
+            } else {
+                if (dropGroupId != null && tabManager.group(dropGroupId)?.collapsed == true) {
+                    scrollToGroupId = dropGroupId
+                }
+                val changed = tabManager.tabs.map { it.id } != previousOrder ||
+                    tabManager.tabs.any { it.groupId != previousAssignments[it.id] }
+                if (changed) {
+                    val movedIntoGroup = dropGroupId != null && previousAssignments[draggedId] != dropGroupId
+                    activity.showClintSnackbar(
+                        message = activity.getString(if (movedIntoGroup) R.string.tab_moved_to_group_message else R.string.tab_moved_message),
+                        actionLabel = activity.getString(R.string.action_undo),
+                        timeoutMs = UNDO_SNACKBAR_TIMEOUT_MS
+                    ) { undoArrangement(previousOrder, previousAssignments, previousGroups) }
+                }
             }
         }
 
@@ -767,10 +779,20 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
             val groupId = dragState.draggingGroupId
             dragState.end()
             if (groupId == null) return
+            val previousOrder = tabManager.tabs.map { it.id }
+            val previousAssignments = tabManager.tabs.associate { it.id to it.groupId }
+            val previousGroups = tabManager.groups.toList()
             val orderedIds = tabs.map { it.id }
             val assignments = tabs.associate { it.id to it.groupId }
             commitGroups { applyArrangement(orderedIds, assignments) }
             scrollToGroupId = groupId
+            if (tabManager.tabs.map { it.id } != previousOrder) {
+                activity.showClintSnackbar(
+                    message = activity.getString(R.string.tab_group_moved_message),
+                    actionLabel = activity.getString(R.string.action_undo),
+                    timeoutMs = UNDO_SNACKBAR_TIMEOUT_MS
+                ) { undoArrangement(previousOrder, previousAssignments, previousGroups) }
+            }
         }
 
         LaunchedEffect(dragState.draggingGroupId) {

@@ -1646,6 +1646,9 @@
     <string name="tab_selection_group">Group</string>
     <string name="tab_selection_move">Move</string>
     <string name="action_undo">Undo</string>
+    <string name="tab_moved_message">Tab moved</string>
+    <string name="tab_moved_to_group_message">Tab moved to group</string>
+    <string name="tab_group_moved_message">Group moved</string>
     <string name="tab_group_color_blue">Blue</string>
     <string name="tab_group_color_red">Red</string>
     <string name="tab_group_color_yellow">Yellow</string>
