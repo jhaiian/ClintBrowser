@@ -220,23 +220,18 @@ internal fun MainActivity.attachScrollListener(webView: WebView) {
         return mode
     }
 
-    fun handleDrag(mode: String, position: String, delta: Int) {
-        val range = scrollHideRangePx(mode, position)
-        if (range <= 0) return
-        gestureTravel += kotlin.math.abs(delta)
-        lastDirection = if (delta > 0) 1 else -1
-        val current = scrollHideFraction(mode, position)
-        val next = (current + delta.toFloat() / range).coerceIn(0f, 1f)
-        if (next != current) setScrollHideFraction(mode, position, next)
-    }
-
     fun handleScroll(scrollY: Int, oldScrollY: Int) {
         val mode = activeMode() ?: return
         val position = prefs.getString("address_bar_position", "top") ?: "top"
         val delta = scrollY - oldScrollY
-        if (touching) {
-            if (delta != 0) handleDrag(mode, position, delta)
-            return
+        // Do not drive the bars 1:1 from scroll deltas while the finger is down.
+        // Each fraction step moves webContainer (translationY) under the finger and,
+        // when the fraction leaves/returns to 0, resizes the WebView via padding.
+        // Both feed back into the next onScrollChanged delta and make the page
+        // shake on document-scrolling pages. Use the thresholded animation path.
+        if (touching && delta != 0) {
+            gestureTravel += kotlin.math.abs(delta)
+            lastDirection = if (delta > 0) 1 else -1
         }
         val hidden = scrollHideSettledHidden(mode, position)
         val now = SystemClock.uptimeMillis()
@@ -265,6 +260,7 @@ internal fun MainActivity.attachScrollListener(webView: WebView) {
 
     fun settle() {
         val mode = activeMode() ?: return
+        if (uiState.topBarAnimating || uiState.bottomBarAnimating) return
         val position = prefs.getString("address_bar_position", "top") ?: "top"
         val current = scrollHideFraction(mode, position)
         val target = when {
