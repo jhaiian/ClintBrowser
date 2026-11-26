@@ -3,6 +3,7 @@ package com.jhaiian.clint.tabs
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -87,6 +88,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.jhaiian.clint.R
@@ -236,7 +238,8 @@ private fun duplicateTabIds(tabs: List<TabPreview>, activeTabId: String?): List<
             copies.filter { it.id != keeper.id && !it.isPinned }.map { it.id }
         }
 
-private const val REORDER_SETTLE_MS = 90L
+// Reorders apply as soon as the finger crosses into a target; hysteresis lives in TabDragState.
+private const val REORDER_SETTLE_MS = 0L
 
 /** The finger that lifted a card by long press, followed by the screen-level pointer handler. */
 private class DragPointerSession {
@@ -279,6 +282,7 @@ private class ReorderSettle {
         private set
 
     fun ready(key: String): Boolean {
+        if (REORDER_SETTLE_MS <= 0L) return true
         val now = SystemClock.uptimeMillis()
         if (candidate != key) {
             candidate = key
@@ -588,6 +592,8 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
         SideEffect {
             dragState.collapsedGroupIds = collapsedGroupIds
             dragState.contentPaddingOffset = with(density) { GridEdgePadding.toPx() }.let { Offset(it, it) }
+            // ~150 dp/s: slower than this counts as hovering (can merge), faster as moving (swaps).
+            dragState.fastSpeedPxPerMs = with(density) { 0.15.dp.toPx() }
             dragState.columns = columns
             dragState.mergeEnabled = groupsEnabled
             dragState.canMergeWith = { targetId ->
@@ -1171,7 +1177,8 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
                                         }
                                         val ghostAlpha by animateFloatAsState(if (isDragging) 0.25f else 1f, label = "ghostAlpha")
                                         val mergeHighlighted = draggingPreview != null &&
-                                            mergeTargetTabId(dragState.hoverKey) == preview.id &&
+                                            (mergeTargetTabId(dragState.hoverKey) == preview.id ||
+                                                holdTargetTabId(dragState.hoverKey) == preview.id) &&
                                             canMergeTabs(draggingPreview, preview)
                                         val handleModifier = Modifier
                                             .onGloballyPositioned { dragState.handleOrigins[preview.id] = it.positionInRoot() }
@@ -1260,17 +1267,19 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
 
                     val draggedPreview = draggingPreview
                     if (draggedPreview != null) {
-                        val offsetX = with(density) { (dragState.originOffset.x + dragState.dragOffset.x).toDp() }
-                        val offsetY = with(density) { (dragState.originOffset.y + dragState.dragOffset.y).toDp() }
                         val cardWidth = with(density) { dragState.originSize.width.toDp() }
                         val cardHeight = with(density) { dragState.originSize.height.toDp() }
-                        val liftScale by animateFloatAsState(1.06f, animationSpec = spring(dampingRatio = 0.5f), label = "dragLiftScale")
+                        // Starts at 1f each time the overlay appears, so lifting visibly pops up.
+                        val liftScale = remember { Animatable(1f) }
+                        LaunchedEffect(Unit) { liftScale.animateTo(1.06f, spring(dampingRatio = 0.5f, stiffness = 900f)) }
                         Box(
                             Modifier
-                                .offset(x = offsetX, y = offsetY)
+                                // Lambda offset: following the finger only re-places the overlay,
+                                // no recomposition or re-measure per frame.
+                                .offset { (dragState.originOffset + dragState.dragOffset).round() }
                                 .size(cardWidth, cardHeight)
                                 .padding(CellPadding)
-                                .graphicsLayer { scaleX = liftScale; scaleY = liftScale }
+                                .graphicsLayer { scaleX = liftScale.value; scaleY = liftScale.value }
                                 .zIndex(10f)
                                 .shadow(12.dp, RoundedCornerShape(if (listView) 14.dp else 16.dp))
                         ) {
@@ -1309,16 +1318,15 @@ fun TabMenuScreen(activity: MainActivity, onDismiss: () -> Unit) {
                     val draggedGroup = dragState.draggingGroupId?.let { id -> groups.find { it.id == id } }
                     if (draggedGroup != null) {
                         val members = tabs.filter { it.groupId == draggedGroup.id }
-                        val offsetX = with(density) { (dragState.originOffset.x + dragState.dragOffset.x).toDp() }
-                        val offsetY = with(density) { (dragState.originOffset.y + dragState.dragOffset.y).toDp() }
                         val headerWidth = with(density) { dragState.originSize.width.toDp() }
-                        val liftScale by animateFloatAsState(1.03f, animationSpec = spring(dampingRatio = 0.5f), label = "groupDragLiftScale")
+                        val liftScale = remember { Animatable(1f) }
+                        LaunchedEffect(Unit) { liftScale.animateTo(1.03f, spring(dampingRatio = 0.5f, stiffness = 900f)) }
                         Box(
                             Modifier
-                                .offset(x = offsetX, y = offsetY)
+                                .offset { (dragState.originOffset + dragState.dragOffset).round() }
                                 .width(headerWidth)
                                 .padding(vertical = 6.dp)
-                                .graphicsLayer { scaleX = liftScale; scaleY = liftScale }
+                                .graphicsLayer { scaleX = liftScale.value; scaleY = liftScale.value }
                                 .zIndex(10f)
                                 .shadow(12.dp, RoundedCornerShape(18.dp))
                         ) {
@@ -1380,7 +1388,7 @@ private fun LazyGridItemScope.AnimatedGridItem(content: @Composable () -> Unit) 
     Box(
         Modifier.animateItem(
             fadeInSpec = tween(220),
-            placementSpec = spring(dampingRatio = 0.8f, stiffness = 380f),
+            placementSpec = spring(dampingRatio = 0.85f, stiffness = 600f),
             fadeOutSpec = tween(150)
         )
     ) {

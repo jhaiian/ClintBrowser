@@ -27,10 +27,21 @@ internal fun tabMergeKey(tabId: String): String = "merge:$tabId"
 internal fun tabMergeHoldKey(tabId: String): String = "hold:$tabId"
 internal const val END_DROP_KEY = "drop:end"
 internal const val START_DROP_KEY = "drop:start"
-private const val MERGE_DWELL_MS = 220L
+private const val MERGE_DWELL_MS = 260L
+// Approach band: the part of a mergeable target the finger enters first. Moving through it
+// quickly swaps right away; a slow finger here waits so it can reach the centre and merge.
+private const val APPROACH_FRACTION = 0.25f
+// Far band: past this the finger has clearly gone over the target, so it always swaps.
+private const val FAR_FRACTION = 0.72f
+// Non-mergeable targets swap as soon as the finger is this far inside (small hysteresis).
+private const val SWAP_ENTER_FRACTION = 0.1f
+private const val SPEED_WINDOW_MS = 90L
 
 internal fun mergeTargetTabId(key: Any?): String? =
     (key as? String)?.takeIf { it.startsWith("merge:") }?.removePrefix("merge:")
+
+internal fun holdTargetTabId(key: Any?): String? =
+    (key as? String)?.takeIf { it.startsWith("hold:") }?.removePrefix("hold:")
 
 internal fun dropTargetGroupId(key: Any?): String? {
     val value = key as? String ?: return null
@@ -75,7 +86,9 @@ internal class TabDragState(private val gridState: LazyGridState) {
     var groupOfTab: (String) -> String? = { null }
     var primaryPointerId: PointerId? = null
     private var pointerStartInRoot: Offset = Offset.Zero
-    private var cardCenterStartInRoot: Offset = Offset.Zero
+    /** Finger speed (px per ms) above which the drag counts as moving, not hovering. */
+    var fastSpeedPxPerMs: Float = 0.6f
+    private val recentMoves = ArrayDeque<Pair<Long, Offset>>()
     private var mergeCandidate: String? = null
     private var mergeCandidateSince = 0L
 
@@ -98,8 +111,9 @@ internal class TabDragState(private val gridState: LazyGridState) {
         // lifted overlay starts exactly on top of the card instead of a padding-width off.
         originOffset = Offset(info.offset.x.toFloat(), info.offset.y.toFloat()) + contentPaddingOffset
         originSize = info.size
-        cardCenterStartInRoot = gridOriginInRoot + originOffset + Offset(originSize.width / 2f, originSize.height / 2f)
-        pointerStartInRoot = handleOrigins[handleKey]?.plus(touchOffset) ?: cardCenterStartInRoot
+        pointerStartInRoot = handleOrigins[handleKey]?.plus(touchOffset)
+            ?: (gridOriginInRoot + originOffset + Offset(originSize.width / 2f, originSize.height / 2f))
+        recentMoves.clear()
         hoverKey = null
         mergeCandidate = null
         return true
@@ -108,11 +122,10 @@ internal class TabDragState(private val gridState: LazyGridState) {
     fun drag(delta: Offset) {
         if (!active) return
         dragOffset += delta
+        trackSpeed(delta)
         val pointer = pointerStartInRoot + dragOffset
-        // Targets are judged by the centre of the lifted card, not by where the finger grabbed
-        // it: grabbing a card near its edge no longer shifts every before/merge/after zone.
-        // Coordinates are in LazyGrid item space (content padding removed).
-        val inGrid = cardCenterStartInRoot + dragOffset - gridOriginInRoot - contentPaddingOffset
+        // Targets follow the finger. Coordinates are in LazyGrid item space (content padding removed).
+        val inGrid = pointer - gridOriginInRoot - contentPaddingOffset
         val visible = gridState.layoutInfo.visibleItemsInfo
         var probe = inGrid
         var item = visible.firstOrNull { candidate ->
@@ -202,15 +215,20 @@ internal class TabDragState(private val gridState: LazyGridState) {
             key.startsWith("tab:") -> {
                 val tabId = key.removePrefix("tab:")
                 if (tabId == draggingId) return key
-                val fraction = if (columns > 1) {
-                    (inGrid.x - item.offset.x) / item.size.width.coerceAtLeast(1)
-                } else {
-                    (inGrid.y - item.offset.y) / item.size.height.coerceAtLeast(1)
-                }
+                // Where the dragged card sits now decides the direction: a target after it means
+                // "go after the target", a target before it means "go before". No band of the
+                // target is a no-op any more.
+                val draggedIndex = gridState.layoutInfo.visibleItemsInfo
+                    .firstOrNull { it.key == draggingId?.let(::tabItemKey) }?.index
+                val forward = draggedIndex == null || item.index > draggedIndex
+                val swapKey = if (forward) tabAfterKey(tabId) else tabBeforeKey(tabId)
+                val progress = approachProgress(item, inGrid, forward, draggedIndex)
                 when {
-                    !mergeEnabled || !canMergeWith(tabId) -> if (fraction < 0.5f) tabBeforeKey(tabId) else tabAfterKey(tabId)
-                    fraction < 0.3f -> tabBeforeKey(tabId)
-                    fraction > 0.7f -> tabAfterKey(tabId)
+                    !mergeEnabled || !canMergeWith(tabId) ->
+                        if (progress >= SWAP_ENTER_FRACTION) swapKey else stayKey()
+                    progress >= FAR_FRACTION -> swapKey
+                    isMovingFast() -> swapKey
+                    progress < APPROACH_FRACTION -> stayKey()
                     else -> mergeOrHoldKey(tabId)
                 }
             }
@@ -218,9 +236,45 @@ internal class TabDragState(private val gridState: LazyGridState) {
         }
     }
 
+    /** Keeps the current arrangement (the dragged card's own slot). */
+    private fun stayKey(): String? = draggingId?.let(::tabItemKey)
+
+    /**
+     * How far the finger has travelled into [item] from the side it approaches from, 0..1.
+     * Same row (or a single-column list): along x / y. Different rows: along y.
+     */
+    private fun approachProgress(item: LazyGridItemInfo, inGrid: Offset, forward: Boolean, draggedIndex: Int?): Float {
+        val dragged = draggedIndex?.let { idx -> gridState.layoutInfo.visibleItemsInfo.firstOrNull { it.index == idx } }
+        val sameRow = columns > 1 && dragged != null && dragged.offset.y == item.offset.y
+        val fraction = if (sameRow) {
+            (inGrid.x - item.offset.x) / item.size.width.coerceAtLeast(1)
+        } else {
+            (inGrid.y - item.offset.y) / item.size.height.coerceAtLeast(1)
+        }.coerceIn(0f, 1f)
+        return if (forward) fraction else 1f - fraction
+    }
+
+    private fun trackSpeed(delta: Offset) {
+        if (delta == Offset.Zero) return
+        val now = SystemClock.uptimeMillis()
+        val last = recentMoves.lastOrNull()?.second ?: Offset.Zero
+        recentMoves.addLast(now to (last + delta))
+        while (recentMoves.size > 2 && now - recentMoves.first().first > SPEED_WINDOW_MS) recentMoves.removeFirst()
+    }
+
+    private fun isMovingFast(): Boolean {
+        val now = SystemClock.uptimeMillis()
+        val first = recentMoves.firstOrNull() ?: return false
+        val last = recentMoves.last()
+        // No movement event for a while: the finger is resting.
+        if (now - last.first > SPEED_WINDOW_MS) return false
+        val dt = (now - first.first).coerceAtLeast(16L)
+        return (last.second - first.second).getDistance() / dt > fastSpeedPxPerMs
+    }
+
     private fun mergeOrHoldKey(tabId: String): String {
         val now = SystemClock.uptimeMillis()
-        if (mergeCandidate != tabId) {
+        if (mergeCandidate != tabId || isMovingFast()) {
             mergeCandidate = tabId
             mergeCandidateSince = now
         }
@@ -268,5 +322,6 @@ internal class TabDragState(private val gridState: LazyGridState) {
         hoverKey = null
         primaryPointerId = null
         mergeCandidate = null
+        recentMoves.clear()
     }
 }
