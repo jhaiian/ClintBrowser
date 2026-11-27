@@ -1599,6 +1599,9 @@
     <string name="tab_selection_group">分组</string>
     <string name="tab_selection_move">移动</string>
     <string name="action_undo">撤销</string>
+    <string name="tab_moved_message">已移动标签页</string>
+    <string name="tab_moved_to_group_message">已移入分组</string>
+    <string name="tab_group_moved_message">已移动分组</string>
     <string name="tab_group_color_blue">蓝色</string>
     <string name="tab_group_color_red">红色</string>
     <string name="tab_group_color_yellow">黄色</string>
@@ -2784,4 +2787,7 @@
     <string name="accessibility_color_filter_black_white_desc">仅保留黑色和白色，对比度最强</string>
     <string name="accessibility_color_filter_monochrome">单色</string>
     <string name="accessibility_color_filter_monochrome_desc">使用与主题相配的单一颜色的不同深浅</string>
+    <string name="tab_drag_zone_beside">放在旁边</string>
+    <string name="tab_drag_zone_hold">停住成组</string>
+    <string name="tab_drag_zone_release">松手成组</string>
 </resources>
